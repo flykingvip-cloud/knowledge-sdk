@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light"><title>Knowledge SDK · Workbench</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/ui/assets/workbench.css">
+  <script type="module" src="/ui/assets/workbench.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">跳转到内容</a>
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" href="/ui"><span class="logo">K<span>↗</span></span><span>Knowledge<span class="brand-sub">SDK WORKBENCH</span></span></a>
+    <div class="workspace-label">WORKSPACE / 工作台</div>
+    <nav aria-label="主导航">
+      <button class="nav active" data-view="spaces" aria-current="page"><span>◈</span>知识空间 <small>01</small></button>
+      <button class="nav" data-view="documents"><span>▤</span>文档与权限 <small>02</small></button>
+      <button class="nav" data-view="search"><span>⌕</span>检索与问答 <small>03</small></button>
+      <button class="nav" data-view="receipts"><span>◎</span>消费与回执 <small>04</small></button>
+    </nav>
+    <div class="sidebar-note"><span class="status-dot"></span> LOCAL-FIRST BY DESIGN<p>权限在后端执行。<br>引用可追溯，消费可核验。</p><span class="version">v1.1 / OPTIONAL UI</span></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><span class="breadcrumb">Knowledge SDK <span>/</span> Workbench</span><div><span id="auth-badge" class="badge">连接中</span><span class="offline">◎ 离线资源</span></div></header>
+    <main id="main">
+      <section class="page-heading"><div><p class="eyebrow">PERMISSION-AWARE KNOWLEDGE</p><h1 id="view-title">知识空间</h1><p id="view-description">把知识放在正确的位置，让每一次访问都有边界。</p></div><span class="heading-mark">K/</span></section>
+      <details id="identity-panel" class="identity card">
+        <summary><span class="avatar">ID</span><span><strong id="identity-label">等待连接</strong><small id="identity-summary">服务端鉴权 · 切换身份即清空当前视图数据</small></span><span class="identity-hint">身份与组织树 ▾</span></summary>
+        <div class="identity-content"><p id="identity-warning" class="notice">生产模式由宿主网关鉴权，浏览器不保存 HMAC 密钥。</p>
+          <form id="identity-form"><div class="form-grid">
+            <label>预设身份<select id="preset"><option value="admin">企业管理员</option><option value="lead">研发部负责人</option><option value="engineer">研发子部门员工</option><option value="marketing">市场部员工</option><option value="visitor">普通访客</option><option value="custom">自定义</option></select></label>
+            <label>组织 org_id<input name="org_id" required></label><label>用户 user_id<input name="user_id" required></label>
+            <label>直属部门 department_ids<input name="department_ids" placeholder="engineering/platform"></label>
+            <label>祖先部门 ancestor_department_ids<input name="ancestor_department_ids" placeholder="engineering"></label>
+            <label>原始角色 org_roles<input name="org_roles" placeholder="analyst, viewer"></label>
+            <label>密级 clearance_level<input name="clearance_level" list="clearance-levels" placeholder="public / internal / confidential / restricted"><datalist id="clearance-levels"><option value="public"><option value="internal"><option value="confidential"><option value="restricted"></datalist></label>
+            <label>负责部门 managed_department_ids<input name="managed_department_ids" placeholder="engineering"></label>
+            <label>空间角色 roles<input name="roles" placeholder="admin, editor"></label>
+            <label>密级标签 clearance_tags<input name="clearance_tags" placeholder="finance"></label>
+          </div><label class="check"><input type="checkbox" name="public_kb_admin">企业公共库管理员</label>
+          <div class="form-footer"><small>部门树：engineering → engineering/platform；marketing 独立。多值以逗号分隔。</small><button class="primary">应用身份</button></div></form>
+        </div>
+      </details>
+      <div id="feedback" role="status" aria-live="polite" hidden></div>
+      <section id="view-spaces" class="view">
+        <div id="space-stats" class="stats"></div>
+        <div class="section-heading"><h2>你的知识空间 <small id="space-count"></small></h2><label class="compact">筛选<select id="space-filter"><option value="">全部空间</option><option value="enterprise_public">企业公共库</option><option value="department">部门库</option><option value="personal">个人库</option></select></label></div>
+        <div id="space-list" class="space-grid"></div>
+        <details class="card create"><summary>＋ 创建知识空间 <small>NEW SPACE</small></summary><form id="space-form"><div class="form-grid"><label>空间名称<input name="name" required placeholder="例如：产品与研发知识库"></label><label>空间类型<select name="space_type"><option value="enterprise_public">企业公共库 enterprise_public</option><option value="department">部门库 department</option><option value="personal">个人库 personal</option></select></label><label>负责部门 ID（部门库必填）<input name="owner_department_id" placeholder="engineering"></label></div><div class="form-footer"><small>管理与上传权限由服务端当前身份判定。</small><button class="primary">创建空间</button></div></form></details>
+      </section>
+      <section id="view-documents" class="view" hidden>
+        <div class="section-heading"><h2>文档目录</h2><label class="compact">空间<select id="doc-space"><option value="">所有可访问空间</option></select></label></div>
+        <div class="split"><div class="card document-list" id="document-list"></div><div id="document-detail" class="card detail-panel"><div class="empty">选择一份文档<br><small>预览正文、历史版本、chunks 与当前 ACL</small></div></div></div>
+        <details class="card create" id="upload-panel"><summary>↑ 上传文档 / 创建新版本 <small>INGEST</small></summary>
+          <form id="upload-form"><div class="form-grid"><label>目标空间<select name="kb_id" id="upload-space" required></select></label><label>标题<input name="title" required placeholder="文档标题"></label><label>已有 doc_id（可选，创建新版本）<input name="doc_id" placeholder="留空创建新文档"></label><label>文件<input type="file" name="file" accept=".txt,.md,.markdown,.pdf"></label></div>
+          <label>或粘贴文本 / Markdown<textarea name="content" rows="5" placeholder="# 文档标题&#10;写下你的知识…"></textarea></label>
+          <fieldset id="upload-acl"><legend>四级访问控制 · ACL</legend><div class="form-grid"><label>访问级别<select name="access_level"><option value="org_public">全员公开 org_public</option><option value="department">指定部门 department</option><option value="role_clearance">角色 + 密级 role_clearance</option><option value="personal_only">仅个人 / 指定用户 personal_only</option></select></label><label>允许部门 IDs<input name="allowed_department_ids" placeholder="engineering"></label><label>允许原始角色<input name="allowed_org_roles" placeholder="analyst"></label><label>最低密级<select name="required_clearance"><option value="">不限制</option><option>public</option><option>internal</option><option>confidential</option><option>restricted</option></select></label><label>允许用户 IDs<input name="allowed_user_ids" placeholder="user-123"></label><label>允许密级标签<input name="allowed_clearance_tags" placeholder="finance"></label></div><label class="check"><input type="checkbox" name="include_sub_departments">含子部门（使用服务端已验证的祖先部门链）</label></fieldset>
+          <div class="form-footer"><small>ACL 与正文原子写入，无公开窗口。文件最大 16 MiB；PDF 需 [parsers]。历史版本不可修改。</small><button class="primary">上传并应用权限</button></div></form>
+        </details>
+      </section>
+      <section id="view-search" class="view" hidden>
+        <div class="card search-panel"><div class="panel-top"><span class="eyebrow">RETRIEVE → GROUND → ANSWER</span><span class="badge green">仅显式提问触发生成器</span></div>
+          <form id="query-form"><label class="query-label" for="query">你想了解什么？</label><textarea id="query" name="query" required rows="2" placeholder="试试 handbook、aurora、budget 或 nebula…"></textarea>
+          <div class="form-grid"><label>知识范围<select id="scope-mode"><option value="all_authorized">全权限 all_authorized</option><option value="spaces">指定空间 spaces</option><option value="documents">指定文档 documents</option></select></label><label>空间 / 文档 IDs（逗号分隔）<input id="scope-ids" placeholder="全权限时留空"></label><label>问答 / 挂载消费绑定（可选）<select id="consumer-binding"><option value="">不绑定消费者</option></select></label><label>检索模式<select id="search-mode"><option value="keyword">关键词 keyword</option><option value="hybrid">混合 hybrid</option><option value="vector">向量 vector</option></select></label></div>
+          <div class="form-footer"><small id="retrieval-note">默认本地抽取式回答，无外部模型调用。</small><div class="actions"><button type="submit" name="action" value="search" class="secondary">⌕ 检索</button><button type="submit" name="action" value="ask" class="primary">显式提问 →</button></div></div></form>
+        </div>
+        <div id="answer-panel"></div><div class="section-heading"><h2>授权证据 <small id="hit-count"></small></h2><span class="muted">后端权限过滤 · excerpt_policy</span></div><div id="search-results"><div class="empty">执行一次检索，查看当前身份可访问的证据。</div></div>
+      </section>
+      <section id="view-receipts" class="view" hidden>
+        <div class="section-heading"><h2>消费绑定 <small>ConsumerBinding</small></h2><button class="secondary" id="refresh-bindings">刷新绑定</button></div><div id="binding-list" class="space-grid"></div>
+        <details class="card create"><summary>＋ 创建消费范围绑定</summary><form id="binding-form"><div class="form-grid"><label>消费类型<input name="consumer_type" value="agent" required></label><label>消费 ID<input name="consumer_id" placeholder="research-assistant" required></label><label>业务阶段<input name="stage" placeholder="cycle-background"></label><label>范围<select name="mode"><option value="all_authorized">全部已授权</option><option value="spaces">指定空间</option><option value="documents">指定文档</option></select></label><label>空间 / 文档 IDs<input name="ids" placeholder="逗号分隔"></label></div><div class="form-footer"><small>范围只缩小授权，绝不提升访问权限。绑定按组织 + 用户隔离。</small><button class="primary">保存绑定</button></div></form></details>
+        <div class="section-heading"><h2>引用与消费回执</h2><span class="muted">当前身份 · 本次会话（不持久化）</span></div><p class="notice">从检索结果点击「引用并挂载」，或显式提问生成引用。切换身份后清空；不是全局审计日志。</p><div id="receipt-list"></div>
+        <details class="card create"><summary>◎ 手动核验 KnowledgeRef / 防篡改演示</summary><form id="verify-form"><label>KnowledgeRef JSON<textarea name="reference" rows="6" required placeholder='{"__type__":"KnowledgeRef", "org_id":"…", "doc_id":"…", "version":1, "source_uri":"kb://…", "excerpt":"…", "excerpt_hash":"…", "chunk_ids":[]}'></textarea></label><button class="primary">verify_ref 核验</button></form><pre id="verify-result"></pre></details>
+      </section>
+      <footer class="footer">KNOWLEDGE SDK <span>权限先行 / 引用可证 / 核心零依赖</span></footer>
+    </main>
+  </div>
+</div>
+</body>
+</html>

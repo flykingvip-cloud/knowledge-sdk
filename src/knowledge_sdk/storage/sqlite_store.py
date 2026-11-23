@@ -109,3 +109,8 @@ class SQLiteStore:
     def get_binding(self, actor: Actor, consumer_type: str, consumer_id: str) -> ConsumerBinding:
         return self._get("SELECT data FROM consumer_bindings WHERE org_id=? AND user_id=? AND consumer_type=? AND consumer_id=?",
                          (actor.org_id, actor.user_id, consumer_type, consumer_id))
+
+    def list_bindings(self, actor: Actor):
+        return [decode(json.loads(row[0])) for row in self._execute(
+            "SELECT data FROM consumer_bindings WHERE org_id=? AND user_id=? ORDER BY consumer_type,consumer_id",
+            (actor.org_id, actor.user_id))]

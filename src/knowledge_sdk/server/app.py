@@ -9,8 +9,10 @@ from ..exceptions import KnowledgeSDKError, PermissionDeniedError, NotFoundError
 from ..client.http_client import OPERATIONS
 from .auth import verify_headers
 
-def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None):
+def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,*,enable_ui=True,enable_demo_switcher=False):
     if not dev_insecure and (not auth_secret or len(auth_secret)<32): raise ValidationError("Auth secret must contain at least 32 characters")
+    if enable_demo_switcher and (dev_insecure or not auth_secret or len(auth_secret)<32):
+        raise ValidationError("Demo switcher requires HMAC authentication, not dev_insecure")
     app=FastAPI(title="knowledge-sdk",version="1.1.0"); seen={}
     @app.exception_handler(KnowledgeSDKError)
     async def sdk_error(request,exc):
@@ -18,6 +20,9 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None)
         return JSONResponse(status_code=status,content={"error":type(exc).__name__,"message":str(exc)})
     @app.middleware("http")
     async def authenticate(request,call_next):
+        if request.url.path in ("/ui", "/ui/", "/ui/config", "/ui/demo/sign") or request.url.path.startswith("/ui/assets/"):
+            # Only static/config/demo routes live here. All business APIs remain signed.
+            return await call_next(request)
         if request.url.path in ("/v1/health",): return await call_next(request)
         if request.url.path in ("/docs","/openapi.json","/redoc"):
             # Schema has no runtime data. Deployments may disable these at the gateway.
@@ -81,4 +86,7 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None)
             "description":"HMAC-SHA256 over method, request target, Actor, timestamp, nonce and body digest; see docs/api-contract.md"}
         return schema
     app.openapi=openapi
+    if enable_ui:
+        from ..ui.routes import mount_workbench
+        mount_workbench(app, client, auth_secret, enable_demo_switcher)
     return app

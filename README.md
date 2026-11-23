@@ -179,3 +179,19 @@ The built-in answer generator is deterministic and offline. External models are
 never selected automatically; hosts may explicitly inject an `AnswerGenerator`.
 No authorized evidence means refusal with zero generator calls. HTTP deployments
 configure their generator server-side, not through a client request.
+
+## Workbench UI
+
+Optional offline console: Spaces, Documents & four-level ACL, scoped Search &
+Grounded Ask, and Consumer Bindings & Receipts. No npm/build step or CDN.
+
+```sh
+python -m pip install -e '.[http]'
+python -m knowledge_sdk.server --host 127.0.0.1 --port 8090 --demo-seed
+# http://127.0.0.1:8090/ui — disposable in-memory local demo
+```
+
+Production keeps HMAC authentication and disables identity simulation by default;
+a trusted same-origin host gateway is required. Disable all UI routes with
+`create_app(..., enable_ui=False)` / `--no-ui`. See
+[Workbench usage, security, architecture & API map](docs/ui-workbench.md).

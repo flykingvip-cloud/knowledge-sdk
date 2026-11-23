@@ -87,9 +87,12 @@ class LocalKnowledgeClient:
             self.vector_index.upsert([(VectorHit(c.doc_id,c.version,c.chunk_id,0),v) for c,v in zip(chunks,vectors)])
         self.store.mark_pending(doc_id,False)
     @serialized
-    def ingest(self,actor,kb_id,content,filename="document.txt",title=None,visibility=None,doc_id=None,metadata=None):
+    def ingest(self,actor,kb_id,content,filename="document.txt",title=None,visibility=None,doc_id=None,metadata=None,acl=None):
         kb=self._kb(actor,kb_id,write=True)
         if not isinstance(content,(str,bytes)): raise ValidationError("content must be UTF-8 text or bytes")
+        if acl is not None:
+            self._kb(actor,kb_id,admin=True)
+            if not isinstance(acl,DocumentACL): raise ValidationError("Expected DocumentACL")
         raw=content.encode("utf-8") if isinstance(content,str) else content
         if len(raw)>32*1024*1024: raise ValidationError("Document exceeds 32 MiB limit")
         text=self.parsers.parse(raw,filename)
@@ -102,7 +105,9 @@ class LocalKnowledgeClient:
                 if d.kb_id!=kb_id or d.org_id!=actor.org_id: raise PermissionDeniedError("Access denied")
                 self._read(actor,doc_id)
                 previous=self.store.get_version(doc_id,d.current_version)
-        if classify(previous,raw_hash,semantic_hash)!="new_semantic_version": return previous
+        if classify(previous,raw_hash,semantic_hash)!="new_semantic_version":
+            if acl is not None: self.store.set_acl(doc_id,acl)
+            return previous
         visibility=visibility or (d.visibility if d else kb.visibility); self._visibility(visibility)
         doc_id=doc_id or str(uuid.uuid4()); version=previous.version+1 if previous else 1
         metadata=metadata if metadata is not None else (d.metadata if d else {})
@@ -122,6 +127,7 @@ class LocalKnowledgeClient:
                 except NotFoundError: pass
                 else: raise ConflictError("Document identity already exists")
             self.store.put_document(d); self.store.put_version(v,chunks); self.store.refresh_fts(doc_id)
+            if acl is not None: self.store.set_acl(doc_id,acl)
             if self.vector_index is not None: self.store.mark_pending(doc_id)
         self._sync_vector(doc_id)
         return v
@@ -138,6 +144,31 @@ class LocalKnowledgeClient:
     def get_document(self,actor,doc_id,version=None):
         d=self._read(actor,doc_id)
         return self.store.get_version(doc_id,version) if version is not None else d
+    @serialized
+    def inspect_document(self, actor, doc_id, version=None):
+        """Permission-checked workbench detail; no storage objects escape the API."""
+        document = self._read(actor, doc_id)
+        if version is not None and (type(version) is not int or version < 1): raise ValidationError("Invalid version")
+        selected = self.store.get_version(doc_id, document.current_version if version is None else version)
+        # Metadata only for the history rail; content is returned for the selected version.
+        versions = [{"version": v.version, "created_at": v.created_at, "filename": v.filename,
+                     "raw_hash": v.raw_hash}
+                    for v in (self.store.get_version(doc_id, n) for n in range(1, document.current_version + 1))]
+        return {"document": document, "versions": versions, "selected": selected,
+                "chunks": self.store.get_chunks(doc_id, selected.version),
+                "acl": self.store.get_acl(doc_id),
+                "can_manage": self.can_manage_kb(actor, document.kb_id),
+                "can_upload": self.can_upload_to_kb(actor, document.kb_id)}
+
+    @serialized
+    def list_consumer_bindings(self, actor):
+        # Revalidate after permission changes; stale bindings must not leak selectors.
+        result = []
+        for binding in self.store.list_bindings(actor):
+            try: result.append(self.validate_binding(actor, binding))
+            except (PermissionDeniedError, NotFoundError): pass
+        return result
+
     @serialized
     def preview(self,actor,doc_id,version=None,limit=800):
         return self.retrieve(actor,doc_id,version,offset=0,limit=limit)
@@ -161,8 +192,9 @@ class LocalKnowledgeClient:
         if not isinstance(acl,DocumentACL): raise ValidationError("Expected DocumentACL")
         self.store.set_acl(doc_id,acl)
     @serialized
-    def search(self,actor,query,mode="keyword",limit=20,filters=None):
-        return run_search(self.store,actor,query,mode,limit,filters,self.vector_index,self.embedder,self.excerpt_policy)
+    def search(self,actor,query,mode="keyword",limit=20,filters=None,scope=None):
+        if scope is not None: scope = self.validate_scope(actor, scope)
+        return run_search(self.store,actor,query,mode,limit,filters,self.vector_index,self.embedder,self.excerpt_policy,scope=scope)
     @serialized
     def retrieve(self,actor,doc_id,version=None,chunk_ids=None,offset=0,limit=8000):
         d=self._read(actor,doc_id); version=version if version is not None else d.current_version

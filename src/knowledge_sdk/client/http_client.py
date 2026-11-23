@@ -26,6 +26,8 @@ OPERATIONS={
     "validate_scope":("POST","/v1/scopes/validate"), "validate_binding":("POST","/v1/bindings/validate"),
     "bind_consumer":("POST","/v1/bindings"), "get_consumer_binding":("POST","/v1/bindings/get"),
     "can_manage_kb":("POST","/v1/kbs/can-manage"), "can_upload_to_kb":("POST","/v1/kbs/can-upload"),
+    "inspect_document":("POST","/v1/documents/inspect"),
+    "list_consumer_bindings":("GET","/v1/bindings"),
     "reindex":("POST","/v1/reindex")}
 
 class HttpKnowledgeClient:

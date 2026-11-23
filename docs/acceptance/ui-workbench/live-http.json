@@ -1,0 +1,43 @@
+{
+  "checked_at": "2026-11-24T00:20:19.104086+08:00",
+  "base_url": "http://127.0.0.1:8095",
+  "pid": 566171,
+  "resources": {
+    "/ui": {
+      "status": 200,
+      "bytes": 12276,
+      "type": "text/html; charset=utf-8"
+    },
+    "/ui/": {
+      "status": 200,
+      "bytes": 12276,
+      "type": "text/html; charset=utf-8"
+    },
+    "/ui/config": {
+      "status": 200,
+      "bytes": 1332,
+      "type": "application/json"
+    },
+    "/ui/assets/workbench.css": {
+      "status": 200,
+      "bytes": 12082,
+      "type": "text/css; charset=utf-8"
+    },
+    "/ui/assets/workbench.js": {
+      "status": 200,
+      "bytes": 24656,
+      "type": "text/javascript; charset=utf-8"
+    }
+  },
+  "wheel": "reports/ui-workbench/wheels/knowledge_sdk-1.1.0-py3-none-any.whl",
+  "wheel_assets": [
+    "knowledge_sdk/ui/static/index.html",
+    "knowledge_sdk/ui/static/workbench.css",
+    "knowledge_sdk/ui/static/workbench.js"
+  ],
+  "core_dependencies": [],
+  "signed_business_status": 200,
+  "visitor_space_count": 1,
+  "terminated": true,
+  "port_closed": true
+}

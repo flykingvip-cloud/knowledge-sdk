@@ -1,0 +1,16 @@
+INFO:     Started server process [566171]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8095 (Press CTRL+C to quit)
+INFO:     127.0.0.1:60802 - "GET /v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60804 - "GET /ui HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60806 - "GET /ui/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60822 - "GET /ui/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60834 - "GET /ui/assets/workbench.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60838 - "GET /ui/assets/workbench.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60852 - "POST /ui/demo/sign HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60866 - "GET /v1/kbs HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [566171]
