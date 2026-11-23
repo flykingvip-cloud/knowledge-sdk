@@ -6,7 +6,7 @@ A framework-independent knowledge library with authoritative SQLite storage,
 immutable document versions, explicit permission boundaries, multilingual FTS5,
 pluggable vector retrieval, and verifiable references. Use it in-process or as an
 optional signed HTTP sidecar. It does **not** contain account management, an LLM,
-a paid embedding call, or application-specific business state.
+an implicit paid embedding call, or application-specific business state.
 
 ## Install
 
@@ -66,7 +66,9 @@ or cross-tenant deduplication, which could disclose the existence of private dat
   source-membership verification; `consumed | partial | unavailable | denied`
   receipts and bounded batch consumption.
 - Optional Qdrant REST adapter; injected `Embedder`/`VectorIndex`/`Reranker`
-  protocols. `HashEmbedder.non_semantic = True`: lexical test vectors, not AI.
+  protocols. Standard-library `OpenAICompatibleEmbedder` supports explicitly
+  configured semantic providers (OpenAI, vLLM, compatible gateways, Ollama).
+  `HashEmbedder.non_semantic = True`: lexical test vectors, not AI.
 - Same Python interface for `LocalKnowledgeClient` and `HttpKnowledgeClient`;
   optional FastAPI service, OpenAPI routes, HMAC-SHA256 Actor assertions.
 
@@ -108,7 +110,9 @@ HTTP tests start an ephemeral loopback port, never a fixed application port.
 Isolation tests launch a fresh `python -S` process and exercise the complete core
 flow without web frameworks, model SDKs or vector clients. Syntax tests additionally
 parse every module against Python 3.9 grammar. CI runs real 3.9 and 3.12 runtimes.
-Qdrant tests mock the REST contract; they do **not** claim a live Qdrant integration.
+Offline Qdrant tests mock REST; live tests are explicitly opt-in and use only new
+random `knowledge_sdk_e2e_<hex>` collections, deleted in `finally`. See the
+[live Qdrant and semantic embedding guide](docs/vector-integration.md).
 
 ## Production boundaries
 
@@ -130,3 +134,23 @@ can return fewer than `limit` results; it is not exhaustive relevance pagination
 
 See [architecture](docs/architecture.md), [API contract](docs/api-contract.md) and
 [host integration preparation](docs/strat-ai-integration.md).
+
+## Real semantic vectors
+
+```python
+from knowledge_sdk import OpenAICompatibleEmbedder, LocalKnowledgeClient
+from knowledge_sdk.retrieval.adapters.qdrant import QdrantIndex
+
+embedder = OpenAICompatibleEmbedder(
+    base_url="http://127.0.0.1:11434/v1", model="nomic-embed-text:latest",
+    timeout=120, batch_size=32,  # no API key needed for this local example
+)
+# Provision a NEW deployment-owned collection with matching vector dimensions.
+index = QdrantIndex("http://127.0.0.1:6333", "your_dedicated_collection")
+client = LocalKnowledgeClient(vector_index=index, embedder=embedder)
+```
+
+Nothing auto-discovers credentials or makes an embedding call until `embed`,
+vector-enabled `ingest`/`reindex`, or vector/hybrid search is invoked. Remote paid
+providers may incur costs; inject credentials securely and deliberately. See
+[configuration, provisioning and safe live tests](docs/vector-integration.md).

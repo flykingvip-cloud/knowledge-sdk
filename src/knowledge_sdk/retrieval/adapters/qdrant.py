@@ -2,6 +2,7 @@ from __future__ import annotations
 import hashlib
 import json
 import urllib.request
+import urllib.error
 from urllib.parse import urlparse, quote
 from ..base import VectorHit
 from ...exceptions import ValidationError
@@ -27,7 +28,25 @@ class QdrantIndex:
             points.append({"id":pid,"vector":vector,"payload":{"doc_id":hit.doc_id,"version":hit.version,"chunk_id":hit.chunk_id}})
         if points: self._request("PUT","/points?wait=true",{"points":points})
     def search(self,vector,limit=100):
-        data=self._request("POST","/points/search",{"vector":vector,"limit":limit,"with_payload":True})
-        return [VectorHit(r["payload"]["doc_id"],int(r["payload"]["version"]),r["payload"]["chunk_id"],float(r["score"])) for r in data["result"]]
+        try:
+            data=self._request("POST","/points/query",{"query":vector,"limit":limit,"with_payload":True})
+            rows=data["result"]["points"]
+        except urllib.error.HTTPError as exc:
+            # Universal Query exists since 1.10; older servers only expose search.
+            # Never hide authentication, validation or server failures via fallback.
+            if exc.code not in (404,405): raise
+            exc.close()
+            data=self._request("POST","/points/search",{"vector":vector,"limit":limit,"with_payload":True})
+            rows=data["result"]
+        hits=[]
+        for r in rows:
+            try:
+                p=r["payload"]
+                if (not isinstance(p["doc_id"],str) or not isinstance(p["chunk_id"],str)
+                        or type(p["version"]) is not int or p["version"]<1): continue
+                hits.append(VectorHit(p["doc_id"],p["version"],p["chunk_id"],float(r["score"])))
+            except (KeyError,TypeError,ValueError):
+                continue  # unrelated/malformed secondary-index points cannot authorize data
+        return hits
     def delete_document(self,doc_id):
         self._request("POST","/points/delete?wait=true",{"filter":{"must":[{"key":"doc_id","match":{"value":doc_id}}]}})

@@ -8,3 +8,4 @@ from .client.base import KnowledgeClient
 from .storage.sqlite_store import SQLiteStore
 from .storage.local_blob import LocalBlobStore
 __version__ = "1.0.0"
+from .retrieval.adapters.openai_embedder import OpenAICompatibleEmbedder, EmbeddingError
