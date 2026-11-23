@@ -24,7 +24,8 @@ def create_app(client,auth_secret=None,dev_insecure=False):
             return await call_next(request)
         body=await request.body()
         if len(body)>48*1024*1024: return JSONResponse(status_code=413,content={"message":"Request too large"})
-        target=request.url.path+("?"+request.url.query if request.url.query else "")
+        raw_path=request.scope.get("raw_path",request.url.path.encode("utf-8")).decode("ascii")
+        target=raw_path+("?"+request.url.query if request.url.query else "")
         try: request.state.actor=verify_headers(request.headers,auth_secret,request.method,target,body,dev_insecure=dev_insecure,seen=seen)
         except ValidationError:
             return JSONResponse(status_code=401,content={"error":"PermissionDeniedError","message":"Invalid request authentication"})
@@ -35,7 +36,10 @@ def create_app(client,auth_secret=None,dev_insecure=False):
         async def handle(request: Request):
             try:
                 if request.method=="GET": params=decode(json.loads(request.query_params.get("params","{}")))
-                else: params=decode((await request.json()).get("params",{}))
+                else:
+                    envelope=await request.json()
+                    if not isinstance(envelope,dict): raise ValidationError("Expected request object")
+                    params=decode(envelope.get("params",{}))
                 if not isinstance(params,dict) or "actor" in params or "self" in params: raise ValidationError("Invalid parameters")
                 if operation=="ingest" and "content_b64" in params:
                     params["content"]=base64.b64decode(params.pop("content_b64"),validate=True)

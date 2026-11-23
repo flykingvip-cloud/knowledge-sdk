@@ -131,3 +131,13 @@ class HTTPTests(unittest.TestCase):
     def test_parameter_actor_cannot_override_signed_actor(self):
         path="/v1/search"; body=json.dumps({"params":{"query":"x","actor":encode(self.actor)}}).encode()
         self.assertEqual(self.status(path,body,signed_headers(self.actor,SECRET,"POST",path,body)),400)
+
+    def test_encoded_resource_path_signature_uses_exact_wire_target(self):
+        kb,_=self.create()
+        v=self.remote.ingest(self.actor,kb.kb_id,"encoded path",doc_id="wire space")
+        path="/v1/documents/wire%20space/versions/1"
+        headers=signed_headers(self.actor,SECRET,"GET",path)
+        with self.request(path,b"",headers,"GET") as r: self.assertEqual(json.load(r)["doc_id"],v.doc_id)
+    def test_invalid_envelope_is_400(self):
+        path="/v1/search"; body=b"[]"
+        self.assertEqual(self.status(path,body,signed_headers(self.actor,SECRET,"POST",path,body)),400)

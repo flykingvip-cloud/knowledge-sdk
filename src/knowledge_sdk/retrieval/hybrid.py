@@ -9,7 +9,8 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
     if mode not in ("keyword","vector","hybrid"): raise ValidationError("Unknown search mode")
     if not isinstance(query,str) or not 0<len(query)<=10000 or not 1<=limit<=100: raise ValidationError("Invalid search query/limit")
     if mode!="keyword" and (vector_index is None or embedder is None): raise ValidationError("Vector mode requires index and embedder")
-    filters=filters or {}
+    filters=filters if filters is not None else {}
+    if not isinstance(filters,dict): raise ValidationError("Search filters must be an object")
     if set(filters)-{"kb_id","doc_id","tags"}: raise ValidationError("Unsupported search filter")
     # Weighted reciprocal rank fusion avoids comparing incompatible BM25/cosine scales.
     candidates={}; count=max(100,limit*10)

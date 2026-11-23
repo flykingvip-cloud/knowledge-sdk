@@ -45,7 +45,7 @@ class LocalKnowledgeClient:
     @serialized
     def create_kb(self,actor,name,visibility="private",kb_id=None):
         self._visibility(visibility)
-        if not name.strip(): raise ValidationError("KB name required")
+        if not isinstance(name,str) or not name.strip(): raise ValidationError("KB name required")
         kb_id=kb_id or str(uuid.uuid4())
         try: self.store.get_kb(kb_id)
         except NotFoundError: pass
