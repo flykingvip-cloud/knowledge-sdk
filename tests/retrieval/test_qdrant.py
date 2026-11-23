@@ -42,9 +42,13 @@ class QdrantTests(unittest.TestCase):
             self.assertEqual(call.call_args_list[0][0][1],"/points/query")
             self.assertEqual(call.call_args_list[1][0][1],"/points/search")
         for code in (401,403,400,500):
-            with patch.object(q,"_request",side_effect=HTTPError("",code,"",{},None)) as call:
-                with self.assertRaises(HTTPError): q.search([1.])
-                self.assertEqual(call.call_count,1)
+            error=HTTPError("",code,"",{},None)
+            try:
+                with patch.object(q,"_request",side_effect=error) as call:
+                    with self.assertRaises(HTTPError): q.search([1.])
+                    self.assertEqual(call.call_count,1)
+            finally:
+                error.close()
 
     def test_malformed_secondary_points_are_ignored(self):
         q=QdrantIndex("http://example.test","c")
