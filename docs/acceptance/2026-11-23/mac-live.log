@@ -1,0 +1,23 @@
+test_hash_full_lifecycle (tests.integration.test_qdrant_live.LiveQdrantTests.test_hash_full_lifecycle) ... LIVE created knowledge_sdk_e2e_6b5cdaed613b4e4fb138e89893a44f7c dimensions 256
+LIVE PASS multi-tenant / three-domain keyword, vector, hybrid
+LIVE PASS dirty cross-tenant/private/denied/stale/missing hits blocked by SQLite
+LIVE PASS excerpt budgets/fail-closed/reference hashes/partial+consumed+denied receipts
+LIVE PASS archive remote point count zero / restore / reindex
+LIVE cleanup verified; existing configurations and exact point counts unchanged: {'financial_reports': 0, 'stratai_grounded_v2': 2}
+ok
+test_real_embedding_full_lifecycle (tests.integration.test_qdrant_live.LiveQdrantTests.test_real_embedding_full_lifecycle) ... LIVE created knowledge_sdk_e2e_f29eda7d0a4f49bf8df6e9ed056dcead dimensions 768
+LIVE PASS multi-tenant / three-domain keyword, vector, hybrid
+LIVE PASS dirty cross-tenant/private/denied/stale/missing hits blocked by SQLite
+LIVE PASS excerpt budgets/fail-closed/reference hashes/partial+consumed+denied receipts
+LIVE PASS archive remote point count zero / restore / reindex
+LIVE cleanup verified; existing configurations and exact point counts unchanged: {'financial_reports': 0, 'stratai_grounded_v2': 2}
+ok
+test_real_synonym_recall_without_literal_overlap (tests.integration.test_qdrant_live.LiveQdrantTests.test_real_synonym_recall_without_literal_overlap) ... LIVE created knowledge_sdk_e2e_be7d44736c714d02a2c076f8e3e82c94 dimensions 768
+LIVE PASS semantic synonym top-1; keyword hits zero; non_semantic=False
+LIVE cleanup verified; existing configurations and exact point counts unchanged: {'financial_reports': 0, 'stratai_grounded_v2': 2}
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.403s
+
+OK

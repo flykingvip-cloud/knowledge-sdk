@@ -1,0 +1,116 @@
+test_batch (tests.contracts.test_contracts.ContractTests.test_batch) ... ok
+test_chunk_bound_excerpt (tests.contracts.test_contracts.ContractTests.test_chunk_bound_excerpt) ... ok
+test_denied_and_unavailable (tests.contracts.test_contracts.ContractTests.test_denied_and_unavailable) ... ok
+test_excerpt_receipt (tests.contracts.test_contracts.ContractTests.test_excerpt_receipt) ... ok
+test_forged_digest_is_rejected (tests.contracts.test_contracts.ContractTests.test_forged_digest_is_rejected) ... ok
+test_forged_excerpt_matching_hash_is_rejected (tests.contracts.test_contracts.ContractTests.test_forged_excerpt_matching_hash_is_rejected) ... ok
+test_forged_uri_is_rejected (tests.contracts.test_contracts.ContractTests.test_forged_uri_is_rejected) ... ok
+test_full_receipt (tests.contracts.test_contracts.ContractTests.test_full_receipt) ... ok
+test_metadata_transport_tag_is_not_interpreted_as_a_model (tests.contracts.test_contracts.ContractTests.test_metadata_transport_tag_is_not_interpreted_as_a_model) ... ok
+test_missing_version_unavailable (tests.contracts.test_contracts.ContractTests.test_missing_version_unavailable) ... ok
+test_model_transport_roundtrip (tests.contracts.test_contracts.ContractTests.test_model_transport_roundtrip) ... ok
+test_previous_reference_remains_verifiable (tests.contracts.test_contracts.ContractTests.test_previous_reference_remains_verifiable) ... ok
+test_unknown_chunk_rejected (tests.contracts.test_contracts.ContractTests.test_unknown_chunk_rejected) ... ok
+test_uri_rejects_unversioned (tests.contracts.test_contracts.ContractTests.test_uri_rejects_unversioned) ... ok
+test_uri_requires_positive_integer (tests.contracts.test_contracts.ContractTests.test_uri_requires_positive_integer) ... ok
+test_uri_roundtrip (tests.contracts.test_contracts.ContractTests.test_uri_roundtrip) ... ok
+test_chunk_invalid_config (tests.ingestion.test_ingestion.IngestionTests.test_chunk_invalid_config) ... ok
+test_csv_quoted_fields (tests.ingestion.test_ingestion.IngestionTests.test_csv_quoted_fields) ... ok
+test_custom_parser (tests.ingestion.test_ingestion.IngestionTests.test_custom_parser) ... ok
+test_empty_and_unknown_format (tests.ingestion.test_ingestion.IngestionTests.test_empty_and_unknown_format) ... ok
+test_fixed_offsets_and_overlap (tests.ingestion.test_ingestion.IngestionTests.test_fixed_offsets_and_overlap) ... ok
+test_heading_paths_and_delta (tests.ingestion.test_ingestion.IngestionTests.test_heading_paths_and_delta) ... ok
+test_html_ignores_scripts (tests.ingestion.test_ingestion.IngestionTests.test_html_ignores_scripts) ... ok
+test_invalid_utf8 (tests.ingestion.test_ingestion.IngestionTests.test_invalid_utf8) ... ok
+test_new_immutable_version (tests.ingestion.test_ingestion.IngestionTests.test_new_immutable_version) ... ok
+test_office_formats (tests.ingestion.test_ingestion.IngestionTests.test_office_formats) ... ok
+test_office_invalid (tests.ingestion.test_ingestion.IngestionTests.test_office_invalid) ... ok
+test_pdf_graceful_failure (tests.ingestion.test_ingestion.IngestionTests.test_pdf_graceful_failure) ... ok
+test_raw_dedup (tests.ingestion.test_ingestion.IngestionTests.test_raw_dedup) ... ok
+test_semantic_dedup (tests.ingestion.test_ingestion.IngestionTests.test_semantic_dedup) ... ok
+test_text_markdown (tests.ingestion.test_ingestion.IngestionTests.test_text_markdown) ... ok
+test_hash_full_lifecycle (tests.integration.test_qdrant_live.LiveQdrantTests.test_hash_full_lifecycle) ... skipped 'Set KNOWLEDGE_SDK_LIVE_QDRANT_URL for isolated live integration'
+test_real_embedding_full_lifecycle (tests.integration.test_qdrant_live.LiveQdrantTests.test_real_embedding_full_lifecycle) ... skipped 'Set KNOWLEDGE_SDK_LIVE_QDRANT_URL for isolated live integration'
+test_real_synonym_recall_without_literal_overlap (tests.integration.test_qdrant_live.LiveQdrantTests.test_real_synonym_recall_without_literal_overlap) ... skipped 'Set KNOWLEDGE_SDK_LIVE_QDRANT_URL for isolated live integration'
+test_core_end_to_end_without_site_packages (tests.isolation.test_zero_coupling.IsolationTests.test_core_end_to_end_without_site_packages) ... ok
+test_no_business_or_model_imports (tests.isolation.test_zero_coupling.IsolationTests.test_no_business_or_model_imports) ... ok
+test_python39_syntax (tests.isolation.test_zero_coupling.IsolationTests.test_python39_syntax) ... ok
+test_admin_can_manage (tests.permissions.test_permissions.PermissionTests.test_admin_can_manage) ... ok
+test_cross_org_cannot_read (tests.permissions.test_permissions.PermissionTests.test_cross_org_cannot_read) ... ok
+test_deny_overrides_owner (tests.permissions.test_permissions.PermissionTests.test_deny_overrides_owner) ... ok
+test_department_acl (tests.permissions.test_permissions.PermissionTests.test_department_acl) ... ok
+test_doc_id_collision_cannot_cross_tenant (tests.permissions.test_permissions.PermissionTests.test_doc_id_collision_cannot_cross_tenant) ... ok
+test_editor_can_write_not_grant (tests.permissions.test_permissions.PermissionTests.test_editor_can_write_not_grant) ... ok
+test_enterprise_doc_cannot_bypass_private_kb (tests.permissions.test_permissions.PermissionTests.test_enterprise_doc_cannot_bypass_private_kb) ... ok
+test_enterprise_not_cross_org (tests.permissions.test_permissions.PermissionTests.test_enterprise_not_cross_org) ... ok
+test_explicit_allow_and_deny (tests.permissions.test_permissions.PermissionTests.test_explicit_allow_and_deny) ... ok
+test_invalid_visibility_and_role (tests.permissions.test_permissions.PermissionTests.test_invalid_visibility_and_role) ... ok
+test_kb_id_collision (tests.permissions.test_permissions.PermissionTests.test_kb_id_collision) ... ok
+test_malformed_identity_and_acl_rejected (tests.permissions.test_permissions.PermissionTests.test_malformed_identity_and_acl_rejected) ... ok
+test_private_document (tests.permissions.test_permissions.PermissionTests.test_private_document) ... ok
+test_role_allowlist (tests.permissions.test_permissions.PermissionTests.test_role_allowlist) ... ok
+test_team_membership (tests.permissions.test_permissions.PermissionTests.test_team_membership) ... ok
+test_viewer_cannot_write (tests.permissions.test_permissions.PermissionTests.test_viewer_cannot_write) ... ok
+test_custom_policy (tests.retrieval.test_excerpt.ExcerptTests.test_custom_policy) ... ok
+test_default_800_budget (tests.retrieval.test_excerpt.ExcerptTests.test_default_800_budget) ... ok
+test_denied_is_fail_closed (tests.retrieval.test_excerpt.ExcerptTests.test_denied_is_fail_closed) ... ok
+test_empty_page_at_end (tests.retrieval.test_excerpt.ExcerptTests.test_empty_page_at_end) ... ok
+test_enterprise_1600_budget (tests.retrieval.test_excerpt.ExcerptTests.test_enterprise_1600_budget) ... ok
+test_invalid_pagination (tests.retrieval.test_excerpt.ExcerptTests.test_invalid_pagination) ... ok
+test_normalization_before_budget (tests.retrieval.test_excerpt.ExcerptTests.test_normalization_before_budget) ... ok
+test_notices_and_highlights (tests.retrieval.test_excerpt.ExcerptTests.test_notices_and_highlights) ... ok
+test_search_preview_and_paged_read_are_separate (tests.retrieval.test_excerpt.ExcerptTests.test_search_preview_and_paged_read_are_separate) ... ok
+test_unicode_safety (tests.retrieval.test_excerpt.ExcerptTests.test_unicode_safety) ... ok
+test_archive_restore_fts_and_vector (tests.retrieval.test_hybrid.RetrievalTests.test_archive_restore_fts_and_vector) ... ok
+test_chinese_and_mixed (tests.retrieval.test_hybrid.RetrievalTests.test_chinese_and_mixed) ... ok
+test_cjk_bigrams_do_not_match_single_shared_character (tests.retrieval.test_hybrid.RetrievalTests.test_cjk_bigrams_do_not_match_single_shared_character) ... ok
+test_dirty_vector_hits_authoritative_acl_recheck (tests.retrieval.test_hybrid.RetrievalTests.test_dirty_vector_hits_authoritative_acl_recheck) ... ok
+test_failed_secondary_index_remains_authoritatively_archived (tests.retrieval.test_hybrid.RetrievalTests.test_failed_secondary_index_remains_authoritatively_archived) ... ok
+test_filter_and_invalid_mode (tests.retrieval.test_hybrid.RetrievalTests.test_filter_and_invalid_mode) ... ok
+test_fts5_bm25_really_runs (tests.retrieval.test_hybrid.RetrievalTests.test_fts5_bm25_really_runs) ... ok
+test_fts_special_characters (tests.retrieval.test_hybrid.RetrievalTests.test_fts_special_characters) ... ok
+test_hash_embedder_deterministic_nonsemantic (tests.retrieval.test_hybrid.RetrievalTests.test_hash_embedder_deterministic_nonsemantic) ... ok
+test_latest_version_only (tests.retrieval.test_hybrid.RetrievalTests.test_latest_version_only) ... ok
+test_batch_order_dimensions_and_headers (tests.retrieval.test_openai_embedder.EmbedderTests.test_batch_order_dimensions_and_headers) ... ok
+test_configuration_and_input_validation (tests.retrieval.test_openai_embedder.EmbedderTests.test_configuration_and_input_validation) ... ok
+test_dimension_consistency_across_batches_and_calls (tests.retrieval.test_openai_embedder.EmbedderTests.test_dimension_consistency_across_batches_and_calls) ... ok
+test_endpoint_and_no_credential (tests.retrieval.test_openai_embedder.EmbedderTests.test_endpoint_and_no_credential) ... ok
+test_errors_do_not_echo_credentials_or_provider_body (tests.retrieval.test_openai_embedder.EmbedderTests.test_errors_do_not_echo_credentials_or_provider_body) ... ok
+test_exports_semantic_and_empty (tests.retrieval.test_openai_embedder.EmbedderTests.test_exports_semantic_and_empty) ... ok
+test_invalid_vectors_and_indices (tests.retrieval.test_openai_embedder.EmbedderTests.test_invalid_vectors_and_indices) ... ok
+test_no_redirects (tests.retrieval.test_openai_embedder.EmbedderTests.test_no_redirects) ... ok
+test_stdlib_only (tests.retrieval.test_openai_embedder.EmbedderTests.test_stdlib_only) ... ok
+test_explicit_configuration (tests.retrieval.test_qdrant.QdrantTests.test_explicit_configuration) ... ok
+test_hit_decode (tests.retrieval.test_qdrant.QdrantTests.test_hit_decode) ... ok
+test_legacy_fallback_only_missing_endpoint (tests.retrieval.test_qdrant.QdrantTests.test_legacy_fallback_only_missing_endpoint) ... ok
+test_malformed_secondary_points_are_ignored (tests.retrieval.test_qdrant.QdrantTests.test_malformed_secondary_points_are_ignored) ... ok
+test_rest_contract (tests.retrieval.test_qdrant.QdrantTests.test_rest_contract) ... ok
+test_uuid_ids_stable_and_version_scoped (tests.retrieval.test_qdrant.QdrantTests.test_uuid_ids_stable_and_version_scoped) ... ok
+test_acl_and_members_remote (tests.server.test_http.HTTPTests.test_acl_and_members_remote) ... skipped 'Optional HTTP extra not installed'
+test_archive_restore_remote (tests.server.test_http.HTTPTests.test_archive_restore_remote) ... skipped 'Optional HTTP extra not installed'
+test_binary_upload (tests.server.test_http.HTTPTests.test_binary_upload) ... skipped 'Optional HTTP extra not installed'
+test_cross_tenant_403 (tests.server.test_http.HTTPTests.test_cross_tenant_403) ... skipped 'Optional HTTP extra not installed'
+test_default_auth_is_fail_closed (tests.server.test_http.HTTPTests.test_default_auth_is_fail_closed) ... skipped 'Optional HTTP extra not installed'
+test_encoded_resource_path_signature_uses_exact_wire_target (tests.server.test_http.HTTPTests.test_encoded_resource_path_signature_uses_exact_wire_target) ... skipped 'Optional HTTP extra not installed'
+test_health (tests.server.test_http.HTTPTests.test_health) ... skipped 'Optional HTTP extra not installed'
+test_invalid_envelope_is_400 (tests.server.test_http.HTTPTests.test_invalid_envelope_is_400) ... skipped 'Optional HTTP extra not installed'
+test_local_dev_mode_explicit (tests.server.test_http.HTTPTests.test_local_dev_mode_explicit) ... skipped 'Optional HTTP extra not installed'
+test_local_http_contract_equivalence (tests.server.test_http.HTTPTests.test_local_http_contract_equivalence) ... skipped 'Optional HTTP extra not installed'
+test_method_signatures_match (tests.server.test_http.HTTPTests.test_method_signatures_match) ... skipped 'Optional HTTP extra not installed'
+test_missing_signature_401 (tests.server.test_http.HTTPTests.test_missing_signature_401) ... skipped 'Optional HTTP extra not installed'
+test_openapi_routes (tests.server.test_http.HTTPTests.test_openapi_routes) ... skipped 'Optional HTTP extra not installed'
+test_parameter_actor_cannot_override_signed_actor (tests.server.test_http.HTTPTests.test_parameter_actor_cannot_override_signed_actor) ... skipped 'Optional HTTP extra not installed'
+test_replay_401 (tests.server.test_http.HTTPTests.test_replay_401) ... skipped 'Optional HTTP extra not installed'
+test_resource_version_alias (tests.server.test_http.HTTPTests.test_resource_version_alias) ... skipped 'Optional HTTP extra not installed'
+test_stale_signature_401 (tests.server.test_http.HTTPTests.test_stale_signature_401) ... skipped 'Optional HTTP extra not installed'
+test_tampered_actor_401 (tests.server.test_http.HTTPTests.test_tampered_actor_401) ... skipped 'Optional HTTP extra not installed'
+test_tampered_body_401 (tests.server.test_http.HTTPTests.test_tampered_body_401) ... skipped 'Optional HTTP extra not installed'
+test_tampered_signature_401 (tests.server.test_http.HTTPTests.test_tampered_signature_401) ... skipped 'Optional HTTP extra not installed'
+test_path_traversal (tests.storage.test_storage.StorageTests.test_path_traversal) ... ok
+test_persistence_and_blob (tests.storage.test_storage.StorageTests.test_persistence_and_blob) ... ok
+test_transaction_rolls_back (tests.storage.test_storage.StorageTests.test_transaction_rolls_back) ... ok
+
+----------------------------------------------------------------------
+Ran 111 tests in 0.371s
+
+OK (skipped=23)
