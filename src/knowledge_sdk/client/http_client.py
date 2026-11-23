@@ -20,6 +20,12 @@ OPERATIONS={
     "set_document_acl":("POST","/v1/documents/acl"),"search":("POST","/v1/search"),
     "retrieve":("POST","/v1/retrieve"),"reference":("POST","/v1/references"),
     "consume":("POST","/v1/references/consume"),"batch_consume":("POST","/v1/references/batch-consume"),
+    "ask":("POST","/v1/ask"), "create_ref":("POST","/v1/references/create"),
+    "attach":("POST","/v1/references/attach"), "verify_ref":("POST","/v1/references/verify"),
+    "verify_receipt":("POST","/v1/receipts/verify"),
+    "validate_scope":("POST","/v1/scopes/validate"), "validate_binding":("POST","/v1/bindings/validate"),
+    "bind_consumer":("POST","/v1/bindings"), "get_consumer_binding":("POST","/v1/bindings/get"),
+    "can_manage_kb":("POST","/v1/kbs/can-manage"), "can_upload_to_kb":("POST","/v1/kbs/can-upload"),
     "reindex":("POST","/v1/reindex")}
 
 class HttpKnowledgeClient:
@@ -31,6 +37,10 @@ class HttpKnowledgeClient:
         self.base_url=base_url.rstrip("/"); self.auth_secret=auth_secret; self.dev_insecure=dev_insecure; self.timeout=timeout
     def _call(self,name,actor,params):
         method,path=OPERATIONS[name]
+        if name == "ask":
+            if params.get("generator") is not None:
+                raise exceptions.ValidationError("HTTP generators are configured server-side, never serialized")
+            params.pop("generator", None)
         params=encode(params)
         if name=="ingest" and isinstance(params.get("content"),bytes):
             params["content_b64"]=base64.b64encode(params.pop("content")).decode()

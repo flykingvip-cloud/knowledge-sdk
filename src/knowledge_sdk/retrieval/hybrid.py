@@ -5,7 +5,7 @@ from ..exceptions import NotFoundError, ValidationError
 from ..permissions.policy import can_read
 from .excerpt import make_excerpt
 
-def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=None,embedder=None,policy=None,keyword_weight=0.5):
+def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=None,embedder=None,policy=None,keyword_weight=0.5,scope=None,additional_scope=None):
     if mode not in ("keyword","vector","hybrid"): raise ValidationError("Unknown search mode")
     if not isinstance(query,str) or not 0<len(query)<=10000 or not 1<=limit<=100: raise ValidationError("Invalid search query/limit")
     if mode!="keyword" and (vector_index is None or embedder is None): raise ValidationError("Vector mode requires index and embedder")
@@ -26,6 +26,8 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
         try:
             # Never trust vector payload text, org, ACL, version or archive flags.
             d=store.get_document(doc_id); kb=store.get_kb(d.kb_id)
+            if scope is not None and not scope.contains(d,kb): continue
+            if additional_scope is not None and not additional_scope.contains(d,kb): continue
             if d.current_version!=version or not can_read(actor,kb,d,store.get_acl(doc_id),store.member_role(kb.kb_id,actor.user_id)): continue
             if any(filters.get(k) is not None and filters[k]!=getattr(d,k) for k in ("kb_id","doc_id")): continue
             if not set(filters.get("tags",[])).issubset(d.metadata.get("tags",[])): continue

@@ -6,10 +6,11 @@ import json
 import secrets
 import time
 from ..contracts.models import Actor
+from dataclasses import asdict, fields
 from ..exceptions import ValidationError
 
 def _actor_data(actor):
-    return dict(user_id=actor.user_id,org_id=actor.org_id,roles=list(actor.roles),department_ids=list(actor.department_ids))
+    return asdict(actor)
 def signed_headers(actor,secret,method,path,body=b"",timestamp=None,nonce=None):
     if not secret or len(secret)<32: raise ValidationError("Auth secret must contain at least 32 characters")
     payload=base64.urlsafe_b64encode(json.dumps(_actor_data(actor),sort_keys=True,separators=(",",":")).encode()).decode()
@@ -23,9 +24,9 @@ def verify_headers(headers,secret,method,path,body=b"",dev_insecure=False,max_ag
         payload=headers.get("x-kb-actor","")
         if len(payload)>16384: raise ValueError()
         raw=json.loads(base64.b64decode(payload,altchars=b"-_",validate=True))
-        if set(raw)!={"user_id","org_id","roles","department_ids"}: raise ValueError()
+        if not isinstance(raw,dict) or not {"user_id","org_id"}.issubset(raw) or set(raw) - {f.name for f in fields(Actor)}: raise ValueError()
         if not all(isinstance(raw[k],str) for k in ("user_id","org_id")): raise ValueError()
-        if not all(isinstance(raw[k],list) and all(isinstance(x,str) for x in raw[k]) for k in ("roles","department_ids")): raise ValueError()
+        if not all(isinstance(raw[k],list) and all(isinstance(x,str) for x in raw[k]) for k in ("roles","department_ids","ancestor_department_ids","org_roles","clearance_tags","managed_department_ids") if k in raw): raise ValueError()
         actor=Actor(**raw)
         if dev_insecure: return actor
         stamp=headers.get("x-kb-timestamp",""); nonce=headers.get("x-kb-nonce","")

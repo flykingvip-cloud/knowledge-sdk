@@ -3,6 +3,13 @@ from datetime import datetime, timezone
 from functools import wraps
 import threading
 import uuid
+import math
+from typing import Optional
+from ..contracts.models import Actor
+from dataclasses import replace
+from ..contracts.models import (KnowledgeScope, ConsumerBinding, KnowledgeAnswer, GeneratedAnswer, Attachment, MaterialReceipt)
+from ..retrieval.answers import AnswerGenerator, ExtractiveAnswerGenerator
+from ..permissions.policy import can_manage_kb, can_upload_to_kb
 from ..contracts.models import (KnowledgeBase, Document, DocumentVersion, DocumentACL, KnowledgeRef, RetrieveResponse, ExcerptPolicy)
 from ..contracts.uri import build_uri
 from ..contracts.receipts import consume, batch_consume, validate_excerpt
@@ -43,14 +50,19 @@ class LocalKnowledgeClient:
     def _visibility(value):
         if value not in ("private","team","enterprise"): raise ValidationError("Invalid visibility")
     @serialized
-    def create_kb(self,actor,name,visibility="private",kb_id=None):
+    def create_kb(self,actor,name,visibility="private",kb_id=None,*,space_type=None,owner_department_id="",owner_user_id=""):
         self._visibility(visibility)
+        if space_type is not None and space_type not in ("enterprise_public", "department", "personal"):
+            raise ValidationError("Invalid explicit space type")
         if not isinstance(name,str) or not name.strip(): raise ValidationError("KB name required")
         kb_id=kb_id or str(uuid.uuid4())
         try: self.store.get_kb(kb_id)
         except NotFoundError: pass
         else: raise ConflictError("KB identity already exists")
-        kb=KnowledgeBase(kb_id,actor.org_id,name,actor.user_id,visibility)
+        kb=KnowledgeBase(kb_id,actor.org_id,name,actor.user_id,visibility,space_type or "",owner_department_id,owner_user_id)
+        if space_type is not None:
+            if space_type == "department" and not owner_department_id: raise ValidationError("Department space requires owner_department_id")
+            if not can_manage_kb(actor,kb): raise PermissionDeniedError("Space creation denied")
         with self.store.transaction():
             self.store.put_kb(kb); self.store.grant_member(kb_id,actor.user_id,"admin")
         return kb
@@ -184,4 +196,115 @@ class LocalKnowledgeClient:
     @serialized
     def health(self):
         pending=self.store.pending_documents()
-        return {"status":"degraded" if pending else "ok","version":"1.0.0","pending_index_count":len(pending)}
+        return {"status":"degraded" if pending else "ok","version":"1.1.0","pending_index_count":len(pending)}
+
+    def can_manage_kb(self, actor: Actor, kb_id: str) -> bool:
+        kb = self.store.get_kb(kb_id)
+        return can_manage_kb(actor, kb, self.store.member_role(kb_id, actor.user_id))
+
+    def can_upload_to_kb(self, actor: Actor, kb_id: str) -> bool:
+        kb = self.store.get_kb(kb_id)
+        return can_upload_to_kb(actor, kb, self.store.member_role(kb_id, actor.user_id))
+
+    @serialized
+    def validate_scope(self, actor: Actor, scope: KnowledgeScope) -> KnowledgeScope:
+        """Validate explicit identities, never expand them into additional grants."""
+        if isinstance(scope, dict): scope = KnowledgeScope.from_dict(scope)
+        if not isinstance(scope, KnowledgeScope): raise ValidationError("Expected KnowledgeScope")
+        for kb_id in scope.kb_ids: self._kb(actor, kb_id)
+        for doc_id in scope.doc_ids: self._read(actor, doc_id)
+        return scope
+
+    @serialized
+    def validate_binding(self, actor: Actor, binding: ConsumerBinding) -> ConsumerBinding:
+        if isinstance(binding, dict): binding = ConsumerBinding.from_dict(binding)
+        if not isinstance(binding, ConsumerBinding): raise ValidationError("Expected ConsumerBinding")
+        self.validate_scope(actor, binding.default_scope)
+        return binding
+
+    @serialized
+    def bind_consumer(self, actor: Actor, binding: ConsumerBinding) -> ConsumerBinding:
+        binding = self.validate_binding(actor, binding)
+        self.store.put_binding(actor, binding)
+        return binding
+
+    @serialized
+    def get_consumer_binding(self, actor: Actor, consumer_type: str, consumer_id: str) -> ConsumerBinding:
+        return self.validate_binding(actor, self.store.get_binding(actor, consumer_type, consumer_id))
+
+    @serialized
+    def create_ref(self, actor: Actor, doc_id: str, version=None, chunk_ids=None, excerpt: str = "") -> KnowledgeRef:
+        return self.reference(actor, doc_id, version, chunk_ids, excerpt)
+
+    @serialized
+    def verify_ref(self, actor: Actor, ref: KnowledgeRef) -> MaterialReceipt:
+        """Re-authorize and verify version, URI, chunks, excerpt and digest now."""
+        return self.consume(actor, ref)
+
+    @serialized
+    def verify_receipt(self, actor: Actor, ref: KnowledgeRef, receipt: MaterialReceipt, binding=None) -> bool:
+        if not isinstance(receipt, MaterialReceipt): raise ValidationError("Expected MaterialReceipt")
+        if binding is not None:
+            binding = self.validate_binding(actor, binding)
+            if (receipt.consumer_type, receipt.consumer_id, receipt.used_by_stage) != (binding.consumer_type, binding.consumer_id, binding.stage): return False
+            document = self._read(actor, ref.doc_id)
+            if not binding.default_scope.contains(document, self.store.get_kb(document.kb_id)): return False
+        current = self.verify_ref(actor, ref)
+        fields = ("status", "source_uri", "evidence_kind", "chunk_ids", "reason_code", "excerpt_hash")
+        return current.status in ("partial", "consumed") and all(getattr(current,k) == getattr(receipt,k) for k in fields)
+
+    @serialized
+    def attach(self, actor: Actor, ref: KnowledgeRef, binding=None) -> Attachment:
+        receipt = self.verify_ref(actor, ref)
+        if receipt.status not in ("consumed", "partial"): raise PermissionDeniedError("Reference unavailable or denied")
+        if binding is not None:
+            binding = self.validate_binding(actor, binding)
+            document = self._read(actor, ref.doc_id)
+            if not binding.default_scope.contains(document, self.store.get_kb(document.kb_id)):
+                raise PermissionDeniedError("Reference outside consumer scope")
+            receipt = replace(receipt, consumer_type=binding.consumer_type, consumer_id=binding.consumer_id, used_by_stage=binding.stage)
+        return Attachment(ref, receipt)
+
+    @serialized
+    def ask(self, actor: Actor, question: str, scope: Optional[KnowledgeScope] = None, top_k: int = 5, mode: str = "keyword",
+            generator: Optional[AnswerGenerator] = None, excerpt_policy: Optional[ExcerptPolicy] = None, min_score: float = 0.0,
+            binding=None) -> KnowledgeAnswer:
+        """Only this explicit operation may invoke a supplied answer generator.
+
+        Scores are fused reciprocal ranks, not probability/confidence values.
+        A host should set a calibrated min_score for its retrieval backend.
+        """
+        if not isinstance(top_k, int) or isinstance(top_k, bool) or not 1 <= top_k <= 100:
+            raise ValidationError("Invalid top_k")
+        if not isinstance(min_score, (int, float)) or isinstance(min_score, bool) or not math.isfinite(min_score) or min_score < 0:
+            raise ValidationError("Invalid evidence threshold")
+        if excerpt_policy is not None and not isinstance(excerpt_policy, ExcerptPolicy):
+            raise ValidationError("Expected ExcerptPolicy")
+        # ask selectors are narrowing filters, never grants. Unauthorized explicit
+        # selectors produce a uniform refusal rather than an identity oracle.
+        if isinstance(binding, dict): binding = ConsumerBinding.from_dict(binding)
+        if binding is not None and not isinstance(binding, ConsumerBinding): raise ValidationError("Expected ConsumerBinding")
+        scope = scope if scope is not None else (binding.default_scope if binding else KnowledgeScope())
+        if isinstance(scope, dict): scope = KnowledgeScope.from_dict(scope)
+        if not isinstance(scope, KnowledgeScope): raise ValidationError("Expected KnowledgeScope")
+        hits = run_search(self.store, actor, question, mode, top_k,
+                          vector_index=self.vector_index, embedder=self.embedder,
+                          policy=excerpt_policy or self.excerpt_policy, scope=scope,
+                          additional_scope=binding.default_scope if binding else None).hits
+        hits = [h for h in hits if h.score >= min_score and h.excerpt.strip()]
+        if not hits:
+            return KnowledgeAnswer(refusal_reason="no_authorized_evidence_above_threshold", scope_applied=scope, binding_applied=binding)
+        # Refs and receipts are built and checked before handing any text to the plugin.
+        attachments = [self.attach(actor, self.reference(actor, h.doc_id, h.version, [h.chunk_id], h.excerpt)) for h in hits]
+        if binding:
+            for item in attachments:
+                item.receipt = replace(item.receipt, consumer_type=binding.consumer_type, consumer_id=binding.consumer_id, used_by_stage=binding.stage)
+        result = (generator or ExtractiveAnswerGenerator()).generate(question, hits, scope, actor)
+        if not isinstance(result, GeneratedAnswer) or not isinstance(result.answer, str) or not result.answer.strip() or not isinstance(result.model_called, bool):
+            raise ValidationError("Generator must return a nonempty GeneratedAnswer")
+        # A local plugin may re-enter this client and revoke access during generate().
+        for item in attachments:
+            if not self.verify_receipt(actor, item.reference, item.receipt):
+                return KnowledgeAnswer(refusal_reason="evidence_access_changed", model_called=result.model_called, scope_applied=scope, binding_applied=binding)
+        return KnowledgeAnswer(result.answer, "answered", "", [a.reference for a in attachments],
+                               [a.receipt for a in attachments], hits, result.model_called, scope, binding)

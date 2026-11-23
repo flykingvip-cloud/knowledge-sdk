@@ -9,9 +9,9 @@ from ..exceptions import KnowledgeSDKError, PermissionDeniedError, NotFoundError
 from ..client.http_client import OPERATIONS
 from .auth import verify_headers
 
-def create_app(client,auth_secret=None,dev_insecure=False):
+def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None):
     if not dev_insecure and (not auth_secret or len(auth_secret)<32): raise ValidationError("Auth secret must contain at least 32 characters")
-    app=FastAPI(title="knowledge-sdk",version="1.0.0"); seen={}
+    app=FastAPI(title="knowledge-sdk",version="1.1.0"); seen={}
     @app.exception_handler(KnowledgeSDKError)
     async def sdk_error(request,exc):
         status=403 if isinstance(exc,PermissionDeniedError) else 404 if isinstance(exc,NotFoundError) else 409 if isinstance(exc,ConflictError) else 400
@@ -43,6 +43,9 @@ def create_app(client,auth_secret=None,dev_insecure=False):
                 if not isinstance(params,dict) or "actor" in params or "self" in params: raise ValidationError("Invalid parameters")
                 if operation=="ingest" and "content_b64" in params:
                     params["content"]=base64.b64decode(params.pop("content_b64"),validate=True)
+                if operation == "ask":
+                    if "generator" in params: raise ValidationError("Generators must be configured server-side")
+                    params["generator"] = answer_generator
                 method=getattr(client,operation)
                 inspect.signature(method).bind(actor=request.state.actor,**params)
             except (TypeError,ValueError,KeyError) as exc: raise ValidationError("Invalid request parameters") from exc

@@ -4,7 +4,7 @@ import re
 import sqlite3
 import threading
 from contextlib import contextmanager
-from ..contracts.models import (KnowledgeBase, Document, DocumentVersion, DocumentACL, Chunk, encode, decode)
+from ..contracts.models import (KnowledgeBase, Document, DocumentVersion, DocumentACL, Chunk, Actor, ConsumerBinding, encode, decode)
 from ..exceptions import NotFoundError, ConflictError
 
 def tokens(text):
@@ -37,6 +37,7 @@ class SQLiteStore:
         CREATE TABLE IF NOT EXISTS chunks(doc_id TEXT NOT NULL,version INTEGER NOT NULL,chunk_id TEXT NOT NULL,data TEXT NOT NULL,PRIMARY KEY(doc_id,version,chunk_id),FOREIGN KEY(doc_id,version) REFERENCES document_versions(doc_id,version));
         CREATE VIRTUAL TABLE IF NOT EXISTS chunks_fts USING fts5(doc_id UNINDEXED,version UNINDEXED,chunk_id UNINDEXED,org_id UNINDEXED,content,tokenize='unicode61');
         CREATE TABLE IF NOT EXISTS pending_indexes(doc_id TEXT PRIMARY KEY REFERENCES documents(doc_id));
+        CREATE TABLE IF NOT EXISTS consumer_bindings(org_id TEXT NOT NULL,user_id TEXT NOT NULL,consumer_type TEXT NOT NULL,consumer_id TEXT NOT NULL,data TEXT NOT NULL,PRIMARY KEY(org_id,user_id,consumer_type,consumer_id));
         PRAGMA user_version=1;
         """)
     @contextmanager
@@ -100,3 +101,11 @@ class SQLiteStore:
         if pending: self._execute("INSERT OR IGNORE INTO pending_indexes VALUES(?)",(doc_id,))
         else: self._execute("DELETE FROM pending_indexes WHERE doc_id=?",(doc_id,))
     def pending_documents(self): return [r[0] for r in self._execute("SELECT doc_id FROM pending_indexes ORDER BY doc_id")]
+
+    def put_binding(self, actor: Actor, binding: ConsumerBinding) -> None:
+        self._execute("INSERT INTO consumer_bindings VALUES(?,?,?,?,?) ON CONFLICT(org_id,user_id,consumer_type,consumer_id) DO UPDATE SET data=excluded.data",
+                      (actor.org_id, actor.user_id, binding.consumer_type, binding.consumer_id, self._dump(binding)))
+
+    def get_binding(self, actor: Actor, consumer_type: str, consumer_id: str) -> ConsumerBinding:
+        return self._get("SELECT data FROM consumer_bindings WHERE org_id=? AND user_id=? AND consumer_type=? AND consumer_id=?",
+                         (actor.org_id, actor.user_id, consumer_type, consumer_id))

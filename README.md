@@ -154,3 +154,28 @@ Nothing auto-discovers credentials or makes an embedding call until `embed`,
 vector-enabled `ingest`/`reindex`, or vector/hybrid search is invoked. Remote paid
 providers may incur costs; inject credentials securely and deliberately. See
 [configuration, provisioning and safe live tests](docs/vector-integration.md).
+
+## v1.1 spaces, ACL and explicit answers
+
+See [the v1.1 design](docs/v1.1-design.md) for the security/compatibility matrix.
+New strict tier policies are opt-in via `space_type`; omitted types preserve v1.0
+membership semantics while still exposing the inferred standard tier.
+
+```python
+from knowledge_sdk import Actor, LocalKnowledgeClient, DocumentACL, KnowledgeScope
+
+client = LocalKnowledgeClient()
+admin = Actor("alice", "acme", org_roles=("admin",))
+kb = client.create_kb(admin, "Company knowledge", space_type="enterprise_public")
+version = client.ingest(admin, kb.kb_id, "Oil inspection is routine maintenance.")
+client.set_document_acl(admin, version.doc_id, DocumentACL(access_level="org_public"))
+answer = client.ask(Actor("bob", "acme"), "maintenance",
+                    scope=KnowledgeScope("spaces", kb_ids=(kb.kb_id,)))
+assert answer.status == "answered" and not answer.model_called
+assert client.verify_receipt(Actor("bob", "acme"), answer.citations[0], answer.receipts[0])
+```
+
+The built-in answer generator is deterministic and offline. External models are
+never selected automatically; hosts may explicitly inject an `AnswerGenerator`.
+No authorized evidence means refusal with zero generator calls. HTTP deployments
+configure their generator server-side, not through a client request.
