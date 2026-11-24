@@ -41,9 +41,9 @@ class OfflinePostgresGuards(unittest.TestCase):
         self.assertFalse(methods-set(dir(PostgresStore)))
 
     def test_password_redaction(self):
-        for dsn in ('postgresql://alice:danger@localhost/db','host=local password=danger user=u',"password='d anger' host=x",'password="danger"'):
+        for dsn in ('postgresql://alice:danger@localhost/db','host=local password=danger user=u',"password='d anger' host=x",'password="danger"',r"password='dan\'ger' host=x",'postgresql://a:dan@ger@localhost/db'):
             cleaned=redact_dsn(dsn)
-            self.assertNotIn('danger',cleaned);self.assertNotIn('d anger',cleaned);self.assertIn('***',cleaned)
+            self.assertNotIn('danger',cleaned);self.assertNotIn('d anger',cleaned);self.assertNotIn('ger',cleaned);self.assertIn('***',cleaned)
 
     def test_bound_rls_and_skip_locked_sql_without_driver(self):
         # Construction-only recorder; live acceptance below never uses this.
@@ -151,6 +151,9 @@ class LivePostgres(unittest.TestCase):
             self.assertFalse(stores[2].check_and_record('org','same-nonce',120.,now=105.))
             self.assertTrue(stores[3].check_and_record('org','same-nonce',130.,now=111.))
             self.assertFalse(stores[0].check_and_record('org','expired',99.,now=100.))
+            self.assertTrue(stores[0].check_and_record(org_id='org',nonce='named',expires_at=150.,now=100.))
+            self.assertFalse(stores[1].check_and_record(org_id='org',nonce='named',expires_at=150.,now=100.))
+            self.assertFalse(stores[0].check_and_record('bad',0,now=100.))
             print('REAL nonce concurrency: 4 independent connections exactly 1 winner; cross-tenant namespace and TTL expiry passed')
         finally:
             for s in stores:s.close()

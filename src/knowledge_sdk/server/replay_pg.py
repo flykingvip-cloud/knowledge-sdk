@@ -13,24 +13,32 @@ class PostgresReplayStore:
         self.store=PostgresStore(dsn,enable_rls=enable_rls,migrate=migrate)
         self.max_entries=max_entries
 
-    def check_and_record(self,*args,now=None,org_id=None):
+    def check_and_record(self,*args,now=None,org_id=None,nonce=None,expires_at=None,ttl_seconds=None):
         """ReplayStore(nonce, ttl, now=...) or (org_id, nonce, expires_at).
 
         Legacy two-arg callers use a dedicated auth namespace; HTTP auth uses the
         verified actor tenant via check_and_record_for_org, never an unsigned ID.
         """
         now=time.time() if now is None else now
-        if type(now) not in (int,float) or not math.isfinite(now):return False
+        if not args and nonce is not None:
+            args=(org_id,nonce,expires_at) if expires_at is not None else (nonce,ttl_seconds)
+        elif len(args)==2 and expires_at is not None:
+            args=args+(expires_at,)
+        if type(now) not in (int,float):return False
+        try:
+            if not math.isfinite(now):return False
+        except OverflowError:return False
         if len(args)==3:
             org,nonce,expiry=args
             from ..contracts.policy import parse_time
             try:expiry=parse_time(expiry).timestamp() if isinstance(expiry,str) else float(expiry)
-            except (ValueError,TypeError,ValidationError):return False
+            except (ValueError,TypeError,OverflowError,ValidationError):return False
             ttl=expiry-now
         elif len(args)==2:
             nonce,ttl=args;org=org_id or '__signed_auth__'
             if not _valid_replay_input(nonce,ttl,now):return False
-            expiry=now+ttl
+            try:expiry=now+ttl
+            except (OverflowError,TypeError):return False
         else:return False
         if not isinstance(org,str) or not org or not isinstance(nonce,str) or not 0<len(nonce)<=1024:return False
         if type(now) not in (int,float) or not math.isfinite(now) or not math.isfinite(expiry) or expiry<=now:return False

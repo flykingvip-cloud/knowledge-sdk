@@ -49,7 +49,7 @@ class Observation:
 
 class Fixture:
     def __init__(self,case,engine='sqlite'):
-        self.engine=engine;self.sandbox=None
+        self.engine=engine;self.sandbox=None;self.replays=[]
         if engine=='postgres':
             from tests.pg_helpers import PgSandbox,golden_client
             self.sandbox=PgSandbox();client=golden_client(self.sandbox.dsn)
@@ -65,7 +65,12 @@ class Fixture:
         return value
     def uri(self,id='doc',version=1,anchor=None):return build_uri('org',id,version,anchor_id=anchor)
     def call(self,name,**kwargs):return self.tools.call(name,kwargs,self.ctx)
+    def replay_store(self,path):
+        if self.engine=='sqlite':return SQLiteReplayStore(path)
+        from knowledge_sdk.server.replay_pg import PostgresReplayStore
+        store=PostgresReplayStore(self.sandbox.dsn);self.replays.append(store);return store
     def close(self):
+        for store in self.replays:store.close()
         try:self.c.store.close()
         finally:
             if self.sandbox:self.sandbox.close()
@@ -394,7 +399,7 @@ def g508(f,o):
 @scenario('mcp_production_gateway_401_replay')
 def g509(f,o):
     with tempfile.TemporaryDirectory() as directory:
-        path=str(Path(directory)/'replay.db');a=gateway(f,replay_store=SQLiteReplayStore(path),fallback_secrets=(f.old_secret,));b=gateway(f,replay_store=SQLiteReplayStore(path),fallback_secrets=(f.old_secret,))
+        path=str(Path(directory)/'replay.db');a=gateway(f,replay_store=f.replay_store(path),fallback_secrets=(f.old_secret,));b=gateway(f,replay_store=f.replay_store(path),fallback_secrets=(f.old_secret,))
         o.check(a.authorize_http({},'POST','/mcp',b'{}')[1]==401,'safety')
         h=headers(f,secret=f.old_secret);context,status=a.authorize_http(h,'POST','/mcp',b'{}');o.check(status==200 and context.purpose==Purpose.GROUND_INTERNAL_LLM,'positive')
         o.check(b.authorize_http(h,'POST','/mcp',b'{}')[1]==401,'safety')

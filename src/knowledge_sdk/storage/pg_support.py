@@ -5,8 +5,10 @@ from ..exceptions import ValidationError
 
 
 def redact_dsn(value):
-    value = re.sub(r'(?i)(postgres(?:ql)?://)[^/@\s]+@', r'\1***@', str(value))
-    return re.sub(r"(?i)(password\s*=\s*)(?:'[^']*'|\"[^\"]*\"|[^\s]+)", r'\1***', value)
+    # Hide the entire authority userinfo, including malformed/raw @ characters.
+    value = re.sub(r'(?i)(postgres(?:ql)?://)[^/\s]+@', r'\1***@', str(value))
+    # libpq values may quote whitespace and escape quotes/backslashes.
+    return re.sub(r"(?i)(password\s*=\s*)(?:'(?:\\.|[^'\\])*'|\"(?:\\.|[^\"\\])*\"|(?:\\.|[^\s])+)", r'\1***', value)
 
 
 def driver():
