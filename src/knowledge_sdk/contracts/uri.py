@@ -28,6 +28,7 @@ class ParsedKBURI(PolicyContract):
 
 
 def build_uri(org_id,doc_id,version,chunk_id=None,*,anchor_id=None):
+    if chunk_id is not None and not isinstance(chunk_id,str):raise ValidationError("Invalid chunk_id")
     identity=ParsedKBURI(org_id,doc_id,version,chunk_id if chunk_id else None,anchor_id)
     uri='kb://org/{}/doc/{}@{}'.format(quote(identity.org_id,safe=''),quote(identity.doc_id,safe=''),version)
     if identity.anchor_id is not None: return uri+'#anchor='+quote(identity.anchor_id,safe='')

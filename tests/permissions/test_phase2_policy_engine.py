@@ -496,10 +496,10 @@ class PolicyIntegrationTests(unittest.TestCase):
             kb={'__type__':'KnowledgeBase','kb_id':'old-k','org_id':'org','name':'legacy','owner_id':'admin','visibility':'enterprise'}
             d={'__type__':'Document','doc_id':'old-d','org_id':'org','kb_id':'old-k','owner_id':'admin','title':'legacy','visibility':'enterprise'}
             store.db.execute('INSERT INTO knowledge_bases VALUES (?,?,?)',('old-k','org',json.dumps(kb)))
-            store.db.execute('INSERT INTO documents VALUES (?,?,?,?)',('old-d','org','old-k',json.dumps(d)))
+            store.db.execute('INSERT INTO documents(doc_id,org_id,kb_id,data) VALUES (?,?,?,?)',('old-d','org','old-k',json.dumps(d)))
             store.close();store=SQLiteStore(path)
             try:
-                self.assertEqual(store.db.execute('PRAGMA user_version').fetchone()[0],1)
+                self.assertEqual(store.db.execute('PRAGMA user_version').fetchone()[0],2)
                 self.assertEqual([r[0] for r in store.db.execute("SELECT name FROM sqlite_master WHERE type='table'")],tables)
                 self.assertEqual(store.get_document('old-d').lifecycle_state,'published')
                 self.assertEqual(store.get_kb('old-k').governance_tier,'l1_agile')

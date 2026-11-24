@@ -1,4 +1,5 @@
 """Detached anchor delivery views. Never persist a masked view as authority."""
+from __future__ import annotations
 from dataclasses import replace
 from ..contracts.anchors import TextQuoteSelector,ReanchorStatus,digest
 from ..contracts.policy import DecisionEffect

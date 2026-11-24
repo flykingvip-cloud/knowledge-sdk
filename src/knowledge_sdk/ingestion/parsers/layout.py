@@ -1,6 +1,6 @@
 """Dependency-free layout extension; offsets always address unchanged full_text."""
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Optional, Protocol, Tuple
 from ...contracts.anchors import (SelectorKind,PdfBBoxSelector,TableCellSelector,SectionQuoteSelector,
                                   selected,integer,string,strings,digest)
@@ -26,6 +26,8 @@ class ParsedSpan(PolicyContract):
         kind,values=selected(self.selector_kind,self.pdf_bbox,self.table_cell,section)
         object.__setattr__(self,'selector_kind',kind)
         for name,value in zip(('pdf_bbox','table_cell','section_quote'),values):object.__setattr__(self,name,value)
+        if self.section_quote is not None and (self.section_quote.start_offset,self.section_quote.end_offset)!=(self.start_offset,self.end_offset):
+            raise ValidationError('Section offsets do not match span')
 
 
 @dataclass(frozen=True)
@@ -38,7 +40,7 @@ class LayoutParseResult(PolicyContract):
     def __post_init__(self):
         string(self.full_text,'full_text');string(self.parser_id,'parser_id',True);string(self.parser_version,'parser_version',True)
         if not isinstance(self.spans,(list,tuple)):raise ValidationError('Invalid layout spans')
-        spans=tuple(ParsedSpan.from_dict(s) if isinstance(s,dict) else s for s in self.spans)
+        spans=tuple(ParsedSpan.from_dict(s) if isinstance(s,dict) else replace(s) if isinstance(s,ParsedSpan) else s for s in self.spans)
         if any(not isinstance(s,ParsedSpan) or not 0<=s.start_offset<=s.end_offset<=len(self.full_text)
                or self.full_text[s.start_offset:s.end_offset]!=s.text for s in spans):
             raise ValidationError('Layout span does not match full_text')
