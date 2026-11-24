@@ -13,6 +13,7 @@ import time
 from dataclasses import asdict, fields
 from typing import Optional, Protocol, Sequence
 from ..contracts.models import Actor
+from ..contracts.policy import Purpose
 from ..exceptions import ValidationError
 
 
@@ -90,7 +91,7 @@ class SQLiteReplayStore:
             return False
 
 
-PURPOSES = frozenset(("read", "ground_internal_llm", "ground_external_llm", "export", "eval_and_train"))
+PURPOSES = frozenset(p.value for p in Purpose)
 
 
 def _actor_data(actor):

@@ -3,6 +3,7 @@ from dataclasses import dataclass, field, asdict
 from typing import Any, Dict, List, Optional, Tuple
 from enum import Enum
 from ..exceptions import ValidationError
+from .policy import (AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision, Purpose, PolicyAction, DecisionEffect, GovernanceTier, parse_time)
 
 class SpaceType(str, Enum):
     ENTERPRISE_PUBLIC = "enterprise_public"
@@ -50,7 +51,11 @@ class KnowledgeBase:
     # Old persisted spaces retain v1.0 membership semantics; explicit tiers are strict.
     legacy_permissions: Optional[bool] = None
 
+    governance_tier: str = "l1_agile"
+
     def __post_init__(self):
+        if not isinstance(self.governance_tier, str) or self.governance_tier not in ("l1_agile", "l2_controlled"):
+            raise ValidationError("Invalid governance tier")
         self.legacy_permissions = not bool(self.space_type) if self.legacy_permissions is None else self.legacy_permissions
         if not self.space_type:
             self.space_type = {"enterprise": "enterprise_public", "team": "department", "private": "personal"}.get(self.visibility, "")
@@ -72,6 +77,21 @@ class Document:
     current_version: int = 1
     archived: bool = False
     metadata: Dict[str, Any] = field(default_factory=dict)
+    lifecycle_state: str = "published"
+    valid_from: Optional[str] = None
+    valid_to: Optional[str] = None
+    rights: Optional[ResourceRights] = None
+
+    def __post_init__(self):
+        if not isinstance(self.lifecycle_state, str) or self.lifecycle_state not in ("draft", "in_review", "approved", "published", "superseded", "revoked"):
+            raise ValidationError("Invalid lifecycle state")
+        if self.valid_from is not None: parse_time(self.valid_from, "valid_from")
+        if self.valid_to is not None: parse_time(self.valid_to, "valid_to")
+        if self.valid_from is not None and self.valid_to is not None and parse_time(self.valid_from) > parse_time(self.valid_to):
+            raise ValidationError("Invalid validity interval")
+        if isinstance(self.rights, dict): self.rights = ResourceRights.from_dict(self.rights)
+        if self.rights is not None and not isinstance(self.rights, ResourceRights):
+            raise ValidationError("Invalid resource rights")
 
 @dataclass
 class DocumentVersion:
@@ -280,8 +300,9 @@ class KnowledgeAnswer:
 
 # Tagged transport serialization avoids guessing model types or exposing pickle.
 _MODELS = {c.__name__: c for c in (Actor, KnowledgeBase, Document, DocumentVersion, Chunk,
-    DocumentACL, KnowledgeRef, MaterialReceipt, ExcerptPolicy, SearchHit, SearchResponse, RetrieveResponse, KnowledgeScope, ConsumerBinding, Attachment, GeneratedAnswer, KnowledgeAnswer)}
+    DocumentACL, KnowledgeRef, MaterialReceipt, ExcerptPolicy, SearchHit, SearchResponse, RetrieveResponse, KnowledgeScope, ConsumerBinding, Attachment, GeneratedAnswer, KnowledgeAnswer, AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision)}
 def encode(value):
+    if isinstance(value, Enum): return value.value
     if type(value).__name__ in _MODELS:
         return {"__type__": type(value).__name__, **{k: encode(v) for k,v in value.__dict__.items()}}
     if isinstance(value, (list, tuple)): return [encode(v) for v in value]
@@ -297,5 +318,6 @@ def decode(value):
         value = dict(value); kind = value.pop("__type__", None)
         if kind=="__mapping__": return {k:decode(v) for k,v in value["items"]}
         data = {k: decode(v) for k,v in value.items()}
-        return _MODELS[kind](**data) if kind in _MODELS else data
+        try: return _MODELS[kind](**data) if kind in _MODELS else data
+        except TypeError as exc: raise ValidationError("Invalid contract fields") from exc
     return value

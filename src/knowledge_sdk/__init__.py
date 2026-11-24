@@ -13,3 +13,5 @@ from .retrieval.adapters.openai_embedder import OpenAICompatibleEmbedder, Embedd
 from .contracts.models import (SpaceType, KnowledgeScope, ConsumerBinding, GeneratedAnswer, KnowledgeAnswer, Attachment)
 from .retrieval.answers import AnswerGenerator, ExtractiveAnswerGenerator
 from .permissions import can_manage_kb, can_upload_to_kb, expand_department_ancestors
+
+from .contracts.policy import (Purpose, PolicyAction, DecisionEffect, GovernanceTier, AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision)
