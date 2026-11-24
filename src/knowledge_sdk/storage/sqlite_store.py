@@ -55,8 +55,8 @@ class SQLiteStore:
         CREATE TABLE IF NOT EXISTS consumer_bindings(org_id TEXT NOT NULL,user_id TEXT NOT NULL,consumer_type TEXT NOT NULL,consumer_id TEXT NOT NULL,data TEXT NOT NULL,PRIMARY KEY(org_id,user_id,consumer_type,consumer_id));
 
         """
-    _DERIVED=(('space_type',"TEXT NOT NULL DEFAULT 'enterprise'"),('governance_tier',"TEXT NOT NULL DEFAULT 'l1_agile'"),
-              ('access_level',"TEXT NOT NULL DEFAULT 'public'"),('lifecycle_state',"TEXT NOT NULL DEFAULT 'published'"),
+    _DERIVED=(('space_type',"TEXT NOT NULL DEFAULT ''"),('governance_tier',"TEXT NOT NULL DEFAULT 'l1_agile'"),
+              ('access_level',"TEXT NOT NULL DEFAULT ''"),('lifecycle_state',"TEXT NOT NULL DEFAULT 'published'"),
               ('archived','INTEGER NOT NULL DEFAULT 0'),('revoked','INTEGER NOT NULL DEFAULT 0'),('valid_from','TEXT'),('valid_to','TEXT'))
     _V2_SCHEMA="""
         CREATE INDEX IF NOT EXISTS idx_docs_pushdown ON documents(org_id,kb_id,archived,revoked,lifecycle_state,access_level);

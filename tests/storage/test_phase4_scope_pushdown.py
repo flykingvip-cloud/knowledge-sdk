@@ -11,9 +11,9 @@ class ScopePushdownTests(unittest.TestCase):
         self.a=Actor('admin','o',org_roles=('admin',),managed_department_ids=('dep',));self.u=Actor('reader','o')
         self.c.create_kb(self.a,'noise','enterprise',kb_id='noise',space_type='enterprise_public')
         self.c.create_kb(self.a,'legal','enterprise',kb_id='legal',space_type='enterprise_public')
-    def seed(self,count=600):
+    def seed(self,count=600,target_count=5):
         for i in range(count):self.c.ingest(self.a,'noise','same signal',doc_id='a%04d'%i)
-        ids=['z%d'%i for i in range(5)]
+        ids=['z%d'%i for i in range(target_count)]
         for doc in ids:self.c.ingest(self.a,'legal','same signal',doc_id=doc)
         return ids
     def test_documents_are_really_sql_filtered_before_500_budget(self):
@@ -64,3 +64,17 @@ class ScopePushdownTests(unittest.TestCase):
                 return self.c.store.keyword_search_pushdown(query,org_id,limit,kb_ids=kb_ids,doc_ids=doc_ids)
             def __getattr__(inner,key):return getattr(self.c.store,key)
         self.assertEqual(len(search(OldPushdown(),self.u,'same',scope=KnowledgeScope('spaces',space_types=('enterprise_public',))).hits),6)
+
+    def test_attachment_550_outside_space_three_targets_and_neutral_static_defaults(self):
+        ids=self.seed(550,3)
+        with patch.object(self.c.store,'keyword_search_pushdown',wraps=self.c.store.keyword_search_pushdown) as spy:
+            result=search(self.c.store,self.u,'same',limit=3,filters={'kb_id':'legal'},
+                          scope=KnowledgeScope('spaces',kb_ids=('legal',),space_types=('enterprise_public',)),
+                          additional_scope=KnowledgeScope('documents',doc_ids=ids))
+        self.assertEqual({h.doc_id for h in result.hits},set(ids))
+        self.assertFalse(result.candidate_budget_exhausted)
+        self.assertEqual(spy.call_args.kwargs,{'kb_ids':['legal'],'doc_ids':ids,'space_types':['enterprise_public']})
+        columns={row[1]:row[4] for row in self.c.store.db.execute('PRAGMA table_info(documents)')}
+        self.assertEqual(columns['space_type'],"''");self.assertEqual(columns['access_level'],"''")
+        row=self.c.store.db.execute('SELECT space_type,access_level FROM documents WHERE doc_id=?',(ids[0],)).fetchone()
+        self.assertEqual(row,('enterprise_public',self.c.store.get_acl(ids[0]).access_level))
