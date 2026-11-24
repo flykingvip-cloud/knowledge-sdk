@@ -85,7 +85,7 @@ class Document:
     rights: Optional[ResourceRights] = None
 
     def __post_init__(self):
-        if not isinstance(self.lifecycle_state, str) or self.lifecycle_state not in ("draft", "in_review", "approved", "published", "superseded", "revoked"):
+        if not isinstance(self.lifecycle_state, str) or self.lifecycle_state not in ("draft", "in_review", "approved", "published", "rejected", "superseded", "revoked"):
             raise ValidationError("Invalid lifecycle state")
         if self.valid_from is not None: parse_time(self.valid_from, "valid_from")
         if self.valid_to is not None: parse_time(self.valid_to, "valid_to")
@@ -105,6 +105,13 @@ class DocumentVersion:
     created_at: str
     filename: str
     blob_key: Optional[str] = None
+    lifecycle_state: str = "published"
+    author_id: str = ""
+    submitter_id: str = ""
+    reviewer_id: str = ""
+    publisher_id: str = ""
+    published_at: str = ""
+    source_issue_id: str = ""
 
 @dataclass
 class Chunk:
@@ -315,10 +322,12 @@ from .impact import UsageEvent, ImpactAlert, ImpactReason
 from .audit import AuditEvent, AuditChainReport
 from .events import OutboxEvent, DispatchSummary, WebhookSubscription, WebhookDelivery
 from .issues import EvidenceIssue
+from .governance import ReviewDecision, ReleaseManifest, IssueResolution
+from .packs import PackItem, EvidencePack, PackVerificationReport, ExportResult
 
 # Tagged transport serialization avoids guessing model types or exposing pickle.
 _MODELS = {c.__name__: c for c in (Actor, KnowledgeBase, Document, DocumentVersion, Chunk,
-    DocumentACL, KnowledgeRef, MaterialReceipt, ExcerptPolicy, SearchHit, SearchResponse, RetrieveResponse, KnowledgeScope, ConsumerBinding, Attachment, GeneratedAnswer, KnowledgeAnswer, AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision, ParsedKBURI, TextQuoteSelector, PdfBBoxSelector, TableCellSelector, SectionQuoteSelector, EvidenceAnchor, ParsedSpan, LayoutParseResult, EvidenceIssue, AuditEvent, AuditChainReport, OutboxEvent, DispatchSummary, WebhookSubscription, WebhookDelivery, UsageEvent, ImpactAlert)}
+    DocumentACL, KnowledgeRef, MaterialReceipt, ExcerptPolicy, SearchHit, SearchResponse, RetrieveResponse, KnowledgeScope, ConsumerBinding, Attachment, GeneratedAnswer, KnowledgeAnswer, AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision, ParsedKBURI, TextQuoteSelector, PdfBBoxSelector, TableCellSelector, SectionQuoteSelector, EvidenceAnchor, ParsedSpan, LayoutParseResult, EvidenceIssue, AuditEvent, AuditChainReport, OutboxEvent, DispatchSummary, WebhookSubscription, WebhookDelivery, UsageEvent, ImpactAlert, ReviewDecision, ReleaseManifest, IssueResolution, PackItem, EvidencePack, PackVerificationReport, ExportResult)}
 def encode(value):
     if isinstance(value, Enum): return value.value
     if type(value).__name__ in _MODELS:

@@ -30,7 +30,7 @@ def tenant_method(fn):
             if objects:
                 tenant=tenant or objects[0].org_id
                 if any(o.org_id!=tenant for o in objects):raise ConflictError('Tenant mismatch')
-            keys={'doc_id':'document','kb_id':'kb','event_id':'outbox','subscription_id':'webhook'}
+            keys={'doc_id':'document','kb_id':'kb','event_id':'outbox','subscription_id':'webhook','pack_id':'pack','issue_id':'issue'}
             for arg,kind in keys.items():
                 if tenant is None and arg in bound and bound[arg] is not None:
                     located=self._locate(kind,bound[arg])
@@ -50,7 +50,7 @@ def tenant_method(fn):
                 kinds={'put_kb':('kb','kb_id'),'put_document':('document','doc_id'),
                        'put_policy_rule':('policy','rule_id'),'put_issue':('issue','issue_id'),
                        'enqueue_outbox':('outbox','event_id'),'put_webhook_subscription':('webhook','subscription_id'),
-                       'put_usage_event':('usage','usage_id'),'put_impact_alert':('impact','alert_id')}
+                       'put_evidence_pack':('pack','pack_id'),'put_usage_event':('usage','usage_id'),'put_impact_alert':('impact','alert_id')}
                 if fn.__name__ in kinds:
                     kind,key=kinds[fn.__name__];obj=objects[0]
                     self._register(kind,getattr(obj,key),tenant)
@@ -561,7 +561,7 @@ class PostgresStore:
     def refresh_fts(self,doc_id):
         d=self.get_document(doc_id)
         self._execute('UPDATE chunks SET search_vector=NULL WHERE org_id=%s AND doc_id=%s',(d.org_id,doc_id))
-        if not d.archived:
+        if not d.archived and d.lifecycle_state=="published":
             for c in self.get_chunks(doc_id,d.current_version):
                 self._execute("UPDATE chunks SET search_vector=to_tsvector('simple',%s) WHERE org_id=%s AND doc_id=%s AND version=%s AND chunk_id=%s",(' '.join(tokens(c.text)),d.org_id,doc_id,c.version,c.chunk_id))
 
@@ -623,4 +623,65 @@ class PostgresStore:
 
     @tenant_method
     def mark_reserved_pack_impacted(self,org_id,pack_id):
+        self._execute("UPDATE evidence_packs SET status='impacted' WHERE org_id=%s AND pack_id=%s",(org_id,pack_id))
+
+    @tenant_method
+    def latest_version(self,doc_id):
+        return self._execute('SELECT MAX(version) FROM document_versions WHERE doc_id=%s AND org_id=%s',(doc_id,self._tenant,))[0][0] or 0
+
+    @tenant_method
+    def lock_document(self,doc_id):
+        self._execute('SELECT doc_id FROM documents WHERE doc_id=%s AND org_id=%s FOR UPDATE',(doc_id,self._tenant,))
+
+    @tenant_method
+    def put_review_decision(self,decision):
+        self._execute('INSERT INTO review_decisions(decision_id,org_id,doc_id,version,stage,reviewer_id,created_at,data) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',
+                      (decision.decision_id,decision.org_id,decision.doc_id,decision.version,decision.stage,decision.reviewer_id,decision.created_at,self._dump(decision)))
+
+    @tenant_method
+    def list_review_decisions(self,org_id,doc_id,version=None):
+        sql='SELECT data FROM review_decisions WHERE org_id=%s AND doc_id=%s';args=[org_id,doc_id]
+        if version is not None:sql+=' AND version=%s';args.append(version)
+        return [decode(json.loads(r[0])) for r in self._execute(sql+' ORDER BY created_at,decision_id',args)]
+
+    @tenant_method
+    def update_document_lifecycle(self,doc_id,lifecycle_state,*,current_version=None):
+        from dataclasses import replace
+        d=self.get_document(doc_id)
+        self.put_document(replace(d,lifecycle_state=lifecycle_state,current_version=d.current_version if current_version is None else current_version))
+
+    @tenant_method
+    def update_version_state(self,doc_id,version,lifecycle_state,**metadata):
+        from dataclasses import replace
+        if set(metadata)-{'submitter_id','reviewer_id','publisher_id','published_at'}:raise ValidationError('Invalid release metadata')
+        v=replace(self.get_version(doc_id,version),lifecycle_state=lifecycle_state,**metadata)
+        self._execute('UPDATE document_versions SET data=%s WHERE doc_id=%s AND version=%s AND org_id=%s',(self._dump(v),doc_id,version,self._tenant,))
+        return v
+
+    @tenant_method
+    def update_issue(self,issue,*,expected_version=None):
+        previous=self.get_issue(issue.org_id,issue.issue_id)
+        self.lock_document(previous.doc_id)
+        previous=self.get_issue(issue.org_id,issue.issue_id)
+        if previous.status in ('resolved','dismissed') or expected_version is not None and previous.version!=expected_version:raise ConflictError('Issue conflict')
+        self._execute('UPDATE evidence_issues SET status=%s,data=%s WHERE org_id=%s AND issue_id=%s',(issue.status,self._dump(issue),issue.org_id,issue.issue_id))
+
+    @tenant_method
+    def put_evidence_pack(self,pack):
+        self._execute('INSERT INTO evidence_packs(pack_id,org_id,title,status,pack_sha256,created_at,data) VALUES(%s,%s,%s,%s,%s,%s,%s)',
+                      (pack.pack_id,pack.org_id,pack.title,pack.status,pack.pack_sha256,pack.created_at,self._dump(pack)))
+
+    @tenant_method
+    def get_evidence_pack(self,org_id,pack_id):
+        from dataclasses import replace
+        pack=self._get('SELECT data FROM evidence_packs WHERE org_id=%s AND pack_id=%s',(org_id,pack_id))
+        status=self._execute('SELECT status FROM evidence_packs WHERE org_id=%s AND pack_id=%s',(org_id,pack_id))[0][0]
+        return replace(pack,status=status)
+
+    @tenant_method
+    def list_evidence_packs(self,org_id):
+        return [self.get_evidence_pack(org_id,r[0]) for r in self._execute('SELECT pack_id FROM evidence_packs WHERE org_id=%s ORDER BY created_at,pack_id',(org_id,))]
+
+    @tenant_method
+    def mark_evidence_pack_impacted(self,org_id,pack_id):
         self._execute("UPDATE evidence_packs SET status='impacted' WHERE org_id=%s AND pack_id=%s",(org_id,pack_id))

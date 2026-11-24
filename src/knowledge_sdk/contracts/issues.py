@@ -35,9 +35,14 @@ class EvidenceIssue(PolicyContract):
     reported_by_agent_id:str=''
     status:str='open'
     created_at:str=''
+    resolution:object=None
     def __post_init__(self):
         for f in fields(self):
-            if f.name not in ('version','issue_type'):issue_text(getattr(self,f.name),f.name,f.name in ('issue_id','org_id','doc_id','description','created_at'))
+            if f.name not in ('version','issue_type','resolution'):issue_text(getattr(self,f.name),f.name,f.name in ('issue_id','org_id','doc_id','description','created_at'))
+        if self.resolution is not None:
+            from .governance import IssueResolution
+            if isinstance(self.resolution,dict):object.__setattr__(self,'resolution',IssueResolution.from_dict(self.resolution))
+            if not isinstance(self.resolution,IssueResolution):raise ValidationError('Invalid issue resolution')
         integer(self.version,'version',1)
         object.__setattr__(self,'issue_type',enum_value(IssueType,self.issue_type))
         if not 1<=len(self.description)<=4000 or self.status not in ISSUE_STATUSES:raise ValidationError('Invalid evidence issue')

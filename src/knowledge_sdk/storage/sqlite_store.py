@@ -43,6 +43,9 @@ class SQLiteStore:
                     for statement in self._V3_SCHEMA.split(';'):
                         if statement.strip():self.db.execute(statement)
                     self.db.execute("PRAGMA user_version=3")
+            if self.db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='review_decisions'").fetchone():
+                self.db.execute("CREATE TRIGGER IF NOT EXISTS review_no_update BEFORE UPDATE ON review_decisions BEGIN SELECT RAISE(ABORT,'Append-only reviews'); END")
+                self.db.execute("CREATE TRIGGER IF NOT EXISTS review_no_delete BEFORE DELETE ON review_decisions BEGIN SELECT RAISE(ABORT,'Append-only reviews'); END")
             self.db.execute("PRAGMA journal_mode=WAL")
         except BaseException:
             self.db.close();raise
@@ -266,7 +269,7 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
     def refresh_fts(self,doc_id):
         self._execute("DELETE FROM chunks_fts WHERE doc_id=?",(doc_id,))
         d=self.get_document(doc_id)
-        if not d.archived:
+        if not d.archived and d.lifecycle_state=="published":
             for c in self.get_chunks(doc_id,d.current_version):
                 self._execute("INSERT INTO chunks_fts VALUES(?,?,?,?,?)",(doc_id,c.version,c.chunk_id,d.org_id," ".join(tokens(c.text))))
     def keyword_search(self,query,org_id,limit=100):
@@ -562,4 +565,54 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
         return self._execute('SELECT pack_id,data FROM evidence_packs WHERE org_id=?',(org_id,))
 
     def mark_reserved_pack_impacted(self,org_id,pack_id):
+        self._execute("UPDATE evidence_packs SET status='impacted' WHERE org_id=? AND pack_id=?",(org_id,pack_id))
+
+    def latest_version(self,doc_id):
+        return self._execute('SELECT MAX(version) FROM document_versions WHERE doc_id=?',(doc_id,))[0][0] or 0
+
+    def lock_document(self,doc_id):
+        self._execute('SELECT doc_id FROM documents WHERE doc_id=?',(doc_id,))
+
+    def put_review_decision(self,decision):
+        self._execute('INSERT INTO review_decisions(decision_id,org_id,doc_id,version,stage,reviewer_id,created_at,data) VALUES(?,?,?,?,?,?,?,?)',
+                      (decision.decision_id,decision.org_id,decision.doc_id,decision.version,decision.stage,decision.reviewer_id,decision.created_at,self._dump(decision)))
+
+    def list_review_decisions(self,org_id,doc_id,version=None):
+        sql='SELECT data FROM review_decisions WHERE org_id=? AND doc_id=?';args=[org_id,doc_id]
+        if version is not None:sql+=' AND version=?';args.append(version)
+        return [decode(json.loads(r[0])) for r in self._execute(sql+' ORDER BY created_at,decision_id',args)]
+
+    def update_document_lifecycle(self,doc_id,lifecycle_state,*,current_version=None):
+        from dataclasses import replace
+        d=self.get_document(doc_id)
+        self.put_document(replace(d,lifecycle_state=lifecycle_state,current_version=d.current_version if current_version is None else current_version))
+
+    def update_version_state(self,doc_id,version,lifecycle_state,**metadata):
+        from dataclasses import replace
+        if set(metadata)-{'submitter_id','reviewer_id','publisher_id','published_at'}:raise ValidationError('Invalid release metadata')
+        v=replace(self.get_version(doc_id,version),lifecycle_state=lifecycle_state,**metadata)
+        self._execute('UPDATE document_versions SET data=? WHERE doc_id=? AND version=?',(self._dump(v),doc_id,version,))
+        return v
+
+    def update_issue(self,issue,*,expected_version=None):
+        previous=self.get_issue(issue.org_id,issue.issue_id)
+        self.lock_document(previous.doc_id)
+        previous=self.get_issue(issue.org_id,issue.issue_id)
+        if previous.status in ('resolved','dismissed') or expected_version is not None and previous.version!=expected_version:raise ConflictError('Issue conflict')
+        self._execute('UPDATE evidence_issues SET status=?,data=? WHERE org_id=? AND issue_id=?',(issue.status,self._dump(issue),issue.org_id,issue.issue_id))
+
+    def put_evidence_pack(self,pack):
+        self._execute('INSERT INTO evidence_packs(pack_id,org_id,title,status,pack_sha256,created_at,data) VALUES(?,?,?,?,?,?,?)',
+                      (pack.pack_id,pack.org_id,pack.title,pack.status,pack.pack_sha256,pack.created_at,self._dump(pack)))
+
+    def get_evidence_pack(self,org_id,pack_id):
+        from dataclasses import replace
+        pack=self._get('SELECT data FROM evidence_packs WHERE org_id=? AND pack_id=?',(org_id,pack_id))
+        status=self._execute('SELECT status FROM evidence_packs WHERE org_id=? AND pack_id=?',(org_id,pack_id))[0][0]
+        return replace(pack,status=status)
+
+    def list_evidence_packs(self,org_id):
+        return [self.get_evidence_pack(org_id,r[0]) for r in self._execute('SELECT pack_id FROM evidence_packs WHERE org_id=? ORDER BY created_at,pack_id',(org_id,))]
+
+    def mark_evidence_pack_impacted(self,org_id,pack_id):
         self._execute("UPDATE evidence_packs SET status='impacted' WHERE org_id=? AND pack_id=?",(org_id,pack_id))

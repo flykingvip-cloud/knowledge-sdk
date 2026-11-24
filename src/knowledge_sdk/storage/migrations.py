@@ -24,6 +24,9 @@ def apply(conn, enable_rls=True, pgvector=False):
             for sql in DDL.split(';'):
                 if sql.strip():
                     conn.execute(sql)
+            conn.execute("""CREATE OR REPLACE FUNCTION knowledge_review_immutable() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Append-only reviews'; END; $$""")
+            conn.execute('DROP TRIGGER IF EXISTS review_immutable ON review_decisions')
+            conn.execute('CREATE TRIGGER review_immutable BEFORE UPDATE OR DELETE ON review_decisions FOR EACH ROW EXECUTE FUNCTION knowledge_review_immutable()')
             if pgvector:
                 conn.execute('CREATE EXTENSION IF NOT EXISTS vector')
             # A non-RLS adapter never silently disables protection established by
