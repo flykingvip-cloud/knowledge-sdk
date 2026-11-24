@@ -1,0 +1,22 @@
+2026-11-25T05:37:05.780208+08:00 Asia/Shanghai
+Linux-6.12.113+-x86_64-with-glibc2.41
+3.13.5
+Exact baseline 04b8c934f68b1cbb504385d9500d8c61d458e5d3; only reports/ untracked at start
+M2 architect acceptance is supplied by the owner taskbook, not an independent review by this executor
+Strategy v0.2 not present among supplied staged inputs or repository docs; not assumed read
+Fresh disposable BOX cluster /workspace/knowledge-sdk-q2m3-pg/data-utf8; no pre-existing cluster used
+Initial SQL_ASCII disposable initdb stopped; replaced by separate UTF8 disposable data directory
+Test role NOSUPERUSER NOBYPASSRLS; passwordless local disposable trust; DSN not logged
+No external model/embedding API/Qdrant; deterministic local HashEmbedder for PG vector assertions only
+Python3.9 runtime not available/used; AST3.9 syntax check only
+psycopg 3.3.9
+psycopg-binary 3.3.9
+fastapi 0.165.0
+uvicorn 0.54.0
+httpx 0.28.1
+pytest 9.2.0
+pypdf 5.9.0
+build 1.6.1
+PostgreSQL 17.12 (Debian 17.12-0+deb13u1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+vector:0.8.0
+role: super=false,bypassrls=false

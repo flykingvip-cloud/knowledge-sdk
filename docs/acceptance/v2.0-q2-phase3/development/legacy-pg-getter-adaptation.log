@@ -1,0 +1,55 @@
+test_archive_export_prohibition_and_metadata_redaction (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_archive_export_prohibition_and_metadata_redaction) ... ok
+test_cli_stdlib_adapter_keeps_identity_outside_params (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_cli_stdlib_adapter_keeps_identity_outside_params) ... ok
+test_digest_tamper_and_cross_tenant_rls (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_digest_tamper_and_cross_tenant_rls) ... ok
+test_draft_live_isolation_every_content_surface (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_draft_live_isolation_every_content_surface) ... ok
+test_four_issue_actions_terminal_and_permissions (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_four_issue_actions_terminal_and_permissions) ... ok
+test_independent_connection_approve_and_issue_races (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_independent_connection_approve_and_issue_races) ... ok
+test_ingest_publish_interleaving_cannot_restore_stale_live_pointer (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_ingest_publish_interleaving_cannot_restore_stale_live_pointer) ... ok
+test_l1_unchanged_revision_issue_is_metadata_only (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_l1_unchanged_revision_issue_is_metadata_only) ... ok
+test_mcp_persisted_id_ephemeral_and_denied (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_mcp_persisted_id_ephemeral_and_denied) ... ok
+test_missing_hook_redaction_change_and_anchor_health (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_missing_hook_redaction_change_and_anchor_health) ... ok
+test_multistance_seal_immutability_crate_and_transport (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_multistance_seal_immutability_crate_and_transport) ... ok
+test_pre_m3_v3_draft_payload_is_migrated_without_admin_bypass (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_pre_m3_v3_draft_payload_is_migrated_without_admin_bypass) ... ok
+test_publish_race_has_one_winner_one_event (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_publish_race_has_one_winner_one_event) ... ok
+test_reentrant_redaction_cannot_revoke_earlier_item_and_leak (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_reentrant_redaction_cannot_revoke_earlier_item_and_leak) ... ok
+test_reject_resubmit_and_append_only_dissent (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_reject_resubmit_and_append_only_dissent) ... ok
+test_rejected_and_successive_drafts_never_overwrite_live_index (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_rejected_and_successive_drafts_never_overwrite_live_index) ... ok
+test_revoke_acl_redaction_and_no_partial_file_output (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_revoke_acl_redaction_and_no_partial_file_output) ... ok
+test_role_separation_admin_and_version_locks (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_role_separation_admin_and_version_locks) ... ok
+test_rollback_approval_publish_issue_and_pack (tests.q2.test_q2_m3_governance_packs.SQLiteM3.test_rollback_approval_publish_issue_and_pack) ... ok
+test_archive_export_prohibition_and_metadata_redaction (tests.test_dual_engine_parity.PostgresM3Parity.test_archive_export_prohibition_and_metadata_redaction) ... ok
+test_cli_stdlib_adapter_keeps_identity_outside_params (tests.test_dual_engine_parity.PostgresM3Parity.test_cli_stdlib_adapter_keeps_identity_outside_params) ... ok
+test_digest_tamper_and_cross_tenant_rls (tests.test_dual_engine_parity.PostgresM3Parity.test_digest_tamper_and_cross_tenant_rls) ... ok
+test_draft_live_isolation_every_content_surface (tests.test_dual_engine_parity.PostgresM3Parity.test_draft_live_isolation_every_content_surface) ... ok
+test_four_issue_actions_terminal_and_permissions (tests.test_dual_engine_parity.PostgresM3Parity.test_four_issue_actions_terminal_and_permissions) ... ok
+test_independent_connection_approve_and_issue_races (tests.test_dual_engine_parity.PostgresM3Parity.test_independent_connection_approve_and_issue_races) ... ok
+test_ingest_publish_interleaving_cannot_restore_stale_live_pointer (tests.test_dual_engine_parity.PostgresM3Parity.test_ingest_publish_interleaving_cannot_restore_stale_live_pointer) ... ok
+test_l1_unchanged_revision_issue_is_metadata_only (tests.test_dual_engine_parity.PostgresM3Parity.test_l1_unchanged_revision_issue_is_metadata_only) ... ok
+test_mcp_persisted_id_ephemeral_and_denied (tests.test_dual_engine_parity.PostgresM3Parity.test_mcp_persisted_id_ephemeral_and_denied) ... ok
+test_missing_hook_redaction_change_and_anchor_health (tests.test_dual_engine_parity.PostgresM3Parity.test_missing_hook_redaction_change_and_anchor_health) ... ok
+test_multistance_seal_immutability_crate_and_transport (tests.test_dual_engine_parity.PostgresM3Parity.test_multistance_seal_immutability_crate_and_transport) ... ok
+test_pre_m3_v3_draft_payload_is_migrated_without_admin_bypass (tests.test_dual_engine_parity.PostgresM3Parity.test_pre_m3_v3_draft_payload_is_migrated_without_admin_bypass) ... FAIL
+test_publish_race_has_one_winner_one_event (tests.test_dual_engine_parity.PostgresM3Parity.test_publish_race_has_one_winner_one_event) ... ok
+test_reentrant_redaction_cannot_revoke_earlier_item_and_leak (tests.test_dual_engine_parity.PostgresM3Parity.test_reentrant_redaction_cannot_revoke_earlier_item_and_leak) ... ok
+test_reject_resubmit_and_append_only_dissent (tests.test_dual_engine_parity.PostgresM3Parity.test_reject_resubmit_and_append_only_dissent) ... ok
+test_rejected_and_successive_drafts_never_overwrite_live_index (tests.test_dual_engine_parity.PostgresM3Parity.test_rejected_and_successive_drafts_never_overwrite_live_index) ... ok
+test_revoke_acl_redaction_and_no_partial_file_output (tests.test_dual_engine_parity.PostgresM3Parity.test_revoke_acl_redaction_and_no_partial_file_output) ... ok
+test_role_separation_admin_and_version_locks (tests.test_dual_engine_parity.PostgresM3Parity.test_role_separation_admin_and_version_locks) ... ok
+test_rollback_approval_publish_issue_and_pack (tests.test_dual_engine_parity.PostgresM3Parity.test_rollback_approval_publish_issue_and_pack) ... ok
+
+======================================================================
+FAIL: test_pre_m3_v3_draft_payload_is_migrated_without_admin_bypass (tests.test_dual_engine_parity.PostgresM3Parity.test_pre_m3_v3_draft_payload_is_migrated_without_admin_bypass)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_q2_m3_governance_packs.py", line 340, in test_pre_m3_v3_draft_payload_is_migrated_without_admin_bypass
+    self.assertEqual(self.s.get_version('d',1).lifecycle_state,'draft')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'published' != 'draft'
+- published
++ draft
+
+
+----------------------------------------------------------------------
+Ran 38 tests in 5.849s
+
+FAILED (failures=1)

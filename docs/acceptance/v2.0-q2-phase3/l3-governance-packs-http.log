@@ -1,0 +1,9 @@
+2026-11-25T05:47:34.376006+08:00 Asia/Shanghai
+PASS sqlite real signed HTTP: draft -> submit -> distinct reviewer -> distinct publisher; dissent and all 4 manual issue resolutions
+PASS sqlite JSON/get/verify/list and deterministic RO-Crate1.2; draft/live isolation and publish -> SUPERSEDED pack alert with seal unchanged
+PASS sqlite revoke -> get/json/zip 403 with no plaintext; ACCESS_REVOKED evidence_pack alert; unsigned/replayed 401; audit chain valid
+PASS sqlite subprocess stopped, sandbox removed, logs contain no key/DSN/ResourceWarning
+PASS postgres real signed HTTP: draft -> submit -> distinct reviewer -> distinct publisher; dissent and all 4 manual issue resolutions
+PASS postgres JSON/get/verify/list and deterministic RO-Crate1.2; draft/live isolation and publish -> SUPERSEDED pack alert with seal unchanged
+PASS postgres revoke -> get/json/zip 403 with no plaintext; ACCESS_REVOKED evidence_pack alert; unsigned/replayed 401; audit chain valid
+PASS postgres subprocess stopped, sandbox removed, logs contain no key/DSN/ResourceWarning

@@ -1,0 +1,130 @@
+.........................F..................................sss..F....................................s...........................................E..........................................................................sssssss.....E.E...................................ssssssssssssssssssss................................sssssssssssssssssssssssssssssssssssssssssssssssssssssss......................ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss..............E..........E.........................................................................................sssssssssssssssssss........................................................
+======================================================================
+ERROR: test_controlled_uploads_start_draft_ordinary_editor_cannot_publish (tests.permissions.test_phase2_policy_engine.PolicyIntegrationTests.test_controlled_uploads_start_draft_ordinary_editor_cannot_publish)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/permissions/test_phase2_policy_engine.py", line 393, in test_controlled_uploads_start_draft_ordinary_editor_cannot_publish
+    version=self.client.ingest(self.user,kb.kb_id,'controlled')
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/client/local.py", line 55, in wrapped
+    try:result=method(self,*args,**kwargs)
+               ~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/client/local.py", line 459, in ingest
+    self._emit_event(actor,'doc.draft_created' if controlled else 'doc.revised' if previous else 'doc.ingested',doc_id,version,previous_version=previous.version if previous else 0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/client/local.py", line 241, in _emit_event
+    event=OutboxEvent(str(uuid.uuid4()),actor.org_id,'anchor' if anchor_id else
+                      'acl' if event_type=='acl.updated' else 'document',
+                      anchor_id or doc_id,event_type,payload=payload,
+                      available_at=stamp,created_at=stamp)
+  File "<string>", line 14, in __init__
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/contracts/events.py", line 31, in __post_init__
+    if self.event_type not in EVENT_TYPES: raise ValidationError('Invalid event_type')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Invalid event_type
+
+======================================================================
+ERROR: test_failed_v3_ddl_rolls_back_entire_v3_and_version (tests.q2.test_schema_v3.SchemaV3Tests.test_failed_v3_ddl_rolls_back_entire_v3_and_version)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_schema_v3.py", line 67, in test_failed_v3_ddl_rolls_back_entire_v3_and_version
+    path = Path(tmp) / 'old.db'; v2_database(path)
+                                 ~~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/q2/test_schema_v3.py", line 32, in v2_database
+    with closing(SQLiteStore(path)) as store:
+                 ~~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/storage/sqlite_store.py", line 46, in __init__
+    self.db.execute("CREATE TRIGGER IF NOT EXISTS review_no_update BEFORE UPDATE ON review_decisions BEGIN SELECT RAISE(ABORT,'Append-only reviews'); END")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: main.review_decisions
+
+======================================================================
+ERROR: test_real_v2_to_v3_byte_preservation_and_reopen (tests.q2.test_schema_v3.SchemaV3Tests.test_real_v2_to_v3_byte_preservation_and_reopen)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_schema_v3.py", line 52, in test_real_v2_to_v3_byte_preservation_and_reopen
+    v2_database(path)
+    ~~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/q2/test_schema_v3.py", line 32, in v2_database
+    with closing(SQLiteStore(path)) as store:
+                 ~~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/storage/sqlite_store.py", line 46, in __init__
+    self.db.execute("CREATE TRIGGER IF NOT EXISTS review_no_update BEFORE UPDATE ON review_decisions BEGIN SELECT RAISE(ABORT,'Append-only reviews'); END")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: main.review_decisions
+
+======================================================================
+ERROR: test_G1_15_l2_validity_personal_hard_boundaries (tests.test_dual_engine_parity.SQLiteParity.test_G1_15_l2_validity_personal_hard_boundaries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/test_dual_engine_parity.py", line 18, in test
+    try:SCENARIOS[case['scenario']](fixture,Observation(case['expected']))
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/tests/benchmark/runner.py", line 131, in g115
+    f.c.ingest(f.a,'controlled','alpha',doc_id='draft',lifecycle_state='draft')
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/client/local.py", line 55, in wrapped
+    try:result=method(self,*args,**kwargs)
+               ~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/client/local.py", line 459, in ingest
+    self._emit_event(actor,'doc.draft_created' if controlled else 'doc.revised' if previous else 'doc.ingested',doc_id,version,previous_version=previous.version if previous else 0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/client/local.py", line 241, in _emit_event
+    event=OutboxEvent(str(uuid.uuid4()),actor.org_id,'anchor' if anchor_id else
+                      'acl' if event_type=='acl.updated' else 'document',
+                      anchor_id or doc_id,event_type,payload=payload,
+                      available_at=stamp,created_at=stamp)
+  File "<string>", line 14, in __init__
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/contracts/events.py", line 31, in __post_init__
+    if self.event_type not in EVENT_TYPES: raise ValidationError('Invalid event_type')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Invalid event_type
+
+======================================================================
+ERROR: test_G2_06_refusal_l2_draft_only (tests.test_dual_engine_parity.SQLiteParity.test_G2_06_refusal_l2_draft_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/test_dual_engine_parity.py", line 18, in test
+    try:SCENARIOS[case['scenario']](fixture,Observation(case['expected']))
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/tests/benchmark/runner.py", line 197, in g206
+    f.c.create_kb(f.a,'controlled','enterprise',kb_id='controlled',governance_tier='l2_controlled');f.c.ingest(f.a,'controlled','alpha',doc_id='draft',lifecycle_state='draft');refusal(f,o)
+                                                                                                    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/client/local.py", line 55, in wrapped
+    try:result=method(self,*args,**kwargs)
+               ~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/client/local.py", line 459, in ingest
+    self._emit_event(actor,'doc.draft_created' if controlled else 'doc.revised' if previous else 'doc.ingested',doc_id,version,previous_version=previous.version if previous else 0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/client/local.py", line 241, in _emit_event
+    event=OutboxEvent(str(uuid.uuid4()),actor.org_id,'anchor' if anchor_id else
+                      'acl' if event_type=='acl.updated' else 'document',
+                      anchor_id or doc_id,event_type,payload=payload,
+                      available_at=stamp,created_at=stamp)
+  File "<string>", line 14, in __init__
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/contracts/events.py", line 31, in __post_init__
+    if self.event_type not in EVENT_TYPES: raise ValidationError('Invalid event_type')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Invalid event_type
+
+======================================================================
+FAIL: test_exact75_offline_cases_no_skips_hard_gate (tests.benchmark.test_golden_benchmark.GoldenGate.test_exact75_offline_cases_no_skips_hard_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/benchmark/test_golden_benchmark.py", line 10, in test_exact75_offline_cases_no_skips_hard_gate
+    self.assertTrue(result['gate_passed'],[r for r in result['results'] if r['status']!='passed'])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : [{'case_id': 'G1-15', 'group': 'G1', 'scenario': 'l2_validity_personal_hard_boundaries', 'status': 'failed', 'error': 'ValidationError: Invalid event_type', 'safety_failures': 0, 'positive_failures': 0, 'model_calls': 0, 'injection_attempts': 0, 'injection_blocked': 0, 'recall': None, 'audit_checks': 0, 'audit_detected': 0, 'impact_expected': 0, 'impact_found': 0, 'impact_unexpected': 0}, {'case_id': 'G2-06', 'group': 'G2', 'scenario': 'refusal_l2_draft_only', 'status': 'failed', 'error': 'ValidationError: Invalid event_type', 'safety_failures': 0, 'positive_failures': 0, 'model_calls': 0, 'injection_attempts': 0, 'injection_blocked': 0, 'recall': None, 'audit_checks': 0, 'audit_detected': 0, 'impact_expected': 0, 'impact_found': 0, 'impact_unexpected': 0}]
+
+======================================================================
+FAIL: test_python39_syntax (tests.isolation.test_zero_coupling.IsolationTests.test_python39_syntax)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/isolation/test_zero_coupling.py", line 29, in test_python39_syntax
+    self.assertIn("from __future__ import annotations",source,str(path))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'from __future__ import annotations' not found in '"""Immutable, dependency-free EvidencePack and deterministic sealing contracts."""\nfrom dataclasses import dataclass, field, fields\nfrom typing import Any, Dict, Tuple\nimport hashlib\nimport json\nfrom .policy import PolicyContract, Purpose, enum_value, freeze_json, sequence, text\nfrom .anchors import integer\nfrom ..exceptions import ValidationError\n\ndef plain(value):\n    if isinstance(value,PolicyContract):return {f.name:plain(getattr(value,f.name)) for f in fields(value)}\n    if isinstance(value,(list,tuple)):return [plain(v) for v in value]\n    if isinstance(value,dict):return {k:plain(v) for k,v in value.items()}\n    return value.value if hasattr(value,\'value\') else value\n\ndef canonical(value):return json.dumps(plain(value),sort_keys=True,separators=(\',\',\':\'),ensure_ascii=True).encode(\'utf-8\')\ndef digest(pack):return hashlib.sha256(canonical({n:getattr(pack,n) for n in (\'org_id\',\'title\',\'topic\',\'items\',\'dissent_notes\',\'effective_decision\')})).hexdigest()\n\n@dataclass(frozen=True)\nclass PackItem(PolicyContract):\n    source_uri: str\n    doc_id: str\n    version: int\n    anchor_id: str = \'\'\n    stance: str = \'supporting\'\n    condition_note: str = \'\'\n    excerpt: str = \'\'\n    excerpt_hash: str = \'\'\n    masking_summary: str = \'\'\n    receipt_id: str = \'\'\n    def __post_init__(self):\n        integer(self.version,\'version\',1)\n        if self.stance not in (\'supporting\',\'refuting\',\'negative\',\'conflict\',\'contextual\'):raise ValidationError(\'Invalid stance\')\n        for f in fields(self):\n            if f.name!=\'version\':text(getattr(self,f.name),f.name)\n    def to_dict(self):return plain(self)\n\n@dataclass(frozen=True)\nclass EvidencePack(PolicyContract):\n    pack_id: str\n    org_id: str\n    title: str\n    topic: str = \'\'\n    created_by: str = \'\'\n    status: str = \'sealed\'\n    purpose_bound: Purpose = Purpose.EXPORT\n    effective_decision: Dict[str,Any] = field(default_factory=dict)\n    items: Tuple[PackItem,...] = ()\n    dissent_notes: Tuple[str,...] = ()\n    pack_sha256: str = \'\'\n    created_at: str = \'\'\n    def __post_init__(self):\n        for n in (\'pack_id\',\'org_id\',\'title\'):text(getattr(self,n),n,True)\n        if self.status not in (\'draft\',\'sealed\',\'impacted\',\'superseded\'):raise ValidationError(\'Invalid pack status\')\n        object.__setattr__(self,\'purpose_bound\',enum_value(Purpose,self.purpose_bound))\n        object.__setattr__(self,\'items\',tuple(PackItem.from_dict(i) if isinstance(i,dict) else i for i in self.items))\n        if not self.items or any(not isinstance(i,PackItem) for i in self.items):raise ValidationError(\'Pack items required\')\n        object.__setattr__(self,\'dissent_notes\',sequence(self.dissent_notes,\'dissent_notes\'))\n        object.__setattr__(self,\'effective_decision\',freeze_json(self.effective_decision))\n    def to_dict(self):return plain(self)\n\n@dataclass(frozen=True)\nclass PackVerificationReport(PolicyContract):\n    pack_id: str\n    digest_valid: bool\n    status: str\n    impact_alerts: Tuple[Any,...] = ()\n    def __post_init__(self):object.__setattr__(self,\'impact_alerts\',tuple(self.impact_alerts))\n\n@dataclass(frozen=True)\nclass ExportResult(PolicyContract):\n    pack_id: str\n    format: str\n    content: str\n    media_type: str\n    encoding: str = \'utf-8\'\n    output_path: str = \'\'\n    sha256: str = \'\'\n' : /workspace/knowledge-sdk/src/knowledge_sdk/contracts/packs.py
+
+----------------------------------------------------------------------
+Ran 666 tests in 20.967s
+
+FAILED (failures=2, errors=5, skipped=181)

@@ -1,0 +1,181 @@
+test_digest_tamper_and_cross_tenant_rls (tests.test_dual_engine_parity.PostgresM3Parity.test_digest_tamper_and_cross_tenant_rls) ... ERROR
+test_draft_live_isolation_every_content_surface (tests.test_dual_engine_parity.PostgresM3Parity.test_draft_live_isolation_every_content_surface) ... ERROR
+test_four_issue_actions_terminal_and_permissions (tests.test_dual_engine_parity.PostgresM3Parity.test_four_issue_actions_terminal_and_permissions) ... ERROR
+test_independent_connection_approve_and_issue_races (tests.test_dual_engine_parity.PostgresM3Parity.test_independent_connection_approve_and_issue_races) ... ERROR
+test_mcp_persisted_id_ephemeral_and_denied (tests.test_dual_engine_parity.PostgresM3Parity.test_mcp_persisted_id_ephemeral_and_denied) ... ERROR
+test_missing_hook_redaction_change_and_anchor_health (tests.test_dual_engine_parity.PostgresM3Parity.test_missing_hook_redaction_change_and_anchor_health) ... ERROR
+test_multistance_seal_immutability_crate_and_transport (tests.test_dual_engine_parity.PostgresM3Parity.test_multistance_seal_immutability_crate_and_transport) ... ERROR
+test_reject_resubmit_and_append_only_dissent (tests.test_dual_engine_parity.PostgresM3Parity.test_reject_resubmit_and_append_only_dissent) ... ERROR
+test_revoke_acl_redaction_and_no_partial_file_output (tests.test_dual_engine_parity.PostgresM3Parity.test_revoke_acl_redaction_and_no_partial_file_output) ... ERROR
+test_role_separation_admin_and_version_locks (tests.test_dual_engine_parity.PostgresM3Parity.test_role_separation_admin_and_version_locks) ... ERROR
+test_rollback_approval_publish_issue_and_pack (tests.test_dual_engine_parity.PostgresM3Parity.test_rollback_approval_publish_issue_and_pack) ... ERROR
+
+======================================================================
+ERROR: test_digest_tamper_and_cross_tenant_rls (tests.test_dual_engine_parity.PostgresM3Parity.test_digest_tamper_and_cross_tenant_rls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_q2_m3_governance_packs.py", line 39, in setUp
+    self.c=postgres_client(self.sandbox.dsn,pgvector_dims=32)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/server/postgres.py", line 16, in postgres_client
+    kwargs={'vector_index':PgVectorIndex(store=store,dimensions=pgvector_dims,enable_rls=enable_rls),'embedder':embedder}
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/retrieval/adapters/pgvector_index.py", line 21, in __init__
+    if kind!='vector('+str(dimensions)+')':raise ValidationError('Existing vector dimensions differ')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Existing vector dimensions differ
+
+======================================================================
+ERROR: test_draft_live_isolation_every_content_surface (tests.test_dual_engine_parity.PostgresM3Parity.test_draft_live_isolation_every_content_surface)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_q2_m3_governance_packs.py", line 39, in setUp
+    self.c=postgres_client(self.sandbox.dsn,pgvector_dims=32)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/server/postgres.py", line 16, in postgres_client
+    kwargs={'vector_index':PgVectorIndex(store=store,dimensions=pgvector_dims,enable_rls=enable_rls),'embedder':embedder}
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/retrieval/adapters/pgvector_index.py", line 21, in __init__
+    if kind!='vector('+str(dimensions)+')':raise ValidationError('Existing vector dimensions differ')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Existing vector dimensions differ
+
+======================================================================
+ERROR: test_four_issue_actions_terminal_and_permissions (tests.test_dual_engine_parity.PostgresM3Parity.test_four_issue_actions_terminal_and_permissions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_q2_m3_governance_packs.py", line 39, in setUp
+    self.c=postgres_client(self.sandbox.dsn,pgvector_dims=32)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/server/postgres.py", line 16, in postgres_client
+    kwargs={'vector_index':PgVectorIndex(store=store,dimensions=pgvector_dims,enable_rls=enable_rls),'embedder':embedder}
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/retrieval/adapters/pgvector_index.py", line 21, in __init__
+    if kind!='vector('+str(dimensions)+')':raise ValidationError('Existing vector dimensions differ')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Existing vector dimensions differ
+
+======================================================================
+ERROR: test_independent_connection_approve_and_issue_races (tests.test_dual_engine_parity.PostgresM3Parity.test_independent_connection_approve_and_issue_races)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_q2_m3_governance_packs.py", line 39, in setUp
+    self.c=postgres_client(self.sandbox.dsn,pgvector_dims=32)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/server/postgres.py", line 16, in postgres_client
+    kwargs={'vector_index':PgVectorIndex(store=store,dimensions=pgvector_dims,enable_rls=enable_rls),'embedder':embedder}
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/retrieval/adapters/pgvector_index.py", line 21, in __init__
+    if kind!='vector('+str(dimensions)+')':raise ValidationError('Existing vector dimensions differ')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Existing vector dimensions differ
+
+======================================================================
+ERROR: test_mcp_persisted_id_ephemeral_and_denied (tests.test_dual_engine_parity.PostgresM3Parity.test_mcp_persisted_id_ephemeral_and_denied)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_q2_m3_governance_packs.py", line 39, in setUp
+    self.c=postgres_client(self.sandbox.dsn,pgvector_dims=32)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/server/postgres.py", line 16, in postgres_client
+    kwargs={'vector_index':PgVectorIndex(store=store,dimensions=pgvector_dims,enable_rls=enable_rls),'embedder':embedder}
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/retrieval/adapters/pgvector_index.py", line 21, in __init__
+    if kind!='vector('+str(dimensions)+')':raise ValidationError('Existing vector dimensions differ')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Existing vector dimensions differ
+
+======================================================================
+ERROR: test_missing_hook_redaction_change_and_anchor_health (tests.test_dual_engine_parity.PostgresM3Parity.test_missing_hook_redaction_change_and_anchor_health)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_q2_m3_governance_packs.py", line 39, in setUp
+    self.c=postgres_client(self.sandbox.dsn,pgvector_dims=32)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/server/postgres.py", line 16, in postgres_client
+    kwargs={'vector_index':PgVectorIndex(store=store,dimensions=pgvector_dims,enable_rls=enable_rls),'embedder':embedder}
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/retrieval/adapters/pgvector_index.py", line 21, in __init__
+    if kind!='vector('+str(dimensions)+')':raise ValidationError('Existing vector dimensions differ')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Existing vector dimensions differ
+
+======================================================================
+ERROR: test_multistance_seal_immutability_crate_and_transport (tests.test_dual_engine_parity.PostgresM3Parity.test_multistance_seal_immutability_crate_and_transport)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_q2_m3_governance_packs.py", line 39, in setUp
+    self.c=postgres_client(self.sandbox.dsn,pgvector_dims=32)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/server/postgres.py", line 16, in postgres_client
+    kwargs={'vector_index':PgVectorIndex(store=store,dimensions=pgvector_dims,enable_rls=enable_rls),'embedder':embedder}
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/retrieval/adapters/pgvector_index.py", line 21, in __init__
+    if kind!='vector('+str(dimensions)+')':raise ValidationError('Existing vector dimensions differ')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Existing vector dimensions differ
+
+======================================================================
+ERROR: test_reject_resubmit_and_append_only_dissent (tests.test_dual_engine_parity.PostgresM3Parity.test_reject_resubmit_and_append_only_dissent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_q2_m3_governance_packs.py", line 39, in setUp
+    self.c=postgres_client(self.sandbox.dsn,pgvector_dims=32)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/server/postgres.py", line 16, in postgres_client
+    kwargs={'vector_index':PgVectorIndex(store=store,dimensions=pgvector_dims,enable_rls=enable_rls),'embedder':embedder}
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/retrieval/adapters/pgvector_index.py", line 21, in __init__
+    if kind!='vector('+str(dimensions)+')':raise ValidationError('Existing vector dimensions differ')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Existing vector dimensions differ
+
+======================================================================
+ERROR: test_revoke_acl_redaction_and_no_partial_file_output (tests.test_dual_engine_parity.PostgresM3Parity.test_revoke_acl_redaction_and_no_partial_file_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_q2_m3_governance_packs.py", line 39, in setUp
+    self.c=postgres_client(self.sandbox.dsn,pgvector_dims=32)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/server/postgres.py", line 16, in postgres_client
+    kwargs={'vector_index':PgVectorIndex(store=store,dimensions=pgvector_dims,enable_rls=enable_rls),'embedder':embedder}
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/retrieval/adapters/pgvector_index.py", line 21, in __init__
+    if kind!='vector('+str(dimensions)+')':raise ValidationError('Existing vector dimensions differ')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Existing vector dimensions differ
+
+======================================================================
+ERROR: test_role_separation_admin_and_version_locks (tests.test_dual_engine_parity.PostgresM3Parity.test_role_separation_admin_and_version_locks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_q2_m3_governance_packs.py", line 39, in setUp
+    self.c=postgres_client(self.sandbox.dsn,pgvector_dims=32)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/server/postgres.py", line 16, in postgres_client
+    kwargs={'vector_index':PgVectorIndex(store=store,dimensions=pgvector_dims,enable_rls=enable_rls),'embedder':embedder}
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/retrieval/adapters/pgvector_index.py", line 21, in __init__
+    if kind!='vector('+str(dimensions)+')':raise ValidationError('Existing vector dimensions differ')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Existing vector dimensions differ
+
+======================================================================
+ERROR: test_rollback_approval_publish_issue_and_pack (tests.test_dual_engine_parity.PostgresM3Parity.test_rollback_approval_publish_issue_and_pack)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_q2_m3_governance_packs.py", line 39, in setUp
+    self.c=postgres_client(self.sandbox.dsn,pgvector_dims=32)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/server/postgres.py", line 16, in postgres_client
+    kwargs={'vector_index':PgVectorIndex(store=store,dimensions=pgvector_dims,enable_rls=enable_rls),'embedder':embedder}
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/retrieval/adapters/pgvector_index.py", line 21, in __init__
+    if kind!='vector('+str(dimensions)+')':raise ValidationError('Existing vector dimensions differ')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: Existing vector dimensions differ
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.929s
+
+FAILED (errors=11)

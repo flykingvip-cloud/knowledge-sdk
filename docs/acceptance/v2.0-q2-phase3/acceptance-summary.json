@@ -1,0 +1,45 @@
+{
+  "tested_source": "a9bdd9aa298aa520f25cbd2e063f56ef485aa006",
+  "baseline": "04b8c934f68b1cbb504385d9500d8c61d458e5d3",
+  "branch": "feat/q2-phase3-l2-governance-packs",
+  "core_dependencies": [],
+  "stdlib": {
+    "run": 724,
+    "passed": 523,
+    "skipped": 201,
+    "failures": 0,
+    "resource_warnings": 0
+  },
+  "full_unittest": {
+    "run": 724,
+    "passed": 721,
+    "skipped": 3,
+    "failures": 0
+  },
+  "full_pytest": {
+    "passed": 721,
+    "skipped": 3,
+    "subtests_passed": 201,
+    "failures": 0,
+    "optional_dependency_deprecation_warnings": 1
+  },
+  "m3_same_contract_scenarios": {
+    "sqlite": 19,
+    "postgres": 19,
+    "shared_sqlite_parity_additional": 19
+  },
+  "golden": {
+    "sqlite": "75/75",
+    "postgres": "75/75",
+    "original_bytes_preserved": true
+  },
+  "ast39": "PASS syntax only",
+  "python39_runtime": "NOT_RUN; unavailable",
+  "build_and_wheel_record_and_extracted_sqlite_postgres": "PASS",
+  "l3_real_signed_http_sqlite_postgres": "PASS",
+  "l4_browser": "NOT_RUN",
+  "l5_independent_m3": "PENDING",
+  "m2_architect_acceptance": "owner-supplied result, not executor independent review",
+  "strategy_v02": "not found in supplied staged inputs/repository docs",
+  "q1_real_world_gates": "remain open; no external model/embedding/Qdrant, proxy/session/CSRF/browser, real-user PDF/OCR or external desktop partner acceptance claimed"
+}

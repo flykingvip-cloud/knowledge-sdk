@@ -1,0 +1,9 @@
+remaining_disposable_test_schemas=0
+active_test_connections=0
+waiting for server to shut down.... done
+server stopped
+data: pg_ctl: no server running (exit=3)
+data-utf8: pg_ctl: no server running (exit=3)
+2026-11-25T05:47:50.254828+08:00 Asia/Shanghai
+Only newly created Q2-M3 test resources stopped. M2 cluster and existing services/databases untouched.
+All HTTP child processes exited; all unique sdk_test schemas removed; offline cluster data retained for reproduction.

@@ -142,3 +142,8 @@ legacy `source_uris=[...]` and new `query="..."` transient modes. The real Q1
 baseline used `source_uris`, not `query`; both transient modes are supported without
 changing the 75 golden inputs. Denied/missing/tampered persisted IDs produce no
 items; no model chooses identities, purposes or local output paths.
+
+Legacy pre-M3 L2 version payloads lacking author identity cannot be approved or
+published by guessing the document owner. Reingest the candidate (even identical
+content) to create a new attributable draft, then use the normal three-actor flow.
+Publication also checks an actual immutable approval record, not a state flag alone.
