@@ -1,0 +1,53 @@
+# L3 real isolated loopback HTTP transcript
+$ date (Asia/Shanghai)
+2026-11-24 11:56:42 CST
+$ PYTHONPATH=src .venv-http/bin/python docs/acceptance/v1.2/live_http_probe.py
+$ PYTHONPATH=src KNOWLEDGE_AUTH_SECRET=<random, redacted> KNOWLEDGE_AUTH_FALLBACK_SECRETS=<random, redacted> /workspace/knowledge-sdk/.venv-http/bin/python -m knowledge_sdk.server --host 127.0.0.1 --port 60583 --replay-db /tmp/kb-phase1-live-1sumz2oe/replay.sqlite3 --ui-prefix /kb/ui
+GET /kb/ui 200 security headers PASS body_sha256=09e4293cf5c6a97a9cadc2a61778e7c993bc406980e24f8b4451f944ec3b56f0
+GET /kb/ui/ 200 security headers PASS body_sha256=09e4293cf5c6a97a9cadc2a61778e7c993bc406980e24f8b4451f944ec3b56f0
+GET /kb/ui/config 200 security headers PASS body_sha256=d8fcd717dae3b11a14c5b70bfba64dd5331e9384a5d1d1a7a2c2042ef9b626c2
+GET /kb/ui/assets/workbench.css 200 security headers PASS body_sha256=1d9ad68673f8753c34e1e05ed14fe33dc743a0affdfc38517a9ebc35de6fef07
+GET /kb/ui/assets/workbench.js 200 security headers PASS body_sha256=db488bf7d731b7a89b251c07ae6acd718e56188b1bdcc7a7688bfafd2c3a4545
+GET /kb/ui/assets/i18n.js 200 security headers PASS body_sha256=21f2add97faf97367c187a0624c874ded481f1136b470d0331f9f797b3dcf56b
+GET /ui 404
+GET /ui/config 404
+POST /ui/demo/sign 404
+POST /kb/ui/demo/sign 404
+Unsigned GET /v1/kbs 401
+Signed current-key GET /v1/kbs 200; exact replay 401
+Signed fallback-key GET /v1/kbs 200
+Invalid signature 401 then same nonce valid signature 200 (no nonce poisoning)
+Purpose tampering 401
+Local real HTTP probe: PASS; no embedding/generation/remote vector backend configured or called
+Isolated server stopped; exit code: -15
+
+Raw server output (verified contains no random secret values):
+INFO:     Started server process [862597]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:60583 (Press CTRL+C to quit)
+INFO:     127.0.0.1:49094 - "GET /v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49096 - "GET /kb/ui HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49102 - "GET /kb/ui/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49112 - "GET /kb/ui/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49124 - "GET /kb/ui/assets/workbench.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49132 - "GET /kb/ui/assets/workbench.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49134 - "GET /kb/ui/assets/i18n.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49150 - "GET /ui HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49160 - "GET /ui/config HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49174 - "POST /ui/demo/sign HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49186 - "POST /kb/ui/demo/sign HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49194 - "GET /v1/kbs HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49206 - "GET /v1/kbs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49222 - "GET /v1/kbs HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49230 - "GET /v1/kbs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49246 - "GET /v1/kbs HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49250 - "GET /v1/kbs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49252 - "GET /v1/kbs HTTP/1.1" 401 Unauthorized
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [862597]
+
+Temporary replay database and memory-only business data removed with temp directory
+exit_code=0
