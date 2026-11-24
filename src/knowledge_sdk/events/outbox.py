@@ -30,8 +30,7 @@ class OutboxDispatcher:
             # The SQLite writer lock fences stale workers across the handlers and
             # final status update. An expired batch claim may have been reclaimed
             # before we obtained the lock; its attempt number is then rejected.
-            with self.store._write_scope():
-                current=self.store._execute("SELECT 1 FROM outbox_events WHERE event_id=? AND status='processing' AND attempts=?",(event.event_id,event.attempts))
+            with self.store.outbox_processing_scope(event) as current:
                 if not current:continue
                 if event.attempts>self.max_attempts:
                     self.store.mark_outbox_failed(event.event_id,when.isoformat(),self.max_attempts)

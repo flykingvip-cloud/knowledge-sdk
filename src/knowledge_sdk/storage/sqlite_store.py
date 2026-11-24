@@ -551,3 +551,9 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
 
     def list_all_bindings(self,org_id):
         return [(r[0],self._binding_data(r[1])) for r in self._execute('SELECT user_id,data FROM consumer_bindings WHERE org_id=? ORDER BY user_id,consumer_type,consumer_id',(org_id,))]
+
+    @contextmanager
+    def outbox_processing_scope(self,event):
+        with self._write_scope():
+            rows=self._execute("SELECT 1 FROM outbox_events WHERE org_id=? AND event_id=? AND status='processing' AND attempts=?",(event.org_id,event.event_id,event.attempts))
+            yield bool(rows)
