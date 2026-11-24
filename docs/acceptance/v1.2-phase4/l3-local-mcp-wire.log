@@ -1,0 +1,114 @@
+Phase4 L3 | Asia/Shanghai
+2026-11-24T20:47:29+08:00
+24c4be242edf765020d295d413091ec12e6b0a52
+COMMAND: PYTHONPATH=src .venv-mcp/bin/python -W error::ResourceWarning docs/acceptance/v1.2-phase4/live_mcp_probe.py
+2026-11-24T20:47:30.067686+08:00 Asia/Shanghai
+$ KNOWLEDGE_AUTH_SECRET=<random-not-logged> PYTHONPATH=src /workspace/knowledge-sdk/.venv-mcp/bin/python /workspace/knowledge-sdk/docs/acceptance/v1.2-phase4/live_mcp_probe.py --serve http 44007 /tmp/kb-phase4-wire-rl73rxpr/isolated-business.db /tmp/kb-phase4-wire-rl73rxpr/separate-replay.db
+$ KNOWLEDGE_AUTH_SECRET=<random-not-logged> PYTHONPATH=src /workspace/knowledge-sdk/.venv-mcp/bin/python /workspace/knowledge-sdk/docs/acceptance/v1.2-phase4/live_mcp_probe.py --serve mcp 54997 /tmp/kb-phase4-wire-rl73rxpr/isolated-business.db /tmp/kb-phase4-wire-rl73rxpr/separate-replay.db
+$ KNOWLEDGE_AUTH_SECRET=<random-not-logged> PYTHONPATH=src /workspace/knowledge-sdk/.venv-mcp/bin/python /workspace/knowledge-sdk/docs/acceptance/v1.2-phase4/live_mcp_probe.py --serve mcp 57447 /tmp/kb-phase4-wire-rl73rxpr/isolated-business.db /tmp/kb-phase4-wire-rl73rxpr/separate-replay.db
+Real HTTP issue endpoint queued; formal version unchanged; reserved body claims 400
+Official SDK versions: 1.30.0
+Official initialize/list_tools/search: exact four schemas; signed missing-purpose default external; real masked receipt
+Official verify/hash-tamper/pack intersection/report: queue inserted, no formal document mutation
+Official tools/call runtime identity injection: 36/36 blocked, not just schema restrictions
+Concurrent official MCP sessions: tenant/actor/agent identity isolated
+Actual wire shared-worker replay 200→401; unsigned/read-downgrade/removed-purpose 401; hostile Origin 403
+L3 official client/wire + HTTP probe PASS; external model/embedding/Qdrant calls=0
+Temporary server stopped returncode -15 raw stdout/stderr:
+INFO:     Started server process [1027337]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:44007 (Press CTRL+C to quit)
+INFO:     127.0.0.1:56978 - "GET /v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45254 - "POST /v1/documents/get HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45266 - "POST /v1/evidence/issues HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45280 - "POST /v1/documents/get HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45288 - "POST /v1/evidence/issues HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:45296 - "POST /v1/evidence/issues HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:45302 - "POST /v1/evidence/issues HTTP/1.1" 400 Bad Request
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1027337]
+
+Temporary server stopped returncode -15 raw stdout/stderr:
+INFO:     Started server process [1027338]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:54997 (Press CTRL+C to quit)
+INFO:     127.0.0.1:38932 - "GET /mcp HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:34872 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34888 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34872 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:34888 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34912 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34912 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34924 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34934 - "POST /mcp HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:34940 - "POST /mcp HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:34954 - "POST /mcp HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:34968 - "POST /mcp HTTP/1.1" 401 Unauthorized
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1027338]
+
+Temporary server stopped returncode -15 raw stdout/stderr:
+INFO:     Started server process [1027345]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:57447 (Press CTRL+C to quit)
+INFO:     127.0.0.1:51298 - "GET /mcp HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51302 - "POST /mcp HTTP/1.1" 401 Unauthorized
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1027345]
+
+All temporary servers stopped and dedicated databases removed
+
+L3_EXIT_CODE=0

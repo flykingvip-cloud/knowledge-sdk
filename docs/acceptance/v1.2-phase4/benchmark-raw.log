@@ -1,0 +1,134 @@
+Phase4 GOLDEN | Asia/Shanghai
+2026-11-24T20:47:29+08:00
+24c4be242edf765020d295d413091ec12e6b0a52
+COMMAND: PYTHONPATH=src python3 -S -W error::ResourceWarning -m tests.benchmark.run --json-output docs/acceptance/v1.2-phase4/benchmark-metrics.json --report docs/acceptance/v1.2-phase4/benchmark-report.md
+G1-01 passed tenant_document_read 
+G1-02 passed tenant_search_isolation 
+G1-03 passed department_exact_boundary 
+G1-04 passed department_ancestor_inheritance 
+G1-05 passed department_no_ancestor_expansion 
+G1-06 passed explicit_deny_owner 
+G1-07 passed explicit_deny_nonowner_admin 
+G1-08 passed explicit_deny_role 
+G1-09 passed explicit_deny_department 
+G1-10 passed historic_receipt_current_revocation 
+G1-11 passed agent_kb_intersection 
+G1-12 passed agent_clearance_ceiling 
+G1-13 passed agent_purpose_intersection 
+G1-14 passed external_llm_default_prohibition 
+G1-15 passed training_default_prohibition 
+G1-16 passed explicit_export_prohibition 
+G1-17 passed missing_redactor_never_plaintext 
+G1-18 passed stale_vector_revoked 
+G1-19 passed forged_cross_tenant_vector 
+G1-20 passed mcp_no_existence_title_or_count_oracle 
+G2-01 passed refusal_empty_corpus 
+G2-02 passed refusal_foreign_only 
+G2-03 passed refusal_explicit_acl_only 
+G2-04 passed refusal_archived_only 
+G2-05 passed refusal_revoked_only 
+G2-06 passed refusal_agent_scope_only 
+G2-07 passed refusal_missing_hook_only 
+G2-08 passed refusal_future_validity_only 
+G2-09 passed refusal_expired_retention_only 
+G2-10 passed refusal_and_authorized_positive_control 
+G3-01 passed fetch_90_percent_acl_150 
+G3-02 passed fetch_mixed_120_archive_revoke_acl 
+G3-03 passed fetch_document_scope_prebudget_600 
+G3-04 passed fetch_space_kb_scope_prebudget_600 
+G3-05 passed fetch_space_type_scope_prebudget_600 
+G3-06 passed fetch_binding_scope_intersection 
+G3-07 passed fetch_over500_budget_true 
+G3-08 passed fetch_exact500_exhausted_false 
+G3-09 passed fetch_hybrid_offline_stub_recall 
+G3-10 passed fetch_repeated_candidates_evaluated_once 
+G4-01 passed anchor_offline_pdf_bbox_policy_mask 
+G4-02 passed anchor_csv_negative_detection_limits 
+G4-03 passed anchor_unique_exact_stable_id 
+G4-04 passed anchor_duplicate_pending_no_alias 
+G4-05 passed anchor_section_move_pending 
+G4-06 passed anchor_table_header_move_pending 
+G4-07 passed anchor_pdf_page_move_pending 
+G4-08 passed anchor_orphan_unavailable_not_confirmable 
+G4-09 passed anchor_explicit_confirm_read_write_gate 
+G4-10 passed anchor_forged_quote_hash_rejected 
+G5-01 passed mcp_hmac_body_binding_and_nonce 
+G5-02 passed mcp_crossworker_replay_rotated_key 
+G5-03 passed mcp_runtime_identity_fields_rejected 
+G5-04 passed mcp_trusted_purpose_binding_no_read_downgrade 
+G5-05 passed mcp_parallel_per_request_identity 
+G5-06 passed mcp_citation_hash_tamper_and_positive 
+G5-07 passed mcp_real_receipt_trusted_consumer 
+G5-08 passed mcp_pack_collective_deny_and_redaction_union 
+G5-09 passed mcp_feedback_queue_inert_no_document_mutation 
+G5-10 passed mcp_feedback_conflicting_uri_cross_tenant_denied 
+{
+  "gate_passed": true,
+  "case_count": 60,
+  "passed": 60,
+  "failed": 0,
+  "skipped": 0,
+  "groups": {
+    "G1": {
+      "passed": 20,
+      "total": 20
+    },
+    "G2": {
+      "passed": 10,
+      "total": 10
+    },
+    "G3": {
+      "passed": 10,
+      "total": 10
+    },
+    "G4": {
+      "passed": 10,
+      "total": 10
+    },
+    "G5": {
+      "passed": 10,
+      "total": 10
+    }
+  },
+  "acl_violation": {
+    "numerator": 0,
+    "denominator": 20,
+    "rate": 0.0
+  },
+  "no_evidence_refusal": {
+    "numerator": 10,
+    "denominator": 10,
+    "rate": 1.0
+  },
+  "anchoring_status_accuracy": {
+    "numerator": 10,
+    "denominator": 10,
+    "rate": 1.0
+  },
+  "mcp_injection_blocked": {
+    "numerator": 40,
+    "denominator": 40,
+    "rate": 1.0
+  },
+  "model_call_count": 0,
+  "positive_control_failures": 0,
+  "security_assertion_failures": 0,
+  "offline_recall_at_5": {
+    "eligible_cases": 8,
+    "mean": 1.0,
+    "values": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "executed_at": "2026-11-24T20:47:32.681868+08:00",
+  "timezone": "Asia/Shanghai"
+}
+
+GOLDEN_EXIT_CODE=0
