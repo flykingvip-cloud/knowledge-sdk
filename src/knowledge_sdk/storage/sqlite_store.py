@@ -196,14 +196,14 @@ class SQLiteStore:
     def list_policy_rules(self,org_id):
         return [decode(json.loads(r[0])) for r in self._execute('SELECT data FROM policy_rules WHERE org_id=? ORDER BY priority,rule_id',(org_id,))]
     def delete_policy_rule(self,org_id,rule_id):self._execute('DELETE FROM policy_rules WHERE org_id=? AND rule_id=?',(org_id,rule_id))
-    def keyword_search_pushdown(self,query,org_id,limit=100,*,kb_ids=None,doc_ids=None):
+    def keyword_search_pushdown(self,query,org_id,limit=100,*,kb_ids=None,doc_ids=None,space_types=None):
         ts=tokens(query)
         if re.search(r"[\u3400-\u9fff]{2}",query):ts=[t for t in ts if not re.fullmatch(r"[\u3400-\u9fff]",t)]
         if not ts:return []
         match=' OR '.join('"'+t.replace('"','""')+'"' for t in ts[:64])
         sql='SELECT chunks_fts.doc_id,version,chunk_id,bm25(chunks_fts) FROM chunks_fts JOIN documents d ON chunks_fts.doc_id=d.doc_id WHERE chunks_fts MATCH ? AND d.org_id=? AND chunks_fts.org_id=? AND d.archived=0 AND d.revoked=0'
         args=[match,org_id,org_id]
-        for column,values in (('kb_id',kb_ids),('doc_id',doc_ids)):
+        for column,values in (('kb_id',kb_ids),('doc_id',doc_ids),('space_type',space_types)):
             if values is not None:
                 if isinstance(values,str) or not isinstance(values,(list,tuple,set,frozenset)) or any(not isinstance(v,str) for v in values):raise ValidationError('Invalid pushdown scope')
                 if not values:return []

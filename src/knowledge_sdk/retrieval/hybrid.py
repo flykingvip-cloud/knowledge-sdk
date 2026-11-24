@@ -1,5 +1,5 @@
 from __future__ import annotations
-from ..contracts.models import SearchHit, SearchResponse
+from ..contracts.models import SearchHit, SearchResponse, KnowledgeScope
 from ..contracts.uri import build_uri
 from ..exceptions import NotFoundError, ValidationError, PermissionDeniedError
 from ..contracts.policy import PolicyAction, Purpose, DecisionEffect
@@ -8,6 +8,25 @@ from ..permissions.redaction import RedactionRegistry
 from ..permissions.policy import can_read
 from .excerpt import make_excerpt
 
+def scope_constraints(filters,scope=None,additional_scope=None):
+    """SQL narrowing only. None is unrestricted; empty intersection is empty."""
+    result={'kb_ids':None,'doc_ids':None,'space_types':None}
+    def narrow(key,values):
+        values=set(values)
+        result[key]=values if result[key] is None else result[key].intersection(values)
+    for field,key in (('kb_id','kb_ids'),('doc_id','doc_ids')):
+        if filters.get(field) is not None:narrow(key,[filters[field]])
+    for item in (scope,additional_scope):
+        if isinstance(item,KnowledgeScope):
+            # Revalidate frozen values rather than infer an empty selector as all.
+            item=KnowledgeScope(item.mode,item.kb_ids,item.space_types,item.doc_ids)
+            if item.mode=='spaces':
+                if item.kb_ids:narrow('kb_ids',item.kb_ids)
+                if item.space_types:narrow('space_types',item.space_types)
+            elif item.mode=='documents':narrow('doc_ids',item.doc_ids)
+    return {key:None if value is None else sorted(value) for key,value in result.items()}
+
+
 def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=None,embedder=None,policy=None,keyword_weight=0.5,scope=None,additional_scope=None,*,policy_engine=None,redaction_registry=None,agent=None,purpose=Purpose.READ,policy_context=None):
     if mode not in ("keyword","vector","hybrid"): raise ValidationError("Unknown search mode")
     if not isinstance(query,str) or not 0<len(query)<=10000 or not 1<=limit<=100: raise ValidationError("Invalid search query/limit")
@@ -15,6 +34,8 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
     filters=filters if filters is not None else {}
     if not isinstance(filters,dict): raise ValidationError("Search filters must be an object")
     if set(filters)-{"kb_id","doc_id","tags"}: raise ValidationError("Unsupported search filter")
+    constraints=scope_constraints(filters,scope,additional_scope)
+    if any(value==[] for value in constraints.values()):return SearchResponse([],mode)
     # Prefix batches plus one identity-only lookahead; never evaluate key 501.
     policy_engine=policy_engine if policy_engine is not None else DefaultPolicyEngine()
     redaction_registry=redaction_registry if redaction_registry is not None else RedactionRegistry()
@@ -28,8 +49,12 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
                 candidates[key]=candidates.get(key,0)+score
         if mode!='vector':
             pushdown=getattr(store,'keyword_search_pushdown',None)
-            rows=pushdown(query,actor.org_id,batch+1,kb_ids=[filters['kb_id']] if filters.get('kb_id') is not None else None,
-                          doc_ids=[filters['doc_id']] if filters.get('doc_id') is not None else None) if callable(pushdown) else store.keyword_search(query,actor.org_id,batch+1)
+            if callable(pushdown):
+                import inspect
+                params=inspect.signature(pushdown).parameters
+                kwargs={key:value for key,value in constraints.items() if key in params or any(p.kind==p.VAR_KEYWORD for p in params.values())}
+                rows=pushdown(query,actor.org_id,batch+1,**kwargs)
+            else:rows=store.keyword_search(query,actor.org_id,batch+1)
             more=more or len(rows)>batch
             for rank,row in enumerate(rows[:batch],1):
                 try:add((row[0],int(row[1]),row[2]),(1 if mode=='keyword' else keyword_weight)/(60+rank))
