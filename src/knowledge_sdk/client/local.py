@@ -9,6 +9,7 @@ from typing import Optional, Sequence
 from ..contracts.policy import (ResourceRights, PolicyContext, PolicyAction, Purpose, DecisionEffect, PolicyRule, enum_value)
 from ..permissions.engine import KnowledgePolicyEngine, DefaultPolicyEngine, intersect_decisions
 from ..permissions.redaction import RedactionRegistry
+from ..contracts.issues import EvidenceIssue, IssueType
 from ..contracts.models import Actor
 from dataclasses import replace
 from ..contracts.models import (KnowledgeScope, ConsumerBinding, KnowledgeAnswer, GeneratedAnswer, Attachment, MaterialReceipt)
@@ -320,7 +321,7 @@ class LocalKnowledgeClient:
         return d,v,decision
 
     @serialized
-    def report_evidence_issue(self,actor,source_uri,issue_type,description,conflicting_uri=None,*,agent=None,purpose=Purpose.READ,policy_context=None):
+    def report_evidence_issue(self,actor,source_uri,issue_type,description,*,conflicting_uri="",agent=None,purpose=Purpose.READ,policy_context=None):
         """Queue data for human review. Never update document/version/ACL/rights."""
         if (issue_type not in ('outdated','anchor_drift','conflict','inaccuracy') or not isinstance(issue_type,str)
             or not isinstance(description,str) or not description.strip() or len(description)>4000):
@@ -348,21 +349,39 @@ class LocalKnowledgeClient:
         with self.store.transaction():
             try:
                 parsed=authorize(source_uri)
-                if conflicting_uri is not None:authorize(conflicting_uri)
+                if conflicting_uri:authorize(conflicting_uri)
                 # Hooks can re-enter trusted clients. Recheck both sources only
                 # AFTER every hook, immediately before writing the review queue.
                 for identity,previous in snapshots:
                     final=intersect_decisions((self.evaluate_policy(actor,identity,**ctx),self.evaluate_policy(actor,identity,action=PolicyAction.REPORT_ISSUE,**ctx)))
                     if final!=previous or not final.allowed:raise PermissionDeniedError('access_denied')
             except NotFoundError:raise PermissionDeniedError('access_denied') from None
-            issue={'issue_id':str(uuid.uuid4()),'org_id':actor.org_id,'doc_id':parsed.doc_id,'version':parsed.version,
-                   'anchor_id':parsed.anchor_id or '', 'status':'open','created_at':datetime.now(timezone.utc).isoformat(),
-                   'source_uri':source_uri,'issue_type':issue_type,'description':description,'conflicting_uri':conflicting_uri,
-                   'reported_by':actor.user_id,'agent_id':agent.agent_id if agent is not None else '',
-                   'purpose':enum_value(Purpose,purpose).value,
-                   'policy_generation':(policy_context.policy_generation if policy_context and policy_context.policy_generation else actor.policy_generation)}
-            self.store.put_evidence_issue(issue)
-        return {'issue_id':issue['issue_id'],'status':'queued_for_review','formal_knowledge_modified':False}
+            issue=EvidenceIssue(str(uuid.uuid4()),actor.org_id,parsed.doc_id,parsed.version,
+                anchor_id=parsed.anchor_id or '',issue_type=issue_type,description=description,conflicting_uri=conflicting_uri,
+                reported_by_user_id=actor.user_id,reported_by_agent_id=agent.agent_id if agent else '',
+                created_at=datetime.now(timezone.utc).isoformat())
+            self.store.put_issue(issue)
+        return issue
+
+    @serialized
+    def list_evidence_issues(self,actor,*,doc_id=None,status=None,agent=None,purpose=Purpose.READ,policy_context=None):
+        ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context);result=[]
+        for issue in self.store.list_issues(actor.org_id,doc_id=doc_id,status=status):
+            try:
+                if not isinstance(issue,EvidenceIssue):continue
+                decision=self.evaluate_policy(actor,issue.doc_id,**ctx)
+                if not decision.allowed:continue
+                if issue.conflicting_uri:
+                    other=parse_uri_v2(issue.conflicting_uri)
+                    if other.org_id!=actor.org_id or not self.evaluate_policy(actor,other.doc_id,**ctx).allowed:continue
+                delivered=issue
+                if decision.effect==DecisionEffect.ALLOW_WITH_REDACTION:
+                    masked=self.redaction_registry.apply(issue.description,decision.redaction_profile,purpose,{'doc_id':issue.doc_id})[0]
+                    delivered=replace(issue,description=masked,conflicting_uri='',reported_by_user_id='',reported_by_agent_id='',anchor_id='')
+                if self.evaluate_policy(actor,issue.doc_id,**ctx)!=decision:continue
+                result.append(delivered)
+            except (NotFoundError,PermissionDeniedError,ValidationError):continue
+        return result
 
     @serialized
     def list_anchors(self,actor,doc_id,version=None,*,agent=None,purpose=Purpose.READ,policy_context=None):

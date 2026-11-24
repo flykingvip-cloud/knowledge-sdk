@@ -211,11 +211,25 @@ class SQLiteStore:
         sql+=' ORDER BY bm25(chunks_fts),chunks_fts.doc_id,version,chunk_id LIMIT ?';args.append(limit)
         return self._execute(sql,args)
 
-    def put_evidence_issue(self,issue):
-        """Trusted queue-only storage. Review text is inert JSON, never executed."""
-        if not isinstance(issue,dict) or issue.get('status')!='open':raise ValidationError('Invalid evidence issue')
-        d=self.get_document(issue.get('doc_id'))
-        if d.org_id!=issue.get('org_id'):raise ConflictError('Issue tenant mismatch')
-        self.get_version(d.doc_id,issue.get('version'))
-        self._execute('INSERT INTO evidence_issues VALUES(?,?,?,?,?,?,?,?)',
-            (issue['issue_id'],issue['org_id'],issue['doc_id'],issue['version'],issue['anchor_id'],issue['status'],issue['created_at'],json.dumps(issue,ensure_ascii=False)))
+    def put_issue(self,issue):
+        from ..contracts.issues import EvidenceIssue
+        if not isinstance(issue,EvidenceIssue):raise ValidationError('Expected EvidenceIssue')
+        with self._write_scope():
+            if self.get_document(issue.doc_id).org_id!=issue.org_id:raise ConflictError('Issue tenant mismatch')
+            self.get_version(issue.doc_id,issue.version)
+            if issue.anchor_id:self.get_anchor(issue.org_id,issue.doc_id,issue.version,issue.anchor_id)
+            existing=self._execute('SELECT org_id,doc_id,version,anchor_id FROM evidence_issues WHERE issue_id=?',(issue.issue_id,))
+            if existing and tuple(existing[0])!=(issue.org_id,issue.doc_id,issue.version,issue.anchor_id):raise ConflictError('Issue identity conflict')
+            self._execute('INSERT INTO evidence_issues VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(issue_id) DO UPDATE SET status=excluded.status,data=excluded.data',
+                (issue.issue_id,issue.org_id,issue.doc_id,issue.version,issue.anchor_id,issue.status,issue.created_at,self._dump(issue)))
+    def get_issue(self,org_id,issue_id):
+        return self._get('SELECT data FROM evidence_issues WHERE org_id=? AND issue_id=?',(org_id,issue_id))
+    def list_issues(self,org_id,*,doc_id=None,status=None):
+        from ..contracts.issues import issue_text,ISSUE_STATUSES
+        issue_text(org_id,'org_id',True)
+        sql='SELECT data FROM evidence_issues WHERE org_id=?';args=[org_id]
+        if doc_id is not None:issue_text(doc_id,'doc_id',True);sql+=' AND doc_id=?';args.append(doc_id)
+        if status is not None:
+            if not isinstance(status,str) or status not in ISSUE_STATUSES:raise ValidationError('Invalid status')
+            sql+=' AND status=?';args.append(status)
+        return [decode(json.loads(row[0])) for row in self._execute(sql+' ORDER BY created_at,issue_id',args)]

@@ -23,3 +23,5 @@ from .contracts.uri import ParsedKBURI, parse_uri_v2
 
 from .ingestion.parsers.layout import ParsedSpan, LayoutParseResult, LayoutParser
 from .contracts.reanchor import build_anchors_from_layout, reanchor_to_version
+
+from .contracts.issues import EvidenceIssue, IssueType
