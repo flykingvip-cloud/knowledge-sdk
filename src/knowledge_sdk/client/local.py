@@ -16,6 +16,9 @@ from ..retrieval.answers import AnswerGenerator, ExtractiveAnswerGenerator
 from ..permissions.policy import can_manage_kb, can_upload_to_kb
 from ..contracts.models import (KnowledgeBase, Document, DocumentVersion, DocumentACL, KnowledgeRef, RetrieveResponse, ExcerptPolicy)
 from ..contracts.uri import build_uri
+from ..contracts.anchors import ReanchorStatus, integer, identifier
+from ..contracts.reanchor import merge_anchors_for_version
+from .anchors import deliver as deliver_anchor, validate_source as validate_anchor_source
 from ..contracts.receipts import consume, batch_consume, validate_excerpt
 from ..exceptions import PermissionDeniedError, NotFoundError, ValidationError, ConflictError, TamperedExcerptError
 from ..permissions.policy import can_admin, can_read, can_write
@@ -170,7 +173,7 @@ class LocalKnowledgeClient:
             if not isinstance(acl,DocumentACL): raise ValidationError("Expected DocumentACL")
         raw=content.encode("utf-8") if isinstance(content,str) else content
         if len(raw)>32*1024*1024: raise ValidationError("Document exceeds 32 MiB limit")
-        text=self.parsers.parse(raw,filename)
+        layout=self.parsers.parse_layout(raw,filename);text=layout.full_text
         if not text.strip(): raise ValidationError("Empty document")
         raw_hash,semantic_hash=fingerprints(raw,text); previous=None; d=None
         if doc_id:
@@ -212,6 +215,8 @@ class LocalKnowledgeClient:
             if not write_decision.allowed: raise PermissionDeniedError(write_decision.reason_code)
         blob_key=self.blob_store.put(actor.org_id,doc_id,raw_hash,raw) if self.blob_store else None
         v=DocumentVersion(doc_id,version,text,raw_hash,semantic_hash,datetime.now(timezone.utc).isoformat(),filename,blob_key)
+        anchors=merge_anchors_for_version(actor.org_id,doc_id,version,layout,
+                    self.store.get_anchors(actor.org_id,doc_id,previous.version) if previous else ())
         with self.store.transaction():
             # Separate processes can race; the unique version key prevents lost history.
             if previous and self.store.get_document(doc_id).current_version!=previous.version: raise ConflictError("Concurrent version update")
@@ -219,7 +224,7 @@ class LocalKnowledgeClient:
                 try: self.store.get_document(doc_id)
                 except NotFoundError: pass
                 else: raise ConflictError("Document identity already exists")
-            self.store.put_document(d); self.store.put_version(v,chunks); self.store.refresh_fts(doc_id)
+            self.store.put_document(d); self.store.put_version(v,chunks); self.store.put_anchors(anchors); self.store.refresh_fts(doc_id)
             if acl is not None: self.store.set_acl(doc_id,acl)
             if self.vector_index is not None: self.store.mark_pending(doc_id)
         self._sync_vector(doc_id)
@@ -306,10 +311,64 @@ class LocalKnowledgeClient:
         else: text=v.text
         page=text[offset:offset+limit]; end=offset+len(page); truncated=end<len(text)
         return RetrieveResponse(doc_id,version,page,offset,limit,len(text),truncated,end if truncated else None,build_uri(d.org_id,doc_id,version),list(chunk_ids or []),summary)
+    def _anchor_authority(self,actor,doc_id,version=None,*,agent=None,purpose=Purpose.READ,policy_context=None):
+        decision=self.evaluate_policy(actor,doc_id,agent=agent,purpose=purpose,policy_context=policy_context)
+        if not decision.allowed:raise PermissionDeniedError(decision.reason_code)
+        d=self.store.get_document(doc_id)
+        if version is not None:integer(version,'version',1)
+        v=self.store.get_version(doc_id,d.current_version if version is None else version)
+        return d,v,decision
+
     @serialized
-    def reference(self,actor,doc_id,version=None,chunk_ids=None,excerpt="",*,agent=None,purpose=Purpose.READ,policy_context=None):
+    def list_anchors(self,actor,doc_id,version=None,*,agent=None,purpose=Purpose.READ,policy_context=None):
+        d,v,decision=self._anchor_authority(actor,doc_id,version,agent=agent,purpose=purpose,policy_context=policy_context)
+        anchors=self.store.get_anchors(d.org_id,doc_id,v.version);result=[]
+        # Even an empty anchor list cannot silently bypass a required hook.
+        if decision.effect==DecisionEffect.ALLOW_WITH_REDACTION:self.redaction_registry.apply('',decision.redaction_profile,purpose)
+        for anchor in anchors:
+            if anchor.reanchor_status==ReanchorStatus.ANCHORED:validate_anchor_source(anchor,v)
+            result.append(deliver_anchor(self,anchor,decision,purpose))
+        return result
+
+    @serialized
+    def get_anchor(self,actor,doc_id,anchor_id,version=None,*,agent=None,purpose=Purpose.READ,policy_context=None):
+        identifier(anchor_id,'anchor_id')
+        d,v,decision=self._anchor_authority(actor,doc_id,version,agent=agent,purpose=purpose,policy_context=policy_context)
+        anchor=self.store.get_anchor(d.org_id,doc_id,v.version,anchor_id)
+        if anchor.reanchor_status==ReanchorStatus.ANCHORED:validate_anchor_source(anchor,v)
+        return deliver_anchor(self,anchor,decision,purpose)
+
+    @serialized
+    def confirm_anchor_reanchor(self,actor,doc_id,version,anchor_id,*,agent=None,purpose=Purpose.READ,policy_context=None):
+        ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context)
+        # Source check, permissions and state update share the same SQLite writer
+        # lock across workers. Read authority is independent of write authority.
+        with self.store.transaction():
+            d,v,decision=self._anchor_authority(actor,doc_id,version,**ctx)
+            write=self.evaluate_policy(actor,doc_id,action=PolicyAction.WRITE_DOCUMENT,**ctx)
+            if not write.allowed:raise PermissionDeniedError(write.reason_code)
+            anchor=self.store.get_anchor(d.org_id,doc_id,v.version,anchor_id)
+            if anchor.reanchor_status!=ReanchorStatus.DRIFT_PENDING:raise ValidationError('Only drift_pending anchors can be confirmed')
+            validate_anchor_source(anchor,v)
+            confirmed=replace(anchor,reanchor_status=ReanchorStatus.ANCHORED)
+            delivered=deliver_anchor(self,confirmed,decision,purpose)
+            self.store.update_anchor(confirmed)
+        return delivered
+
+    @serialized
+    def reference(self,actor,doc_id,version=None,chunk_ids=None,excerpt="",*,anchor_id=None,agent=None,purpose=Purpose.READ,policy_context=None):
         d,v,chunks,decision,_=self._delivered_source(actor,doc_id,version,agent=agent,purpose=purpose,policy_context=policy_context)
         version=v.version; chunk_ids=list(chunk_ids or [])
+        if anchor_id is not None:
+            identifier(anchor_id,'anchor_id')
+            if chunk_ids:raise ValidationError('Chunk and anchor selectors are mutually exclusive')
+            anchor=self.get_anchor(actor,doc_id,anchor_id,version,agent=agent,purpose=purpose,policy_context=policy_context)
+            if anchor.reanchor_status!=ReanchorStatus.ANCHORED:raise PermissionDeniedError('anchor_drift_pending' if anchor.reanchor_status==ReanchorStatus.DRIFT_PENDING else 'anchor_orphaned')
+            if not isinstance(excerpt,str):raise ValidationError('Invalid excerpt')
+            if not excerpt:excerpt=anchor.quote.exact
+            # Accept only actual delivered text; never sign arbitrary surrounding text.
+            if anchor.quote.exact not in excerpt or (excerpt!=anchor.quote.exact and excerpt not in v.text):raise TamperedExcerptError('Anchor excerpt mismatch')
+            return KnowledgeRef(d.org_id,doc_id,version,build_uri(d.org_id,doc_id,version,anchor_id=anchor_id),[],excerpt,sha256(excerpt),anchor_id=anchor_id)
         if decision.effect == DecisionEffect.ALLOW_WITH_REDACTION:
             if excerpt:
                 probe=KnowledgeRef(d.org_id,doc_id,version,build_uri(d.org_id,doc_id,version,chunk_ids[0] if len(chunk_ids)==1 else None),chunk_ids,excerpt,sha256(excerpt))
@@ -369,8 +428,8 @@ class LocalKnowledgeClient:
         return self.validate_binding(actor, self.store.get_binding(actor, consumer_type, consumer_id),agent=agent,purpose=purpose,policy_context=policy_context)
 
     @serialized
-    def create_ref(self, actor: Actor, doc_id: str, version=None, chunk_ids=None, excerpt: str = "",*,agent=None,purpose=Purpose.READ,policy_context=None) -> KnowledgeRef:
-        return self.reference(actor, doc_id, version, chunk_ids, excerpt,agent=agent,purpose=purpose,policy_context=policy_context)
+    def create_ref(self, actor: Actor, doc_id: str, version=None, chunk_ids=None, excerpt: str = "",*,anchor_id=None,agent=None,purpose=Purpose.READ,policy_context=None) -> KnowledgeRef:
+        return self.reference(actor, doc_id, version, chunk_ids, excerpt,anchor_id=anchor_id,agent=agent,purpose=purpose,policy_context=policy_context)
 
     @serialized
     def verify_ref(self, actor: Actor, ref: KnowledgeRef,*,agent=None,purpose=Purpose.READ,policy_context=None) -> MaterialReceipt:

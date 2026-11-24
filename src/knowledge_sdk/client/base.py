@@ -54,7 +54,7 @@ class KnowledgeClient(Protocol):
     def retrieve(self, actor, doc_id, version=None, chunk_ids=None, offset=0, limit=8000, *, agent=None, purpose=Purpose.READ, policy_context=None):
         ...
 
-    def reference(self, actor, doc_id, version=None, chunk_ids=None, excerpt='', *, agent=None, purpose=Purpose.READ, policy_context=None):
+    def reference(self,actor,doc_id,version=None,chunk_ids=None,excerpt="",*,anchor_id=None,agent=None,purpose=Purpose.READ,policy_context=None):
         ...
 
     def consume(self, actor, ref, *, agent=None, purpose=Purpose.READ, policy_context=None):
@@ -87,7 +87,7 @@ class KnowledgeClient(Protocol):
     def get_consumer_binding(self, actor: Actor, consumer_type: str, consumer_id: str, *, agent=None, purpose=Purpose.READ, policy_context=None) -> ConsumerBinding:
         ...
 
-    def create_ref(self, actor: Actor, doc_id: str, version=None, chunk_ids=None, excerpt: str='', *, agent=None, purpose=Purpose.READ, policy_context=None) -> KnowledgeRef:
+    def create_ref(self, actor: Actor, doc_id: str, version=None, chunk_ids=None, excerpt: str = "",*,anchor_id=None,agent=None,purpose=Purpose.READ,policy_context=None):
         ...
 
     def verify_ref(self, actor: Actor, ref: KnowledgeRef, *, agent=None, purpose=Purpose.READ, policy_context=None) -> MaterialReceipt:
@@ -101,3 +101,9 @@ class KnowledgeClient(Protocol):
 
     def ask(self, actor: Actor, question: str, scope: Optional[KnowledgeScope]=None, top_k: int=5, mode: str='keyword', generator: Optional[AnswerGenerator]=None, excerpt_policy: Optional[ExcerptPolicy]=None, min_score: float=0.0, binding=None, *, agent=None, purpose=None, policy_context=None) -> KnowledgeAnswer:
         ...
+
+    def list_anchors(self,actor,doc_id,version=None,*,agent=None,purpose=Purpose.READ,policy_context=None): ...
+
+    def get_anchor(self,actor,doc_id,anchor_id,version=None,*,agent=None,purpose=Purpose.READ,policy_context=None): ...
+
+    def confirm_anchor_reanchor(self,actor,doc_id,version,anchor_id,*,agent=None,purpose=Purpose.READ,policy_context=None): ...

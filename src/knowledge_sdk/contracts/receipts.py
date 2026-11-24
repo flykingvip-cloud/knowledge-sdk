@@ -2,12 +2,14 @@ from __future__ import annotations
 import hmac
 from .models import KnowledgeRef, MaterialReceipt
 from .policy import Purpose, DecisionEffect
-from .uri import parse_uri
+from .uri import parse_uri,parse_uri_v2
+from .anchors import ReanchorStatus,digest
 from ..ingestion.fingerprint import normalize_text, sha256
 from ..exceptions import TamperedExcerptError, PermissionDeniedError, NotFoundError, ValidationError
 
 def validate_excerpt(ref,version,chunks,*,allow_combined=False):
     if not isinstance(ref,KnowledgeRef): raise ValidationError("Expected KnowledgeRef")
+    if ref.anchor_id:raise TamperedExcerptError("Anchor reference requires anchor verification")
     identity=parse_uri(ref.source_uri)
     if identity[:3] != (ref.org_id,ref.doc_id,ref.version) or (identity[3] and identity[3] not in ref.chunk_ids):
         raise TamperedExcerptError("Reference identity mismatch")
@@ -29,6 +31,20 @@ def consume(client,actor,ref,*,agent=None,purpose=Purpose.READ,policy_context=No
         if d.org_id!=ref.org_id: return result("denied",reason="cross_org")
         if d.archived and not (policy_context is not None and policy_context.include_archived):
             return result("unavailable",reason="archived")
+        identity=parse_uri_v2(ref.source_uri)
+        if identity.anchor_id is not None or ref.anchor_id:
+            if (identity.org_id,identity.doc_id,identity.version,identity.anchor_id)!=(ref.org_id,ref.doc_id,ref.version,ref.anchor_id) or ref.chunk_ids:
+                raise TamperedExcerptError('Anchor reference identity mismatch')
+            anchor=client.get_anchor(actor,ref.doc_id,ref.anchor_id,ref.version,agent=agent,purpose=purpose,policy_context=policy_context)
+            if anchor.reanchor_status==ReanchorStatus.DRIFT_PENDING:return result('denied',reason='anchor_drift_pending')
+            if anchor.reanchor_status==ReanchorStatus.ORPHANED:return result('unavailable',reason='anchor_orphaned')
+            valid=(bool(ref.excerpt) and anchor.quote.exact in ref.excerpt and hmac.compare_digest(sha256(ref.excerpt),ref.excerpt_hash)
+                   and hmac.compare_digest(digest(anchor.quote.exact),anchor.quote_sha256)
+                   and (ref.excerpt==anchor.quote.exact or ref.excerpt in v.text))
+            if not valid:
+                if decision.effect==DecisionEffect.ALLOW_WITH_REDACTION:return result('denied',reason='redacted_excerpt_mismatch')
+                raise TamperedExcerptError('Anchor excerpt mismatch')
+            return result('consumed' if ref.excerpt==anchor.quote.exact else 'partial','anchor_excerpt','verified')
         redacted=decision.effect == DecisionEffect.ALLOW_WITH_REDACTION
         if redacted and not ref.excerpt: return result("denied",reason="redacted_excerpt_required")
         try: validate_excerpt(ref,v,chunks,allow_combined=redacted)

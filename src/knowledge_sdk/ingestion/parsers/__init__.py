@@ -12,7 +12,8 @@ class ParserRegistry:
     def parse(self, data, filename):
         ext = Path(filename).suffix.lower().lstrip(".")
         if ext not in self.parsers: raise ValidationError("Unsupported format: " + ext)
-        return self.parsers[ext].parse(data)
+        parser=self.parsers[ext]
+        return parser.parse(data) if callable(getattr(parser,"parse",None)) else self.parse_layout(data,filename).full_text
     def parse_layout(self,data,filename=""):
         if not isinstance(data,bytes) or not isinstance(filename,str): raise ValidationError("Invalid parser input")
         ext=Path(filename).suffix.lower().lstrip(".")
