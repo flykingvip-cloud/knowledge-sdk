@@ -15,6 +15,8 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
     if enable_demo_switcher and (dev_insecure or not auth_secret or len(auth_secret)<32):
         raise ValidationError("Demo switcher requires HMAC authentication, not dev_insecure")
     if not dev_insecure: _validate_secrets(auth_secret, fallback_secrets)
+    from ..ui.routes import normalize_ui_prefix, public_ui_path, route_path
+    ui_prefix = normalize_ui_prefix(ui_prefix)
     replay_store = replay_store if replay_store is not None else InMemoryReplayStore()
     app=FastAPI(title="knowledge-sdk",version=knowledge_sdk.__version__)
     @app.exception_handler(KnowledgeSDKError)
@@ -23,11 +25,17 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
         return JSONResponse(status_code=status,content={"error":type(exc).__name__,"message":str(exc)})
     @app.middleware("http")
     async def authenticate(request,call_next):
-        if request.url.path in ("/ui", "/ui/", "/ui/config", "/ui/demo/sign") or request.url.path.startswith("/ui/assets/"):
+        path = route_path(request)
+        # Disabled signer and former/default UI paths never become auth endpoints.
+        if ((not enable_ui and public_ui_path(path, ui_prefix))
+            or path in ("/ui/demo/sign", ui_prefix + "/demo/sign") and not enable_demo_switcher
+            or (ui_prefix != "/ui" and (path == "/ui" or path.startswith("/ui/")))):
+            return JSONResponse(status_code=404, content={"message": "Not found"})
+        if enable_ui and public_ui_path(path, ui_prefix):
             # Only static/config/demo routes live here. All business APIs remain signed.
             return await call_next(request)
-        if request.url.path in ("/v1/health",): return await call_next(request)
-        if request.url.path in ("/docs","/openapi.json","/redoc"):
+        if path in ("/v1/health",): return await call_next(request)
+        if path in ("/docs","/openapi.json","/redoc"):
             # Schema has no runtime data. Deployments may disable these at the gateway.
             return await call_next(request)
         body=await request.body()
@@ -93,5 +101,5 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
     app.openapi=openapi
     if enable_ui:
         from ..ui.routes import mount_workbench
-        mount_workbench(app, client, auth_secret, enable_demo_switcher)
+        mount_workbench(app, client, auth_secret, enable_demo_switcher, ui_prefix)
     return app

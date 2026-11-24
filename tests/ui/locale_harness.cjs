@@ -56,6 +56,8 @@ const context = vm.createContext({console, document, window: {
 DOMException, URLSearchParams, fetch() { throw Error('Unexpected network/model request'); }});
 const locale = fs.readFileSync(path.join(root, 'i18n.js'), 'utf8').replaceAll('export ', '');
 let script = fs.readFileSync(path.join(root, 'workbench.js'), 'utf8').replace(/^import .*;\n/, '');
+// vm.Script is not an ES module: substitute only its module URL syntax.
+script = script.replaceAll('import.meta.url', JSON.stringify('http://localhost/ui/assets/workbench.js'));
 script = script.slice(0, script.indexOf("$('#language').addEventListener('change'"));
 vm.runInContext(locale + '\n' + script, context);
 function run(source) { return vm.runInContext(source, context); }

@@ -51,11 +51,13 @@ async function task(callback) {
 async function api(operation, params = {}) {
   const start = epoch;
   const [method, path] = config.operations[operation];
-  const target = method === 'GET' ? `${path}?${new URLSearchParams({params: JSON.stringify(params)})}` : path;
+  const operationTarget = method === 'GET' ? `${path}?${new URLSearchParams({params: JSON.stringify(params)})}` : path;
+  const target = config.signature_base + operationTarget;
+  const requestTarget = config.api_base + operationTarget;
   const body = method === 'GET' ? '' : JSON.stringify({params});
   let headers = {'Content-Type': 'application/json'};
   if (config.demo_enabled) {
-    const response = await fetch('/ui/demo/sign', {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json', 'X-KB-Demo': '1'}, body: JSON.stringify({actor, method, target, body})});
+    const response = await fetch(`${config.ui_base}/demo/sign`, {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json', 'X-KB-Demo': '1'}, body: JSON.stringify({actor, method, target, body})});
     const signed = await response.json(); if (!response.ok) throw new Error(errorText());
     headers = {...headers, ...signed.headers};
   } else if (typeof window.knowledgeWorkbenchAuth === 'function') {
@@ -64,7 +66,7 @@ async function api(operation, params = {}) {
     headers = {...headers, ...await window.knowledgeWorkbenchAuth({method, target, body})};
   }
   if (start !== epoch) throw new DOMException('Identity changed', 'AbortError');
-  const response = await fetch(target, {method, headers, credentials: 'same-origin', ...(method === 'GET' ? {} : {body})});
+  const response = await fetch(requestTarget, {method, headers, credentials: 'same-origin', ...(method === 'GET' ? {} : {body})});
   const data = await response.json();
   if (start !== epoch) throw new DOMException('Identity changed', 'AbortError');
   if (!response.ok) throw new Error(errorText());
@@ -311,7 +313,7 @@ function wireEvents() {
       catch (error) { if (error.name !== 'AbortError') $('#verify-result').textContent = t('verifyFailed'); throw error; } }); });
 }
 async function start() {
-  const response = await fetch('/ui/config'); if (!response.ok) throw new Error(t('Workbench 配置不可用')); config = await response.json();
+  const response = await fetch(new URL('../config', import.meta.url), {credentials: 'same-origin'}); if (!response.ok) throw new Error(t('Workbench 配置不可用')); config = await response.json();
   if (config.demo_enabled) populateIdentity();
   renderConnection();
   wireEvents(); renderReceipts(); await loadSpaces();
