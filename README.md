@@ -195,3 +195,9 @@ Production keeps HMAC authentication and disables identity simulation by default
 a trusted same-origin host gateway is required. Disable all UI routes with
 `create_app(..., enable_ui=False)` / `--no-ui`. See
 [Workbench usage, security, architecture & API map](docs/ui-workbench.md).
+
+### Optional PostgreSQL service engine (Q2-M2)
+
+Native Schema v3 + FORCE RLS, CJK GIN search, metadata-only pgvector, shared replay,
+and fenced SKIP LOCKED workers: see [PostgreSQL operations and boundaries](docs/postgres.md).
+SQLite stays the zero-dependency default. No production migration/deployment is implied.
