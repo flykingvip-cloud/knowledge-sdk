@@ -11,11 +11,14 @@ from ..exceptions import KnowledgeSDKError, PermissionDeniedError, NotFoundError
 from ..client.http_client import OPERATIONS
 from .auth import verify_headers, InMemoryReplayStore, extension_claims, _validate_secrets, _decode_object
 
-def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,*,enable_ui=True,enable_demo_switcher=False,replay_store=None,fallback_secrets=(),ui_prefix="/ui"):
+def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,*,enable_ui=True,enable_demo_switcher=False,replay_store=None,fallback_secrets=(),ui_prefix="/ui",enable_mcp=False,default_mcp_purpose=Purpose.GROUND_INTERNAL_LLM):
     if not dev_insecure and (not auth_secret or len(auth_secret)<32): raise ValidationError("Auth secret must contain at least 32 characters")
     if enable_demo_switcher and (dev_insecure or not auth_secret or len(auth_secret)<32):
         raise ValidationError("Demo switcher requires HMAC authentication, not dev_insecure")
     if not dev_insecure: _validate_secrets(auth_secret, fallback_secrets)
+    if type(enable_mcp) is not bool:raise ValidationError('Invalid MCP enable flag')
+    default_mcp_purpose=Purpose(default_mcp_purpose)
+    if enable_mcp and dev_insecure:raise ValidationError('MCP requires signed authentication')
     from ..ui.routes import normalize_ui_prefix, public_ui_path, route_path
     ui_prefix = normalize_ui_prefix(ui_prefix)
     replay_store = replay_store if replay_store is not None else InMemoryReplayStore()
@@ -34,6 +37,8 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
         if root and incoming != root and not incoming.startswith(root + "/"):
             request.scope["path"] = root + incoming
         path = route_path(request)
+        if path=='/v1/mcp' and not enable_mcp:
+            return JSONResponse(status_code=404,content={'message':'Not found'},headers={'Cache-Control':'no-store'})
         # Disabled signer and former/default UI paths never become auth endpoints.
         if ((not enable_ui and public_ui_path(path, ui_prefix))
             or path in ("/ui/demo/sign", ui_prefix + "/demo/sign") and not enable_demo_switcher
@@ -47,10 +52,17 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
             # Schema has no runtime data. Deployments may disable these at the gateway.
             return await call_next(request)
         body=await request.body()
+        if path=='/v1/mcp' and len(body)>65536:return JSONResponse(status_code=413,content={'message':'Request too large'},headers={'Cache-Control':'no-store'})
         if len(body)>48*1024*1024: return JSONResponse(status_code=413,content={"message":"Request too large"})
         raw_path=request.scope.get("raw_path",request.url.path.encode("utf-8")).decode("ascii")
         target=raw_path+("?"+request.url.query if request.url.query else "")
         try:
+            if path=='/v1/mcp':
+                from ..mcp.gateway import GatewayAuthenticator
+                gateway=GatewayAuthenticator(auth_secret,replay_store=replay_store,fallback_secrets=fallback_secrets,bound_purpose=default_mcp_purpose)
+                request.state.mcp_context,status=gateway.authorize_http(request.headers,request.method,target,body)
+                if status!=200:raise ValidationError('Invalid request authentication')
+                response=await call_next(request);response.headers['Cache-Control']='no-store';return response
             # Strict identity parsing is a preflight, before verify_headers can
             # atomically consume a nonce. Signature/tenant validation still
             # happens in verify_headers before any state is trusted.
@@ -61,8 +73,19 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
             request.state.agent = typed_agent
             request.state.purpose = Purpose(purpose)
         except (ValidationError,ValueError,TypeError,UnicodeError):
-            return JSONResponse(status_code=401,content={"error":"PermissionDeniedError","message":"Invalid request authentication"})
+            return JSONResponse(status_code=401,content={"error":"PermissionDeniedError","message":"Invalid request authentication"},headers={"Cache-Control":"no-store"})
         return await call_next(request)
+    if enable_mcp:
+        from ..mcp.protocol import MCPProtocol
+        from fastapi.responses import Response
+        protocol=MCPProtocol(client)
+        @app.post('/v1/mcp')
+        async def mcp(request:Request):
+            origin=request.headers.get('origin')
+            if origin is not None and origin!=request.url.scheme+'://'+request.url.netloc:
+                return JSONResponse(status_code=403,content={'message':'Origin denied'},headers={'Cache-Control':'no-store'})
+            result=protocol.handle(await request.body(),request.state.mcp_context)
+            return Response(status_code=204,headers={'Cache-Control':'no-store'}) if result is None else JSONResponse(content=result,headers={'Cache-Control':'no-store'})
     @app.get("/v1/health")
     async def health(): return client.health()
     def endpoint(operation):

@@ -10,13 +10,14 @@ requires-python = ">=3.9"
 license = "MIT"
 dependencies = []
 [project.optional-dependencies]
-mcp = ["mcp>=1.30,<2; python_version >= '3.10'"]
+mcp = ["fastapi>=0.100,<1", "uvicorn>=0.23,<1"]
 http = ["fastapi>=0.100,<1", "uvicorn>=0.23,<1"]
 qdrant = []
 parsers = ["pypdf>=4,<6"]
 ocr = []
 dev = ["httpx>=0.27,<1", "build>=1,<2"]
 [project.scripts]
+knowledge-sdk-mcp = "knowledge_sdk.mcp.server:main"
 knowledge-sdk-server = "knowledge_sdk.server.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]

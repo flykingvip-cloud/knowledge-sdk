@@ -7,7 +7,7 @@ from dataclasses import replace
 from ..client.local import LocalKnowledgeClient
 from ..contracts.models import KnowledgeScope,ConsumerBinding,KnowledgeRef,encode
 from ..contracts.policy import PolicyContext,PolicyAction,DecisionEffect
-from ..contracts.uri import parse_uri_v2
+from ..contracts.uri import parse_uri_v2,build_uri
 from ..exceptions import ValidationError,PermissionDeniedError,NotFoundError,TamperedExcerptError
 from ..permissions.engine import intersect_decisions
 from ..retrieval.excerpt import make_excerpt
@@ -17,10 +17,10 @@ from .gateway import GatewayContext
 _TEXT=lambda maximum:{'type':'string','minLength':1,'maxLength':maximum}
 _ARRAY=lambda maximum:{'type':'array','minItems':1,'maxItems':50,'items':_TEXT(maximum)}
 _SCHEMAS={
- 'search_evidence':({'query':_TEXT(1000),'mode':{'type':'string','enum':['keyword','vector','hybrid'],'default':'hybrid'},
+ 'search_evidence':({'query':_TEXT(1000),'mode':{'type':'string','enum':['keyword','vector','hybrid'],'default':'keyword'},
     'limit':{'type':'integer','minimum':1,'maximum':20,'default':5},'kb_ids':_ARRAY(256),'doc_ids':_ARRAY(256),'task_id':_TEXT(256)},['query']),
  'verify_citation':({'source_uri':_TEXT(2048),'excerpt_hash':{'type':'string','pattern':'^[0-9a-f]{64}$'},'check_latest_version':{'type':'boolean','default':True}},['source_uri']),
- 'get_evidence_pack':({'pack_id':_TEXT(256),'source_uris':_ARRAY(2048),'max_chars':{'type':'integer','minimum':1,'maximum':20000,'default':4000}},[]),
+ 'get_evidence_pack':({'source_uris':dict(_ARRAY(2048),maxItems=20),'max_chars':{'type':'integer','minimum':1,'maximum':32000,'default':4000}},['source_uris']),
  'report_evidence_issue':({'source_uri':_TEXT(2048),'issue_type':{'type':'string','enum':['outdated','anchor_drift','conflict','inaccuracy']},
     'description':_TEXT(4000),'conflicting_uri':_TEXT(2048)},['source_uri','issue_type','description'])}
 
@@ -74,7 +74,7 @@ class EvidenceTools:
         with self.client._lock:
             try:return plain(getattr(self,'_'+name)(context,**arguments))
             except (PermissionDeniedError,NotFoundError,TamperedExcerptError):
-                if name=='verify_citation':return {'valid':False,'current_status':'denied','latest_version':None,'reanchor_status':None,'receipt':None}
+                if name=='verify_citation':return {'status':'denied','valid':False,'current_status':'denied','latest_version':None,'reanchor_status':None,'receipt':None}
                 return {'status':'denied','purpose_applied':context.purpose.value,'policy_generation':context.actor.policy_generation,
                         **({'hits':[]} if name=='search_evidence' else {'items':[],'effective_decision':{'effect':'deny'}} if name=='get_evidence_pack' else {})}
     @staticmethod
@@ -95,7 +95,7 @@ class EvidenceTools:
         decision=client.evaluate_policy(context.actor,parsed.doc_id,**self._ctx(context))
         if not decision.allowed:raise PermissionDeniedError('access_denied')
         return parsed,decision
-    def _unit(self,context,uri,client=None,allow_unavailable=False):
+    def _unit(self,context,uri,client=None,allow_unavailable=False,task_id=""):
         client=client or self.client;parsed,_=self._decision(context,uri,client)
         d,v,chunks,decision,summary=client._delivered_source(context.actor,parsed.doc_id,parsed.version,**self._ctx(context))
         anchor=None
@@ -113,7 +113,7 @@ class EvidenceTools:
             view=make_excerpt(text,client.excerpt_policy,d.visibility=='enterprise',query='',masking_summary=summary)
             excerpt=view['excerpt']
             ref=client.reference(context.actor,d.doc_id,v.version,[parsed.chunk_id] if parsed.chunk_id else None,excerpt,**self._ctx(context))
-        binding=ConsumerBinding('mcp_agent',context.agent.agent_id)
+        binding=ConsumerBinding('mcp_agent',context.agent.agent_id if context.agent else 'mcp_stdio',stage=task_id)
         receipt=client.consume(context.actor,ref,**self._ctx(context))
         if receipt.status in ('consumed','partial'):
             receipt=client.attach(context.actor,ref,binding,**self._ctx(context)).receipt
@@ -121,13 +121,12 @@ class EvidenceTools:
         return {'source_uri':ref.source_uri,'doc_id':d.doc_id,'version':v.version,'title':d.title,'excerpt':ref.excerpt,
                 'excerpt_hash':ref.excerpt_hash,'truncated':view['truncated'],'remaining_chars':view['remaining_chars'],
                 'masking_summary':view['masking_summary'],'anchor':anchor,'receipt':receipt},ref,decision,d
-    def _search_evidence(self,context,query,mode='hybrid',limit=5,kb_ids=None,doc_ids=None,task_id=''):
+    def _search_evidence(self,context,query,mode='keyword',limit=5,kb_ids=None,doc_ids=None,task_id=''):
         # Absence is unrestricted; explicitly empty selectors are an error, not all.
         if kb_ids is not None and not kb_ids or doc_ids is not None and not doc_ids or kb_ids is not None and doc_ids is not None:
             raise ValidationError('Selectors must be nonempty and mutually exclusive')
         if mode!='keyword' and self.client.vector_index is None:
-            if mode=='vector':raise ValidationError('Vector backend is not configured')
-            mode='keyword'  # documented, explicit offline hybrid fallback, no embedding call
+            raise ValidationError('Vector backend is not configured')
         scope=KnowledgeScope('spaces',kb_ids=tuple(kb_ids)) if kb_ids is not None else KnowledgeScope('documents',doc_ids=tuple(doc_ids)) if doc_ids is not None else KnowledgeScope()
         response=self.client.search(context.actor,query,mode,limit,scope=scope,**self._ctx(context,task_id))
         hits=[]
@@ -137,7 +136,11 @@ class EvidenceTools:
                            for action in (PolicyAction.SEARCH_INDEX,PolicyAction.READ_CONTENT)]
                 combined=intersect_decisions(decisions)
                 if not combined.allowed:continue
-                view=self._derived_client(combined);item,ref,_,d=self._unit(context,hit.source_uri,view)
+                view=self._derived_client(combined);source_uri=hit.source_uri
+                for anchor in view.list_anchors(context.actor,hit.doc_id,hit.version,**self._ctx(context,task_id)):
+                    if anchor.reanchor_status.value=='anchored' and anchor.quote.exact in hit.excerpt:
+                        source_uri=build_uri(context.actor.org_id,hit.doc_id,hit.version,anchor_id=anchor.anchor_id);break
+                item,ref,_,d=self._unit(context,source_uri,view,task_id=task_id)
                 if d.current_version!=hit.version:continue
                 # Final authority recheck includes SEARCH obligations as well as READ.
                 final=intersect_decisions([self.client.evaluate_policy(context.actor,hit.doc_id,action=a,**self._ctx(context,task_id)) for a in (PolicyAction.SEARCH_INDEX,PolicyAction.READ_CONTENT)])
@@ -146,36 +149,61 @@ class EvidenceTools:
             except (PermissionDeniedError,NotFoundError,TamperedExcerptError):continue
         return {'status':'ok' if hits else 'no_authorized_evidence','purpose_applied':context.purpose.value,
                 'policy_generation':context.actor.policy_generation,'mode_applied':mode,'hits':hits,
-                'candidate_budget_exhausted':response.candidate_budget_exhausted}
+                'candidate_budget_exhausted':response.candidate_budget_exhausted,'refusal_notice':'' if hits else 'No authorized evidence; do not invent an answer.'}
     def _verify_citation(self,context,source_uri,excerpt_hash=None,check_latest_version=True):
         item,ref,decision,d=self._unit(context,source_uri,allow_unavailable=True)
         if self.client.evaluate_policy(context.actor,ref.doc_id,**self._ctx(context))!=decision:raise PermissionDeniedError('access_denied')
         current=self.client._read(context.actor,ref.doc_id,**self._ctx(context))
         state=item['anchor'].reanchor_status.value if item['anchor'] is not None else None
         if excerpt_hash is not None and not hmac.compare_digest(excerpt_hash,ref.excerpt_hash):
-            return {'valid':False,'current_status':'tampered','latest_version':current.current_version,'reanchor_status':state,'receipt':None}
+            return {'status':'denied','valid':False,'current_status':'tampered','latest_version':current.current_version,'reanchor_status':state,'receipt':None}
         receipt=self.client.verify_ref(context.actor,ref,**self._ctx(context))
         if self.client.evaluate_policy(context.actor,ref.doc_id,**self._ctx(context))!=decision:raise PermissionDeniedError('access_denied')
         current=self.client._read(context.actor,ref.doc_id,**self._ctx(context))
         valid=receipt.status in ('partial','consumed')
         superseded=check_latest_version and ref.version!=current.current_version
-        return {'valid':valid and not superseded,'current_status':'superseded' if superseded and valid else 'valid' if valid else 'denied',
+        return {'status':'ok' if valid and not superseded else 'denied','valid':valid and not superseded,'current_status':'superseded' if superseded and valid else 'valid' if valid else 'denied',
                 'latest_version':current.current_version,'reanchor_status':state,'receipt':receipt}
-    def _get_evidence_pack(self,context,pack_id=None,source_uris=None,max_chars=4000):
-        if pack_id is not None:return {'status':'unavailable','effective_decision':{'effect':'deny'},'items':[]}
-        if not source_uris:raise ValidationError('source_uris required; stored packs are not supported')
-        uris=list(dict.fromkeys(source_uris));decisions=[self._decision(context,uri)[1] for uri in uris]
-        combined=intersect_decisions(decisions)
-        if not combined.allowed:raise PermissionDeniedError('access_denied')
-        view=self._derived_client(combined);items=[];remaining=max_chars;exhausted=False
-        for uri in uris:
-            item,_,_,_=self._unit(context,uri,view)
-            if len(item['excerpt'])>remaining:
-                exhausted=True;items.append({'source_uri':uri,'status':'budget_omitted'})
-            else:items.append(item);remaining-=len(item['excerpt'])
-        final=[self._decision(context,uri)[1] for uri in uris]
-        if final!=decisions:raise PermissionDeniedError('access_denied')
-        return {'status':'ok','effective_decision':{'effect':combined.effect.value,'reason_code':combined.reason_code,'policy_generation':combined.policy_generation},
-                'purpose_applied':context.purpose.value,'items':items,'budget_exhausted':exhausted}
-    def _report_evidence_issue(self,context,source_uri,issue_type,description,conflicting_uri=None):
-        return self.client.report_evidence_issue(context.actor,source_uri,issue_type,description,conflicting_uri,**self._ctx(context))
+    def _get_evidence_pack(self,context,source_uris,max_chars=4000):
+        selected=[];excluded=0
+        for uri in source_uris:
+            try:
+                _,decision=self._decision(context,uri)
+                item,_,_,_=self._unit(context,uri)
+                selected.append((uri,decision))
+            except (PermissionDeniedError,NotFoundError,TamperedExcerptError,ValidationError):excluded+=1
+        # Recompute the collective obligations if a source fails under the union.
+        # A failed hook never falls back to its original unmasked representation.
+        while selected:
+            combined=intersect_decisions([d for _,d in selected]);view=self._derived_client(combined);accepted=[];failed=[]
+            for uri,decision in selected:
+                try:
+                    item,_,_,_=self._unit(context,uri,view)
+                    if self._decision(context,uri)[1]!=decision:raise PermissionDeniedError('access_denied')
+                    accepted.append(item)
+                except (PermissionDeniedError,NotFoundError,TamperedExcerptError,ValidationError):failed.append(uri)
+            if failed:
+                excluded+=len(failed);selected=[pair for pair in selected if pair[0] not in failed];continue
+            if any(self._decision(context,uri)[1]!=d for uri,d in selected):raise PermissionDeniedError('access_denied')
+            items=[];remaining=max_chars;truncated=False
+            for item in accepted:
+                # Whole canonical units preserve real receipt/hash integrity. A
+                # unit too large for remaining budget is omitted, not fabricated.
+                if len(item['excerpt'])>remaining:
+                    truncated=True
+                    parsed=parse_uri_v2(item['source_uri'])
+                    if parsed.anchor_id or remaining==0:continue
+                    ref=view.reference(context.actor,item['doc_id'],item['version'],[parsed.chunk_id] if parsed.chunk_id else None,item['excerpt'][:remaining],**self._ctx(context))
+                    receipt=view.attach(context.actor,ref,ConsumerBinding('mcp_agent',context.agent.agent_id if context.agent else 'mcp_stdio'),**self._ctx(context)).receipt
+                    if receipt.status not in ('consumed','partial'):continue
+                    item['excerpt']=ref.excerpt;item['excerpt_hash']=ref.excerpt_hash;item['receipt']=receipt;item['truncated']=True
+                remaining-=len(item['excerpt']);item['text']=item.pop('excerpt');items.append(item)
+            if any(self._decision(context,uri)[1]!=d for uri,d in selected):raise PermissionDeniedError('access_denied')
+            return {'status':'ok' if items else 'no_authorized_evidence','purpose_applied':context.purpose.value,'effective_decision':plain(combined),
+                    'items':items,'excluded_count':excluded,'truncated':truncated}
+        return {'status':'no_authorized_evidence','purpose_applied':context.purpose.value,
+                'effective_decision':{'effect':'deny','reason_code':'empty_source_decisions'},'items':[],'excluded_count':excluded,'truncated':False}
+    def _report_evidence_issue(self,context,source_uri,issue_type,description,conflicting_uri=''):
+        issue=self.client.report_evidence_issue(context.actor,source_uri,issue_type,description,conflicting_uri=conflicting_uri,**self._ctx(context))
+        return {'status':'queued_for_review','issue_id':issue.issue_id,'source_uri':source_uri,'issue_type':issue.issue_type.value,
+                'note':'Queued for human review only; formal knowledge has not been modified.'}

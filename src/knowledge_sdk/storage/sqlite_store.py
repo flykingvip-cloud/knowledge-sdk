@@ -223,6 +223,8 @@ class SQLiteStore:
             self._execute('INSERT INTO evidence_issues VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(issue_id) DO UPDATE SET status=excluded.status,data=excluded.data',
                 (issue.issue_id,issue.org_id,issue.doc_id,issue.version,issue.anchor_id,issue.status,issue.created_at,self._dump(issue)))
     def get_issue(self,org_id,issue_id):
+        from ..contracts.issues import issue_text
+        issue_text(org_id,'org_id',True);issue_text(issue_id,'issue_id',True)
         return self._get('SELECT data FROM evidence_issues WHERE org_id=? AND issue_id=?',(org_id,issue_id))
     def list_issues(self,org_id,*,doc_id=None,status=None):
         from ..contracts.issues import issue_text,ISSUE_STATUSES

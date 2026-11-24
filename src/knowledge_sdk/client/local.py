@@ -5,7 +5,7 @@ from functools import wraps
 import threading
 import uuid
 import math
-from typing import Optional, Sequence
+from typing import Optional, Sequence, List
 from ..contracts.policy import (ResourceRights, PolicyContext, PolicyAction, Purpose, DecisionEffect, PolicyRule, enum_value)
 from ..permissions.engine import KnowledgePolicyEngine, DefaultPolicyEngine, intersect_decisions
 from ..permissions.redaction import RedactionRegistry
@@ -321,7 +321,7 @@ class LocalKnowledgeClient:
         return d,v,decision
 
     @serialized
-    def report_evidence_issue(self,actor,source_uri,issue_type,description,*,conflicting_uri="",agent=None,purpose=Purpose.READ,policy_context=None):
+    def report_evidence_issue(self,actor,source_uri,issue_type,description,*,conflicting_uri="",agent=None,purpose=Purpose.READ,policy_context=None) -> EvidenceIssue:
         """Queue data for human review. Never update document/version/ACL/rights."""
         if (issue_type not in ('outdated','anchor_drift','conflict','inaccuracy') or not isinstance(issue_type,str)
             or not isinstance(description,str) or not description.strip() or len(description)>4000):
@@ -364,21 +364,25 @@ class LocalKnowledgeClient:
         return issue
 
     @serialized
-    def list_evidence_issues(self,actor,*,doc_id=None,status=None,agent=None,purpose=Purpose.READ,policy_context=None):
+    def list_evidence_issues(self,actor,*,doc_id=None,status=None,agent=None,purpose=Purpose.READ,policy_context=None) -> List[EvidenceIssue]:
         ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context);result=[]
         for issue in self.store.list_issues(actor.org_id,doc_id=doc_id,status=status):
             try:
                 if not isinstance(issue,EvidenceIssue):continue
                 decision=self.evaluate_policy(actor,issue.doc_id,**ctx)
                 if not decision.allowed:continue
+                conflict=None
                 if issue.conflicting_uri:
                     other=parse_uri_v2(issue.conflicting_uri)
-                    if other.org_id!=actor.org_id or not self.evaluate_policy(actor,other.doc_id,**ctx).allowed:continue
+                    if other.org_id!=actor.org_id:continue
+                    conflict=self.evaluate_policy(actor,other.doc_id,**ctx)
+                    if not conflict.allowed:continue
                 delivered=issue
                 if decision.effect==DecisionEffect.ALLOW_WITH_REDACTION:
                     masked=self.redaction_registry.apply(issue.description,decision.redaction_profile,purpose,{'doc_id':issue.doc_id})[0]
                     delivered=replace(issue,description=masked,conflicting_uri='',reported_by_user_id='',reported_by_agent_id='',anchor_id='')
                 if self.evaluate_policy(actor,issue.doc_id,**ctx)!=decision:continue
+                if conflict is not None and self.evaluate_policy(actor,other.doc_id,**ctx)!=conflict:continue
                 result.append(delivered)
             except (NotFoundError,PermissionDeniedError,ValidationError):continue
         return result

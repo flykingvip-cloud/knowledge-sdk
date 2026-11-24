@@ -1,0 +1,1 @@
+Historical self-tests for the earlier parent brief, superseded by the owner t37u authoritative taskbook on 2026-11-24 Asia/Shanghai. Official SDK transport, external default, whole-pack rejection and previous issue contract are NOT the accepted current architecture. Files retained as historical evidence only; use the parent directory for new authoritative implementation evidence.

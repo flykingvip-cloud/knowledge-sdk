@@ -1,10 +1,9 @@
-"""Optional MCP surface. Handler/contracts stay stdlib-only; wire is lazy."""
+"""Python3.9+ stdlib MCP kernel; optional HTTP imports only on explicit startup."""
 from __future__ import annotations
-from .gateway import GatewayContext, GatewayAuthenticator
-from .handlers import EvidenceTools, tool_definitions
-
+from .tools import EvidenceTools,tool_definitions
+from .protocol import MCPProtocol
+from .gateway import GatewayContext,GatewayAuthenticator
 
 def create_app(*args,**kwargs):
-    # Import the official optional transport only on explicit application creation.
-    from .transport import create_app as factory
+    from .server import create_app as factory
     return factory(*args,**kwargs)
