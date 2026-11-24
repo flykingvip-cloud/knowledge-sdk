@@ -57,7 +57,7 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
         if root and incoming != root and not incoming.startswith(root + "/"):
             request.scope["path"] = root + incoming
         path = route_path(request)
-        if dev_insecure and (path.startswith('/v1/audit/') or path.startswith('/v1/impact/') or path in ('/v1/events/drain','/v1/outbox/drain')):
+        if dev_insecure and (path.startswith(('/v1/audit/','/v1/governance/','/v1/packs')) or path.startswith('/v1/impact/') or path in ('/v1/events/drain','/v1/outbox/drain','/v1/issues/resolve')):
             return JSONResponse(status_code=401,content={'error':'PermissionDeniedError','message':'Event APIs require signed authentication'},headers={'Cache-Control':'no-store'})
         if path=='/v1/mcp' and not enable_mcp:
             return JSONResponse(status_code=404,content={'message':'Not found'},headers={'Cache-Control':'no-store'})
@@ -97,7 +97,7 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
         except (ValidationError,ValueError,TypeError,UnicodeError):
             return JSONResponse(status_code=401,content={"error":"PermissionDeniedError","message":"Invalid request authentication"},headers={"Cache-Control":"no-store"})
         response=await call_next(request)
-        if path.startswith(('/v1/audit/','/v1/impact/')) or path in ('/v1/events/drain','/v1/outbox/drain'):
+        if path.startswith(('/v1/audit/','/v1/impact/','/v1/governance/','/v1/packs')) or path in ('/v1/events/drain','/v1/outbox/drain'):
             response.headers['Cache-Control']='no-store'
         return response
     if enable_mcp:
@@ -122,6 +122,7 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
                     if not isinstance(envelope,dict): raise ValidationError("Expected request object")
                     params=decode(envelope.get("params",{}))
                 if not isinstance(params,dict) or set(params) & {"actor","self","agent","purpose","policy_context"}: raise ValidationError("Invalid parameters")
+                if operation=='export_evidence_pack' and params.get('output_path') is not None:raise ValidationError('Remote output_path is forbidden')
                 if operation=="ingest" and "content_b64" in params:
                     params["content"]=base64.b64decode(params.pop("content_b64"),validate=True)
                 if operation == "ask":
@@ -133,7 +134,7 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
                 # Absent purpose on old ask calls must preserve explicit-vs-inferred
                 # semantics for a server-configured generator.
                 if "purpose" in signature.parameters and (operation != "ask" or "x-kb-purpose" in request.headers):
-                    params["purpose"]=request.state.purpose
+                    params["purpose"]=Purpose.EXPORT if operation in ("create_evidence_pack","get_evidence_pack","list_evidence_packs","verify_evidence_pack","export_evidence_pack") and "x-kb-purpose" not in request.headers else request.state.purpose
                 signature.bind(actor=request.state.actor,**params)
             except (TypeError,ValueError,KeyError) as exc: raise ValidationError("Invalid request parameters") from exc
             return encode(method(actor=request.state.actor,**params))

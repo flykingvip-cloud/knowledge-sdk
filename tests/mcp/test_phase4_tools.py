@@ -69,7 +69,7 @@ class ToolTests(unittest.TestCase):
         self.c.ingest(self.admin,'k','other secret',doc_id='other',acl=DocumentACL(deny_users=('reader',)))
         result=self.call('get_evidence_pack',source_uris=[self.uri,build_uri('o','other',1)])
         self.assertEqual(result['status'],'ok');self.assertEqual(len(result['items']),1);self.assertEqual(result['excluded_count'],1);self.assertNotIn('other',json.dumps(result['items']))
-        with self.assertRaises(ValidationError):self.call('get_evidence_pack',pack_id='reserved')
+        self.assertEqual(self.call('get_evidence_pack',pack_id='reserved')['status'],'denied')  # M3 enables persisted IDs
     def test_pack_applies_union_redactions_and_budget_omits_whole_units(self):
         self.c.ingest(self.admin,'k','alpha secret other',doc_id='other')
         self.c.redaction_registry.register('p',RegexRedactionHook([('secret','[P]')]))

@@ -48,3 +48,8 @@ def mixed_language_contract(self):
 
 SQLiteParity.test_shared_cjk_english_scope_and_authorized_fetch=mixed_language_contract
 PostgresParity.test_shared_cjk_english_scope_and_authorized_fetch=mixed_language_contract
+
+from tests.q2.test_q2_m3_governance_packs import M3Contracts
+class SQLiteM3Parity(M3Contracts,unittest.TestCase):engine='sqlite'
+@unittest.skipUnless(os.environ.get('KNOWLEDGE_SDK_TEST_PG_DSN'),'Real PostgreSQL DSN not configured')
+class PostgresM3Parity(M3Contracts,unittest.TestCase):engine='postgres'

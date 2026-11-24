@@ -9,7 +9,7 @@ from ..contracts.receipts import consume as verify_material
 from ..contracts.models import KnowledgeScope,ConsumerBinding,KnowledgeRef,encode
 from ..contracts.policy import PolicyContext,PolicyAction,DecisionEffect
 from ..contracts.uri import parse_uri_v2,build_uri
-from ..exceptions import ValidationError,PermissionDeniedError,NotFoundError,TamperedExcerptError
+from ..exceptions import ValidationError,PermissionDeniedError,NotFoundError,ConflictError,TamperedExcerptError
 from ..permissions.engine import intersect_decisions
 from ..retrieval.excerpt import make_excerpt
 from ..ingestion.fingerprint import normalize_text,sha256
@@ -21,7 +21,7 @@ _SCHEMAS={
  'search_evidence':({'query':_TEXT(1000),'mode':{'type':'string','enum':['keyword','vector','hybrid'],'default':'keyword'},
     'limit':{'type':'integer','minimum':1,'maximum':20,'default':5},'kb_ids':_ARRAY(256),'doc_ids':_ARRAY(256),'task_id':_TEXT(256)},['query']),
  'verify_citation':({'source_uri':_TEXT(2048),'excerpt_hash':{'type':'string','pattern':'^[0-9a-f]{64}$'},'check_latest_version':{'type':'boolean','default':True}},['source_uri']),
- 'get_evidence_pack':({'source_uris':dict(_ARRAY(2048),maxItems=20),'max_chars':{'type':'integer','minimum':1,'maximum':32000,'default':4000}},['source_uris']),
+ 'get_evidence_pack':({'pack_id':_TEXT(256),'query':_TEXT(1000),'source_uris':dict(_ARRAY(2048),maxItems=20),'max_chars':{'type':'integer','minimum':1,'maximum':32000,'default':4000}},[]),
  'report_evidence_issue':({'source_uri':_TEXT(2048),'issue_type':{'type':'string','enum':['outdated','anchor_drift','conflict','inaccuracy']},
     'description':_TEXT(4000),'conflicting_uri':_TEXT(2048)},['source_uri','issue_type','description'])}
 
@@ -71,10 +71,11 @@ class EvidenceTools:
         props,required=_SCHEMAS[name]
         if set(arguments)-set(props) or any(k not in arguments for k in required):raise ValidationError('Invalid tool arguments')
         for key,value in arguments.items():_validate(value,props[key])
+        if name=='get_evidence_pack' and sum(k in arguments for k in ('pack_id','query','source_uris'))!=1:raise ValidationError('Choose pack_id, query, or source_uris')
         # Lock the trusted local delegation; no mutable global/session identity.
         with self.client._lock, self.client.store._write_scope():
             try:return plain(getattr(self,'_'+name)(context,**arguments))
-            except (PermissionDeniedError,NotFoundError,TamperedExcerptError):
+            except (PermissionDeniedError,NotFoundError,ConflictError,TamperedExcerptError):
                 if name=='verify_citation':return {'status':'denied','valid':False,'current_status':'denied','latest_version':None,'reanchor_status':None,'receipt':None}
                 return {'status':'denied','purpose_applied':context.purpose.value,'policy_generation':context.actor.policy_generation,
                         **({'hits':[],'candidate_budget_exhausted':False,'refusal_notice':'No authorized evidence; do not invent an answer.'} if name=='search_evidence' else {'items':[],'effective_decision':{'effect':'deny'}} if name=='get_evidence_pack' else {})}
@@ -148,7 +149,7 @@ class EvidenceTools:
                 if final!=combined or self.client.store.get_document(hit.doc_id).current_version!=hit.version:continue
                 view._record_usage(context.actor,ref,item['receipt'],**self._ctx(context,task_id))
                 hits.append(item)
-            except (PermissionDeniedError,NotFoundError,TamperedExcerptError):continue
+            except (PermissionDeniedError,NotFoundError,ConflictError,TamperedExcerptError):continue
         return {'status':'ok' if hits else 'no_authorized_evidence','purpose_applied':context.purpose.value,
                 'policy_generation':context.actor.policy_generation,'mode_applied':mode,'hits':hits,
                 'candidate_budget_exhausted':response.candidate_budget_exhausted,'refusal_notice':'' if hits else 'No authorized evidence; do not invent an answer.'}
@@ -166,14 +167,20 @@ class EvidenceTools:
         superseded=check_latest_version and ref.version!=current.current_version
         return {'status':'ok' if valid and not superseded else 'denied','valid':valid and not superseded,'current_status':'superseded' if superseded and valid else 'valid' if valid else 'denied',
                 'latest_version':current.current_version,'reanchor_status':state,'receipt':receipt}
-    def _get_evidence_pack(self,context,source_uris,max_chars=4000):
+    def _get_evidence_pack(self,context,source_uris=None,max_chars=4000,pack_id=None,query=None):
+        if pack_id is not None:
+            return self.client.get_evidence_pack(context.actor,pack_id,**self._ctx(context))
+        if query is not None:
+            response=self.client.search(context.actor,query,limit=5,**self._ctx(context))
+            source_uris=[hit.source_uri for hit in response.hits]
+            if not source_uris:return {'items':[],'status':'denied'}
         selected=[];excluded=0
         for uri in source_uris:
             try:
                 _,decision=self._decision(context,uri)
                 item,_,_,_=self._unit(context,uri)
                 selected.append((uri,decision))
-            except (PermissionDeniedError,NotFoundError,TamperedExcerptError,ValidationError):excluded+=1
+            except (PermissionDeniedError,NotFoundError,ConflictError,TamperedExcerptError,ValidationError):excluded+=1
         # Recompute the collective obligations if a source fails under the union.
         # A failed hook never falls back to its original unmasked representation.
         while selected:
@@ -183,7 +190,7 @@ class EvidenceTools:
                     item,ref,_,_=self._unit(context,uri,view)
                     if self._decision(context,uri)[1]!=decision:raise PermissionDeniedError('access_denied')
                     accepted.append((item,ref))
-                except (PermissionDeniedError,NotFoundError,TamperedExcerptError,ValidationError):failed.append(uri)
+                except (PermissionDeniedError,NotFoundError,ConflictError,TamperedExcerptError,ValidationError):failed.append(uri)
             if failed:
                 excluded+=len(failed);selected=[pair for pair in selected if pair[0] not in failed];continue
             if any(self._decision(context,uri)[1]!=d for uri,d in selected):raise PermissionDeniedError('access_denied')

@@ -201,3 +201,5 @@ a trusted same-origin host gateway is required. Disable all UI routes with
 Native Schema v3 + FORCE RLS, CJK GIN search, metadata-only pgvector, shared replay,
 and fenced SKIP LOCKED workers: see [PostgreSQL operations and boundaries](docs/postgres.md).
 SQLite stays the zero-dependency default. No production migration/deployment is implied.
+
+Q2-M3 controlled governance / immutable EvidencePack / RO-Crate: [protocol and examples](docs/governance-packs.md).

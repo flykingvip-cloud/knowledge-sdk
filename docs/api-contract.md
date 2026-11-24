@@ -187,3 +187,31 @@ ImpactRadar(client) and WebhookDispatcher(store), then start/close it. Poll inte
 is <=30 seconds, default 1; the tenant-admin drain provides deterministic tests.
 No background thread is silently started by client construction. See the Q2-M1
 handoff for SQLite serialization, identity refresh and unanchored-chain limits.
+
+## Q2-M3 governance and sealed packs
+
+All POST body envelopes remain `{"params":{...}}`; trusted Actor/Agent/Purpose
+are signed headers only. These routes require HMAC (no dev-insecure mode).
+
+| Method | Route | Required/specific params | Result |
+|---|---|---|---|
+| submit_for_review | /v1/governance/submit | doc_id; version=None, expected_version=None, note="" | ReviewDecision |
+| approve_release | /v1/governance/approve | doc_id, version, expected_version; comment="", conditions="" | ReviewDecision |
+| reject_release | /v1/governance/reject | doc_id, version, expected_version, reason | ReviewDecision |
+| publish_release | /v1/governance/publish | doc_id, version, expected_version | ReleaseManifest |
+| record_dissent | /v1/governance/dissent | doc_id, version, note; stance="dissent", target_anchor_id="" | ReviewDecision |
+| get_release_manifest | /v1/governance/manifest | doc_id; version=None | ReleaseManifest |
+| resolve_evidence_issue | /v1/issues/resolve | issue_id, resolution_action, note; expected_version=None | EvidenceIssue |
+| create_evidence_pack | /v1/packs | title, entries; topic="", effective_decision=None, dissent_notes=[], seal=True, pack_id=None | EvidencePack |
+| get_evidence_pack | /v1/packs/get | pack_id | EvidencePack |
+| list_evidence_packs | /v1/packs/list | — | list[EvidencePack] |
+| verify_evidence_pack | /v1/packs/verify | pack_id | PackVerificationReport |
+| export_evidence_pack | /v1/packs/export | pack_id; format="json" or "ro_crate" | ExportResult |
+
+Pack methods default to EXPORT purpose; a signed explicit Purpose can only narrow
+source rights. Both that purpose and EXPORT rights are enforced. Remote output_path
+is forbidden; HttpKnowledgeClient writes a requested output_path on the **caller**
+filesystem after success, not on the service. Binary result uses base64 content.
+New responses use no-store. Details/CLI/security: [governance-packs.md](governance-packs.md).
+M3 deliberately removes the former L2 admin ingest lifecycle bypass; new drafts
+never replace a published version/index. Existing L1 behavior is unchanged.

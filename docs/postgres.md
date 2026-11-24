@@ -101,4 +101,4 @@ Production backups need a separately authorized backup role, encryption, retenti
 PITR and deployment-specific restore practice, none claimed by this drill.
 
 Evidence: [Q2-M2 handoff](acceptance/v2.0-q2-phase2/Q2_PHASE2_HANDOFF_REPORT.md).
-M3 governance/EvidencePack and M4 enterprise identity/connectors remain unimplemented.
+M3 governance/EvidencePack now reuse the reserved tables; see [governance-packs.md](governance-packs.md). M4 enterprise identity/connectors remain unimplemented.

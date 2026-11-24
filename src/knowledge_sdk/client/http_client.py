@@ -13,6 +13,18 @@ from .local import LocalKnowledgeClient
 
 # Operation table is shared with the server so transport contracts cannot silently diverge.
 OPERATIONS={
+    "submit_for_review":("POST","/v1/governance/submit"),
+    "approve_release":("POST","/v1/governance/approve"),
+    "reject_release":("POST","/v1/governance/reject"),
+    "publish_release":("POST","/v1/governance/publish"),
+    "record_dissent":("POST","/v1/governance/dissent"),
+    "get_release_manifest":("POST","/v1/governance/manifest"),
+    "resolve_evidence_issue":("POST","/v1/issues/resolve"),
+    "create_evidence_pack":("POST","/v1/packs"),
+    "get_evidence_pack":("POST","/v1/packs/get"),
+    "list_evidence_packs":("POST","/v1/packs/list"),
+    "verify_evidence_pack":("POST","/v1/packs/verify"),
+    "export_evidence_pack":("POST","/v1/packs/export"),
     "list_impact_alerts":("POST","/v1/impact/alerts"),
     "acknowledge_impact_alert":("POST","/v1/impact/ack"),
     "drain_outbox":("POST","/v1/events/drain"),
@@ -91,7 +103,14 @@ def _method(name):
         for key in ("agent","purpose","policy_context"): values.pop(key,None)
         values.update(explicit)
         values.pop("self"); actor=values.pop("actor")
-        return self._call(name,actor,values)
+        output_path=values.pop('output_path',None) if name=='export_evidence_pack' else None
+        result=self._call(name,actor,values)
+        if output_path is not None:
+            from pathlib import Path
+            from dataclasses import replace
+            Path(output_path).write_bytes(result.content.encode() if result.encoding=='utf-8' else base64.b64decode(result.content))
+            result=replace(result,output_path=str(output_path))
+        return result
     call.__name__=name; call.__signature__=signature
     call.__doc__="Remote equivalent of LocalKnowledgeClient."+name
     return call

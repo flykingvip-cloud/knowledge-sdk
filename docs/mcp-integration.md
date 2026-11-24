@@ -144,3 +144,14 @@ archived under `superseded-parent-brief/`, never substituted for current accepta
 L4 NOT_RUN; L5 independent architect review pending. External partner/enterprise
 integration, real online semantic/model services, real PDF/OCR and production
 rollout remain unproven. No main merge/tag/release/deployment or Q2 feature is done.
+
+## Q2-M3 persisted EvidencePack extension
+
+`get_evidence_pack` still supports the Q1 `source_uris` transient tool contract.
+It additionally accepts `query` for transient search assembly, or `pack_id` for a
+persisted immutable snapshot; choose exactly one selector. Persisted IDs undergo
+whole-pack live EXPORT + gateway-purpose policy, redaction and digest checks before
+any content is returned. Missing/denied/tampered packs return no items. Other tool
+names, default internal purpose and stdio/signed-HTTP identity rules are unchanged.
+No extra runtime dependency, model call, identity input or output-path input exists.
+See [M3 protocol and boundaries](governance-packs.md).

@@ -394,10 +394,18 @@ class PolicyIntegrationTests(unittest.TestCase):
         self.assertEqual(self.client.store.get_document(version.doc_id).lifecycle_state,'draft')
         with self.assertRaisesRegex(PermissionDeniedError,'lifecycle_not_published'):self.client.retrieve(Actor('peer','org'),version.doc_id)
         with self.assertRaises(PermissionDeniedError):self.client.ingest(self.user,kb.kb_id,'controlled',doc_id=version.doc_id,lifecycle_state='published')
-        self.client.ingest(self.admin,kb.kb_id,'controlled',doc_id=version.doc_id,lifecycle_state='published')
+        # M3 replaces the old admin lifecycle bypass with a three-actor workflow.
+        with self.assertRaises(PermissionDeniedError):self.client.ingest(self.admin,kb.kb_id,'controlled',doc_id=version.doc_id,lifecycle_state='published')
+        publisher=Actor('publisher','org')
+        self.client.grant_kb_member(self.admin,kb.kb_id,publisher.user_id,'admin')
+        self.client.submit_for_review(self.user,version.doc_id,expected_version=1)
+        self.client.approve_release(self.admin,version.doc_id,version=1,expected_version=1)
+        self.client.publish_release(publisher,version.doc_id,version=1,expected_version=1)
         self.assertEqual(self.client.retrieve(Actor('peer','org'),version.doc_id).text,'controlled')
         self.client.ingest(self.user,kb.kb_id,'new controlled',doc_id=version.doc_id)
-        self.assertEqual(self.client.store.get_document(version.doc_id).lifecycle_state,'draft')
+        self.assertEqual(self.client.store.get_document(version.doc_id).lifecycle_state,'published')
+        self.assertEqual(self.client.store.get_document(version.doc_id).current_version,1)
+        self.assertEqual(self.client.store.get_version(version.doc_id,2).lifecycle_state,'draft')
     def test_document_scoped_write_deny_blocks_creation_and_version_updates(self):
         original=self.client.store.get_document(self.version.doc_id).current_version
         self.client.policy_engine=DefaultPolicyEngine([PolicyRule('no-write','org',DENY,scope_doc_id=self.version.doc_id,actions=(A.WRITE_DOCUMENT,))])
