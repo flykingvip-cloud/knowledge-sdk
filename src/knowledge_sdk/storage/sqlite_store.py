@@ -252,7 +252,20 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
             self._execute("INSERT INTO documents(doc_id,org_id,kb_id,data) VALUES(?,?,?,?) ON CONFLICT(doc_id) DO UPDATE SET data=excluded.data",(d.doc_id,d.org_id,d.kb_id,self._dump(d)))
             self._sync_document(d.doc_id)
     def list_documents(self,org_id): return [decode(json.loads(r[0])) for r in self._execute("SELECT data FROM documents WHERE org_id=? ORDER BY doc_id",(org_id,))]
-    def get_version(self,doc_id,version): return self._get("SELECT data FROM document_versions WHERE doc_id=? AND version=?",(doc_id,version))
+    def get_version(self,doc_id,version):
+        rows=self._execute('SELECT data FROM document_versions WHERE doc_id=? AND version=?',(doc_id,version))
+        if not rows:raise NotFoundError('Resource not found')
+        return self._version_compat(doc_id,version,json.loads(rows[0][0]))
+
+    def _version_compat(self,doc_id,version,payload):
+        # Additive v3 JSON migration: pre-M3 L2 versions have no version state.
+        v=decode(payload)
+        if 'lifecycle_state' not in payload:
+            d=self.get_document(doc_id)
+            if self.get_kb(d.kb_id).governance_tier=='l2_controlled':
+                from dataclasses import replace
+                v=replace(v,lifecycle_state=d.lifecycle_state if version==d.current_version else 'published',author_id=d.owner_id)
+        return v
     def put_version(self,v,chunks):
         self._execute("INSERT INTO document_versions VALUES(?,?,?)",(v.doc_id,v.version,self._dump(v)))
         for c in chunks: self._execute("INSERT INTO chunks VALUES(?,?,?,?)",(c.doc_id,c.version,c.chunk_id,self._dump(c)))

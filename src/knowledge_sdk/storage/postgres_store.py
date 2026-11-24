@@ -194,7 +194,9 @@ class PostgresStore:
 
     @tenant_method
     def get_version(self, doc_id, version):
-        return self._get('SELECT data FROM document_versions WHERE doc_id=%s AND version=%s AND org_id=%s', (doc_id, version) + (self._tenant,))
+        rows=self._execute('SELECT data FROM document_versions WHERE doc_id=%s AND version=%s AND org_id=%s',(doc_id,version,self._tenant))
+        if not rows:raise NotFoundError('Resource not found')
+        return SQLiteStore._version_compat(self,doc_id,version,json.loads(rows[0][0]))
 
     @tenant_method
     def put_version(self, v, chunks):

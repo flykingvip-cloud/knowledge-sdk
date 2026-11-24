@@ -332,4 +332,16 @@ class M3Contracts:
         self.assertEqual(self.s.get_document('d').current_version,2)
         self.assertIn('second approved',self.c.retrieve(self.u,'d').text)
 
+    def test_pre_m3_v3_draft_payload_is_migrated_without_admin_bypass(self):
+        self.ingest()
+        payload=encode(self.s.get_version('d',1))
+        for field in ('lifecycle_state','author_id','submitter_id','reviewer_id','publisher_id','published_at','source_issue_id'):payload.pop(field)
+        with self.s.transaction():self.sql('UPDATE document_versions SET data=? WHERE doc_id=? AND version=?',(json.dumps(payload),'d',1))
+        self.assertEqual(self.s.get_version('d',1).lifecycle_state,'draft')
+        self.assertEqual(self.s.get_version('d',1).author_id,self.a.user_id)
+        self.c.submit_for_review(self.a,'d',expected_version=1)
+        with self.assertRaises(PermissionDeniedError):self.c.approve_release(self.a,'d',version=1,expected_version=1)
+        self.c.approve_release(self.r,'d',version=1,expected_version=1);self.c.publish_release(self.p,'d',version=1,expected_version=1)
+        self.assertTrue(self.c.search(self.u,'alpha').hits)
+
 class SQLiteM3(M3Contracts,unittest.TestCase):pass
