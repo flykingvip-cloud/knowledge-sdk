@@ -37,7 +37,8 @@ def serialized(method):
     audited = method.__name__ in {
         'ingest','archive','restore','set_document_acl','set_document_rights',
         'search','retrieve','consume','attach','confirm_anchor_reanchor',
-        'report_evidence_issue','get_document','reference'}
+        'report_evidence_issue','get_document','reference','query_audit_events',
+        'list_impact_alerts','acknowledge_impact_alert','drain_outbox'}
     @wraps(method)
     def wrapped(self,*args,**kwargs):
         with self._lock:
@@ -68,7 +69,7 @@ class _AuditedEngine:
 
 class LocalKnowledgeClient:
     """Trusted in-process API. Caller supplies an authenticated Actor, not user input."""
-    def __init__(self,store=None,blob_store=None,parsers=None,chunker=None,vector_index=None,embedder=None,excerpt_policy=None,*,policy_engine:Optional[KnowledgePolicyEngine]=None,redaction_registry:Optional[RedactionRegistry]=None,policy_rules:Sequence[PolicyRule]=()):
+    def __init__(self,store=None,blob_store=None,parsers=None,chunker=None,vector_index=None,embedder=None,excerpt_policy=None,*,policy_engine:Optional[KnowledgePolicyEngine]=None,redaction_registry:Optional[RedactionRegistry]=None,policy_rules:Sequence[PolicyRule]=(),identity_resolver=None,allow_insecure_local_webhook=False):
         self.policy_engine = policy_engine if policy_engine is not None else DefaultPolicyEngine(policy_rules)
         self.redaction_registry = redaction_registry if redaction_registry is not None else RedactionRegistry()
         self.store=store if store is not None else SQLiteStore()
@@ -76,6 +77,8 @@ class LocalKnowledgeClient:
         if (vector_index is None)!=(embedder is None): raise ValidationError("Provide both vector_index and embedder")
         self.vector_index=vector_index; self.embedder=embedder; self.excerpt_policy=excerpt_policy or ExcerptPolicy()
         self._lock=threading.RLock()
+        self.identity_resolver=identity_resolver
+        self.allow_insecure_local_webhook=allow_insecure_local_webhook
     @property
     def policy_engine(self): return self._policy_engine
     @policy_engine.setter
@@ -130,10 +133,73 @@ class LocalKnowledgeClient:
             raise PermissionDeniedError('audit_admin_required')
         return verify_audit_chain(self.store,actor.org_id,from_seq=from_seq,to_seq=to_seq)
 
+    def _visible_impact(self,actor,alert,*,agent=None,purpose=Purpose.READ,policy_context=None):
+        if alert.org_id!=actor.org_id:return False
+        document=self.store.get_document(alert.doc_id)
+        if document.org_id!=actor.org_id:return False
+        owner=self.store.impact_owner(actor.org_id,alert.alert_id)==actor.user_id
+        # Permission to know an alert exists is distinct from permission to read
+        # its revoked source. Only owners/managers get identifier-only metadata.
+        management=self.evaluate_policy(actor,kb_id=document.kb_id,action=PolicyAction.MANAGE_SPACE,
+                    agent=agent,purpose=purpose,policy_context=policy_context)
+        admin=bool(set(actor.org_roles).intersection(('admin','manage_org')))
+        if not (owner or admin or management.allowed):return False
+        decision=self.evaluate_policy(actor,alert.doc_id,agent=agent,purpose=purpose,policy_context=policy_context)
+        profiles=','.join(dict.fromkeys(p for value in (decision.redaction_profile,
+                   document.rights.redaction_profile if document.rights else '') for p in value.split(',') if p))
+        if profiles:self.redaction_registry.apply('',profiles,purpose)
+        # Even after DENY, no content, title, excerpt, claim snapshot or receipt
+        # escapes: ImpactAlert.summary is regenerated from five opaque fields.
+        return True
+
+    @serialized
+    def list_impact_alerts(self,actor,*,doc_id=None,status=None,target_id=None,agent=None,purpose=Purpose.READ,policy_context=None):
+        result=[]
+        for alert in self.store.list_impact_alerts(actor.org_id,doc_id=doc_id,status=status,target_id=target_id):
+            try:
+                if self._visible_impact(actor,alert,agent=agent,purpose=purpose,policy_context=policy_context):result.append(alert)
+            except (NotFoundError,PermissionDeniedError):continue
+        return result
+
+    @serialized
+    def acknowledge_impact_alert(self,actor,alert_id,*,status='acknowledged',agent=None,purpose=Purpose.READ,policy_context=None):
+        if status not in ('acknowledged','resolved'):raise ValidationError('Invalid acknowledgement status')
+        with self.store._write_scope():
+            alerts=[a for a in self.store.list_impact_alerts(actor.org_id) if a.alert_id==alert_id]
+            if not alerts:raise NotFoundError('Impact alert not found')
+            alert=alerts[0]
+            if not self._visible_impact(actor,alert,agent=agent,purpose=purpose,policy_context=policy_context):
+                raise PermissionDeniedError('impact_scope_denied')
+            self.store.update_impact_alert_status(actor.org_id,alert_id,status)
+            return replace(alert,status=status)
+
+    @serialized
+    def drain_outbox(self,actor,*,limit=50,agent=None,purpose=Purpose.READ,policy_context=None):
+        from ..events.outbox import OutboxDispatcher
+        from ..impact.radar import ImpactRadar
+        from ..impact.webhook import WebhookDispatcher
+        if not set(actor.org_roles).intersection(('admin','manage_org')):raise PermissionDeniedError('outbox_admin_required')
+        worker=OutboxDispatcher(self.store,radar=ImpactRadar(self),webhook=WebhookDispatcher(self.store,
+                                  allow_insecure_local_webhook=self.allow_insecure_local_webhook))
+        return worker.drain_outbox(limit=limit,org_id=actor.org_id)
+
+    def _record_usage(self,actor,ref,receipt,*,agent=None,purpose=Purpose.READ,policy_context=None):
+        from ..contracts.impact import UsageEvent
+        from ..contracts.models import encode
+        import json
+        if receipt.status not in ('consumed','partial'):return
+        event=UsageEvent(str(uuid.uuid4()),actor.org_id,ref.doc_id,ref.version,
+                         anchor_id=ref.anchor_id,consumer_type=receipt.consumer_type,
+                         consumer_id=receipt.consumer_id,
+                         task_id=(policy_context.task_id if policy_context else '') or receipt.used_by_stage,
+                         actor_id=actor.user_id,agent_id=agent.agent_id if agent else '',
+                         purpose=enum_value(Purpose,purpose).value,
+                         receipt_hash=sha256(json.dumps(encode(receipt),sort_keys=True,separators=(',',':'))),
+                         created_at=datetime.now(timezone.utc).isoformat())
+        self.store.put_usage_event(event,actor=actor,agent=agent)
+
     def _emit_event(self, actor, event_type, doc_id, version, *, anchor_id='', previous_version=0):
         from ..contracts.events import OutboxEvent
-        if not self.store.db.in_transaction:
-            raise ConflictError('Outbox must share the authoritative write transaction')
         stamp=datetime.now(timezone.utc).isoformat()
         payload={'doc_id':doc_id,'version':version,'previous_version':previous_version}
         if anchor_id: payload['anchor_id']=anchor_id
@@ -579,9 +645,15 @@ class LocalKnowledgeClient:
         ref=KnowledgeRef(d.org_id,doc_id,version,build_uri(d.org_id,doc_id,version,chunk_ids[0] if len(chunk_ids)==1 else None),chunk_ids,excerpt,sha256(excerpt))
         validate_excerpt(ref,v,chunks,allow_combined=decision.effect == DecisionEffect.ALLOW_WITH_REDACTION); return ref
     @serialized
-    def consume(self,actor,ref,*,agent=None,purpose=Purpose.READ,policy_context=None): return consume(self,actor,ref,agent=agent,purpose=purpose,policy_context=policy_context)
+    def consume(self,actor,ref,*,agent=None,purpose=Purpose.READ,policy_context=None):
+        with self.store._write_scope():
+            receipt=consume(self,actor,ref,agent=agent,purpose=purpose,policy_context=policy_context)
+            self._record_usage(actor,ref,receipt,agent=agent,purpose=purpose,policy_context=policy_context)
+            return receipt
     @serialized
-    def batch_consume(self,actor,refs,*,agent=None,purpose=Purpose.READ,policy_context=None): return batch_consume(self,actor,refs,agent=agent,purpose=purpose,policy_context=policy_context)
+    def batch_consume(self,actor,refs,*,agent=None,purpose=Purpose.READ,policy_context=None):
+        if len(refs)>100:raise ValidationError('At most 100 references per batch')
+        return [self.consume(actor,ref,agent=agent,purpose=purpose,policy_context=policy_context) for ref in refs]
     @serialized
     def reindex(self,actor,kb_id,*,agent=None,purpose=Purpose.READ,policy_context=None):
         self._kb(actor,kb_id,admin=True,agent=agent,purpose=purpose,policy_context=policy_context)
@@ -652,15 +724,17 @@ class LocalKnowledgeClient:
 
     @serialized
     def attach(self, actor: Actor, ref: KnowledgeRef, binding=None,*,agent=None,purpose=Purpose.READ,policy_context=None) -> Attachment:
-        receipt = self.verify_ref(actor, ref,agent=agent,purpose=purpose,policy_context=policy_context)
-        if receipt.status not in ("consumed", "partial"): raise PermissionDeniedError(receipt.reason_code or "Reference unavailable or denied")
-        if binding is not None:
-            binding = self.validate_binding(actor, binding,agent=agent,purpose=purpose,policy_context=policy_context)
-            document = self._read(actor, ref.doc_id,agent=agent,purpose=purpose,policy_context=policy_context)
-            if not binding.default_scope.contains(document, self.store.get_kb(document.kb_id)):
-                raise PermissionDeniedError("Reference outside consumer scope")
-            receipt = replace(receipt, consumer_type=binding.consumer_type, consumer_id=binding.consumer_id, used_by_stage=binding.stage)
-        return Attachment(ref, receipt)
+        with self.store._write_scope():
+            receipt=consume(self,actor,ref,agent=agent,purpose=purpose,policy_context=policy_context)
+            if receipt.status not in ('consumed','partial'):raise PermissionDeniedError(receipt.reason_code or 'Reference unavailable or denied')
+            if binding is not None:
+                binding=self.validate_binding(actor,binding,agent=agent,purpose=purpose,policy_context=policy_context)
+                document=self._read(actor,ref.doc_id,agent=agent,purpose=purpose,policy_context=policy_context)
+                if not binding.default_scope.contains(document,self.store.get_kb(document.kb_id)):
+                    raise PermissionDeniedError('Reference outside consumer scope')
+                receipt=replace(receipt,consumer_type=binding.consumer_type,consumer_id=binding.consumer_id,used_by_stage=binding.stage)
+            self._record_usage(actor,ref,receipt,agent=agent,purpose=purpose,policy_context=policy_context)
+            return Attachment(ref,receipt)
 
     @serialized
     def ask(self, actor: Actor, question: str, scope: Optional[KnowledgeScope] = None, top_k: int = 5, mode: str = "keyword",

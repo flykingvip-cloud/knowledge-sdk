@@ -206,9 +206,17 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
     @contextmanager
     def transaction(self):
         with self.lock:
-            self.db.execute("BEGIN IMMEDIATE")
-            try: yield; self.db.execute("COMMIT")
-            except BaseException: self.db.execute("ROLLBACK"); raise
+            if self.db.in_transaction:
+                import uuid
+                name='kb_'+uuid.uuid4().hex
+                self.db.execute('SAVEPOINT '+name)
+                try:yield;self.db.execute('RELEASE '+name)
+                except BaseException:
+                    self.db.execute('ROLLBACK TO '+name);self.db.execute('RELEASE '+name);raise
+            else:
+                self.db.execute("BEGIN IMMEDIATE")
+                try: yield; self.db.execute("COMMIT")
+                except BaseException: self.db.execute("ROLLBACK"); raise
     def close(self):
         with self.lock: self.db.close()
     def _execute(self,sql,args=()):
@@ -414,13 +422,16 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
         from ..contracts.events import OutboxEvent
         return OutboxEvent(*row[:5],payload=json.loads(row[5]),status=row[6],attempts=row[7],available_at=row[8],created_at=row[9],dispatched_at=row[10])
 
-    def claim_outbox_batch(self,now_iso,limit=50):
+    def claim_outbox_batch(self,now_iso,limit=50,*,org_id=None):
         from datetime import timedelta
         from ..contracts.policy import parse_time
         if type(limit) is not int or not 1<=limit<=1000:raise ValidationError('Invalid outbox limit')
         lease=(parse_time(now_iso)+timedelta(seconds=60)).isoformat()
         with self._write_scope():
-            rows=self._execute("SELECT * FROM outbox_events WHERE status IN ('pending','failed','processing') AND julianday(available_at)<=julianday(?) ORDER BY created_at,event_id LIMIT ?",(now_iso,limit))
+            sql="SELECT * FROM outbox_events WHERE status IN ('pending','failed','processing') AND julianday(available_at)<=julianday(?)"
+            args=[now_iso]
+            if org_id is not None:sql+=' AND org_id=?';args.append(org_id)
+            rows=self._execute(sql+' ORDER BY created_at,event_id LIMIT ?',args+[limit])
             events=[]
             for row in rows:
                 self._execute("UPDATE outbox_events SET status='processing',attempts=attempts+1,available_at=? WHERE event_id=?",(lease,row[0]))
@@ -462,3 +473,65 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
 
     def has_webhook_delivery(self,subscription_id,outbox_event_id):
         return bool(self._execute("SELECT 1 FROM webhook_deliveries WHERE subscription_id=? AND outbox_event_id=? AND status='delivered'",(subscription_id,outbox_event_id)))
+
+    def put_usage_event(self,event,*,actor=None,agent=None):
+        from ..contracts.impact import UsageEvent
+        if not isinstance(event,UsageEvent):raise ValidationError('Expected UsageEvent')
+        if actor is not None and (actor.org_id,actor.user_id)!=(event.org_id,event.actor_id):raise ConflictError('Usage identity mismatch')
+        if agent is not None and (agent.org_id,agent.agent_id)!=(event.org_id,event.agent_id):raise ConflictError('Usage agent mismatch')
+        with self._write_scope():
+            data=json.dumps({'event':encode(event),'actor':encode(actor),'agent':encode(agent)},sort_keys=True)
+            rows=self._execute('SELECT data FROM usage_events WHERE usage_id=?',(event.usage_id,))
+            if rows:
+                if rows[0][0]!=data:raise ConflictError('Usage events are immutable')
+                return
+            document=self.get_document(event.doc_id)
+            if document.org_id!=event.org_id:raise ConflictError('Usage tenant mismatch')
+            self.get_version(event.doc_id,event.version)
+            if event.anchor_id:self.get_anchor(event.org_id,event.doc_id,event.version,event.anchor_id)
+            self._execute('INSERT INTO usage_events VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                (event.usage_id,event.org_id,event.doc_id,event.version,event.anchor_id,event.consumer_type,event.consumer_id,event.task_id,event.actor_id,event.agent_id,event.purpose,event.receipt_hash,event.created_at,data))
+
+    def list_usage_events_for_doc(self,org_id,doc_id,*,version=None):
+        sql='SELECT data FROM usage_events WHERE org_id=? AND doc_id=?';args=[org_id,doc_id]
+        if version is not None:sql+=' AND version=?';args.append(version)
+        return [decode(json.loads(r[0]))['event'] for r in self._execute(sql+' ORDER BY created_at,usage_id',args)]
+
+    def usage_identity(self,org_id,usage_id):
+        rows=self._execute('SELECT data FROM usage_events WHERE org_id=? AND usage_id=?',(org_id,usage_id))
+        if not rows:raise NotFoundError('Usage not found')
+        data=decode(json.loads(rows[0][0]));return data.get('actor'),data.get('agent')
+
+    def put_impact_alert(self,alert,*,actor_id='',usage_id=''):
+        from ..contracts.impact import ImpactAlert
+        if not isinstance(alert,ImpactAlert):raise ValidationError('Expected ImpactAlert')
+        data=json.dumps({'alert':encode(alert),'actor_id':actor_id,'usage_id':usage_id},sort_keys=True)
+        with self._write_scope():
+            if self.get_document(alert.doc_id).org_id!=alert.org_id:raise ConflictError('Impact tenant mismatch')
+            rows=self._execute('SELECT org_id,aggregate_id,payload_json FROM outbox_events WHERE event_id=?',(alert.source_event_id,))
+            if not rows or rows[0][0]!=alert.org_id or json.loads(rows[0][2]).get('doc_id')!=alert.doc_id:
+                raise ConflictError('Impact event mismatch')
+            self._execute('INSERT INTO impact_alerts VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(org_id,source_event_id,target_type,target_id) DO NOTHING',
+                (alert.alert_id,alert.org_id,alert.source_event_id,alert.doc_id,alert.source_version,alert.target_type,alert.target_id,alert.impact_reason.value,alert.status,alert.created_at,data))
+
+    def list_impact_alerts(self,org_id,*,doc_id=None,status=None,target_id=None):
+        if status is not None and status not in ('open','acknowledged','resolved'):raise ValidationError('Invalid impact status')
+        sql='SELECT data,status FROM impact_alerts WHERE org_id=?';args=[org_id]
+        for name,value in (('doc_id',doc_id),('status',status),('target_id',target_id)):
+            if value is not None:sql+=' AND '+name+'=?';args.append(value)
+        from dataclasses import replace
+        return [replace(decode(json.loads(r[0]))['alert'],status=r[1]) for r in self._execute(sql+' ORDER BY created_at,alert_id',args)]
+
+    def impact_owner(self,org_id,alert_id):
+        rows=self._execute('SELECT data FROM impact_alerts WHERE org_id=? AND alert_id=?',(org_id,alert_id))
+        if not rows:raise NotFoundError('Impact alert not found')
+        return json.loads(rows[0][0]).get('actor_id','')
+
+    def update_impact_alert_status(self,org_id,alert_id,status):
+        if status not in ('open','acknowledged','resolved'):raise ValidationError('Invalid impact status')
+        with self._write_scope():
+            self.impact_owner(org_id,alert_id)
+            self._execute('UPDATE impact_alerts SET status=? WHERE org_id=? AND alert_id=?',(status,org_id,alert_id))
+
+    def list_all_bindings(self,org_id):
+        return [(r[0],decode(json.loads(r[1]))) for r in self._execute('SELECT user_id,data FROM consumer_bindings WHERE org_id=? ORDER BY user_id,consumer_type,consumer_id',(org_id,))]

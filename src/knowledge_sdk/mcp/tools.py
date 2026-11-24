@@ -5,6 +5,7 @@ import hmac
 import logging
 from dataclasses import replace
 from ..client.local import LocalKnowledgeClient
+from ..contracts.receipts import consume as verify_material
 from ..contracts.models import KnowledgeScope,ConsumerBinding,KnowledgeRef,encode
 from ..contracts.policy import PolicyContext,PolicyAction,DecisionEffect
 from ..contracts.uri import parse_uri_v2,build_uri
@@ -71,7 +72,7 @@ class EvidenceTools:
         if set(arguments)-set(props) or any(k not in arguments for k in required):raise ValidationError('Invalid tool arguments')
         for key,value in arguments.items():_validate(value,props[key])
         # Lock the trusted local delegation; no mutable global/session identity.
-        with self.client._lock:
+        with self.client._lock, self.client.store._write_scope():
             try:return plain(getattr(self,'_'+name)(context,**arguments))
             except (PermissionDeniedError,NotFoundError,TamperedExcerptError):
                 if name=='verify_citation':return {'status':'denied','valid':False,'current_status':'denied','latest_version':None,'reanchor_status':None,'receipt':None}
@@ -114,9 +115,9 @@ class EvidenceTools:
             excerpt=view['excerpt']
             ref=client.reference(context.actor,d.doc_id,v.version,[parsed.chunk_id] if parsed.chunk_id else None,excerpt,**self._ctx(context))
         binding=ConsumerBinding('mcp_agent',context.agent.agent_id if context.agent else 'mcp_stdio',stage=task_id)
-        receipt=client.consume(context.actor,ref,**self._ctx(context))
+        receipt=verify_material(client,context.actor,ref,**self._ctx(context,task_id))
         if receipt.status in ('consumed','partial'):
-            receipt=client.attach(context.actor,ref,binding,**self._ctx(context)).receipt
+            receipt=replace(receipt,consumer_type=binding.consumer_type,consumer_id=binding.consumer_id,used_by_stage=binding.stage)
         elif not allow_unavailable:raise PermissionDeniedError('access_denied')
         return {'source_uri':ref.source_uri,'doc_id':d.doc_id,'version':v.version,'title':d.title,'excerpt':ref.excerpt,
                 'excerpt_hash':ref.excerpt_hash,'truncated':view['truncated'],'remaining_chars':view['remaining_chars'],
@@ -145,6 +146,7 @@ class EvidenceTools:
                 # Final authority recheck includes SEARCH obligations as well as READ.
                 final=intersect_decisions([self.client.evaluate_policy(context.actor,hit.doc_id,action=a,**self._ctx(context,task_id)) for a in (PolicyAction.SEARCH_INDEX,PolicyAction.READ_CONTENT)])
                 if final!=combined or self.client.store.get_document(hit.doc_id).current_version!=hit.version:continue
+                view._record_usage(context.actor,ref,item['receipt'],**self._ctx(context,task_id))
                 hits.append(item)
             except (PermissionDeniedError,NotFoundError,TamperedExcerptError):continue
         return {'status':'ok' if hits else 'no_authorized_evidence','purpose_applied':context.purpose.value,
@@ -178,15 +180,16 @@ class EvidenceTools:
             combined=intersect_decisions([d for _,d in selected]);view=self._derived_client(combined);accepted=[];failed=[]
             for uri,decision in selected:
                 try:
-                    item,_,_,_=self._unit(context,uri,view)
+                    item,ref,_,_=self._unit(context,uri,view)
                     if self._decision(context,uri)[1]!=decision:raise PermissionDeniedError('access_denied')
-                    accepted.append(item)
+                    accepted.append((item,ref))
                 except (PermissionDeniedError,NotFoundError,TamperedExcerptError,ValidationError):failed.append(uri)
             if failed:
                 excluded+=len(failed);selected=[pair for pair in selected if pair[0] not in failed];continue
             if any(self._decision(context,uri)[1]!=d for uri,d in selected):raise PermissionDeniedError('access_denied')
             items=[];remaining=max_chars;truncated=False
-            for item in accepted:
+            delivered=[]
+            for item,ref in accepted:
                 # Whole canonical units preserve real receipt/hash integrity. A
                 # unit too large for remaining budget is omitted, not fabricated.
                 if len(item['excerpt'])>remaining:
@@ -194,11 +197,13 @@ class EvidenceTools:
                     parsed=parse_uri_v2(item['source_uri'])
                     if parsed.anchor_id or remaining==0:continue
                     ref=view.reference(context.actor,item['doc_id'],item['version'],[parsed.chunk_id] if parsed.chunk_id else None,item['excerpt'][:remaining],**self._ctx(context))
-                    receipt=view.attach(context.actor,ref,ConsumerBinding('mcp_agent',context.agent.agent_id if context.agent else 'mcp_stdio'),**self._ctx(context)).receipt
+                    receipt=verify_material(view,context.actor,ref,**self._ctx(context))
+                    receipt=replace(receipt,consumer_type='mcp_agent',consumer_id=context.agent.agent_id if context.agent else 'mcp_stdio')
                     if receipt.status not in ('consumed','partial'):continue
                     item['excerpt']=ref.excerpt;item['excerpt_hash']=ref.excerpt_hash;item['receipt']=receipt;item['truncated']=True
-                remaining-=len(item['excerpt']);item['text']=item.pop('excerpt');items.append(item)
+                remaining-=len(item['excerpt']);delivered.append((ref,item['receipt']));item['text']=item.pop('excerpt');items.append(item)
             if any(self._decision(context,uri)[1]!=d for uri,d in selected):raise PermissionDeniedError('access_denied')
+            for ref,receipt in delivered:view._record_usage(context.actor,ref,receipt,**self._ctx(context))
             return {'status':'ok' if items else 'no_authorized_evidence','purpose_applied':context.purpose.value,'effective_decision':plain(combined),
                     'items':items,'excluded_count':excluded,'truncated':truncated}
         return {'status':'no_authorized_evidence','purpose_applied':context.purpose.value,

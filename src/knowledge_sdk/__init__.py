@@ -30,3 +30,5 @@ from .contracts.audit import AuditEvent, AuditChainReport
 
 from .contracts.events import OutboxEvent, DispatchSummary
 from .impact.webhook import verify_webhook_signature
+
+from .contracts.impact import UsageEvent, ImpactAlert, ImpactReason

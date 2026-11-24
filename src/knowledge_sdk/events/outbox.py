@@ -13,22 +13,28 @@ class OutboxDispatcher:
         self.store=store;self.radar=radar;self.webhook=webhook;self.max_attempts=max_attempts
         self._stop=threading.Event();self._thread=None
 
-    def drain_outbox(self,limit=50,now=None):
+    def drain_outbox(self,limit=50,now=None,*,org_id=None):
         when=datetime.now(timezone.utc) if now is None else parse_time(now) if isinstance(now,str) else now
         if not isinstance(when,datetime) or when.tzinfo is None:raise ValidationError('Expected timezone-aware now')
-        events=self.store.claim_outbox_batch(when.isoformat(),limit)
+        events=self.store.claim_outbox_batch(when.isoformat(),limit,org_id=org_id)
         done=failed=dead=0
         for event in events:
-            try:
-                if self.radar is not None:self.radar.process(event)
-                if self.webhook is not None:self.webhook.dispatch(event)
-            except Exception:
-                retry=(when+timedelta(seconds=min(3600,2**min(event.attempts,12)))).isoformat()
-                self.store.mark_outbox_failed(event.event_id,retry,self.max_attempts)
-                if event.attempts>=self.max_attempts:dead+=1
-                else:failed+=1
-            else:
-                self.store.mark_outbox_dispatched(event.event_id,when.isoformat());done+=1
+            # The SQLite writer lock fences stale workers across the handlers and
+            # final status update. An expired batch claim may have been reclaimed
+            # before we obtained the lock; its attempt number is then rejected.
+            with self.store._write_scope():
+                current=self.store._execute("SELECT 1 FROM outbox_events WHERE event_id=? AND status='processing' AND attempts=?",(event.event_id,event.attempts))
+                if not current:continue
+                try:
+                    if self.radar is not None:self.radar.process(event)
+                    if self.webhook is not None:self.webhook.dispatch(event)
+                except Exception:
+                    retry=(when+timedelta(seconds=min(3600,2**min(event.attempts,12)))).isoformat()
+                    self.store.mark_outbox_failed(event.event_id,retry,self.max_attempts)
+                    if event.attempts>=self.max_attempts:dead+=1
+                    else:failed+=1
+                else:
+                    self.store.mark_outbox_dispatched(event.event_id,when.isoformat());done+=1
         return DispatchSummary(len(events),done,failed,dead)
 
     def start(self,interval=1):

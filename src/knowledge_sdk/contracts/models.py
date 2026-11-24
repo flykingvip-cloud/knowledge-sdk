@@ -311,13 +311,14 @@ class KnowledgeAnswer:
 
 from ..ingestion.parsers.layout import ParsedSpan, LayoutParseResult
 
+from .impact import UsageEvent, ImpactAlert, ImpactReason
 from .audit import AuditEvent, AuditChainReport
 from .events import OutboxEvent, DispatchSummary, WebhookSubscription, WebhookDelivery
 from .issues import EvidenceIssue
 
 # Tagged transport serialization avoids guessing model types or exposing pickle.
 _MODELS = {c.__name__: c for c in (Actor, KnowledgeBase, Document, DocumentVersion, Chunk,
-    DocumentACL, KnowledgeRef, MaterialReceipt, ExcerptPolicy, SearchHit, SearchResponse, RetrieveResponse, KnowledgeScope, ConsumerBinding, Attachment, GeneratedAnswer, KnowledgeAnswer, AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision, ParsedKBURI, TextQuoteSelector, PdfBBoxSelector, TableCellSelector, SectionQuoteSelector, EvidenceAnchor, ParsedSpan, LayoutParseResult, EvidenceIssue, AuditEvent, AuditChainReport, OutboxEvent, DispatchSummary, WebhookSubscription, WebhookDelivery)}
+    DocumentACL, KnowledgeRef, MaterialReceipt, ExcerptPolicy, SearchHit, SearchResponse, RetrieveResponse, KnowledgeScope, ConsumerBinding, Attachment, GeneratedAnswer, KnowledgeAnswer, AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision, ParsedKBURI, TextQuoteSelector, PdfBBoxSelector, TableCellSelector, SectionQuoteSelector, EvidenceAnchor, ParsedSpan, LayoutParseResult, EvidenceIssue, AuditEvent, AuditChainReport, OutboxEvent, DispatchSummary, WebhookSubscription, WebhookDelivery, UsageEvent, ImpactAlert)}
 def encode(value):
     if isinstance(value, Enum): return value.value
     if type(value).__name__ in _MODELS:
