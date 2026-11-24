@@ -1,0 +1,10 @@
+test_bound_rls_and_skip_locked_sql_without_driver (tests.q2.test_postgres.OfflinePostgresGuards.test_bound_rls_and_skip_locked_sql_without_driver) ... ok
+test_connection_exception_never_keeps_cause (tests.q2.test_postgres.OfflinePostgresGuards.test_connection_exception_never_keeps_cause) ... ok
+test_ddl_and_metadata_surface (tests.q2.test_postgres.OfflinePostgresGuards.test_ddl_and_metadata_surface) ... ok
+test_lazy_optional_import (tests.q2.test_postgres.OfflinePostgresGuards.test_lazy_optional_import) ... ok
+test_password_redaction (tests.q2.test_postgres.OfflinePostgresGuards.test_password_redaction) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+OK

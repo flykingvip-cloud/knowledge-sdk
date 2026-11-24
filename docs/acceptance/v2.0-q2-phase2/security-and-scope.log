@@ -1,0 +1,9 @@
+UNCHANGED tests/benchmark/golden_cases_v1.jsonl 1b7c5ace8249495477457431e7b64f047868757ce28985ede56c483771b13fea
+UNCHANGED tests/benchmark/golden_cases_v2.jsonl 8503fd7962f23f97ca96d30476ba1c976db239ef5ca56bc0a552c8cb5a5232e1
+UNCHANGED tests/benchmark/g6.py c12cb690dae8e97545211068d30f162ee13bf375b0953ebcb75238ad2a56f412
+PASS AST3.9 src + benchmark; core dependencies=[]; lazy import boundary; no UI change; original golden specifications and G6 assertions byte-identical
+No real database passwords were used: ephemeral local trust only. Literal fake password/redaction fixtures are deliberate tests, not credentials.
+Driver exceptions are detail-free and suppress chained original messages; live HTTP process logs contain neither signing secrets nor DSN.
+No M3 governance/EvidencePack construction/export, M4 OIDC/SCIM/connectors, or Q3 modules were added. Reserved tables remain empty in tests/DR.
+No main merge, PR, tag, release, deployment, force push, global git config, Mac filesystem/service access, Qdrant/model/remote embedding/paid calls.
+Pre-existing reports/ remains untracked. New bounded local cluster and transient CLI/HTTP receivers only; cleanup recorded separately.

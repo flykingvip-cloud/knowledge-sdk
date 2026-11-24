@@ -1,0 +1,17 @@
+INFO:     Started server process [1140815]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:33471 (Press CTRL+C to quit)
+INFO:     127.0.0.1:39584 - "GET /v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39596 - "POST /v1/kbs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39602 - "POST /v1/documents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39612 - "POST /v1/anchors/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39616 - "POST /v1/references HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39618 - "POST /v1/references/attach HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39634 - "POST /v1/documents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39644 - "POST /v1/documents/acl HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39646 - "POST /v1/search HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1140815]

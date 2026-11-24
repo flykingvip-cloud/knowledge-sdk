@@ -1,0 +1,10 @@
+2026-11-25T04:36:40.836410+08:00 Asia/Shanghai
+Remaining sdk_test_* schemas: 0
+Other active application sessions in created cluster: 0
+waiting for server to shut down.... done
+server stopped
+Stopped only the new /workspace/knowledge-sdk-q2m2-pg/data cluster.
+Removed unused package-created 17/main cluster; package install log proves it was created in this run and start was denied by policy-rc.d. Never used or repurposed an existing cluster.
+All probe CLI processes/loopback webhook receivers shut down in their finally blocks.
+Stopped disposable data directory and isolated test venv retained for reproducibility; binaries/dev packages remain installed, no running PG test listener retained.
+No Mac paths, existing services/databases/Qdrant, forbidden ports or .env.production touched. reports/ remains uncommitted.

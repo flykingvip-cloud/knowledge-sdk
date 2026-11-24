@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/storage/dr_drill.py", line 165, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/storage/dr_drill.py", line 160, in main
+    result=run(a.source_dsn,a.restore_dsn)
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/storage/dr_drill.py", line 143, in run
+    restored=check_restored(target)
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/storage/dr_drill.py", line 94, in check_restored
+    assert store.get_binding(u,'task',org+'-task')
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/storage/postgres_store.py", line 57, in run
+    return fn(self,*args,**kwargs)
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/storage/postgres_store.py", line 245, in get_binding
+    raise NotFoundError('Binding not found')
+knowledge_sdk.exceptions.NotFoundError: Binding not found

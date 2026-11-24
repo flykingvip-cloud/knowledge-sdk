@@ -1,0 +1,7 @@
+test_shared_cjk_english_scope_and_authorized_fetch (tests.test_dual_engine_parity.SQLiteParity.test_shared_cjk_english_scope_and_authorized_fetch) ... ok
+test_shared_cjk_english_scope_and_authorized_fetch (tests.test_dual_engine_parity.PostgresParity.test_shared_cjk_english_scope_and_authorized_fetch) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.237s
+
+OK

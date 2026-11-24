@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/storage/dr_drill.py", line 153, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/storage/dr_drill.py", line 148, in main
+    result=run(a.source_dsn,a.restore_dsn)
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/storage/dr_drill.py", line 124, in run
+    _tool(restore_tool,restore_dsn,path)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/knowledge-sdk/src/knowledge_sdk/storage/dr_drill.py", line 53, in _tool
+    if r.returncode:raise ValidationError('DR database tool failed (details withheld)')
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+knowledge_sdk.exceptions.ValidationError: DR database tool failed (details withheld)

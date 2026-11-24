@@ -1,0 +1,30 @@
+test_concurrent_audit_no_holes_after_rollback (tests.q2.test_postgres.LivePostgres.test_concurrent_audit_no_holes_after_rollback) ... ok
+test_fence_expired_claim_and_skip_locked (tests.q2.test_postgres.LivePostgres.test_fence_expired_claim_and_skip_locked) ... ok
+test_four_worker_real_loopback_webhook_healthy_run (tests.q2.test_postgres.LivePostgres.test_four_worker_real_loopback_webhook_healthy_run) ... FAIL
+test_non_superuser_force_rls_and_context_reset (tests.q2.test_postgres.LivePostgres.test_non_superuser_force_rls_and_context_reset) ... ok
+test_nonce_concurrency_shared_ttl (tests.q2.test_postgres.LivePostgres.test_nonce_concurrency_shared_ttl) ... ok
+test_pgvector_stale_payload_rechecks_redaction_rights_and_tenant (tests.q2.test_postgres.LivePostgres.test_pgvector_stale_payload_rechecks_redaction_rights_and_tenant) ... ok
+test_transactions_savepoints_migration_and_roundtrip (tests.q2.test_postgres.LivePostgres.test_transactions_savepoints_migration_and_roundtrip) ... ok
+test_connection_exception_never_keeps_cause (tests.q2.test_postgres.OfflinePostgresGuards.test_connection_exception_never_keeps_cause) ... ok
+test_ddl_and_metadata_surface (tests.q2.test_postgres.OfflinePostgresGuards.test_ddl_and_metadata_surface) ... ok
+test_lazy_optional_import (tests.q2.test_postgres.OfflinePostgresGuards.test_lazy_optional_import) ... ok
+test_password_redaction (tests.q2.test_postgres.OfflinePostgresGuards.test_password_redaction) ... ok
+
+======================================================================
+FAIL: test_four_worker_real_loopback_webhook_healthy_run (tests.q2.test_postgres.LivePostgres.test_four_worker_real_loopback_webhook_healthy_run)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/q2/test_postgres.py", line 210, in test_four_worker_real_loopback_webhook_healthy_run
+    self.assertTrue(all(n>0 for n in counts));self.assertEqual(sum(counts),64)
+                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: 96 != 64
+
+----------------------------------------------------------------------
+Ran 11 tests in 3.586s
+
+FAILED (failures=1)
+REAL audit concurrency: 4 connections, 160 worker commits + 1 setup event, 4 rolled-back appends; no conflicts, gaps or forks
+REAL SKIP LOCKED + attempt fence: locked expired row skipped; reclaimed attempt rejects stale worker
+REAL RLS: NOSUPERUSER NOBYPASSRLS; FORCE RLS all tenant tables; raw cross-tenant read/write blocked
+REAL nonce concurrency: 4 independent connections exactly 1 winner; cross-tenant namespace and TTL expiry passed
+REAL pgvector: exact cosine candidates; stale revocation, live redactor fail-closed and tenant checks passed

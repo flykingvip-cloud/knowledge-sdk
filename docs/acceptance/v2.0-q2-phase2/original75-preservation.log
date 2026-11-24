@@ -1,0 +1,4 @@
+tests/benchmark/golden_cases_v1.jsonl UNCHANGED SHA256 1b7c5ace8249495477457431e7b64f047868757ce28985ede56c483771b13fea
+tests/benchmark/golden_cases_v2.jsonl UNCHANGED SHA256 8503fd7962f23f97ca96d30476ba1c976db239ef5ca56bc0a552c8cb5a5232e1
+tests/benchmark/g6.py UNCHANGED SHA256 c12cb690dae8e97545211068d30f162ee13bf375b0953ebcb75238ad2a56f412
+runner.py fixture engine parameter, PG stdio fixture and portable raw snapshots only; original scenario checks preserved

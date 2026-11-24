@@ -1,0 +1,163 @@
+G1-01 passed tenant_document_read 
+G1-02 passed tenant_search_isolation 
+G1-03 passed department_exact_boundary 
+G1-04 passed department_ancestor_inheritance 
+G1-05 passed department_no_ancestor_expansion 
+G1-06 passed explicit_deny_owner 
+G1-07 passed explicit_deny_nonowner_admin 
+G1-08 passed explicit_deny_role 
+G1-09 passed explicit_deny_department 
+G1-10 passed historic_receipt_current_revocation 
+G1-11 passed agent_kb_intersection 
+G1-12 passed agent_clearance_ceiling 
+G1-13 passed agent_purpose_intersection 
+G1-14 passed external_llm_default_prohibition 
+G1-15 passed l2_validity_personal_hard_boundaries 
+G1-16 passed allow_cannot_bypass_hard_boundaries_or_deny 
+G1-17 passed missing_redactor_never_plaintext 
+G1-18 passed stale_vector_revoked 
+G1-19 passed forged_cross_tenant_vector 
+G1-20 passed mcp_no_existence_title_or_count_oracle 
+G2-01 passed refusal_empty_corpus 
+G2-02 passed refusal_unrelated_content 
+G2-03 passed refusal_explicit_acl_only 
+G2-04 passed refusal_archived_only 
+G2-05 passed refusal_revoked_only 
+G2-06 passed refusal_l2_draft_only 
+G2-07 passed refusal_expired_validity_only 
+G2-08 passed refusal_missing_hook_only 
+G2-09 passed refusal_below_min_score 
+G2-10 passed refusal_generation_time_revocation 
+G3-01 passed fetch_90_percent_acl_150 
+G3-02 passed fetch_mixed_120_archive_revoke_acl 
+G3-03 passed fetch_document_scope_prebudget_600 
+G3-04 passed fetch_scope_550_noise_three_targets 
+G3-05 passed fetch_redacted_hits_count_toward_limit 
+G3-06 passed fetch_empty_scope_intersection 
+G3-07 passed fetch_over500_budget_true 
+G3-08 passed fetch_exact500_exhausted_false 
+G3-09 passed fetch_hybrid_offline_stub_recall 
+G3-10 passed fetch_repeated_candidates_evaluated_once 
+G4-01 passed anchor_offline_pdf_bbox_policy_mask 
+G4-02 passed anchor_csv_negative_detection_limits 
+G4-03 passed anchor_unique_exact_stable_id 
+G4-04 passed anchor_duplicate_pending_no_alias 
+G4-05 passed anchor_section_move_pending 
+G4-06 passed anchor_table_header_move_pending 
+G4-07 passed anchor_historic_pin_current_revocation 
+G4-08 passed anchor_orphan_unavailable_not_confirmable 
+G4-09 passed anchor_explicit_confirm_read_write_gate 
+G4-10 passed anchor_forged_quote_hash_rejected 
+G5-01 passed mcp_initialize_and_tool_schemas 
+G5-02 passed mcp_search_anchor_real_staged_receipt 
+G5-03 passed mcp_runtime_identity_fields_rejected 
+G5-04 passed mcp_verify_valid_anchor 
+G5-05 passed mcp_tampered_citation_hash 
+G5-06 passed mcp_superseded_and_no_latest_oracle 
+G5-07 passed mcp_pack_subset_intersection_and_exclusion 
+G5-08 passed mcp_issue_queue_only_snapshot 
+G5-09 passed mcp_production_gateway_401_replay 
+G5-10 passed mcp_stdio_identity_and_subprocess_roundtrip 
+G6-01 passed q2_usage_real_receipt_mcp_lineage 
+G6-02 passed q2_revision_impact_exact_targets 
+G6-03 passed q2_drift_and_orphan_anchor_precision 
+G6-04 passed q2_revocation_acl_policy_recheck 
+G6-05 passed q2_archive_snapshot_lock_no_rewrite 
+G6-06 passed q2_tenant_audit_impact_and_ack_isolation 
+G6-07 passed q2_audit_all_stored_fields_tamper_detected 
+G6-08 passed q2_audit_middle_sequence_deletion_detected 
+G6-09 passed q2_transaction_rollback_zero_ghost_outbox 
+G6-10 passed q2_outbox_replay_alert_delivery_idempotence 
+G6-11 passed q2_webhook_hmac_valid_bound_envelope 
+G6-12 passed q2_webhook_tamper_expired_rejected 
+G6-13 passed q2_webhook_ssrf_private_metadata_rejected 
+G6-14 passed q2_retry_exponential_dead_letter 
+G6-15 passed q2_drain_complete_targets_and_signed_push_under_minute 
+{
+  "gate_passed": true,
+  "case_count": 75,
+  "passed": 75,
+  "failed": 0,
+  "skipped": 0,
+  "groups": {
+    "G1": {
+      "passed": 20,
+      "total": 20
+    },
+    "G2": {
+      "passed": 10,
+      "total": 10
+    },
+    "G3": {
+      "passed": 10,
+      "total": 10
+    },
+    "G4": {
+      "passed": 10,
+      "total": 10
+    },
+    "G5": {
+      "passed": 10,
+      "total": 10
+    },
+    "G6": {
+      "passed": 15,
+      "total": 15
+    }
+  },
+  "audit_chain_detection": {
+    "numerator": 19,
+    "denominator": 19,
+    "rate": 1.0
+  },
+  "impact_completeness": {
+    "numerator": 45,
+    "denominator": 45,
+    "rate": 1.0
+  },
+  "unexpected_impact_targets": 0,
+  "acl_violation_rate": {
+    "numerator": 0,
+    "denominator": 20,
+    "rate": 0.0
+  },
+  "refusal_accuracy": {
+    "numerator": 10,
+    "denominator": 10,
+    "rate": 1.0
+  },
+  "reanchor_accuracy": {
+    "numerator": 10,
+    "denominator": 10,
+    "rate": 1.0
+  },
+  "mcp_injection_blocked": {
+    "numerator": 36,
+    "denominator": 36,
+    "rate": 1.0
+  },
+  "implicit_model_calls": 0,
+  "mcp_pass_rate": {
+    "numerator": 10,
+    "denominator": 10,
+    "rate": 1.0
+  },
+  "positive_control_failures": 0,
+  "security_assertion_failures": 0,
+  "offline_recall_at_requested_k": {
+    "eligible_cases": 7,
+    "mean": 1.0,
+    "values": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "engine": "postgres",
+  "executed_at": "2026-11-25T04:33:55.309773+08:00",
+  "timezone": "Asia/Shanghai"
+}

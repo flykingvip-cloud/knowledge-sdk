@@ -1,0 +1,6 @@
+2026-11-25T04:34:57.855109+08:00 Asia/Shanghai
+PASS real knowledge-sdk-server --dsn + environment DSN; two independent processes
+PASS signed HTTP: CJK keyword, pgvector/hash-vector candidates, anchors, receipts, usage, impact, ACL-denied content, cross-tenant search
+PASS PostgreSQL replay shared across two HTTP instances: first 200, same signed nonce second 401; unsigned 401
+No model/embedding service called: local deterministic HashEmbedder only; no browser/reverse proxy claimed
+PASS shutdown: disposable CLI processes stopped, no ResourceWarning, no credential/DSN logging

@@ -1,0 +1,20 @@
+2026-11-25T04:27:47.608317+08:00 Asia/Shanghai
+Linux-6.12.113+-x86_64-with-glibc2.41
+3.13.5
+Baseline 6fc5b194f6508770c7760f3712e17f3b553dd4e8; tracked state clean at start; only pre-existing untracked reports/
+strategy-architecture-v0.2 was not found in staged inputs, target repo or deliverables; not assumed read
+M1 architect acceptance is supplied by owner taskbook, not an independently obtained review by this executor
+New isolated initdb at /workspace/knowledge-sdk-q2m2-pg/data; no existing cluster used
+Test cluster loopback port 60209 ; shared_buffers32MB; max_connections24
+PG application role NOSUPERUSER NOBYPASSRLS; local disposable trust auth, no password
+psycopg 3.3.9
+psycopg-binary 3.3.9
+fastapi 0.165.0
+uvicorn 0.54.0
+httpx 0.28.1
+pytest 9.2.0
+pypdf 5.9.0
+build 1.6.1
+setuptools: isolated PEP517 build dependency, not installed into runtime venv
+PostgreSQL 17.12 (Debian 17.12-0+deb13u1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+vector 0.8.0
