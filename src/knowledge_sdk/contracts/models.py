@@ -22,7 +22,11 @@ class Actor:
     clearance_tags: Tuple[str, ...] = ()
     managed_department_ids: Tuple[str, ...] = ()
     public_kb_admin: bool = False
+    policy_generation: str = "0"
+    session_id: str = ""
     def __post_init__(self):
+        if not isinstance(self.policy_generation, str) or not isinstance(self.session_id, str):
+            raise ValidationError("Invalid policy/session claims")
         if not isinstance(self.clearance_level, str) or not isinstance(self.public_kb_admin, bool):
             raise ValidationError("Invalid clearance/admin claims")
         if not isinstance(self.user_id,str) or not isinstance(self.org_id,str) or not self.user_id or not self.org_id:

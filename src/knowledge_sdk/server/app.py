@@ -8,13 +8,15 @@ from fastapi.responses import JSONResponse
 from ..contracts.models import encode, decode
 from ..exceptions import KnowledgeSDKError, PermissionDeniedError, NotFoundError, ConflictError, ValidationError
 from ..client.http_client import OPERATIONS
-from .auth import verify_headers
+from .auth import verify_headers, InMemoryReplayStore, extension_claims, _validate_secrets
 
-def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,*,enable_ui=True,enable_demo_switcher=False):
+def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,*,enable_ui=True,enable_demo_switcher=False,replay_store=None,fallback_secrets=(),ui_prefix="/ui"):
     if not dev_insecure and (not auth_secret or len(auth_secret)<32): raise ValidationError("Auth secret must contain at least 32 characters")
     if enable_demo_switcher and (dev_insecure or not auth_secret or len(auth_secret)<32):
         raise ValidationError("Demo switcher requires HMAC authentication, not dev_insecure")
-    app=FastAPI(title="knowledge-sdk",version=knowledge_sdk.__version__); seen={}
+    if not dev_insecure: _validate_secrets(auth_secret, fallback_secrets)
+    replay_store = replay_store if replay_store is not None else InMemoryReplayStore()
+    app=FastAPI(title="knowledge-sdk",version=knowledge_sdk.__version__)
     @app.exception_handler(KnowledgeSDKError)
     async def sdk_error(request,exc):
         status=403 if isinstance(exc,PermissionDeniedError) else 404 if isinstance(exc,NotFoundError) else 409 if isinstance(exc,ConflictError) else 400
@@ -32,7 +34,9 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
         if len(body)>48*1024*1024: return JSONResponse(status_code=413,content={"message":"Request too large"})
         raw_path=request.scope.get("raw_path",request.url.path.encode("utf-8")).decode("ascii")
         target=raw_path+("?"+request.url.query if request.url.query else "")
-        try: request.state.actor=verify_headers(request.headers,auth_secret,request.method,target,body,dev_insecure=dev_insecure,seen=seen)
+        try:
+            request.state.actor=verify_headers(request.headers,auth_secret,request.method,target,body,dev_insecure=dev_insecure,replay_store=replay_store,fallback_secrets=fallback_secrets)
+            request.state.agent, request.state.purpose = extension_claims(request.headers, request.state.actor)
         except ValidationError:
             return JSONResponse(status_code=401,content={"error":"PermissionDeniedError","message":"Invalid request authentication"})
         return await call_next(request)
