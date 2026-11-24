@@ -25,6 +25,13 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
         return JSONResponse(status_code=status,content={"error":type(exc).__name__,"message":str(exc)})
     @app.middleware("http")
     async def authenticate(request,call_next):
+        # Some proxies strip the trusted mount prefix before ASGI. Normalize
+        # the routing path for nested StaticFiles, but never mutate raw_path:
+        # authentication must still sign precisely the upstream raw target.
+        root = request.scope.get("root_path", "").rstrip("/")
+        incoming = request.scope["path"]
+        if root and incoming != root and not incoming.startswith(root + "/"):
+            request.scope["path"] = root + incoming
         path = route_path(request)
         # Disabled signer and former/default UI paths never become auth endpoints.
         if ((not enable_ui and public_ui_path(path, ui_prefix))

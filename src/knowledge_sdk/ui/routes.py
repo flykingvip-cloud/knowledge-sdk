@@ -23,7 +23,7 @@ LOOPBACK = {"127.0.0.1", "::1", "localhost"}
 def normalize_ui_prefix(prefix):
     # Deliberately reject encoded separators, query/fragment and empty segments.
     if (not isinstance(prefix, str) or not re.fullmatch(r"/(?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_-]+/?", prefix)
-        or prefix.rstrip("/") == "/v1" or prefix.startswith("/v1/")):
+        or prefix.rstrip("/") in ("/v1", "/docs", "/redoc") or prefix.startswith("/v1/")):
         raise ValidationError("UI prefix must be a non-root absolute path outside /v1")
     return prefix.rstrip("/")
 
@@ -43,14 +43,15 @@ def mount_workbench(app, client, auth_secret, enable_demo_switcher, ui_prefix="/
     ui_prefix = normalize_ui_prefix(ui_prefix)
     @app.middleware("http")
     async def ui_security_headers(request, call_next):
+        path = route_path(request)  # mounts may mutate scope.root_path downstream
         response = await call_next(request)
-        if public_ui_path(route_path(request), ui_prefix):
+        if public_ui_path(path, ui_prefix):
             response.headers.update({
                 "Content-Security-Policy": "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'; form-action 'self'",
                 "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer",
                 "Cache-Control": "no-store"})
         # Authenticated responses must not be cached across identity switches.
-        if route_path(request).startswith("/v1/"):
+        if path.startswith("/v1/"):
             response.headers["Cache-Control"] = "no-store"
         return response
 
@@ -63,6 +64,11 @@ def mount_workbench(app, client, auth_secret, enable_demo_switcher, ui_prefix="/
         prefix = root + ui_prefix
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         html = html.replace('href="/ui', 'href="' + prefix).replace('src="/ui', 'src="' + prefix)
+        if not enable_demo_switcher:
+            # Disable simulation on the initial response too (before JS/config).
+            html = re.sub(r'(<form id="identity-form"[^>]*>)(.*?)(</form>)',
+                          lambda m: m[1] + re.sub(r'<(input|select|button)\b', r'<\1 disabled=""', m[2]) + m[3],
+                          html, flags=re.DOTALL)
         return HTMLResponse(html)
 
     @app.get(ui_prefix + "/config", include_in_schema=False)

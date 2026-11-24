@@ -171,7 +171,11 @@ def signed_headers(actor, secret, method, path, body=b"", timestamp=None, nonce=
 def verify_headers(headers, secret, method, path, body=b"", dev_insecure=False, max_age=300, seen=None,
                    replay_store=None, fallback_secrets: Sequence[str] = ()):
     try:
-        headers = {k.lower(): v for k, v in headers.items()}
+        items = [(k.lower(), v) for k, v in headers.items()]
+        auth_names = [k for k, _ in items if k.startswith("x-kb-")]
+        if len(set(auth_names)) != len(auth_names):
+            raise ValueError()  # avoid first-vs-last ambiguity in ASGI Headers
+        headers = dict(items)
         payload = headers.get("x-kb-actor", "")
         raw = _decode_object(payload, 16384)
         if not {"user_id", "org_id"}.issubset(raw) or set(raw) - {f.name for f in fields(Actor)}:
