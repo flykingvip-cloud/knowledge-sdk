@@ -94,6 +94,8 @@ def probe():
                 return result
             hit=tool('search_evidence',{'query':'alpha','task_id':'wire-task'})['result']['structuredContent']['hits'][0]
             assert '[MASK]' in hit['excerpt'] and 'secret' not in hit['excerpt'] and hit['anchor'] is not None
+            for mode in ('vector','hybrid'):
+                error=tool('search_evidence',{'query':'alpha','mode':mode})['error'];assert error['code']==-32602 and 'backend is not configured' in error['message']
             assert hit['receipt']['consumer_id']=='wire-agent' and hit['receipt']['used_by_stage']=='wire-task'
             assert tool('verify_citation',{'source_uri':hit['source_uri'],'excerpt_hash':hit['excerpt_hash']})['result']['structuredContent']['valid']
             assert tool('verify_citation',{'source_uri':hit['source_uri'],'excerpt_hash':'0'*64})['result']['structuredContent']['current_status']=='tampered'

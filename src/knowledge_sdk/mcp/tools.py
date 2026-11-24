@@ -76,7 +76,7 @@ class EvidenceTools:
             except (PermissionDeniedError,NotFoundError,TamperedExcerptError):
                 if name=='verify_citation':return {'status':'denied','valid':False,'current_status':'denied','latest_version':None,'reanchor_status':None,'receipt':None}
                 return {'status':'denied','purpose_applied':context.purpose.value,'policy_generation':context.actor.policy_generation,
-                        **({'hits':[]} if name=='search_evidence' else {'items':[],'effective_decision':{'effect':'deny'}} if name=='get_evidence_pack' else {})}
+                        **({'hits':[],'candidate_budget_exhausted':False,'refusal_notice':'No authorized evidence; do not invent an answer.'} if name=='search_evidence' else {'items':[],'effective_decision':{'effect':'deny'}} if name=='get_evidence_pack' else {})}
     @staticmethod
     def _ctx(context,task_id=''):
         return dict(agent=context.agent,purpose=context.purpose,policy_context=PolicyContext(task_id=task_id,stage='mcp',policy_generation=context.actor.policy_generation))

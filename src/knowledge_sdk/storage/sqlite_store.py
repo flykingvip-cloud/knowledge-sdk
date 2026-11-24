@@ -220,7 +220,7 @@ class SQLiteStore:
             if issue.anchor_id:self.get_anchor(issue.org_id,issue.doc_id,issue.version,issue.anchor_id)
             existing=self._execute('SELECT org_id,doc_id,version,anchor_id FROM evidence_issues WHERE issue_id=?',(issue.issue_id,))
             if existing and tuple(existing[0])!=(issue.org_id,issue.doc_id,issue.version,issue.anchor_id):raise ConflictError('Issue identity conflict')
-            self._execute('INSERT INTO evidence_issues VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(issue_id) DO UPDATE SET status=excluded.status,data=excluded.data',
+            self._execute('INSERT INTO evidence_issues VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(issue_id) DO UPDATE SET status=excluded.status,created_at=excluded.created_at,data=excluded.data',
                 (issue.issue_id,issue.org_id,issue.doc_id,issue.version,issue.anchor_id,issue.status,issue.created_at,self._dump(issue)))
     def get_issue(self,org_id,issue_id):
         from ..contracts.issues import issue_text

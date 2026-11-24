@@ -32,3 +32,8 @@ class ProtocolTests(unittest.TestCase):
         source=io.StringIO(json.dumps({'jsonrpc':'2.0','id':1,'method':'ping'})+'\n'+'x'*70000+'\n');sink=io.StringIO()
         run_stdio(self.c,self.ctx,source,sink);replies=[json.loads(s) for s in sink.getvalue().splitlines()]
         self.assertEqual(len(replies),2);self.assertEqual(replies[0]['result'],{});self.assertIn('error',replies[1])
+
+    def test_unconfigured_vector_and_hybrid_error_is_explicit(self):
+        for mode in ('vector','hybrid'):
+            reply=self.p.dispatch({'jsonrpc':'2.0','id':1,'method':'tools/call','params':{'name':'search_evidence','arguments':{'query':'alpha','mode':mode}}},self.ctx)
+            self.assertEqual(reply['error']['code'],-32602);self.assertIn('backend is not configured',reply['error']['message'])

@@ -50,7 +50,9 @@ class MCPProtocol:
                 result={'content':[{'type':'text','text':json.dumps(data,ensure_ascii=False)}],'structuredContent':data,'isError':data.get('status')=='denied'}
             else:return None if notification else self.error(identifier,-32601,'Method not found')
             return None if notification else {'jsonrpc':'2.0','id':identifier,'result':result}
-        except ValidationError:return None if notification else self.error(identifier,-32602,'Invalid params')
+        except ValidationError as exc:
+            message='Vector/hybrid backend is not configured' if str(exc)=='Vector backend is not configured' else 'Invalid params'
+            return None if notification else self.error(identifier,-32602,message)
         except KnowledgeSDKError:return None if notification else self.error(identifier,-32603,'Controlled evidence operation failed')
         except Exception:return None if notification else self.error(identifier,-32603,'Internal error')
     def handle(self,data,context):
