@@ -314,4 +314,22 @@ class M3Contracts:
         bad=subprocess.run([sys.executable,'-S','-m','knowledge_sdk.governance.cli','list_evidence_packs','--params','{"actor":{}}'],env=env,capture_output=True,text=True,timeout=15)
         self.assertEqual(bad.returncode,2)
 
+    def test_ingest_publish_interleaving_cannot_restore_stale_live_pointer(self):
+        self.ingest();self.publish();self.ingest('second approved')
+        self.c.submit_for_review(self.a,'d',expected_version=2);self.c.approve_release(self.r,'d',version=2,expected_version=2)
+        if self.engine=='postgres':
+            from knowledge_sdk.server.postgres import postgres_client
+            other=postgres_client(self.sandbox.dsn)
+        else:other=LocalKnowledgeClient(SQLiteStore(Path(self.tmp.name)/'test.db'))
+        self.addCleanup(other.store.close)
+        split=self.c.chunker.split
+        def interleaved(*args,**kwargs):
+            other.publish_release(self.p,'d',version=2,expected_version=2)
+            return split(*args,**kwargs)
+        with patch.object(self.c.chunker,'split',side_effect=interleaved):
+            with self.assertRaises(ConflictError):self.ingest('third racing draft')
+        self.assertEqual(self.s.latest_version('d'),2)
+        self.assertEqual(self.s.get_document('d').current_version,2)
+        self.assertIn('second approved',self.c.retrieve(self.u,'d').text)
+
 class SQLiteM3(M3Contracts,unittest.TestCase):pass

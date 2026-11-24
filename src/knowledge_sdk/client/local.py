@@ -449,6 +449,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
             if previous:
                 self.store.lock_document(doc_id)
                 if self.store.latest_version(doc_id)!=previous.version:raise ConflictError("Concurrent version update")
+                if self.store.get_document(doc_id)!=live_document:raise ConflictError('Concurrent live document change')
             if previous is None:
                 try: self.store.get_document(doc_id)
                 except NotFoundError: pass
