@@ -1,0 +1,122 @@
+Authoritative implementation snapshot cf30cf2bd250e15c8e575fd65e3880207034b598
+Baseline 83f4a0dd6b859905dbb73003d366a37017c6eea6
+
+ .github/workflows/tests.yml                        |   7 +-
+ docs/acceptance/v1.2-phase4/live_mcp_probe.py      | 137 ++++
+ .../superseded-parent-brief/EVIDENCE_INDEX.md      |  30 +
+ .../QUICKSTART_AND_PRODUCTION.md                   | 194 +++++
+ .../superseded-parent-brief/SUPERSEDED.md          |   1 +
+ .../superseded-parent-brief/benchmark-metrics.json | 850 +++++++++++++++++++++
+ .../superseded-parent-brief/benchmark-raw.log      | 134 ++++
+ .../superseded-parent-brief/benchmark-report.md    |  91 +++
+ .../gateway_client_example.py                      |  29 +
+ .../implementation-diff-stat.txt                   |  68 ++
+ .../superseded-parent-brief/l1-stdlib-only.log     | 441 +++++++++++
+ .../superseded-parent-brief/l2-full-and-build.log  | 841 ++++++++++++++++++++
+ .../superseded-parent-brief/l3-live-integration.md |  44 ++
+ .../superseded-parent-brief/l3-local-mcp-wire.log  | 114 +++
+ .../superseded-parent-brief/l4-browser.md          |   6 +
+ .../l5-independent-review.md                       |  27 +
+ .../superseded-parent-brief/live_mcp_probe.py      | 160 ++++
+ .../superseded-parent-brief/verify_wheel.py        |  53 ++
+ docs/acceptance/v1.2-phase4/verify_wheel.py        |  67 ++
+ docs/mcp-integration.md                            | 146 ++++
+ pyproject.toml                                     |   2 +
+ src/knowledge_sdk/__init__.py                      |   2 +
+ src/knowledge_sdk/client/base.py                   |   3 +
+ src/knowledge_sdk/client/http_client.py            |   2 +
+ src/knowledge_sdk/client/local.py                  |  72 +-
+ src/knowledge_sdk/contracts/issues.py              |  47 ++
+ src/knowledge_sdk/contracts/models.py              |   4 +-
+ src/knowledge_sdk/mcp/__init__.py                  |   9 +
+ src/knowledge_sdk/mcp/__main__.py                  |   3 +
+ src/knowledge_sdk/mcp/gateway.py                   |  51 ++
+ src/knowledge_sdk/mcp/protocol.py                  |  61 ++
+ src/knowledge_sdk/mcp/server.py                    |  68 ++
+ src/knowledge_sdk/mcp/tools.py                     | 209 +++++
+ src/knowledge_sdk/retrieval/hybrid.py              |  31 +-
+ src/knowledge_sdk/server/app.py                    |  27 +-
+ src/knowledge_sdk/storage/base.py                  |   3 +-
+ src/knowledge_sdk/storage/sqlite_store.py          |  33 +-
+ tests/benchmark/README.md                          |  33 +
+ tests/benchmark/__init__.py                        |   0
+ tests/benchmark/golden_cases_v1.jsonl              |  60 ++
+ tests/benchmark/run.py                             |   4 +
+ tests/benchmark/runner.py                          | 467 +++++++++++
+ tests/benchmark/test_golden_benchmark.py           |  14 +
+ tests/mcp/__init__.py                              |   0
+ tests/mcp/test_phase4_issues.py                    |  51 ++
+ tests/mcp/test_phase4_protocol.py                  |  39 +
+ tests/mcp/test_phase4_tools.py                     | 199 +++++
+ tests/mcp/test_phase4_transport.py                 |  43 ++
+ tests/server/test_phase4_mcp_http.py               |  41 +
+ tests/storage/test_phase4_scope_pushdown.py        |  80 ++
+ 50 files changed, 5082 insertions(+), 16 deletions(-)
+
+M	.github/workflows/tests.yml
+A	docs/acceptance/v1.2-phase4/live_mcp_probe.py
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/EVIDENCE_INDEX.md
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/QUICKSTART_AND_PRODUCTION.md
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/SUPERSEDED.md
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/benchmark-metrics.json
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/benchmark-raw.log
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/benchmark-report.md
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/gateway_client_example.py
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/implementation-diff-stat.txt
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/l1-stdlib-only.log
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/l2-full-and-build.log
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/l3-live-integration.md
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/l3-local-mcp-wire.log
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/l4-browser.md
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/l5-independent-review.md
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/live_mcp_probe.py
+A	docs/acceptance/v1.2-phase4/superseded-parent-brief/verify_wheel.py
+A	docs/acceptance/v1.2-phase4/verify_wheel.py
+A	docs/mcp-integration.md
+M	pyproject.toml
+M	src/knowledge_sdk/__init__.py
+M	src/knowledge_sdk/client/base.py
+M	src/knowledge_sdk/client/http_client.py
+M	src/knowledge_sdk/client/local.py
+A	src/knowledge_sdk/contracts/issues.py
+M	src/knowledge_sdk/contracts/models.py
+A	src/knowledge_sdk/mcp/__init__.py
+A	src/knowledge_sdk/mcp/__main__.py
+A	src/knowledge_sdk/mcp/gateway.py
+A	src/knowledge_sdk/mcp/protocol.py
+A	src/knowledge_sdk/mcp/server.py
+A	src/knowledge_sdk/mcp/tools.py
+M	src/knowledge_sdk/retrieval/hybrid.py
+M	src/knowledge_sdk/server/app.py
+M	src/knowledge_sdk/storage/base.py
+M	src/knowledge_sdk/storage/sqlite_store.py
+A	tests/benchmark/README.md
+A	tests/benchmark/__init__.py
+A	tests/benchmark/golden_cases_v1.jsonl
+A	tests/benchmark/run.py
+A	tests/benchmark/runner.py
+A	tests/benchmark/test_golden_benchmark.py
+A	tests/mcp/__init__.py
+A	tests/mcp/test_phase4_issues.py
+A	tests/mcp/test_phase4_protocol.py
+A	tests/mcp/test_phase4_tools.py
+A	tests/mcp/test_phase4_transport.py
+A	tests/server/test_phase4_mcp_http.py
+A	tests/storage/test_phase4_scope_pushdown.py
+
+3527589fd3023d15db6ba1e41d8029d5c81f85c1 perf(scope): push existing scope and binding intersections before candidate budget
+f1ec5fe1d3b1ed9a784ddbabb01d6a22f6441ba4 feat(issues): queue authorized evidence feedback without changing formal knowledge
+d57bc83971b67e3672421f4f5736e1c95c71814e feat(mcp): add four stdlib tools behind typed HMAC gateway and official optional transport
+b3e28c547d9b1b7ce602510cb5115267624cdc1c test(mcp): enforce gateway isolation, queue-only feedback, SQL scope and optional wire boundaries
+44fe5e813ec173ce7b3bff132a0a6dd4dc2afff9 test(benchmark): freeze 60 executable offline cases and wire existing CI hard gate
+1ac108b787e93817089a05dde209603c86dbd4c4 fix(mcp): surface explicit unconfigured vector transport error without implicit calls
+e6463dcb93f4a3e6dc6400c9963d372641b58760 fix(mcp): recheck current authority after receipts and strengthen executable injection proofs
+3b9793169331c0566d9a3921e9ec374569c3088e fix(mcp): preserve collective redaction order and current citation metadata
+56e737b7f24dad9d03bbf8b92652cfaa32a624f6 test(benchmark): require exact measured denominators and positive controls for CLI gate
+24c4be242edf765020d295d413091ec12e6b0a52 docs(mcp): provide official wire probe, trusted quickstart and production replay runbook
+974fae5e91fde81417daaa03f8282039b54d6401 docs(phase4): archive distinct strict L1-L5 evidence, official wire and measured sixty-case gate
+7ec59ce6d90ebf5e54419d7f2775bdfea7b61a3a fix(scope): follow authoritative taskbook neutral SQL defaults and 550-document regression
+4fb0d82ef67b0e43548a0f0027a2df2958db295f feat(issues): follow taskbook typed queue contract, tenant store and realtime redacted issue listing
+c985adb233992f6732d4d271b15a7bbebf62f764 feat(mcp): follow authoritative stdlib JSON-RPC stdio and opt-in signed HTTP taskbook
+3e8856d2ba46931246fc2d1ab0acf8648d86ee4d test(phase4): freeze exact taskbook sixty-case groups, stdio roundtrips and HTTP security gates
+cf30cf2bd250e15c8e575fd65e3880207034b598 fix(phase4): expose safe backend configuration errors and verify wheel stdio entrypoint

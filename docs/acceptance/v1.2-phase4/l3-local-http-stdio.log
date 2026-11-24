@@ -1,0 +1,87 @@
+Authoritative t37u L3 | Asia/Shanghai
+2026-11-24T21:07:55+08:00
+cf30cf2bd250e15c8e575fd65e3880207034b598
+COMMAND: PYTHONPATH=src .venv-phase4/bin/python -W error::ResourceWarning docs/acceptance/v1.2-phase4/live_mcp_probe.py
+2026-11-24T21:07:55.300976+08:00 Asia/Shanghai
+Actual python -S stdio child: missing identity nonzero; initialize/notification/ping/list + all4 tools roundtrip; trusted mcp_stdio receipt
+$ KNOWLEDGE_AUTH_SECRET=<random-not-logged> PYTHONPATH=src /workspace/knowledge-sdk/.venv-phase4/bin/python /workspace/knowledge-sdk/docs/acceptance/v1.2-phase4/live_mcp_probe.py --serve 49905 /tmp/kb-phase4-authoritative-dr97ueb6/business.db /tmp/kb-phase4-authoritative-dr97ueb6/replay.db
+$ KNOWLEDGE_AUTH_SECRET=<random-not-logged> PYTHONPATH=src /workspace/knowledge-sdk/.venv-phase4/bin/python /workspace/knowledge-sdk/docs/acceptance/v1.2-phase4/live_mcp_probe.py --serve 54369 /tmp/kb-phase4-authoritative-dr97ueb6/business.db /tmp/kb-phase4-authoritative-dr97ueb6/replay.db
+Actual /v1/mcp initialize/list/all4 tools; masked anchor receipts/hash tamper/subset pack; 36 identity injections blocked; unsigned/crossworker replay401; external default rights denied; concurrent tenant isolation; typed /v1/issues/list; formal tables unchanged
+L3 actual JSON-RPC HTTP + stdio probe PASS; external model/embedding/Qdrant calls=0
+Temporary child stopped -15 raw stdout/stderr:
+INFO:     Started server process [1041197]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:49905 (Press CTRL+C to quit)
+INFO:     127.0.0.1:53560 - "GET /v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53562 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53578 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53582 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53592 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53608 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53610 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53614 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53628 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53638 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53646 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53652 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53664 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53666 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53676 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53686 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53688 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53702 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53710 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53712 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53726 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53740 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53748 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53750 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53760 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53772 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53788 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53796 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53800 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53814 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53826 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53832 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53842 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53854 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53856 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53858 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53870 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53872 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53884 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53900 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53902 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53906 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53914 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53920 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53926 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53928 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53944 - "POST /v1/mcp HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:53954 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53956 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53958 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53968 - "POST /v1/mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53982 - "POST /v1/issues/list HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1041197]
+
+Temporary child stopped -15 raw stdout/stderr:
+INFO:     Started server process [1041198]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:54369 (Press CTRL+C to quit)
+INFO:     127.0.0.1:43380 - "GET /v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43390 - "POST /v1/mcp HTTP/1.1" 401 Unauthorized
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1041198]
+
+All temporary children stopped; dedicated temporary databases removed
+
+L3_EXIT_CODE=0
