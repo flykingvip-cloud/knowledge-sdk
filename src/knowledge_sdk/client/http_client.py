@@ -13,6 +13,8 @@ from .local import LocalKnowledgeClient
 
 # Operation table is shared with the server so transport contracts cannot silently diverge.
 OPERATIONS={
+    "query_audit_events":("POST","/v1/audit/query"),
+    "verify_audit_chain":("POST","/v1/audit/verify"),
     "report_evidence_issue":("POST","/v1/issues"),
     "list_evidence_issues":("POST","/v1/issues/list"),
     "list_anchors":("POST","/v1/anchors/list"),"get_anchor":("POST","/v1/anchors/get"),"confirm_anchor_reanchor":("POST","/v1/anchors/confirm"),

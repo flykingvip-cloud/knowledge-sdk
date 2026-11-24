@@ -37,7 +37,7 @@ c=LocalKnowledgeClient();c.store.close()
     @unittest.skipUnless(all(importlib.util.find_spec(m) is not None for m in ('fastapi','httpx','uvicorn')),'optional HTTP dependencies unavailable')
     def test_actual_jsonrpc_http_and_stdio_four_tools(self):
         root=Path(__file__).resolve().parents[2]
-        result=subprocess.run([sys.executable,'-W','error::ResourceWarning',str(root/'docs/acceptance/v1.2-phase4/live_mcp_probe.py')],cwd=root,capture_output=True,text=True,timeout=120)
+        result=subprocess.run([sys.executable,'-W','error::ResourceWarning',str(root/'docs/acceptance/v2.0-q2-phase1/live_mcp_probe.py')],cwd=root,capture_output=True,text=True,timeout=120)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
         self.assertIn('L3 actual JSON-RPC HTTP + stdio probe PASS',result.stdout)
         self.assertNotIn('ResourceWarning:',result.stdout+result.stderr)
