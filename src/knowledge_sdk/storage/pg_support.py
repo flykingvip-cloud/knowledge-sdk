@@ -1,4 +1,5 @@
 """Lazy driver and deliberately detail-free database errors (including causes)."""
+from __future__ import annotations
 import re
 from ..exceptions import ValidationError
 

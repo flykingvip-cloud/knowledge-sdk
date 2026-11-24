@@ -48,8 +48,13 @@ class Observation:
 
 
 class Fixture:
-    def __init__(self,case):
-        self.case=case;self.params=case['expected'].get('fixture_parameters',{});self.c=LocalKnowledgeClient();self.secret=secrets.token_hex(32);self.old_secret=secrets.token_hex(32)
+    def __init__(self,case,engine='sqlite'):
+        self.engine=engine;self.sandbox=None
+        if engine=='postgres':
+            from tests.pg_helpers import PgSandbox,golden_client
+            self.sandbox=PgSandbox();client=golden_client(self.sandbox.dsn)
+        else:client=LocalKnowledgeClient()
+        self.case=case;self.params=case['expected'].get('fixture_parameters',{});self.c=client;self.secret=secrets.token_hex(32);self.old_secret=secrets.token_hex(32)
         self.a=Actor('admin','org',org_roles=('admin',),managed_department_ids=('dep',));self.u=Actor('reader','org')
         self.c.create_kb(self.a,'baseline','enterprise',kb_id='kb')
         self.agent=AgentIdentity('gateway-agent','org');self.ctx=GatewayContext(self.u,self.agent,Purpose.GROUND_INTERNAL_LLM);self.tools=EvidenceTools(self.c)
@@ -60,7 +65,10 @@ class Fixture:
         return value
     def uri(self,id='doc',version=1,anchor=None):return build_uri('org',id,version,anchor_id=anchor)
     def call(self,name,**kwargs):return self.tools.call(name,kwargs,self.ctx)
-    def close(self):self.c.store.close()
+    def close(self):
+        try:self.c.store.close()
+        finally:
+            if self.sandbox:self.sandbox.close()
 
 
 @scenario('tenant_document_read')
@@ -379,10 +387,10 @@ def g507(f,o):
     o.check(not any(v in json.dumps(pack) for v in ('HIDDEN TITLE','SECRET','OTHER','absent','hidden')),'safety')
 @scenario('mcp_issue_queue_only_snapshot')
 def g508(f,o):
-    f.doc();tables=('documents','document_versions','chunks','document_acls','evidence_anchors');before={t:f.c.store.db.execute('SELECT * FROM '+t).fetchall() for t in tables}
+    f.doc();tables=('documents','document_versions','chunks','document_acls','evidence_anchors');before={t:f.c.store._execute('SELECT * FROM '+t) for t in tables}
     out=f.call('report_evidence_issue',source_uri=f.uri(),issue_type='inaccuracy',description='<script>data only</script>');issue=f.c.store.get_issue('org',out['issue_id'])
     o.check(out['status']=='queued_for_review' and issue.status=='open' and issue.reported_by_agent_id=='gateway-agent')
-    o.check(before=={t:f.c.store.db.execute('SELECT * FROM '+t).fetchall() for t in tables},'safety')
+    o.check(before=={t:f.c.store._execute('SELECT * FROM '+t) for t in tables},'safety')
 @scenario('mcp_production_gateway_401_replay')
 def g509(f,o):
     with tempfile.TemporaryDirectory() as directory:
@@ -394,13 +402,20 @@ def g509(f,o):
 @scenario('mcp_stdio_identity_and_subprocess_roundtrip')
 def g510(f,o):
     with tempfile.TemporaryDirectory() as directory:
-        path=str(Path(directory)/'fixture.db');c=LocalKnowledgeClient(SQLiteStore(path))
+        path=str(Path(directory)/'fixture.db')
+        if f.engine=='postgres':
+            from tests.pg_helpers import golden_client
+            c=golden_client(f.sandbox.dsn)
+        else:c=LocalKnowledgeClient(SQLiteStore(path))
         try:
             k=c.create_kb(f.a,'k',visibility='enterprise');c.ingest(f.a,k.kb_id,'alpha stdio fixture',doc_id='stdio-doc')
         finally:c.store.close()
         env=dict(os.environ)
         for key in ('KNOWLEDGE_MCP_ACTOR_JSON','KNOWLEDGE_MCP_AGENT_JSON','KNOWLEDGE_MCP_PURPOSE'):env.pop(key,None)
         command=[sys.executable,'-S','-W','error::ResourceWarning','-m','knowledge_sdk.mcp','--db',path]
+        if f.engine=='postgres':
+            command=[sys.executable,'-W','error::ResourceWarning','-m','knowledge_sdk.mcp']
+            env['KNOWLEDGE_SDK_DSN']=f.sandbox.dsn
         missing=subprocess.run(command,env=env,input='',capture_output=True,text=True,timeout=15);o.check(missing.returncode!=0 and not missing.stdout,'safety')
         env['KNOWLEDGE_MCP_ACTOR_JSON']=json.dumps(f.u.__dict__)
         requests=[{'jsonrpc':'2.0','id':1,'method':'initialize'},{'jsonrpc':'2.0','id':2,'method':'tools/call','params':{'name':'search_evidence','arguments':{'query':'alpha'}}}]
@@ -429,10 +444,10 @@ def load_cases(path=None):
     return cases
 
 
-def run_suite(path=None,verbose=False):
+def run_suite(path=None,verbose=False,engine='sqlite'):
     cases=load_cases(path);results=[]
     for case in cases:
-        observation=Observation(case['expected']);fixture=Fixture(case);error=None
+        observation=Observation(case['expected']);fixture=Fixture(case,engine);error=None
         try:SCENARIOS[case['scenario']](fixture,observation)
         except Exception as exc:error=type(exc).__name__+': '+str(exc)
         finally:fixture.close()
@@ -458,8 +473,8 @@ def run_suite(path=None,verbose=False):
 
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--json',action='store_true');parser.add_argument('--cases');parser.add_argument('--json-output');parser.add_argument('--report');args=parser.parse_args()
-    result=run_suite(args.cases,not args.json)
+    parser=argparse.ArgumentParser();parser.add_argument('--json',action='store_true');parser.add_argument('--cases');parser.add_argument('--json-output');parser.add_argument('--report');parser.add_argument('--engine',choices=('sqlite','postgres'),default='sqlite');args=parser.parse_args()
+    result=run_suite(args.cases,not args.json,args.engine);result['engine']=args.engine
     result['executed_at']=datetime.now(timezone(timedelta(hours=8))).isoformat();result['timezone']='Asia/Shanghai'
     if args.json_output:Path(args.json_output).write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
     if args.report:

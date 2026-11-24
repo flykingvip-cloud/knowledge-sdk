@@ -91,10 +91,10 @@ class PostgresStore:
 
     @contextmanager
     def tenant_scope(self,org_id):
-        if not isinstance(org_id,str) or not org_id:raise ValidationError('Tenant required')
-        if self.org_id is not None and org_id!=self.org_id:raise ConflictError('Tenant mismatch')
-        if self._tenant is not None and org_id!=self._tenant:raise ConflictError('Nested tenant mismatch')
         with self.transaction():
+            if not isinstance(org_id,str) or not org_id:raise ValidationError('Tenant required')
+            if self.org_id is not None and org_id!=self.org_id:raise ConflictError('Tenant mismatch')
+            if self._tenant is not None and org_id!=self._tenant:raise ConflictError('Nested tenant mismatch')
             previous=self._tenant
             self._execute("SELECT set_config('app.current_org_id',%s,true)",(org_id,))
             self._tenant=org_id
@@ -616,3 +616,11 @@ class PostgresStore:
         with self.tenant_scope(event.org_id):
             rows=self._execute("SELECT 1 FROM outbox_events WHERE org_id=%s AND event_id=%s AND status='processing' AND attempts=%s FOR UPDATE",(event.org_id,event.event_id,event.attempts))
             yield bool(rows)
+
+    @tenant_method
+    def list_reserved_pack_records(self,org_id):
+        return self._execute('SELECT pack_id,data FROM evidence_packs WHERE org_id=%s',(org_id,))
+
+    @tenant_method
+    def mark_reserved_pack_impacted(self,org_id,pack_id):
+        self._execute("UPDATE evidence_packs SET status='impacted' WHERE org_id=%s AND pack_id=%s",(org_id,pack_id))

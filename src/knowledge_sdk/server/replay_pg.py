@@ -1,4 +1,5 @@
 """Atomic shared TTL replay protection. All failures reject without driver detail."""
+from __future__ import annotations
 import math
 import time
 from ..storage.postgres_store import PostgresStore
@@ -19,6 +20,7 @@ class PostgresReplayStore:
         verified actor tenant via check_and_record_for_org, never an unsigned ID.
         """
         now=time.time() if now is None else now
+        if type(now) not in (int,float) or not math.isfinite(now):return False
         if len(args)==3:
             org,nonce,expiry=args
             from ..contracts.policy import parse_time
@@ -26,7 +28,9 @@ class PostgresReplayStore:
             except (ValueError,TypeError,ValidationError):return False
             ttl=expiry-now
         elif len(args)==2:
-            nonce,ttl=args;org=org_id or '__signed_auth__';expiry=now+ttl if type(ttl) in (int,float) else now
+            nonce,ttl=args;org=org_id or '__signed_auth__'
+            if not _valid_replay_input(nonce,ttl,now):return False
+            expiry=now+ttl
         else:return False
         if not isinstance(org,str) or not org or not isinstance(nonce,str) or not 0<len(nonce)<=1024:return False
         if type(now) not in (int,float) or not math.isfinite(now) or not math.isfinite(expiry) or expiry<=now:return False

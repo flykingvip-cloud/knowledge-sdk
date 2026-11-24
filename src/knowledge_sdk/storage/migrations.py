@@ -3,6 +3,7 @@
 Identifiers below come only from packaged DDL or catalog-checked hardcoded tables.
 Never accepts a schema or identifier from a user. CLI never echoes its DSN.
 """
+from __future__ import annotations
 from pathlib import Path
 import argparse
 import json

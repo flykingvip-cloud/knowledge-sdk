@@ -557,3 +557,9 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
         with self._write_scope():
             rows=self._execute("SELECT 1 FROM outbox_events WHERE org_id=? AND event_id=? AND status='processing' AND attempts=?",(event.org_id,event.event_id,event.attempts))
             yield bool(rows)
+
+    def list_reserved_pack_records(self,org_id):
+        return self._execute('SELECT pack_id,data FROM evidence_packs WHERE org_id=?',(org_id,))
+
+    def mark_reserved_pack_impacted(self,org_id,pack_id):
+        self._execute("UPDATE evidence_packs SET status='impacted' WHERE org_id=? AND pack_id=?",(org_id,pack_id))

@@ -86,7 +86,7 @@ class ImpactRadar:
                 if reason is not None:self._alert(event,version,'consumer_binding',binding_target_id(*key),reason,user_id)
             # Reserved table only: accommodate already-imported sealed records;
             # no EvidencePack construction/export/governance service is added.
-            rows=self.store._execute('SELECT pack_id,data FROM evidence_packs WHERE org_id=?',(event.org_id,))
+            rows=self.store.list_reserved_pack_records(event.org_id)
             for pack_id,data in rows:
                 pack=decode(json.loads(data))
                 if not isinstance(pack,dict):raise ValidationError('Invalid reserved pack metadata')
@@ -98,5 +98,5 @@ class ImpactRadar:
                     reason=self._reason(event,version,item.get('anchor_id',''),Actor(owner or 'unknown',event.org_id),None,pack.get('purpose_bound','export'))
                     if reason is not None:
                         self._alert(event,version,'evidence_pack',pack_id,reason,owner)
-                        self.store._execute("UPDATE evidence_packs SET status='impacted' WHERE org_id=? AND pack_id=?",(event.org_id,pack_id))
+                        self.store.mark_reserved_pack_impacted(event.org_id,pack_id)
                         break

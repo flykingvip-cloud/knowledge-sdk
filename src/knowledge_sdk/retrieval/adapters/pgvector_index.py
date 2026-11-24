@@ -1,4 +1,5 @@
 """Metadata-only pgvector candidate index. Never a source of authorized content."""
+from __future__ import annotations
 import math
 from ...storage.postgres_store import PostgresStore
 from ...exceptions import ValidationError

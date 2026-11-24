@@ -43,6 +43,7 @@ def main(argv=None):
     parser.add_argument('--transport',choices=('stdio','http'),default='stdio');parser.add_argument('--db',default=':memory:')
     parser.add_argument('--replay-db');parser.add_argument('--host',default='127.0.0.1');parser.add_argument('--port',type=int,default=8766)
     parser.add_argument('--default-mcp-purpose',choices=[p.value for p in Purpose],default=Purpose.GROUND_INTERNAL_LLM.value)
+    parser.add_argument('--dsn',default=os.environ.get('KNOWLEDGE_SDK_DSN'))
     args=parser.parse_args(argv)
     try:
         context=stdio_context() if args.transport=='stdio' else None
@@ -52,16 +53,24 @@ def main(argv=None):
         if args.replay_db and os.path.realpath(args.replay_db)==os.path.realpath(args.db):raise ValidationError('Replay database must be separate')
         from ..client.local import LocalKnowledgeClient
         from ..storage.sqlite_store import SQLiteStore
-        client=LocalKnowledgeClient(SQLiteStore(args.db))
+        if args.dsn:
+            from ..server.postgres import postgres_client
+            client=postgres_client(args.dsn)
+        else:client=LocalKnowledgeClient(SQLiteStore(args.db))
         try:
             if context is not None:run_stdio(client,context)
             else:
                 from ..server.auth import SQLiteReplayStore
-                replay=SQLiteReplayStore(args.replay_db) if args.replay_db else None
+                if args.dsn:
+                    from ..server.replay_pg import PostgresReplayStore
+                    replay=PostgresReplayStore(args.dsn)
+                else:replay=SQLiteReplayStore(args.replay_db) if args.replay_db else None
                 fallback=tuple(x.strip() for x in os.environ.get('KNOWLEDGE_AUTH_FALLBACK_SECRETS','').split(',') if x.strip())
                 app=create_app(client,os.environ.get('KNOWLEDGE_AUTH_SECRET'),replay_store=replay,fallback_secrets=fallback,
                                default_mcp_purpose=Purpose(args.default_mcp_purpose),enable_demo_switcher=False)
-                uvicorn.run(app,host=args.host,port=args.port,proxy_headers=False)
+                try:uvicorn.run(app,host=args.host,port=args.port,proxy_headers=False)
+                finally:
+                    if hasattr(replay,'close'):replay.close()
         finally:client.store.close()
     except (ValidationError,ValueError,TypeError):
         print("Invalid trusted MCP configuration; identity is required for stdio; HTTP requires a signing secret and pip install 'knowledge-sdk[mcp]'.",file=sys.stderr);return 2

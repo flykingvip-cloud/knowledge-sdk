@@ -1,4 +1,5 @@
 """Explicit optional service wiring; deterministic hashing is not semantic AI."""
+from __future__ import annotations
 from ..client.local import LocalKnowledgeClient
 from ..storage.postgres_store import PostgresStore
 from .replay_pg import PostgresReplayStore
