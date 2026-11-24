@@ -15,7 +15,7 @@ from ..contracts.models import (KnowledgeScope, ConsumerBinding, KnowledgeAnswer
 from ..retrieval.answers import AnswerGenerator, ExtractiveAnswerGenerator
 from ..permissions.policy import can_manage_kb, can_upload_to_kb
 from ..contracts.models import (KnowledgeBase, Document, DocumentVersion, DocumentACL, KnowledgeRef, RetrieveResponse, ExcerptPolicy)
-from ..contracts.uri import build_uri
+from ..contracts.uri import build_uri, parse_uri_v2
 from ..contracts.anchors import ReanchorStatus, integer, identifier
 from ..contracts.reanchor import merge_anchors_for_version
 from .anchors import deliver as deliver_anchor, validate_source as validate_anchor_source, validate_identity as validate_anchor_identity
@@ -318,6 +318,44 @@ class LocalKnowledgeClient:
         if version is not None:integer(version,'version',1)
         v=self.store.get_version(doc_id,d.current_version if version is None else version)
         return d,v,decision
+
+    @serialized
+    def report_evidence_issue(self,actor,source_uri,issue_type,description,conflicting_uri=None,*,agent=None,purpose=Purpose.READ,policy_context=None):
+        """Queue data for human review. Never update document/version/ACL/rights."""
+        if (issue_type not in ('outdated','anchor_drift','conflict','inaccuracy') or not isinstance(issue_type,str)
+            or not isinstance(description,str) or not description.strip() or len(description)>4000):
+            raise ValidationError('Invalid issue parameters')
+        ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context)
+        def authorize(uri):
+            if not isinstance(uri,str) or not 1<=len(uri)<=2048:raise ValidationError('Invalid issue parameters')
+            parsed=parse_uri_v2(uri)
+            if parsed.org_id!=actor.org_id:raise PermissionDeniedError('access_denied')
+            # Separate feedback authority and READ/redaction gate. Do not consume
+            # a pending anchor to report its drift; it is an authorized impact view.
+            decision=self.evaluate_policy(actor,parsed.doc_id,action=PolicyAction.REPORT_ISSUE,**ctx)
+            if not decision.allowed:raise PermissionDeniedError('access_denied')
+            d,v,chunks,read,_=self._delivered_source(actor,parsed.doc_id,parsed.version,**ctx)
+            if d.org_id!=parsed.org_id:raise PermissionDeniedError('access_denied')
+            if parsed.anchor_id:self.get_anchor(actor,parsed.doc_id,parsed.anchor_id,parsed.version,**ctx)
+            if parsed.chunk_id and parsed.chunk_id not in {c.chunk_id for c in chunks}:raise PermissionDeniedError('access_denied')
+            obligations=intersect_decisions((read,decision))
+            if not obligations.allowed:raise PermissionDeniedError('access_denied')
+            if obligations.effect==DecisionEffect.ALLOW_WITH_REDACTION:
+                self.redaction_registry.apply('',obligations.redaction_profile,purpose)
+            return parsed
+        with self.store.transaction():
+            try:
+                parsed=authorize(source_uri)
+                if conflicting_uri is not None:authorize(conflicting_uri)
+            except NotFoundError:raise PermissionDeniedError('access_denied') from None
+            issue={'issue_id':str(uuid.uuid4()),'org_id':actor.org_id,'doc_id':parsed.doc_id,'version':parsed.version,
+                   'anchor_id':parsed.anchor_id or '', 'status':'open','created_at':datetime.now(timezone.utc).isoformat(),
+                   'source_uri':source_uri,'issue_type':issue_type,'description':description,'conflicting_uri':conflicting_uri,
+                   'reported_by':actor.user_id,'agent_id':agent.agent_id if agent is not None else '',
+                   'purpose':enum_value(Purpose,purpose).value,
+                   'policy_generation':(policy_context.policy_generation if policy_context and policy_context.policy_generation else actor.policy_generation)}
+            self.store.put_evidence_issue(issue)
+        return {'issue_id':issue['issue_id'],'status':'queued_for_review','formal_knowledge_modified':False}
 
     @serialized
     def list_anchors(self,actor,doc_id,version=None,*,agent=None,purpose=Purpose.READ,policy_context=None):

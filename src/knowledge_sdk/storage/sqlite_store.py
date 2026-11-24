@@ -210,3 +210,12 @@ class SQLiteStore:
                 sql+=' AND d.'+column+' IN ('+','.join('?' for _ in values)+')';args.extend(values)
         sql+=' ORDER BY bm25(chunks_fts),chunks_fts.doc_id,version,chunk_id LIMIT ?';args.append(limit)
         return self._execute(sql,args)
+
+    def put_evidence_issue(self,issue):
+        """Trusted queue-only storage. Review text is inert JSON, never executed."""
+        if not isinstance(issue,dict) or issue.get('status')!='open':raise ValidationError('Invalid evidence issue')
+        d=self.get_document(issue.get('doc_id'))
+        if d.org_id!=issue.get('org_id'):raise ConflictError('Issue tenant mismatch')
+        self.get_version(d.doc_id,issue.get('version'))
+        self._execute('INSERT INTO evidence_issues VALUES(?,?,?,?,?,?,?,?)',
+            (issue['issue_id'],issue['org_id'],issue['doc_id'],issue['version'],issue['anchor_id'],issue['status'],issue['created_at'],json.dumps(issue,ensure_ascii=False)))
