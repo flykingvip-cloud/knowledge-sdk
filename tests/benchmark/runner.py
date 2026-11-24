@@ -442,7 +442,7 @@ def run_suite(path=None,verbose=False):
       'refusal_accuracy':ratio(by_group['G2']['passed'],10),'reanchor_accuracy':ratio(by_group['G4']['passed'],10),
       'mcp_injection_blocked':ratio(blocked,attempts),'implicit_model_calls':sum(r['model_calls'] for r in results),
       'mcp_pass_rate':ratio(by_group['G5']['passed'],10),'positive_control_failures':sum(r['positive_failures'] for r in results),'security_assertion_failures':sum(r['safety_failures'] for r in results),
-      'offline_recall_at_5':{'eligible_cases':len(recalls),'mean':sum(recalls)/len(recalls) if recalls else None,'values':recalls},'results':results}
+      'offline_recall_at_requested_k':{'eligible_cases':len(recalls),'mean':sum(recalls)/len(recalls) if recalls else None,'values':recalls},'results':results}
 
 
 def main():
@@ -457,7 +457,7 @@ def main():
          'These are 60 distinct executable offline scenarios, not 60 unittest methods or added subtests. No skips are allowed.',
          'ACL denominator: 20 G1 security scenarios; refusal denominator: 10 G2 no-evidence scenarios with real generator spies; anchor denominator: 10 G4 fixture scenarios.',
          'MCP injection denominator: actual runtime rejected argument/purpose attempts (not tool schema declarations). Positive controls and safety assertions are tracked separately.',
-         'implicit_model_calls is the measured explicit generator-spy invocation count in G2; no real model/network/vector service is configured. Positive answer control uses the local extractive generator.',
+         'implicit_model_calls is the measured generator-spy invocation count in G1 missing-hook ask and G2; no real model/network/vector service is configured. Positive answer control uses the local extractive generator.',
          'Recall@k (k=3 for the three-target scope fixture, otherwise5) is measured only on the seven eligible fixed SQLite FTS / deterministic hybrid-stub fixtures. Two deliberate 500-cap negative fixtures are excluded. No online semantic improvement or historical baseline uplift is claimed.',
          'PDF geometry is a host-injected offline layout fixture, not a PDF/OCR parser. Handler golden checks are not HTTP/stdio wire acceptance; actual transports are separately exercised at L3.',''])
         Path(args.report).write_text('\n'.join(lines))
