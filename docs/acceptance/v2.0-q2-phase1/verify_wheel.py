@@ -22,7 +22,7 @@ with zipfile.ZipFile(wheel) as archive:
     config=configparser.ConfigParser();config.read_string(archive.read('knowledge_sdk-1.2.0.dist-info/entry_points.txt').decode())
     assert config['console_scripts']['knowledge-sdk-mcp']=='knowledge_sdk.mcp.server:main'
     for member in ('__init__.py','__main__.py','gateway.py','tools.py','protocol.py','server.py'):assert 'knowledge_sdk/mcp/'+member in archive.namelist()
-    for member in ('audit/ledger.py','events/outbox.py','impact/webhook.py','contracts/audit.py','contracts/events.py'):
+    for member in ('audit/ledger.py','events/outbox.py','impact/webhook.py','contracts/audit.py','contracts/events.py','contracts/impact.py','impact/radar.py'):
         assert 'knowledge_sdk/'+member in archive.namelist()
     assert 'knowledge_sdk/mcp/transport.py' not in archive.namelist() and 'knowledge_sdk/mcp/handlers.py' not in archive.namelist()
     for member in ('index.html','workbench.css','workbench.js','i18n.js'):assert 'knowledge_sdk/ui/static/'+member in archive.namelist()
@@ -52,6 +52,10 @@ try:
  assert c.store.db.execute('PRAGMA user_version').fetchone()[0]==3
  assert c.verify_audit_chain(Actor('u','o',org_roles=('admin',))).valid
  assert c.store._execute('SELECT COUNT(*) FROM outbox_events')[0][0]>=1
+ assert c.store.list_usage_events_for_doc('o','d')
+ c.ingest(a,k.kb_id,'updated wheel alpha',doc_id='d')
+ assert c.drain_outbox(Actor('u','o',org_roles=('admin',))).failed==0
+ assert any(e.impact_reason==ImpactReason.SUPERSEDED for e in c.list_impact_alerts(a))
 finally:c.store.close()
 from importlib.metadata import distribution
 ep=next(e for e in distribution('knowledge-sdk').entry_points if e.name=='knowledge-sdk-mcp')

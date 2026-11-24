@@ -1,4 +1,4 @@
-"""Exactly 60 offline executable scenarios. No network, LLM, skips or random rank claims."""
+"""Exactly 75 offline executable scenarios (original 60 unchanged). No network, LLM, skips or random rank claims."""
 from __future__ import annotations
 import argparse
 import concurrent.futures
@@ -26,7 +26,7 @@ def scenario(name):
 
 
 class Observation:
-    def __init__(self,expected=None):self._expected=expected or {};self.safety_failures=0;self.positive_failures=0;self.model_calls=0;self.injection_attempts=0;self.injection_blocked=0;self.recall=None
+    def __init__(self,expected=None):self._expected=expected or {};self.safety_failures=0;self.positive_failures=0;self.model_calls=0;self.injection_attempts=0;self.injection_blocked=0;self.recall=None;self.audit_checks=0;self.audit_detected=0;self.impact_expected=0;self.impact_found=0;self.impact_unexpected=0
     def check(self,value,kind='correctness'):
         if not value:
             if kind=='safety':self.safety_failures+=1
@@ -409,15 +409,22 @@ def g510(f,o):
         o.check(out[1]['result']['structuredContent']['hits'][0]['receipt']['consumer_id']=='mcp_stdio','positive')
 
 
+from .g6 import register_g6
+register_g6(scenario)
+
+
 def load_cases(path=None):
-    path=Path(path) if path else Path(__file__).with_name('golden_cases_v1.jsonl')
+    path=Path(path) if path else Path(__file__).with_name('golden_cases_v2.jsonl')
     cases=[json.loads(line) for line in path.read_text().splitlines() if line.strip()]
-    groups={group:sum(c['group']==group for c in cases) for group in ('G1','G2','G3','G4','G5')}
-    if len(cases)!=60 or groups!={'G1':20,'G2':10,'G3':10,'G4':10,'G5':10}:raise ValueError('Golden cardinality/group gate failed')
-    if len({c['case_id'] for c in cases})!=60 or len({c['scenario'] for c in cases})!=60 or {c['scenario'] for c in cases}!=set(SCENARIOS):raise ValueError('Cases must have 60 distinct executable scenarios')
+    expected_groups={'G1':20,'G2':10,'G3':10,'G4':10,'G5':10}
+    if len(cases)==75:expected_groups['G6']=15
+    groups={group:sum(c['group']==group for c in cases) for group in expected_groups}
+    if len(cases) not in (60,75) or groups!=expected_groups:raise ValueError('Golden cardinality/group gate failed')
+    if len({c['case_id'] for c in cases})!=len(cases) or len({c['scenario'] for c in cases})!=len(cases) or not {c['scenario'] for c in cases}<=set(SCENARIOS):raise ValueError('Cases must have distinct executable scenarios')
+    if len(cases)==75 and {c['scenario'] for c in cases}!=set(SCENARIOS):raise ValueError('Missing executable G6 scenarios')
     for case in cases:
         if set(case)!={'case_id','group','title','scenario','expected'} or not isinstance(case['expected'],dict):raise ValueError('Invalid golden schema')
-    expected_ids={g+'-'+str(i).zfill(2) for g,n in (('G1',20),('G2',10),('G3',10),('G4',10),('G5',10)) for i in range(1,n+1)}
+    expected_ids={g+'-'+str(i).zfill(2) for g,n in expected_groups.items() for i in range(1,n+1)}
     if {c['case_id'] for c in cases}!=expected_ids:raise ValueError('Unexpected golden case IDs')
     return cases
 
@@ -432,12 +439,17 @@ def run_suite(path=None,verbose=False):
         result={'case_id':case['case_id'],'group':case['group'],'scenario':case['scenario'],'status':'passed' if error is None else 'failed','error':error,**{k:v for k,v in observation.__dict__.items() if not k.startswith('_')}}
         results.append(result)
         if verbose:print(case['case_id'],result['status'],case['scenario'],error or '',flush=True)
-    passed=sum(r['status']=='passed' for r in results);by_group={g:{'passed':sum(r['status']=='passed' for r in results if r['group']==g),'total':sum(r['group']==g for r in results)} for g in ('G1','G2','G3','G4','G5')}
+    passed=sum(r['status']=='passed' for r in results);by_group={g:{'passed':sum(r['status']=='passed' for r in results if r['group']==g),'total':sum(r['group']==g for r in results)} for g in dict.fromkeys(c['group'] for c in cases)}
     ratio=lambda n,d:{'numerator':n,'denominator':d,'rate':n/d if d else None}
     attempts=sum(r['injection_attempts'] for r in results);blocked=sum(r['injection_blocked'] for r in results);recalls=[r['recall'] for r in results if r['recall'] is not None]
-    hard_gate=(passed==60 and sum(r['safety_failures'] for r in results)==0 and sum(r['positive_failures'] for r in results)==0
+    audit_checks=sum(r['audit_checks'] for r in results);audit_detected=sum(r['audit_detected'] for r in results)
+    impact_expected=sum(r['impact_expected'] for r in results);impact_found=sum(r['impact_found'] for r in results)
+    impact_unexpected=sum(r['impact_unexpected'] for r in results)
+    g6_gate=(len(cases)==60 or (by_group['G6']['passed']==15 and audit_checks>0 and audit_detected==audit_checks and impact_expected>0 and impact_found==impact_expected and impact_unexpected==0))
+    hard_gate=(passed==len(cases) and g6_gate and sum(r['safety_failures'] for r in results)==0 and sum(r['positive_failures'] for r in results)==0
                and sum(r['model_calls'] for r in results)==0 and attempts==36 and blocked==36 and len(recalls)==7 and all(v==1.0 for v in recalls))
-    return {'gate_passed':hard_gate,'case_count':60,'passed':passed,'failed':60-passed,'skipped':0,'groups':by_group,
+    return {'gate_passed':hard_gate,'case_count':len(cases),'passed':passed,'failed':len(cases)-passed,'skipped':0,'groups':by_group,
+      'audit_chain_detection':ratio(audit_detected,audit_checks),'impact_completeness':ratio(impact_found,impact_expected),'unexpected_impact_targets':impact_unexpected,
       'acl_violation_rate':ratio(sum(r['safety_failures'] for r in results if r['group']=='G1'),20),
       'refusal_accuracy':ratio(by_group['G2']['passed'],10),'reanchor_accuracy':ratio(by_group['G4']['passed'],10),
       'mcp_injection_blocked':ratio(blocked,attempts),'implicit_model_calls':sum(r['model_calls'] for r in results),
@@ -451,10 +463,10 @@ def main():
     result['executed_at']=datetime.now(timezone(timedelta(hours=8))).isoformat();result['timezone']='Asia/Shanghai'
     if args.json_output:Path(args.json_output).write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
     if args.report:
-        lines=['# Q1-M4 offline golden benchmark','',result['executed_at']+' Asia/Shanghai','',f"Cases: {result['passed']}/60 passed; 0 skipped; gate_passed={result['gate_passed']}",'', '| Group | Passed / Total |','|---|---|']
+        lines=['# Q2-M1 offline golden benchmark','',result['executed_at']+' Asia/Shanghai','',f"Cases: {result['passed']}/{result['case_count']} passed; 0 skipped; gate_passed={result['gate_passed']}",'', '| Group | Passed / Total |','|---|---|']
         lines.extend('| '+g+' | '+str(v['passed'])+' / '+str(v['total'])+' |' for g,v in result['groups'].items())
         lines.extend(['','```json',json.dumps({k:v for k,v in result.items() if k!='results'},indent=2),'```','',
-         'These are 60 distinct executable offline scenarios, not 60 unittest methods or added subtests. No skips are allowed.',
+         'These are 75 distinct executable offline scenarios (the original 60 are unchanged), not 60 unittest methods or added subtests. No skips are allowed.',
          'ACL denominator: 20 G1 security scenarios; refusal denominator: 10 G2 no-evidence scenarios with real generator spies; anchor denominator: 10 G4 fixture scenarios.',
          'MCP injection denominator: actual runtime rejected argument/purpose attempts (not tool schema declarations). Positive controls and safety assertions are tracked separately.',
          'implicit_model_calls is the measured generator-spy invocation count in G1 missing-hook ask and G2; no real model/network/vector service is configured. Positive answer control uses the local extractive generator.',
