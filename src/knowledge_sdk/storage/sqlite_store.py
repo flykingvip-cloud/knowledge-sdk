@@ -264,7 +264,7 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
             d=self.get_document(doc_id)
             if self.get_kb(d.kb_id).governance_tier=='l2_controlled':
                 from dataclasses import replace
-                v=replace(v,lifecycle_state=d.lifecycle_state if version==d.current_version else 'published',author_id=d.owner_id)
+                v=replace(v,lifecycle_state=d.lifecycle_state if version==d.current_version else 'published',author_id='legacy_unknown')
         return v
     def put_version(self,v,chunks):
         self._execute("INSERT INTO document_versions VALUES(?,?,?)",(v.doc_id,v.version,self._dump(v)))

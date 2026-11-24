@@ -75,6 +75,7 @@ class GovernanceMixin:
         return self._review(actor,d,v,'submitted',expected_version,comment=note)
 
     def _review_authority(self,actor,d,v):
+        if v.author_id in ('','legacy_unknown'):raise PermissionDeniedError('legacy_author_unknown_reingest_required')
         if actor.user_id in (v.submitter_id,v.author_id):raise PermissionDeniedError('self_review_forbidden')
         if v.lifecycle_state!='in_review':raise ConflictError('Version not in review')
 
@@ -99,6 +100,8 @@ class GovernanceMixin:
     def publish_release(self,actor,doc_id,*,version,expected_version,agent=None,purpose=Purpose.READ,policy_context=None):
         d,v=self._governance_version(actor,doc_id,version,expected_version,PolicyAction.PUBLISH_RELEASE,require_expected=True,agent=agent,purpose=purpose,policy_context=policy_context)
         if v.lifecycle_state!='approved':raise ConflictError('Version not approved')
+        reviews=self.store.list_review_decisions(d.org_id,doc_id,version)
+        if not v.reviewer_id or not v.submitter_id or v.author_id in ('','legacy_unknown') or not any(r.stage=='approved' and r.actor_id==v.reviewer_id for r in reviews):raise ConflictError('Approval provenance required')
         if actor.user_id==v.reviewer_id:raise PermissionDeniedError('reviewer_cannot_publish')
         if actor.user_id in (v.author_id,v.submitter_id):raise PermissionDeniedError('author_cannot_publish')
         if d.lifecycle_state=='published' and version<=d.current_version:raise ConflictError('Release must advance live version')
