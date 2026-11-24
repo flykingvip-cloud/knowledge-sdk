@@ -1,5 +1,6 @@
-2026-11-24T22:58:46.875604+08:00 Asia/Shanghai
-PASS: actual ephemeral signed HTTP audit/query + audit/verify, typed client parity, unsigned401, non-admin403, tenant isolation
-PASS: actual ephemeral Webhook POST, all four headers, HMAC-SHA256 verification, <60s delivery, no secrets/source text logged
-NOT_IMPLEMENTED: impact/alerts and impact/ack; usage lineage and ImpactRadar; no Q2-M1 completion claim
-All disposable listeners/connections closed; no paid/model/embedding/Qdrant calls
+2026-11-24T23:23:10.825462+08:00 Asia/Shanghai
+PASS actual signed HTTP: consume/attach lineage, audit/query + audit/verify, impact/alerts + impact/ack + events/drain, typed parity
+PASS real revisions: SUPERSEDED + DRIFT_PENDING + ORPHANED; archive + revoke + ACL deny: exact usage/binding targets and locked v1 snapshots
+PASS signed real loopback Webhook: 7 unique deliveries, 14/14 impact alert IDs covered, valid HMAC accepted/tamper rejected, <60 seconds
+PASS unsigned401/replay401/unrelated403/foreign-empty, tenant-isolated drain, old source versions and receipts unchanged
+All disposable DBs/listeners closed; no model/embedding/paid/Qdrant calls. L4 NOT_RUN; independent L5 PENDING.

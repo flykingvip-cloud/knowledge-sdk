@@ -23,7 +23,10 @@ test_new_model_fields_defaults_and_types (tests.anchors.test_phase3_anchors_and_
 test_quote_preserves_whitespace (tests.anchors.test_phase3_anchors_and_reanchor.AnchorContracts.test_quote_preserves_whitespace) ... ok
 test_table_section_strict_types (tests.anchors.test_phase3_anchors_and_reanchor.AnchorContracts.test_table_section_strict_types) ... ok
 test_uri_roundtrip_opaque_quoted_ids (tests.anchors.test_phase3_anchors_and_reanchor.AnchorContracts.test_uri_roundtrip_opaque_quoted_ids) ... ok
-test_exact60_offline_cases_no_skips_hard_gate (tests.benchmark.test_golden_benchmark.GoldenGate.test_exact60_offline_cases_no_skips_hard_gate) ... ok
+test_exact75_offline_cases_no_skips_hard_gate (tests.benchmark.test_golden_benchmark.GoldenGate.test_exact75_offline_cases_no_skips_hard_gate) ... ok
+test_g6_audit_detection_is_not_a_constant (tests.benchmark.test_golden_benchmark.GoldenGate.test_g6_audit_detection_is_not_a_constant) ... ok
+test_g6_impact_completeness_is_not_a_constant (tests.benchmark.test_golden_benchmark.GoldenGate.test_g6_impact_completeness_is_not_a_constant) ... ok
+test_old60_cases_retained_byte_for_byte (tests.benchmark.test_golden_benchmark.GoldenGate.test_old60_cases_retained_byte_for_byte) ... ok
 test_batch (tests.contracts.test_contracts.ContractTests.test_batch) ... ok
 test_chunk_bound_excerpt (tests.contracts.test_contracts.ContractTests.test_chunk_bound_excerpt) ... ok
 test_denied_and_unavailable (tests.contracts.test_contracts.ContractTests.test_denied_and_unavailable) ... ok
@@ -175,6 +178,33 @@ test_multi_connection_monotonic_and_atomic_rollback (tests.q2.test_audit.AuditTe
 test_roundtrip_hash_query_no_source_text_and_immutability (tests.q2.test_audit.AuditTests.test_roundtrip_hash_query_no_source_text_and_immutability) ... ok
 test_success_and_denial_automatically_recorded (tests.q2.test_audit.AuditTests.test_success_and_denial_automatically_recorded) ... ok
 test_tenant_and_self_scope (tests.q2.test_audit.AuditTests.test_tenant_and_self_scope) ... ok
+test_write_audit_uses_actual_context_generation_request_task (tests.q2.test_audit.AuditTests.test_write_audit_uses_actual_context_generation_request_task) ... ok
+test_ack_permission_tenant_scope_no_owner_spoofing (tests.q2.test_impact.ImpactTests.test_ack_permission_tenant_scope_no_owner_spoofing) ... ok
+test_acl_tightening_only_lost_subject_is_affected (tests.q2.test_impact.ImpactTests.test_acl_tightening_only_lost_subject_is_affected) ... ok
+test_agent_and_purpose_original_rights_rechecked (tests.q2.test_impact.ImpactTests.test_agent_and_purpose_original_rights_rechecked) ... ok
+test_archive_and_revoke_ownership_allows_only_safe_metadata (tests.q2.test_impact.ImpactTests.test_archive_and_revoke_ownership_allows_only_safe_metadata) ... ok
+test_audit_failure_rolls_back_authoritative_write_and_outbox (tests.q2.test_impact.ImpactTests.test_audit_failure_rolls_back_authoritative_write_and_outbox) ... ok
+test_background_dispatcher_converges_without_lock_inversion (tests.q2.test_impact.ImpactTests.test_background_dispatcher_converges_without_lock_inversion) ... ok
+test_batch_persists_each_success (tests.q2.test_impact.ImpactTests.test_batch_persists_each_success) ... ok
+test_cross_tenant_denial_audit_contains_no_source_text_or_titles (tests.q2.test_impact.ImpactTests.test_cross_tenant_denial_audit_contains_no_source_text_or_titles) ... ok
+test_drift_and_orphan_precisely_match_anchor_lineage (tests.q2.test_impact.ImpactTests.test_drift_and_orphan_precisely_match_anchor_lineage) ... ok
+test_historical_events_do_not_affect_future_usage (tests.q2.test_impact.ImpactTests.test_historical_events_do_not_affect_future_usage) ... ok
+test_identity_refresh_rejects_wrong_subject_and_updated_clearance (tests.q2.test_impact.ImpactTests.test_identity_refresh_rejects_wrong_subject_and_updated_clearance) ... ok
+test_invalid_drain_purpose_cannot_mutate_pending_events (tests.q2.test_impact.ImpactTests.test_invalid_drain_purpose_cannot_mutate_pending_events) ... ok
+test_mcp_final_search_and_pack_have_real_agent_task_lineage (tests.q2.test_impact.ImpactTests.test_mcp_final_search_and_pack_have_real_agent_task_lineage) ... ok
+test_no_success_lineage_for_denials_tamper_or_failed_attach (tests.q2.test_impact.ImpactTests.test_no_success_lineage_for_denials_tamper_or_failed_attach) ... ok
+test_org_operations_reject_restricted_or_cross_tenant_agents (tests.q2.test_impact.ImpactTests.test_org_operations_reject_restricted_or_cross_tenant_agents) ... ok
+test_pre_q2_tagged_binding_rows_remain_readable_and_unchanged (tests.q2.test_impact.ImpactTests.test_pre_q2_tagged_binding_rows_remain_readable_and_unchanged) ... ok
+test_redaction_missing_hook_fail_closed_even_for_owned_metadata (tests.q2.test_impact.ImpactTests.test_redaction_missing_hook_fail_closed_even_for_owned_metadata) ... ok
+test_replay_preserves_ack_and_never_duplicates (tests.q2.test_impact.ImpactTests.test_replay_preserves_ack_and_never_duplicates) ... ok
+test_reserved_pack_status_only_changes_not_sealed_data (tests.q2.test_impact.ImpactTests.test_reserved_pack_status_only_changes_not_sealed_data) ... ok
+test_revision_alerts_usage_and_binding_old_snapshots_unchanged (tests.q2.test_impact.ImpactTests.test_revision_alerts_usage_and_binding_old_snapshots_unchanged) ... ok
+test_saved_binding_identity_prevents_false_positive_role_revocation (tests.q2.test_impact.ImpactTests.test_saved_binding_identity_prevents_false_positive_role_revocation) ... ok
+test_saved_legacy_binding_without_usage_still_alerted (tests.q2.test_impact.ImpactTests.test_saved_legacy_binding_without_usage_still_alerted) ... ok
+test_stale_claim_is_fenced_and_expired_attempt_cap_prevents_post (tests.q2.test_impact.ImpactTests.test_stale_claim_is_fenced_and_expired_attempt_cap_prevents_post) ... ok
+test_tenant_admin_drain_cannot_claim_other_tenant_events (tests.q2.test_impact.ImpactTests.test_tenant_admin_drain_cannot_claim_other_tenant_events) ... ok
+test_usage_is_real_immutable_and_roundtrippable (tests.q2.test_impact.ImpactTests.test_usage_is_real_immutable_and_roundtrippable) ... ok
+test_wrong_agent_cannot_read_owned_impact_metadata (tests.q2.test_impact.ImpactTests.test_wrong_agent_cannot_read_owned_impact_metadata) ... ok
 test_all_authoritative_changes_emit_and_payload_contains_no_body (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_all_authoritative_changes_emit_and_payload_contains_no_body) ... ok
 test_claim_serialization_and_expired_worker_lease (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_claim_serialization_and_expired_worker_lease) ... ok
 test_dns_mixed_and_rebinding_blocked_at_delivery (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_dns_mixed_and_rebinding_blocked_at_delivery) ... ok
@@ -182,6 +212,7 @@ test_exponential_retry_and_dead_letter (tests.q2.test_outbox_webhook.OutboxWebho
 test_failed_sub_does_not_repeat_successful_delivery (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_failed_sub_does_not_repeat_successful_delivery) ... ok
 test_idempotent_enqueue_conflict_and_dispatch_replay (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_idempotent_enqueue_conflict_and_dispatch_replay) ... ok
 test_insecure_sub_needs_explicit_dispatcher_test_switch (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_insecure_sub_needs_explicit_dispatcher_test_switch) ... ok
+test_ipv6_translation_and_deprecated_site_local_are_not_ssrf_bypasses (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_ipv6_translation_and_deprecated_site_local_are_not_ssrf_bypasses) ... ok
 test_multi_connection_claim_no_overlap (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_multi_connection_claim_no_overlap) ... ok
 test_outbox_failure_rolls_back_document_version_acl_and_anchors (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_outbox_failure_rolls_back_document_version_acl_and_anchors) ... ok
 test_real_loopback_signature_and_delivery_idempotence (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_real_loopback_signature_and_delivery_idempotence) ... ok
@@ -321,6 +352,8 @@ test_identity_injection_bad_agent_and_origin (tests.server.test_phase4_mcp_http.
 test_internal_default_external_config_and_explicit_signed_purpose (tests.server.test_phase4_mcp_http.MCPHTTPTests.test_internal_default_external_config_and_explicit_signed_purpose) ... skipped 'optional HTTP dependencies unavailable'
 test_opt_in_unsigned_and_shared_nonce_no_store (tests.server.test_phase4_mcp_http.MCPHTTPTests.test_opt_in_unsigned_and_shared_nonce_no_store) ... skipped 'optional HTTP dependencies unavailable'
 test_typed_feedback_http_and_reserved_claims (tests.server.test_phase4_mcp_http.MCPHTTPTests.test_typed_feedback_http_and_reserved_claims) ... skipped 'optional HTTP dependencies unavailable'
+test_actual_signed_http_impact_and_real_webhook (tests.server.test_q2_impact_http.ImpactWireTests.test_actual_signed_http_impact_and_real_webhook) ... skipped 'optional HTTP dependencies unavailable'
+test_event_apis_never_accept_dev_insecure_identities (tests.server.test_q2_impact_http.ImpactWireTests.test_event_apis_never_accept_dev_insecure_identities) ... skipped 'optional HTTP dependencies unavailable'
 test_ask_and_refusal (tests.server.test_v11_http.V11HTTPTests.test_ask_and_refusal) ... skipped 'Optional HTTP dependencies unavailable'
 test_attach_verify_roundtrip (tests.server.test_v11_http.V11HTTPTests.test_attach_verify_roundtrip) ... skipped 'Optional HTTP dependencies unavailable'
 test_expanded_signed_claims_roundtrip (tests.server.test_v11_http.V11HTTPTests.test_expanded_signed_claims_roundtrip) ... skipped 'Optional HTTP dependencies unavailable'
@@ -469,6 +502,6 @@ test_visibility_mapping (tests.v11.test_v11.V11Tests.test_visibility_mapping) ..
 test_untrusted_vector_candidates_are_sqlite_filtered_for_every_consumer (tests.v11.test_v11.VectorACLTests.test_untrusted_vector_candidates_are_sqlite_filtered_for_every_consumer) ... ok
 
 ----------------------------------------------------------------------
-Ran 469 tests in 15.977s
+Ran 502 tests in 17.073s
 
-OK (skipped=96)
+OK (skipped=98)

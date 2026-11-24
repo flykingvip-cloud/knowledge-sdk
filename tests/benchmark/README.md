@@ -1,33 +1,40 @@
-# Exact60 taskbook golden cases
+# Exact75 Q2-M1 taskbook golden cases
 
-Authoritative index: `golden_cases_v1.jsonl`, each case has exactly
-case_id/group/title/scenario/expected. Runner: `runner.py`; unittest gate:
-`test_golden_benchmark.py`; existing CI core jobs run the same hard gate.
+Default index: `golden_cases_v2.jsonl` = the original 60 unchanged v1 lines plus
+`G6-01..G6-15`. Runner: `runner.py`; extra scenarios: `g6.py`; unittest hard gate:
+`test_golden_benchmark.py`. Existing core CI runs this same default 75-case gate.
 
 ```sh
 PYTHONPATH=src python3 -S -W error::ResourceWarning -m tests.benchmark.runner --json
 ```
 
-G1=20 security scenarios; G2=10 distinct refusal paths with real generator-spy
-calls (including pre-generation revocation and an authorized extractive positive
-control); G3=10 bounded fetch/scope/RRF/redaction scenarios; G4=10 physical-anchor
-fixtures/states/history/confirmation/redaction; G5=10 JSON-RPC/tool/queue/auth/stdio
-scenarios. No network/model is used, no skips allowed, any failure nonzero.
-Stdio case launches a real -S subprocess; the HTTP-auth case calls the SAME production
-GatewayAuthenticator.authorize_http HMAC/replay adapter, not a stubbed401. Actual
-optional FastAPI wire is separately tested at L3, not inferred from a handler call.
+G1=20 ACL/security, G2=10 refusal/generator-spy, G3=10 authorized bounded fetch,
+G4=10 physical-anchor/offline layout, G5=10 MCP/tool/auth, G6=15 real SQLite audit,
+usage/impact, transactional outbox and signed-Webhooks scenarios. No skips,
+external service, paid/model/embedding calls. Webhook transport in G6 is explicitly
+in-memory to a validated numeric public address: no HTTP request or external DNS
+query. Real loopback network acceptance is separately tested at L3 and by
+`tests.server.test_q2_impact_http` when HTTP extras are installed.
 
-Metrics: acl_violation_rate counts failed G1 safety assertions /20 scenarios;
-refusal_accuracy passes/10 G2; implicit_model_calls sums measured generator spies;
-reanchor_accuracy passes/10 G4; mcp_pass_rate passes/10 G5. The36 attempted identity
-injections (9 forbidden fields x4 otherwise-valid tools) have positive controls
-and their own actual blocked count. Safety and positive-control failures are distinct.
-All60 passing, zero safety/model failures and complete denominators are hard gates.
-Seven applicable fixed SQLite FTS / offline hybrid-stub fixtures have actual Recall@k
-(usually5; the550-noise fixture has3 targets); no real semantic rankings, baseline
-uplift or online performance claim. Exact500 and >500 negatives are separate.
+Metrics preserve the old G1..G5 definitions: ACL failed G1 safety assertions /20;
+refusal passes/10; measured generator-spy invocation count; reanchor passes/10;
+MCP passes/10; 36/36 actual forbidden-identity injections rejected. Safety and
+positive-control failures are distinct and ALL groups must pass. Seven eligible
+fixed SQLite/offline hybrid fixtures retain actual Recall@k; no online semantic
+or baseline uplift claim. PDF geometry remains an injected offline fixture.
 
-PDF bbox is an explicit offline host plugin, not a PDF/OCR parser. Domain content,
-ranking and expectations are fixed; random ephemeral signing keys/nonces/temp paths
-are never printed and do not affect asserted outcomes. Prior incompatible evidence
-is retained only in the explicitly superseded historical directory.
+New metrics are observed, not constants:
+- `audit_chain_detection`: detected first-invalid-sequence checks / attempted
+  corruptions (all 17 stored columns + 2 middle-gap/prefix checks = 19).
+- `impact_completeness`: observed intersection / independently expected target
+  IDs across G6 fixtures (45/45), with **zero unexpected targets** separately
+  hard-gated. Includes usage, consumer-binding, revision, drift, orphan, archive,
+  revoke/ACL and 30-consumer convergence cases.
+- Unit negative controls disable the radar or force a falsely-valid chain report;
+  the relevant benchmark assertion then FAILS and measured metrics fall to zero.
+
+The default hard gate requires 75/75, G6=15/15, both new metrics 100%, zero
+unexpected/safety/model failures and all prior denominator/recall controls.
+`--cases tests/benchmark/golden_cases_v1.jsonl` can explicitly reproduce the old
+60-case gate, but that is NOT Q2-M1 acceptance. Signing keys/nonces/temp paths are
+randomized locally, never printed, and do not influence the expected outcomes.

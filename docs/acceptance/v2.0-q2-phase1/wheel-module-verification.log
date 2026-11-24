@@ -1,5 +1,5 @@
-Python3.9 AST PASS src 65 files; not an actual3.9 runtime
-Python3.9 AST PASS tests/benchmark 4 files; not an actual3.9 runtime
+Python3.9 AST PASS src 67 files; not an actual3.9 runtime
+Python3.9 AST PASS tests/benchmark 5 files; not an actual3.9 runtime
 Extracted-wheel python -S / third-party blocker / four tools / real console entrypoint stdio PASS
 Version/core zero dependencies/exact mcp HTTP extra/schema3/UI resources/entrypoint PASS
-Wheel knowledge_sdk-1.2.0-py3-none-any.whl SHA256 f867f55eed0f675eccfe42e74394d435b3c612c5ac7ff90777238d0082cc1759
+Wheel knowledge_sdk-1.2.0-py3-none-any.whl SHA256 752fd19e7d5416aee1f6051a52f00670f1ef6849b3763e9bda13275a1cfc6e03

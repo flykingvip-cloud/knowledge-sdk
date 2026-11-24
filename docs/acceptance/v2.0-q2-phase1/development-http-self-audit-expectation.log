@@ -1,0 +1,9 @@
+2026-11-24T23:10:46.889762+08:00 Asia/Shanghai
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/docs/acceptance/v2.0-q2-phase1/live_impact_probe.py", line 117, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/workspace/knowledge-sdk/docs/acceptance/v2.0-q2-phase1/live_impact_probe.py", line 73, in main
+    assert http.list_impact_alerts(foreign)==[] and http.query_audit_events(foreign)==[]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

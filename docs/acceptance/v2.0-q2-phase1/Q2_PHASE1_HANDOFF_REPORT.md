@@ -1,128 +1,198 @@
-# Q2-M1 handoff — INCOMPLETE checkpoint, not phase acceptance
+# Q2-M1 handoff — engineering implemented; independent acceptance pending
 
 Date: 2026-11-24, Asia/Shanghai (UTC+8).
 Repository: `flykingvip-cloud/knowledge-sdk`.
 Branch: `feat/q2-phase1-outbox-audit-impact`.
-Exact starting SHA: `9c6a64b42893944a24e75ce4317e4dce8fee1751`.
+Branch URL: https://github.com/flykingvip-cloud/knowledge-sdk/tree/feat/q2-phase1-outbox-audit-impact
+Exact starting baseline: `9c6a64b42893944a24e75ce4317e4dce8fee1751`.
+Final tested runtime/test source: `60307212dc6fe23b6da8e9964add4a323542a30a`.
+The following evidence/documentation commit changes no runtime or executable test
+source; consult the branch tip/log for its final SHA and remote verification.
 
-## 1. Authority and scope
+## 1. Scope and status
 
-Both complete owner-supplied Q2 specifications were read through the parent-
-provided accessible task-input files. The M1 execution brief determines this
-run's scope; no M2 PostgreSQL/pgvector, M3 governance or EvidencePack service, M4
-OIDC/SCIM/connectors, or Q3 code was added. The referenced strategy-architecture
-v0.2 file was not found in this checkout; no claim of having reviewed an absent
-file is made. This is a meaningful implementation checkpoint because the whole
-M1 implementation exceeds this executor run. **Do not call this Q2-M1 done.**
+**Tasks0–5 of Q2-M1 are implemented and local acceptance was actually executed.**
+This supersedes the deliberately incomplete `54dca43` checkpoint. The original
+checkpoint report/probe remain under `superseded-checkpoint/` for provenance;
+their NOT_IMPLEMENTED wording does not describe the current code.
 
-## 2. Delivered modules
+Both complete owner-supplied specifications were read from the parent-provided
+accessible `/workspace/q2-task-inputs/` exports. The sole execution scope is M1,
+not all Q2. The separately referenced strategy-architecture-v0.2 file was not
+found in this checkout; no claim of reading an absent document is made. The
+supplied architect assessment is context, not an independent review of this code.
 
-- `b3fbb7a`: SQLite v0/v1/v2 -> v3 migration. Exact nine new tables and indexes
-  from the protocol, including three reserved empty future-module tables. Real
-  prior-layout fixtures verify byte-for-byte existing documents/versions/ACLs/
-  anchors/issues and rollback of all v3 DDL + user_version on failure. Future
-  schema >3 is refused. Existing schema-version test assertions now expect 3;
-  the old 60 golden cases are byte-for-byte unchanged.
-- `0e982c0`: frozen typed AuditEvent/AuditChainReport, tenant-sequenced atomic
-  append, canonical SHA256 chain, physical-column/encoded-record consistency
-  verification, no audit update/delete public API. Automatic operation audit,
-  all engine decisions (including retrieval's direct evaluations), denial audit,
-  actor/agent/purpose/generation capture, hash/count-only details. Ordinary users
-  query only themselves; administrators/auditors are tenant-bound; linked
-  document results recheck live policy and redaction requirements.
-- `6a59b64`: transactional write Outbox; ingest/revision/archive/restore/ACL/
-  rights/revocation/reanchor/drift/orphan event insertion in the SAME business
-  transaction. Retry/dead-letter worker, expired processing lease recovery,
-  idempotent logical Webhook deliveries, stable delivery ID. Exponential retry
-  defaults to 5 attempts. Webhook receiver failure cannot starve other subs.
-- `b3fcd9a`: signed audit HTTP query/verify + generated HTTP-client parity.
-  Additional evidence corrections and stronger assertions are in the final
-  checkpoint commit; consult git log for its SHA.
+No PostgreSQL/pgvector adapter (M2), L2 workflow or EvidencePack creation/export
+service (M3), OIDC/SCIM/Connector sync implementation (M4), or Q3 runtime was
+added. Future schemas have reserved tables only, with defensive processing of
+already-imported reserved pack rows as required by the impact specification.
 
-## 3. Security boundaries and limitations
+**Independent L5/owner acceptance remains PENDING. M2 is not automatically
+unlocked, and neither full Q2 nor enterprise production readiness is claimed.**
 
-- Core runtime `dependencies=[]` unchanged. stdlib-only audit/events/webhook.
-  HTTPS-only by default; metadata, non-global, private/reserved/multicast and
-  loopback destinations are blocked. DNS checks examine ALL addresses, reject
-  mixed private/public answers, and repeat at delivery. Actual connection is
-  pinned to a validated numeric IP; TLS verifies the ORIGINAL hostname. No proxy
-  environment use and NO redirect following. Explicit local test registration
-  AND dispatcher flags are both required for loopback HTTP.
-- Webhook secret is persisted in the trusted local SQLite subscription record,
-  never returned by registration or logged. The file must be host-access-
-  controlled. No KMS/encryption-at-rest claim. Registration is local/trusted
-  only; no remote subscription API or remotely supplied loopback switch exists.
-- Audit is append-only through SDK APIs and hash-chain tamper-evident, not an
-  externally anchored WORM service. A privileged DB attacker who rewrites the
-  whole chain, or removes only its unanchored tail, cannot intrinsically be
-  detected without a separately trusted last hash/count. Middle gaps and changed
-  stored fields are tested. Do not overstate cryptographic immutability.
-- External POST + local delivered-marker cannot be one atomic transaction.
-  Delivery is at-least-once across process crashes; stable IDs enable receiver
-  idempotency. A crash after POST before marker can repeat the same logical
-  delivery. Concurrent claims are serialized and processing has a 60s lease;
-  long handler runs beyond that lease require operational lease renewal/fencing
-  work before claiming strong concurrent/crash exactly-once semantics.
-- Dispatcher is a reusable module, NOT yet integrated with ImpactRadar. No
-  background worker is started automatically. Do not drain real events with
-  missing impact handlers and mistake them for completed impact processing.
+## 2. Implementation and commits
 
-## 4. Exact remaining implementation (must complete before M1 acceptance)
+- `b3fbb7a` — lossless v0/v1/v2→v3 SQLite migration. All nine exact new tables
+  and specified indexes; review_decisions, evidence_packs, connector_sync_state
+  reserved without future services. Version>3 rejects. Real prior-layout
+  fixtures check documents/versions/ACLs/anchors/issues byte-for-byte and force
+  DDL failure to prove rollback of schema and user_version.
+- `0e982c0` — frozen AuditEvent/AuditChainReport and tagged/public exports;
+  tenant-local atomic seq_no, canonical JSON SHA256 chain and physical-column
+  consistency verification. Full engine decisions and critical operations,
+  including trusted denials, are audited without source text. Tenant/self-only
+  ordinary audit queries; tenant-wide admin/manage_org/auditor; live source
+  policy/redaction filtering. No public ledger update/delete API.
+- `6a59b64` — atomic authoritative business write+Outbox, including revision,
+  archive/restore, rights/revoke/ACL and confirmed/pending/orphan reanchor events.
+  Atomic claims, expired leases, retry exponential backoff/default5, dead_letter,
+  stable event/delivery IDs, per-subscription success dedup and failure isolation.
+  DNS-pinned HMAC Webhooks with no proxies or redirects.
+- `b3fcd9a` — signed tenant audit query/verify and HTTP-client parity.
+- `54dca43` — historical partial checkpoint; no longer the current handoff.
+- `407bf7e` — exact frozen UsageEvent/ImpactAlert/ImpactReason contracts and
+  storage, real successful consume/attach/batch/final MCP delivery lineage,
+  original actor/agent/purpose/task/receipt hashes, policy-rechecked ImpactRadar,
+  preserved snapshots, signed impact list/ack/admin drain APIs+client parity.
+- `49a7cab` — successful write audits share the authoritative transaction; denial
+  audits survive rollback. Client→store lock order, stale worker fencing, old
+  tagged binding compatibility/private trusted identity context, stronger IPv6
+  translated/site-local SSRF defense.
+- `06fa3c5` — new event APIs require signed identity even in dev mode and return
+  no-store; tenant-wide operations reject mismatched/scoped/restricted agents;
+  preserves legacy inferred operation purpose while auditing actual purpose.
+- `6049de0` — fifteen distinct genuine G6 cases, measured audit/impact counters
+  with failing negative controls, complete real impact HTTP/Webhook wire probe,
+  isolated extracted-wheel verification and full regression assertions.
+- `6030721` — reject invalid administrative purpose BEFORE drain side effects,
+  retain actual policy_context generation/request/task in successful write audit,
+  and preserve attributes of injected policy engines through the audit delegate.
 
-1. `contracts/impact.py`: exact frozen UsageEvent, ImpactAlert, ImpactReason;
-   register tagged models and public exports. Add immutable usage/impact store
-   APIs to MetadataStore/SQLiteStore. Persist trusted historical actor/agent/
-   purpose information needed to re-evaluate original consumers; do not invent
-   privilege-bearing identities from untrusted strings.
-2. Real successful consume/attach lineage, including actual MCP search/pack
-   binding identity and task_id, real receipt hashes and anchors. Preserve all
-   existing snapshots and receipts; do not emit successful usage on denial.
-3. ImpactRadar: precise source/version/anchor matching; live PolicyEngine rights/
-   ACL tightening checks for each original consumer, all affected UsageEvents
-   and ConsumerBindings; identifier-only summaries; idempotence. Reserved
-   EvidencePack tables stay service-free but handle existing rows defensively.
-4. Tenant/owner/manager protected live-policy/redaction checked impact list/ack;
-   admin/internal drain (ensure a tenant admin cannot accidentally drain other
-   tenants' events). Install radar+Webhook handlers and deterministic convergence.
-   Signed `/v1/impact/alerts`, `/v1/impact/ack`, and client/protocol parity.
-5. G6-01..15 + runner metrics, preserving all original 60 cases unchanged;
-   benchmark75 and true impact completeness, integrity and <60s gate tests.
-6. Extend real loopback L3 probe with actual impact-alert endpoints and actual
-   end-to-end usage -> revision/revocation -> impact -> signed Webhook path.
-   Rerun ALL acceptance and build/wheel checks, update this report to actual
-   final status, then seek independent L5. Do NOT mark M1 accepted yet.
+## 3. Required impact and HTTP contracts
 
-## 5. Evidence and actual test results
+Usage rows come from actual consumed/partial MaterialReceipts, including final
+MCP search_evidence/get_evidence_pack delivery, not preliminary verification.
+UsageEvent and old receipts/versions/bindings have no replacement mutation API.
+Existing tagged binding JSON is still readable; no implicit migration/rewrite of
+old binding payloads occurs. New private storage records the trusted original
+actor/agent for policy re-evaluation, without exposing claims in alerts.
 
-Actual baseline: 350 passed / 96 skipped; old golden 60/60.
-Actual checkpoint stdlib: 373 passed / 96 skipped (469 run).
-Actual full-deps unittest: 466 passed / 3 skipped (469 run).
-Actual pytest: 466 passed / 3 skipped + 195 separately counted subtests;
-one upstream Starlette/httpx deprecation warning, no ResourceWarning.
-Checkpoint old golden: 60/60, ACL 0/20, zero implicit model calls.
-Build/AST3.9/extracted-wheel checks passed, as did actual signed audit HTTP and
-signed loopback Webhook delivery. See EVIDENCE_INDEX.md for commands and results. All raw failures are retained:
-initial command omitted PYTHONPATH; early migration expectations and copied
-probe issue-count assertions were corrected rather than hidden. A separate
-upstream Starlette/httpx deprecation warning is not a ResourceWarning.
-75-case JSON/report is deliberately NOT supplied: G6 has not been implemented.
-The current runner's `gate_passed=true` describes only its OLD 60-case gate,
-not the new M1 acceptance gate.
+ImpactRadar computes revision SUPERSEDED, archive RESOURCE_ARCHIVED,
+rights/revocation/ACL ACCESS_REVOKED, and exact anchor-id DRIFTED/ORPHANED targets.
+It reevaluates the original actor/agent/purpose, applies fail-closed redaction,
+and is idempotent on source event+target. Both actual usage and binding targets
+are represented. Scope-only pre-Q2 bindings are treated as subscriptions, not
+invented receipts. Existing reserved pack payloads/hashes remain untouched;
+only their separate status may become impacted. No pack service was created.
+
+Signed endpoint/client parity:
+- POST `/v1/audit/query`
+- POST `/v1/audit/verify`
+- POST `/v1/impact/alerts`
+- POST `/v1/impact/ack`
+- POST `/v1/events/drain` (alias `/v1/outbox/drain`)
+
+Audit queries isolate actor.org_id; ordinary actors cannot request another
+actor_id. Verify and drain require admin/manage_org; a tenant admin cannot claim
+foreign events. Impact list/ack require recorded target ownership, space manager
+or org-admin authority, current tenant/space checks and redaction. Revoked
+consumers may read ONLY opaque identifiers of their OWN alerts: live source-read
+DENY remains DENY, with no source/title/excerpt/receipt disclosure. Identical
+consumer_id/task_id strings owned by another person do not grant access.
+Unauthenticated forged claims are never accepted as a tenant audit identity.
+
+## 4. Actual acceptance results
+
+| Run | Actual result |
+|---|---|
+| Exact9c6a64b baseline stdlib | 446 run = **350 passed,96 skipped** |
+| Exact9c6a64b baseline full deps | 446 run = **443 passed,3 skipped**; pytest443 passed,3 skipped,167 separate subtests |
+| Exact baseline old golden | **60/60**, ACL0/20, implicit model calls0 |
+| Final stdlib, python3 -S -W error::ResourceWarning | 502 run = **404 passed,98 skipped**, no failures/ResourceWarning |
+| Final full-deps unittest, warning-strict | 502 run = **499 passed,3 skipped** |
+| Final full-deps pytest | **499 passed,3 skipped,200 separate subtests**; one upstream Starlette/httpx deprecation warning, not ResourceWarning |
+| Final benchmark75 | **75/75**, G6 **15/15**, no skips, ACL0/20, zero implicit model calls |
+| Measured audit-chain detection | **19/19**, including physical fields/encoded corruption and interior sequence loss |
+| Measured impact completeness | **45/45**, unexpected targets0 |
+| Genuine loopback impact wire integration | **7 unique Webhook deliveries**, **14/14 expected alert IDs** in signed bodies, valid signature accepted/tamper rejected, under60s |
+| AST3.9 | **67 src +5 benchmark files**, syntax parse passed |
+| Build/extracted wheel | sdist+wheel passed; isolated python-S third-party blocker, four MCP tools, actual stdio entrypoint, schema3, audit/usage/revision-impact assertions passed |
+
+The original golden v1 is byte-identical, and the first60 lines in v2 are
+identical. All60 original G1–G5 scenario function bodies are AST-identical to
+9c6a64b; runner changes add G6/metrics/default75 without weakening those bodies.
+`original60-preservation.log` records actual assertions. Fixture SHA256:
+`1b7c5ace8249495477457431e7b64f047868757ce28985ede56c483771b13fea`.
+Metric-negative-control tests disable the radar or falsely report a tampered
+chain valid and prove that completeness/detection and the overall gate fail.
+Counters are observations, not constant percentages. No independent run is
+implied by this executor's repeated local runs.
+
+Wheel SHA256:
+`752fd19e7d5416aee1f6051a52f00670f1ef6849b3763e9bda13275a1cfc6e03`.
+Core dependencies remain `[]`. Wheel metadata remains1.2.0; no release/tag or
+claim that all Q2 v2.0 is ready. AST3.9 is syntax evidence, NOT an actual Python3.9
+runtime run; actual runtime was Python3.13. Full-dependency skips are the three
+explicit opt-in live-Qdrant/real-embedding tests. Stdlib additionally skips
+optional HTTP dependencies. See EVIDENCE_INDEX.md for commands and raw logs.
+
+## 5. Security properties and honest limits
+
+1. **Audit:** SDK append-only, tenant hash-chain tamper-evident, not absolute WORM.
+   Changed fields/encoded data/interior seq gaps are detected. A privileged
+   attacker can rewrite an entire unanchored chain or remove its unanchored tail;
+   proving those cases requires a separately trusted external checkpoint/hash.
+   Usage immutability is likewise an SDK contract, not physical DB write defense.
+2. **Atomicity/idempotence:** successful authoritative write, audit and Outbox
+   share one transaction; failure rolls them back. Trusted denial decisions are
+   recorded after rollback. SQLite claims/fencing serialize workers and reject
+   stale attempts. However external POST+local success marker cannot be one
+   atomic transaction: delivery is **at-least-once across crashes**, never a claim
+   of exactly-once. Receiver dedup of stable IDs is required after a crash between
+   POST acceptance and local commit. Dead letters need host operational handling.
+3. **SSRF/Webhooks:** default HTTPS only, all DNS answers validated at registration
+   AND delivery; reject metadata/private/reserved/multicast/non-global/mixed DNS,
+   IPv6 mapped/translated/site-local/NAT64/6to4/Teredo. Pin actual peer to a valid
+   numeric IP while retaining original TLS hostname. No redirects or proxy env.
+   Loopback requires BOTH explicit subscription and trusted client/dispatcher test
+   flags. Registration is trusted local only; no remote secret or insecure-switch
+   API. Secrets reside in access-controlled SQLite, never returned/logged; no
+   encryption-at-rest or KMS claim. HMAC helper has300s freshness; stable-ID replay
+   dedup remains the receiver's responsibility.
+4. **Operations:** no automatic background worker is silently started. Hosts must
+   explicitly configure OutboxDispatcher with ImpactRadar(client) and
+   WebhookDispatcher(store), start/close it, or use signed tenant-admin drain.
+   SQLite network dispatch holds a writer transaction/client lock and can block
+   writers; this is not enterprise cluster throughput or an unconditional <60s
+   production SLA. The actual local benchmark/wire fixtures meet the required
+   <60s gate. M2 clustering/performance work remains out of scope.
+5. **Identity refresh:** original trusted claims are persisted. Hosts should
+   supply trusted identity_resolver(org_id,user_id,agent_id) for current role/
+   identity changes. Legacy bindings without claims are evaluated conservatively
+   unless a resolver supplies current trusted identity; no privileges are invented
+   from strings. No M4 SSO/SCIM implementation is claimed.
+6. **Acceptance boundary:** L4 remains NOT_RUN (no UI work). Independent L5 and
+   the owner's specified independent container rerun remain pending. The separate
+   architecture-v0.2 reference document was unavailable in this checkout.
 
 ## 6. Unchanged Q1 real-world gates
 
-No `v1.2.0` tag or Q1 real-world acceptance is assumed. Live Qdrant + real
-Embedding/semantic chain remain SKIPPED, actual reverse-proxy + host-session/
-CSRF + browser L4 remains NOT_RUN, PDF/OCR remains offline fixtures, and external
-Claude Desktop/Cursor design-partner ten-minute onboarding is PENDING_EXTERNAL.
-Independent L5 is still pending. The supplied architecture assessment is not
-this run's independent L5 evidence.
+No v1.2.0 tag or Q1 real-world acceptance is assumed. Online Qdrant plus actual
+Embedding/semantic chain remain SKIPPED; real proxy+host-session+CSRF+browser L4
+NOT_RUN; PDF/OCR offline fixtures only; external Claude Desktop/Cursor partner
+10-minute onboarding PENDING_EXTERNAL. The supplied architecture assessment is
+not current independent L5 proof. No unsupported uplift or production claim.
 
-## 7. Operational safety and Git
+## 7. Safety, provenance and next owner action
 
-Only the existing box checkout and disposable test DBs/ephemeral safe loopback
-listeners were used. No Mac checkout or services, existing production DBs,
-Qdrant collection, protected ports, .env.production, or StratAI scripts were
-modified. No paid/model/embedding calls. `reports/` stays untracked/uncommitted.
-No PR, main merge, force push, tag, release or deployment. The requested normal
-feature-branch push is a checkpoint, not permission to deploy or merge.
+Only the existing LOCAL BOX checkout, disposable DBs and safe ephemeral loopback
+listeners were used. No Mac, existing production service/database, Qdrant
+collection, protected port, .env.production or StratAI script was touched. No
+paid/model/embedding calls. reports/ remains untracked/uncommitted. No PR, merge
+main, force push, global git config, tag, release or deployment.
+
+Normal feature-branch push is owner-authorized. The final executor response
+records the pushed tip SHA and equality with git ls-remote; pushing this branch
+is not deployment or phase acceptance. Next owner step is independent review/
+rerun and explicit acceptance, not more M1 coding or automatic M2 work. Retained
+development failures and the superseded partial checkpoint are indexed honestly.

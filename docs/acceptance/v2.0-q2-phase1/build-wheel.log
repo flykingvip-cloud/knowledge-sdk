@@ -69,6 +69,7 @@ copying src/knowledge_sdk/contracts/__init__.py -> knowledge_sdk-1.2.0/src/knowl
 copying src/knowledge_sdk/contracts/anchors.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
 copying src/knowledge_sdk/contracts/audit.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
 copying src/knowledge_sdk/contracts/events.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/impact.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
 copying src/knowledge_sdk/contracts/issues.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
 copying src/knowledge_sdk/contracts/models.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
 copying src/knowledge_sdk/contracts/policy.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
@@ -78,6 +79,7 @@ copying src/knowledge_sdk/contracts/uri.py -> knowledge_sdk-1.2.0/src/knowledge_
 copying src/knowledge_sdk/events/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/events
 copying src/knowledge_sdk/events/outbox.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/events
 copying src/knowledge_sdk/impact/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/impact
+copying src/knowledge_sdk/impact/radar.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/impact
 copying src/knowledge_sdk/impact/webhook.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/impact
 copying src/knowledge_sdk/ingestion/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion
 copying src/knowledge_sdk/ingestion/fingerprint.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion
@@ -170,6 +172,7 @@ copying src/knowledge_sdk/contracts/__init__.py -> build/lib/knowledge_sdk/contr
 copying src/knowledge_sdk/contracts/models.py -> build/lib/knowledge_sdk/contracts
 copying src/knowledge_sdk/contracts/receipts.py -> build/lib/knowledge_sdk/contracts
 copying src/knowledge_sdk/contracts/issues.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/impact.py -> build/lib/knowledge_sdk/contracts
 copying src/knowledge_sdk/contracts/audit.py -> build/lib/knowledge_sdk/contracts
 copying src/knowledge_sdk/contracts/anchors.py -> build/lib/knowledge_sdk/contracts
 copying src/knowledge_sdk/contracts/reanchor.py -> build/lib/knowledge_sdk/contracts
@@ -213,6 +216,7 @@ copying src/knowledge_sdk/mcp/gateway.py -> build/lib/knowledge_sdk/mcp
 copying src/knowledge_sdk/mcp/protocol.py -> build/lib/knowledge_sdk/mcp
 creating build/lib/knowledge_sdk/impact
 copying src/knowledge_sdk/impact/webhook.py -> build/lib/knowledge_sdk/impact
+copying src/knowledge_sdk/impact/radar.py -> build/lib/knowledge_sdk/impact
 copying src/knowledge_sdk/impact/__init__.py -> build/lib/knowledge_sdk/impact
 creating build/lib/knowledge_sdk/ingestion
 copying src/knowledge_sdk/ingestion/__init__.py -> build/lib/knowledge_sdk/ingestion
@@ -272,6 +276,7 @@ copying build/lib/knowledge_sdk/contracts/__init__.py -> build/bdist.linux-x86_6
 copying build/lib/knowledge_sdk/contracts/models.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
 copying build/lib/knowledge_sdk/contracts/receipts.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
 copying build/lib/knowledge_sdk/contracts/issues.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/impact.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
 copying build/lib/knowledge_sdk/contracts/audit.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
 copying build/lib/knowledge_sdk/contracts/anchors.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
 copying build/lib/knowledge_sdk/contracts/reanchor.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
@@ -322,6 +327,7 @@ copying build/lib/knowledge_sdk/mcp/gateway.py -> build/bdist.linux-x86_64/wheel
 copying build/lib/knowledge_sdk/mcp/protocol.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/mcp
 creating build/bdist.linux-x86_64/wheel/knowledge_sdk/impact
 copying build/lib/knowledge_sdk/impact/webhook.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/impact
+copying build/lib/knowledge_sdk/impact/radar.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/impact
 copying build/lib/knowledge_sdk/impact/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/impact
 creating build/bdist.linux-x86_64/wheel/knowledge_sdk/ingestion
 copying build/lib/knowledge_sdk/ingestion/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ingestion
@@ -340,7 +346,7 @@ running install_egg_info
 Copying src/knowledge_sdk.egg-info to build/bdist.linux-x86_64/wheel/./knowledge_sdk-1.2.0-py3.13.egg-info
 running install_scripts
 creating build/bdist.linux-x86_64/wheel/knowledge_sdk-1.2.0.dist-info/WHEEL
-creating '/workspace/knowledge-sdk/dist/.tmp-fykhqpg8/knowledge_sdk-1.2.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+creating '/workspace/knowledge-sdk/dist/.tmp-z0abtj6g/knowledge_sdk-1.2.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
 adding 'knowledge_sdk/__init__.py'
 adding 'knowledge_sdk/exceptions.py'
 adding 'knowledge_sdk/audit/__init__.py'
@@ -354,6 +360,7 @@ adding 'knowledge_sdk/contracts/__init__.py'
 adding 'knowledge_sdk/contracts/anchors.py'
 adding 'knowledge_sdk/contracts/audit.py'
 adding 'knowledge_sdk/contracts/events.py'
+adding 'knowledge_sdk/contracts/impact.py'
 adding 'knowledge_sdk/contracts/issues.py'
 adding 'knowledge_sdk/contracts/models.py'
 adding 'knowledge_sdk/contracts/policy.py'
@@ -363,6 +370,7 @@ adding 'knowledge_sdk/contracts/uri.py'
 adding 'knowledge_sdk/events/__init__.py'
 adding 'knowledge_sdk/events/outbox.py'
 adding 'knowledge_sdk/impact/__init__.py'
+adding 'knowledge_sdk/impact/radar.py'
 adding 'knowledge_sdk/impact/webhook.py'
 adding 'knowledge_sdk/ingestion/__init__.py'
 adding 'knowledge_sdk/ingestion/fingerprint.py'
@@ -418,8 +426,3 @@ adding 'knowledge_sdk-1.2.0.dist-info/top_level.txt'
 adding 'knowledge_sdk-1.2.0.dist-info/RECORD'
 removing build/bdist.linux-x86_64/wheel
 Successfully built knowledge_sdk-1.2.0.tar.gz and knowledge_sdk-1.2.0-py3-none-any.whl
-Python3.9 AST PASS src 65 files; not an actual3.9 runtime
-Python3.9 AST PASS tests/benchmark 4 files; not an actual3.9 runtime
-Extracted-wheel python -S / third-party blocker / four tools / real console entrypoint stdio PASS
-Version/core zero dependencies/exact mcp HTTP extra/schema3/UI resources/entrypoint PASS
-Wheel knowledge_sdk-1.2.0-py3-none-any.whl SHA256 f867f55eed0f675eccfe42e74394d435b3c612c5ac7ff90777238d0082cc1759
