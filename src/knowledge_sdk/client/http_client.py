@@ -6,6 +6,7 @@ from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 from ..contracts.models import encode, decode
+from ..contracts.policy import AgentIdentity, Purpose, enum_value
 from ..server.auth import signed_headers
 from .. import exceptions
 from .local import LocalKnowledgeClient
@@ -28,6 +29,7 @@ OPERATIONS={
     "can_manage_kb":("POST","/v1/kbs/can-manage"), "can_upload_to_kb":("POST","/v1/kbs/can-upload"),
     "inspect_document":("POST","/v1/documents/inspect"),
     "list_consumer_bindings":("GET","/v1/bindings"),
+    "evaluate_policy":("POST","/v1/policy/evaluate"), "set_document_rights":("POST","/v1/documents/rights"),
     "reindex":("POST","/v1/reindex")}
 
 class HttpKnowledgeClient:
@@ -39,6 +41,13 @@ class HttpKnowledgeClient:
         self.base_url=base_url.rstrip("/"); self.auth_secret=auth_secret; self.dev_insecure=dev_insecure; self.timeout=timeout
     def _call(self,name,actor,params):
         method,path=OPERATIONS[name]
+        agent=params.pop("agent",None); purpose=params.pop("purpose",None)
+        context=params.pop("policy_context",None)
+        if context is not None: raise exceptions.ValidationError("HTTP policy context is server-controlled")
+        if agent is not None and not isinstance(agent,AgentIdentity): raise exceptions.ValidationError("Expected AgentIdentity")
+        if purpose is not None: purpose=enum_value(Purpose,purpose).value
+        if self.dev_insecure and (agent is not None or purpose is not None):
+            raise exceptions.ValidationError("Policy extensions require signed authentication")
         if name == "ask":
             if params.get("generator") is not None:
                 raise exceptions.ValidationError("HTTP generators are configured server-side, never serialized")
@@ -52,7 +61,7 @@ class HttpKnowledgeClient:
         headers={"Content-Type":"application/json"}
         if self.dev_insecure:
             headers["X-KB-Actor"]=base64.urlsafe_b64encode(json.dumps(actor.__dict__).encode()).decode()
-        else: headers.update(signed_headers(actor,self.auth_secret,method,path,body))
+        else: headers.update(signed_headers(actor,self.auth_secret,method,path,body,agent=agent.to_dict() if agent is not None else None,purpose=purpose))
         req=Request(self.base_url+path,data=body if method!="GET" else None,headers=headers,method=method)
         try:
             with urlopen(req,timeout=self.timeout) as response: return decode(json.load(response))
@@ -68,7 +77,11 @@ class HttpKnowledgeClient:
 def _method(name):
     signature=inspect.signature(getattr(LocalKnowledgeClient,name))
     def call(self,*args,**kwargs):
-        bound=signature.bind(self,*args,**kwargs); bound.apply_defaults(); values=dict(bound.arguments)
+        bound=signature.bind(self,*args,**kwargs)
+        explicit={k:v for k,v in bound.arguments.items() if k in ("agent","purpose","policy_context")}
+        bound.apply_defaults(); values=dict(bound.arguments)
+        for key in ("agent","purpose","policy_context"): values.pop(key,None)
+        values.update(explicit)
         values.pop("self"); actor=values.pop("actor")
         return self._call(name,actor,values)
     call.__name__=name; call.__signature__=signature

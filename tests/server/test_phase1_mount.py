@@ -143,7 +143,9 @@ class Phase1MountTests(unittest.TestCase):
         self.assertEqual(client.get(path, headers=h).json(), {'agent':None,'purpose':'read'})
         agent = {'agent_id':'a','org_id':'org1'}
         h = signed_headers(ACTOR, SECRET, 'GET', path, agent=agent, purpose='export')
-        self.assertEqual(client.get(path, headers=h).json(), {'agent':agent,'purpose':'export'})
+        # Q1-M2 requires typed AgentIdentity in request.state (defaults included).
+        from knowledge_sdk import AgentIdentity
+        self.assertEqual(client.get(path, headers=h).json(), {'agent':AgentIdentity.from_dict(agent).to_dict(),'purpose':'export'})
         h['X-KB-Purpose'] = 'eval_and_train'
         self.assertEqual(client.get(path, headers=h).status_code, 401)
         h['X-KB-Purpose'] = 'invalid'

@@ -6,6 +6,7 @@ import json
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from ..contracts.models import encode, decode
+from ..contracts.policy import AgentIdentity, Purpose
 from ..exceptions import KnowledgeSDKError, PermissionDeniedError, NotFoundError, ConflictError, ValidationError
 from ..client.http_client import OPERATIONS
 from .auth import verify_headers, InMemoryReplayStore, extension_claims, _validate_secrets
@@ -51,7 +52,9 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
         target=raw_path+("?"+request.url.query if request.url.query else "")
         try:
             request.state.actor=verify_headers(request.headers,auth_secret,request.method,target,body,dev_insecure=dev_insecure,replay_store=replay_store,fallback_secrets=fallback_secrets)
-            request.state.agent, request.state.purpose = extension_claims(request.headers, request.state.actor)
+            agent, purpose = extension_claims(request.headers, request.state.actor)
+            request.state.agent = AgentIdentity.from_dict(agent) if agent is not None else None
+            request.state.purpose = Purpose(purpose)
         except ValidationError:
             return JSONResponse(status_code=401,content={"error":"PermissionDeniedError","message":"Invalid request authentication"})
         return await call_next(request)
@@ -65,14 +68,20 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
                     envelope=await request.json()
                     if not isinstance(envelope,dict): raise ValidationError("Expected request object")
                     params=decode(envelope.get("params",{}))
-                if not isinstance(params,dict) or "actor" in params or "self" in params: raise ValidationError("Invalid parameters")
+                if not isinstance(params,dict) or set(params) & {"actor","self","agent","purpose","policy_context"}: raise ValidationError("Invalid parameters")
                 if operation=="ingest" and "content_b64" in params:
                     params["content"]=base64.b64decode(params.pop("content_b64"),validate=True)
                 if operation == "ask":
                     if "generator" in params: raise ValidationError("Generators must be configured server-side")
                     params["generator"] = answer_generator
                 method=getattr(client,operation)
-                inspect.signature(method).bind(actor=request.state.actor,**params)
+                signature=inspect.signature(method)
+                if "agent" in signature.parameters: params["agent"]=request.state.agent
+                # Absent purpose on old ask calls must preserve explicit-vs-inferred
+                # semantics for a server-configured generator.
+                if "purpose" in signature.parameters and (operation != "ask" or "x-kb-purpose" in request.headers):
+                    params["purpose"]=request.state.purpose
+                signature.bind(actor=request.state.actor,**params)
             except (TypeError,ValueError,KeyError) as exc: raise ValidationError("Invalid request parameters") from exc
             return encode(method(actor=request.state.actor,**params))
         handle.__name__=operation
@@ -83,21 +92,25 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
             extra["requestBody"]={"required":True,"content":{"application/json":{"schema":{"type":"object","required":["params"],"properties":{"params":{"type":"object","description":"See docs/api-contract.md for operation parameters"}}}}}}
         app.add_api_route(path,endpoint(name),methods=[verb],operation_id=name,openapi_extra=extra)
     # Resource-oriented aliases. Same domain methods/authorization as transport operations.
+    def trusted_context(request):
+        return dict(agent=request.state.agent,purpose=request.state.purpose)
     @app.get("/v1/documents/{doc_id}/versions/{version}")
     async def get_version(doc_id:str,version:int,request:Request):
-        return encode(client.get_document(request.state.actor,doc_id,version))
+        return encode(client.get_document(request.state.actor,doc_id,version,**trusted_context(request)))
     @app.post("/v1/documents/{doc_id}/archive")
-    async def archive(doc_id:str,request:Request): return encode(client.archive(request.state.actor,doc_id))
+    async def archive(doc_id:str,request:Request): return encode(client.archive(request.state.actor,doc_id,**trusted_context(request)))
     @app.post("/v1/documents/{doc_id}/restore")
-    async def restore(doc_id:str,request:Request): return encode(client.restore(request.state.actor,doc_id))
+    async def restore(doc_id:str,request:Request): return encode(client.restore(request.state.actor,doc_id,**trusted_context(request)))
     @app.post("/v1/documents/{doc_id}/acl")
     async def acl(doc_id:str,request:Request):
         try:
             from ..contracts.models import DocumentACL
-            body=await request.json(); value=decode(body.get("acl",body))
+            body=await request.json()
+            if not isinstance(body,dict) or set(body) & {"actor","self","agent","purpose","policy_context"}: raise ValidationError("Invalid parameters")
+            value=decode(body.get("acl",body))
             if isinstance(value,dict): value=DocumentACL(**value)
         except (ValueError,TypeError) as exc: raise ValidationError("Invalid ACL") from exc
-        return encode(client.set_document_acl(request.state.actor,doc_id,value))
+        return encode(client.set_document_acl(request.state.actor,doc_id,value,**trusted_context(request)))
     original_openapi=app.openapi
     def openapi():
         schema=original_openapi()

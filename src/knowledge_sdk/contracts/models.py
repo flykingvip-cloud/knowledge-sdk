@@ -205,6 +205,7 @@ class RetrieveResponse:
     next_offset: Optional[int]
     source_uri: str
     chunk_ids: List[str] = field(default_factory=list)
+    masking_summary: str = ""
 
 def _snake(name: str) -> str:
     import re
