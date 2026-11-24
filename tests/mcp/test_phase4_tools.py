@@ -140,6 +140,17 @@ class ToolTests(unittest.TestCase):
         with patch.object(self.t,'_unit',side_effect=update):out=self.call('search_evidence',query='alpha')
         self.assertEqual(out['hits'],[])
 
+    def test_pack_noncommutative_profiles_follow_global_intersection_order(self):
+        self.c.ingest(self.admin,'k','alpha secret',doc_id='other')
+        self.c.redaction_registry.register('p',RegexRedactionHook([('secret','intermediate')]))
+        self.c.redaction_registry.register('q',RegexRedactionHook([('intermediate','[MASK]')]))
+        self.c.set_document_rights(self.admin,'d',ResourceRights(redaction_profile='p'))
+        self.c.set_document_rights(self.admin,'other',ResourceRights(redaction_profile='q'))
+        result=self.call('get_evidence_pack',source_uris=[self.uri,build_uri('o','other',1)])
+        self.assertEqual(result['status'],'ok')
+        for item in result['items']:
+            self.assertIn('[MASK]',item['excerpt']);self.assertNotIn('secret',item['excerpt']);self.assertNotIn('intermediate',item['excerpt'])
+
 
 class GatewayTests(unittest.TestCase):
     def setUp(self):

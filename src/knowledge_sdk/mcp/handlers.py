@@ -59,7 +59,7 @@ def plain(value):
 
 class _IntersectionEngine:
     def __init__(self,authority,derived):self.authority=authority;self.derived=derived
-    def evaluate(self,*args,**kwargs):return intersect_decisions((self.authority.evaluate(*args,**kwargs),self.derived))
+    def evaluate(self,*args,**kwargs):return intersect_decisions((self.derived,self.authority.evaluate(*args,**kwargs)))
 
 
 class EvidenceTools:
@@ -150,9 +150,10 @@ class EvidenceTools:
     def _verify_citation(self,context,source_uri,excerpt_hash=None,check_latest_version=True):
         item,ref,decision,d=self._unit(context,source_uri,allow_unavailable=True)
         if self.client.evaluate_policy(context.actor,ref.doc_id,**self._ctx(context))!=decision:raise PermissionDeniedError('access_denied')
+        current=self.client._read(context.actor,ref.doc_id,**self._ctx(context))
         state=item['anchor'].reanchor_status.value if item['anchor'] is not None else None
         if excerpt_hash is not None and not hmac.compare_digest(excerpt_hash,ref.excerpt_hash):
-            return {'valid':False,'current_status':'tampered','latest_version':d.current_version,'reanchor_status':state,'receipt':None}
+            return {'valid':False,'current_status':'tampered','latest_version':current.current_version,'reanchor_status':state,'receipt':None}
         receipt=self.client.verify_ref(context.actor,ref,**self._ctx(context))
         if self.client.evaluate_policy(context.actor,ref.doc_id,**self._ctx(context))!=decision:raise PermissionDeniedError('access_denied')
         current=self.client._read(context.actor,ref.doc_id,**self._ctx(context))
