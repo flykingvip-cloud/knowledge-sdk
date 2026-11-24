@@ -28,7 +28,7 @@ def v2_database(path):
         db.execute('PRAGMA user_version=2')
         db.commit()
     # Populate every old table using Q1's exact implementation (v3 disabled).
-    with patch.object(SQLiteStore, '_V3_SCHEMA', ''):
+    with patch.object(SQLiteStore, '_V3_SCHEMA', ''), patch.object(LocalKnowledgeClient, '_audit_operation', lambda *a, **k: None):
         with closing(SQLiteStore(path)) as store:
             client = LocalKnowledgeClient(store=store)
             actor = Actor('owner', 'org')

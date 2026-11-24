@@ -16,7 +16,7 @@ class IssueTests(unittest.TestCase):
         before=self.snapshot();issue=self.issue();self.assertIsInstance(issue,EvidenceIssue)
         self.assertEqual(issue.status,'open');self.assertEqual(issue.reported_by_user_id,'u');self.assertEqual(decode(encode(issue)),issue)
         self.assertEqual(self.snapshot(),before);self.assertEqual(self.c.store.get_issue('o',issue.issue_id),issue)
-        self.assertEqual(self.c.list_evidence_issues(self.u),[issue]);self.assertEqual(self.c.store.db.execute('PRAGMA user_version').fetchone()[0],2)
+        self.assertEqual(self.c.list_evidence_issues(self.u),[issue]);self.assertEqual(self.c.store.db.execute('PRAGMA user_version').fetchone()[0],3)
         with self.assertRaises(FrozenInstanceError):issue.status='resolved'
     def test_strict_scalar_controls_utc_unknown_and_uri(self):
         issue=self.issue()

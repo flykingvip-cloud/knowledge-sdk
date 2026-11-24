@@ -3,6 +3,7 @@ import knowledge_sdk
 from datetime import datetime, timezone
 from functools import wraps
 import threading
+import inspect
 import uuid
 import math
 from typing import Optional, Sequence, List
@@ -32,10 +33,38 @@ from ..retrieval.hybrid import search as run_search
 from ..retrieval.excerpt import make_excerpt
 
 def serialized(method):
+    signature = inspect.signature(method)
+    audited = method.__name__ in {
+        'ingest','archive','restore','set_document_acl','set_document_rights',
+        'search','retrieve','consume','attach','confirm_anchor_reanchor',
+        'report_evidence_issue','get_document','reference'}
     @wraps(method)
     def wrapped(self,*args,**kwargs):
-        with self._lock: return method(self,*args,**kwargs)
+        with self._lock:
+            values = signature.bind(self,*args,**kwargs).arguments
+            actor = values.get('actor')
+            try:
+                result = method(self,*args,**kwargs)
+            except PermissionDeniedError:
+                if actor is not None:
+                    self._audit_operation(actor,method.__name__,values,None,denied=True)
+                raise
+            if audited and actor is not None:
+                self._audit_operation(actor,method.__name__,values,result)
+            return result
     return wrapped
+
+class _AuditedEngine:
+    """Capture decisions made by retrieval too, not just direct evaluate_policy."""
+    def __init__(self, client, delegate):
+        self.client=client;self.delegate=delegate
+    def evaluate(self, actor, agent, kb, document=None, acl=None, member_role=None,
+                 action=PolicyAction.READ_CONTENT, purpose=Purpose.READ, context=None):
+        decision=self.delegate.evaluate(actor,agent,kb,document,acl,member_role,action,purpose,context)
+        self.client._audit_operation(actor,'evaluate_policy',
+                    {'agent':agent,'purpose':purpose,'doc_id':document.doc_id if document else ''},decision)
+        return decision
+
 
 class LocalKnowledgeClient:
     """Trusted in-process API. Caller supplies an authenticated Actor, not user input."""
@@ -47,6 +76,60 @@ class LocalKnowledgeClient:
         if (vector_index is None)!=(embedder is None): raise ValidationError("Provide both vector_index and embedder")
         self.vector_index=vector_index; self.embedder=embedder; self.excerpt_policy=excerpt_policy or ExcerptPolicy()
         self._lock=threading.RLock()
+    @property
+    def policy_engine(self): return self._policy_engine
+    @policy_engine.setter
+    def policy_engine(self, value): self._policy_engine=_AuditedEngine(self,value)
+
+    def _audit_operation(self, actor, action, values, result, denied=False):
+        from ..audit.ledger import append
+        # Legacy host adapters may not yet implement the new optional ledger.
+        if not hasattr(self.store,'append_audit_event'): return
+        ref=values.get('ref')
+        doc_id=values.get('doc_id') or getattr(ref,'doc_id','') or getattr(result,'doc_id','')
+        effect=DecisionEffect.DENY if denied else DecisionEffect.ALLOW
+        reason='permission_denied' if denied else 'ok'
+        profile=''
+        if action=='evaluate_policy' and result is not None:
+            effect=result.effect;reason=result.reason_code;profile=result.redaction_profile
+        elif isinstance(result,MaterialReceipt) and result.status not in ('consumed','partial'):
+            effect=DecisionEffect.DENY;reason=result.reason_code or 'unavailable'
+        append(self.store,actor,action,agent=values.get('agent'),
+               purpose=values.get('purpose',Purpose.READ),doc_id=doc_id,
+               effect=effect,reason=reason,redaction_profile=profile,
+               policy_generation=getattr(result,"policy_generation",actor.policy_generation))
+
+    @staticmethod
+    def _audit_admin(actor):
+        return bool(set(actor.org_roles).intersection(('admin','manage_org','auditor')))
+
+    @serialized
+    def query_audit_events(self,actor,*,doc_id=None,actor_id=None,action=None,since=None,until=None,limit=100,agent=None,purpose=Purpose.READ,policy_context=None):
+        if not self._audit_admin(actor):
+            if actor_id is not None and actor_id!=actor.user_id:
+                raise PermissionDeniedError('audit_scope_denied')
+            actor_id=actor.user_id
+        events=self.store.list_audit_events(actor.org_id,doc_id=doc_id,actor_id=actor_id,
+                    action=action,since=since,until=until,limit=limit)
+        result=[]
+        for event in events:
+            if event.doc_id:
+                try:
+                    decision=self.evaluate_policy(actor,event.doc_id,agent=agent,purpose=purpose,policy_context=policy_context)
+                    if not decision.allowed: continue
+                    if decision.effect==DecisionEffect.ALLOW_WITH_REDACTION:
+                        self.redaction_registry.apply('',decision.redaction_profile,purpose)
+                except (NotFoundError,PermissionDeniedError): continue
+            result.append(event)
+        return result
+
+    @serialized
+    def verify_audit_chain(self,actor,*,from_seq=1,to_seq=None,agent=None,purpose=Purpose.READ,policy_context=None):
+        from ..audit.ledger import verify_audit_chain
+        if not set(actor.org_roles).intersection(('admin','manage_org')):
+            raise PermissionDeniedError('audit_admin_required')
+        return verify_audit_chain(self.store,actor.org_id,from_seq=from_seq,to_seq=to_seq)
+
     def _kb(self,actor,kb_id,write=False,admin=False,*,agent=None,purpose=Purpose.READ,policy_context=None):
         kb=self.store.get_kb(kb_id)
         action = PolicyAction.MANAGE_SPACE if admin else PolicyAction.WRITE_DOCUMENT if write else PolicyAction.READ_CONTENT

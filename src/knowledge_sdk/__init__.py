@@ -25,3 +25,5 @@ from .ingestion.parsers.layout import ParsedSpan, LayoutParseResult, LayoutParse
 from .contracts.reanchor import build_anchors_from_layout, reanchor_to_version
 
 from .contracts.issues import EvidenceIssue, IssueType
+
+from .contracts.audit import AuditEvent, AuditChainReport

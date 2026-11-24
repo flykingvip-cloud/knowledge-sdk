@@ -140,7 +140,7 @@ class SQLiteReplayTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             SQLiteReplayStore(self.path)
         with closing(sqlite3.connect(self.path)) as conn, conn:
-            self.assertEqual(conn.execute('PRAGMA user_version').fetchone()[0], 2)
+            self.assertEqual(conn.execute('PRAGMA user_version').fetchone()[0], 3)
             self.assertNotIn('auth_replay', [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")])
 
     def test_dedicated_on_disk_required(self):

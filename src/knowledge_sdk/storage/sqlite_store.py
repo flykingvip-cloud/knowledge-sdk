@@ -358,3 +358,39 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
             if not isinstance(status,str) or status not in ISSUE_STATUSES:raise ValidationError('Invalid status')
             sql+=' AND status=?';args.append(status)
         return [decode(json.loads(row[0])) for row in self._execute(sql+' ORDER BY created_at,issue_id',args)]
+
+    @staticmethod
+    def _audit_from_row(row):
+        return decode(json.loads(row[-1]))
+
+    def append_audit_event(self,event):
+        from dataclasses import replace
+        from ..contracts.audit import AuditEvent,audit_hash
+        from ..audit.ledger import COLUMNS
+        if not isinstance(event,AuditEvent):raise ValidationError('Expected AuditEvent')
+        with self._write_scope():
+            rows=self._execute('SELECT seq_no,event_hash FROM audit_events WHERE org_id=? ORDER BY seq_no DESC LIMIT 1',(event.org_id,))
+            seq,previous=(rows[0][0]+1,rows[0][1]) if rows else (1,'0'*64)
+            event=replace(event,seq_no=seq,prev_hash=previous)
+            event=replace(event,event_hash=audit_hash(event))
+            values=event.to_dict()
+            self._execute('INSERT INTO audit_events VALUES('+','.join('?' for _ in range(17))+')',
+                          tuple(values[c] for c in COLUMNS)+(self._dump(event),))
+        return event
+
+    def list_audit_events(self,org_id,*,doc_id=None,actor_id=None,action=None,since=None,until=None,limit=100):
+        from ..contracts.policy import parse_time
+        if type(limit) is not int or not 1<=limit<=1000:raise ValidationError('Invalid audit limit')
+        sql='SELECT data FROM audit_events WHERE org_id=?';args=[org_id]
+        for name,value in (('doc_id',doc_id),('actor_id',actor_id),('action',action)):
+            if value is not None:sql+=' AND '+name+'=?';args.append(value)
+        for op,value in (('>=',since),('<=',until)):
+            if value is not None:
+                parse_time(value);sql+=' AND julianday(occurred_at)'+op+'julianday(?)';args.append(value)
+        args.append(limit)
+        return [decode(json.loads(r[0])) for r in self._execute(sql+' ORDER BY seq_no LIMIT ?',args)]
+
+    def iter_audit_chain(self,org_id,from_seq=1,to_seq=None):
+        sql='SELECT * FROM audit_events WHERE org_id=? AND seq_no>=?';args=[org_id,from_seq]
+        if to_seq is not None:sql+=' AND seq_no<=?';args.append(to_seq)
+        return iter(self._execute(sql+' ORDER BY seq_no',args))
