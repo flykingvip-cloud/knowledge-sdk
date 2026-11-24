@@ -3,6 +3,8 @@ from dataclasses import dataclass, field, asdict
 from typing import Any, Dict, List, Optional, Tuple
 from enum import Enum
 from ..exceptions import ValidationError
+from .anchors import (SelectorKind, ReanchorStatus, TextQuoteSelector, PdfBBoxSelector, TableCellSelector, SectionQuoteSelector, EvidenceAnchor)
+from .uri import ParsedKBURI
 from .policy import (AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision, Purpose, PolicyAction, DecisionEffect, GovernanceTier, parse_time)
 
 class SpaceType(str, Enum):
@@ -152,6 +154,10 @@ class KnowledgeRef:
     chunk_ids: List[str] = field(default_factory=list)
     excerpt: str = ""
     excerpt_hash: str = ""
+    anchor_id: str = ""
+
+    def __post_init__(self):
+        if not isinstance(self.anchor_id,str): raise ValidationError("Invalid anchor_id")
 
 @dataclass
 class MaterialReceipt:
@@ -192,6 +198,10 @@ class SearchHit:
 class SearchResponse:
     hits: List[SearchHit] = field(default_factory=list)
     mode: str = "keyword"
+    candidate_budget_exhausted: bool = False
+
+    def __post_init__(self):
+        if type(self.candidate_budget_exhausted) is not bool: raise ValidationError("Invalid candidate budget flag")
 
 @dataclass
 class RetrieveResponse:
@@ -301,7 +311,7 @@ class KnowledgeAnswer:
 
 # Tagged transport serialization avoids guessing model types or exposing pickle.
 _MODELS = {c.__name__: c for c in (Actor, KnowledgeBase, Document, DocumentVersion, Chunk,
-    DocumentACL, KnowledgeRef, MaterialReceipt, ExcerptPolicy, SearchHit, SearchResponse, RetrieveResponse, KnowledgeScope, ConsumerBinding, Attachment, GeneratedAnswer, KnowledgeAnswer, AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision)}
+    DocumentACL, KnowledgeRef, MaterialReceipt, ExcerptPolicy, SearchHit, SearchResponse, RetrieveResponse, KnowledgeScope, ConsumerBinding, Attachment, GeneratedAnswer, KnowledgeAnswer, AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision, ParsedKBURI, TextQuoteSelector, PdfBBoxSelector, TableCellSelector, SectionQuoteSelector, EvidenceAnchor)}
 def encode(value):
     if isinstance(value, Enum): return value.value
     if type(value).__name__ in _MODELS:

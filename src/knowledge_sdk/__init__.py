@@ -17,3 +17,6 @@ from .permissions import can_manage_kb, can_upload_to_kb, expand_department_ance
 from .contracts.policy import (Purpose, PolicyAction, DecisionEffect, GovernanceTier, AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision)
 from .permissions.engine import KnowledgePolicyEngine, DefaultPolicyEngine, intersect_decisions
 from .permissions.redaction import RedactionHook, RedactionRegistry, RegexRedactionHook
+
+from .contracts.anchors import (SelectorKind, ReanchorStatus, TextQuoteSelector, PdfBBoxSelector, TableCellSelector, SectionQuoteSelector, EvidenceAnchor)
+from .contracts.uri import ParsedKBURI, parse_uri_v2
