@@ -1,50 +1,33 @@
-# Q1-M4 deterministic golden gate (exactly 60)
+# Exact60 taskbook golden cases
 
-`golden.jsonl` is the frozen case index: `case_id`, `group`, distinct executable
-`scenario`, shared fixture factory + explicit parameters, concrete `expected`.
-The named functions in `run.py` construct and exercise the actual client,
-engine, anchor/reanchor, gateway and MCP handlers; they do not compare two
-static lists. Each scenario has a different safety/correctness condition, not
-an ID-renamed duplicate. Expected values drive refusal/recall/state/selector
-assertions; extra assertions protect policy and receipt invariants.
+Authoritative index: `golden_cases_v1.jsonl`, each case has exactly
+case_id/group/title/scenario/expected. Runner: `runner.py`; unittest gate:
+`test_golden_benchmark.py`; existing CI core jobs run the same hard gate.
 
 ```sh
-PYTHONPATH=src python3 -S -W error::ResourceWarning -m tests.benchmark.run \
-  --json-output docs/acceptance/v1.2-phase4/benchmark-metrics.json \
-  --report docs/acceptance/v1.2-phase4/benchmark-report.md
+PYTHONPATH=src python3 -S -W error::ResourceWarning -m tests.benchmark.runner --json
 ```
 
-Exactly G1=20, G2=10, G3=10, G4=10, G5=10; no skips. Any failed scenario exits
-nonzero. One unittest `GoldenGate` invokes this same suite; it is **not** 60
-additional unittest methods. The existing GitHub CI core jobs run the CLI as
-an explicit hard gate. No new CI provider or paid service was created.
+G1=20 security scenarios; G2=10 distinct refusal paths with real generator-spy
+calls (including pre-generation revocation and an authorized extractive positive
+control); G3=10 bounded fetch/scope/RRF/redaction scenarios; G4=10 physical-anchor
+fixtures/states/history/confirmation/redaction; G5=10 JSON-RPC/tool/queue/auth/stdio
+scenarios. No network/model is used, no skips allowed, any failure nonzero.
+Stdio case launches a real -S subprocess; the HTTP-auth case calls the SAME production
+GatewayAuthenticator.authorize_http HMAC/replay adapter, not a stubbed401. Actual
+optional FastAPI wire is separately tested at L3, not inferred from a handler call.
 
-- G1: tenant/department hierarchy/owner/admin/role denies, historical current
-  revocation, agent scope/clearance/purpose, rights, missing redaction, forged
-  vectors, uniform denial/no existence metadata.
-- G2: 10 real no-evidence executions with generator invocation counters. The
-  tenth also verifies a valid authorized positive answer using the existing
-  local extractive generator, so universal refusal does not pass.
-- G3: eight measurable Recall@5 fixtures; SQLite FTS and an explicit offline
-  vector stub, no model rankings. Two additional deliberate exact500/>500
-  cap negatives. Scope outside 600 candidates is SQL-filtered before budget.
-- G4: host-provided **offline PDF layout fixture** (not PDF/OCR parsing), CSV
-  scientific literals, stable unique IDs, ambiguity/structure drift, orphan,
-  authorized confirmation, quote/hash tampering.
-- G5: authenticated context/HMAC/replay, runtime identity and purpose injection,
-  parallel isolation, genuine client receipts, collective pack obligations,
-  inert review queue/no document mutations and cross-tenant conflict denial.
+Metrics: acl_violation_rate counts failed G1 safety assertions /20 scenarios;
+refusal_accuracy passes/10 G2; implicit_model_calls sums measured generator spies;
+reanchor_accuracy passes/10 G4; mcp_pass_rate passes/10 G5. The36 attempted identity
+injections (9 forbidden fields x4 otherwise-valid tools) have positive controls
+and their own actual blocked count. Safety and positive-control failures are distinct.
+All60 passing, zero safety/model failures and complete denominators are hard gates.
+Seven applicable fixed SQLite FTS / offline hybrid-stub fixtures have actual Recall@k
+(usually5; the550-noise fixture has3 targets); no real semantic rankings, baseline
+uplift or online performance claim. Exact500 and >500 negatives are separate.
 
-Metric denominators are limited to the described measured scenarios: ACL
-0/20 G1 safety violations; refusal 10/10; anchor correctness 10/10; MCP
-injection 36 identity-field calls across four tools plus four signed purpose
-mismatches (40 total). Positive-control failures are separate from safety
-failures. Any case failure still blocks the overall gate, including failures
-outside these metric subsets. `model_call_count` measures the real explicit
-spy-generator invocations in G2 (must be zero); no external adapter is used.
-
-Domain fixtures/rankings/expected outcomes are fixed. Ephemeral signing keys,
-nonces, temporary paths and generated storage IDs are randomized but never
-printed and have no effect on asserted outcomes. No network is used by this
-runner. Real official MCP client/wire validation is a separate optional test
-and L3 probe, not a claim inferred from handler golden checks.
+PDF bbox is an explicit offline host plugin, not a PDF/OCR parser. Domain content,
+ranking and expectations are fixed; random ephemeral signing keys/nonces/temp paths
+are never printed and do not affect asserted outcomes. Prior incompatible evidence
+is retained only in the explicitly superseded historical directory.

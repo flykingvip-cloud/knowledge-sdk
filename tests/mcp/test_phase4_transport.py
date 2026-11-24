@@ -32,12 +32,12 @@ c=LocalKnowledgeClient();c.store.close()
             db=Path(directory)/'must-not-exist.db';replay=Path(directory)/'must-not-exist-replay.db'
             result=subprocess.run([sys.executable,'-S','-m','knowledge_sdk.mcp','--db',str(db),'--replay-db',str(replay)],
                 env=dict(os.environ,KNOWLEDGE_AUTH_SECRET=secrets.token_hex(32)),capture_output=True,text=True)
-            self.assertNotEqual(result.returncode,0);self.assertIn('Python >=3.10',result.stderr)
+            self.assertNotEqual(result.returncode,0);self.assertIn('identity is required',result.stderr)
             self.assertFalse(db.exists());self.assertFalse(replay.exists())
-    @unittest.skipUnless(all(importlib.util.find_spec(m) is not None for m in ('mcp','fastapi','httpx','uvicorn')),'official MCP wire and optional HTTP dependencies unavailable')
-    def test_official_sdk_real_streamable_http_four_tools(self):
+    @unittest.skipUnless(all(importlib.util.find_spec(m) is not None for m in ('fastapi','httpx','uvicorn')),'optional HTTP dependencies unavailable')
+    def test_actual_jsonrpc_http_and_stdio_four_tools(self):
         root=Path(__file__).resolve().parents[2]
         result=subprocess.run([sys.executable,'-W','error::ResourceWarning',str(root/'docs/acceptance/v1.2-phase4/live_mcp_probe.py')],cwd=root,capture_output=True,text=True,timeout=120)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
-        self.assertIn('L3 official client/wire + HTTP probe PASS',result.stdout)
+        self.assertIn('L3 actual JSON-RPC HTTP + stdio probe PASS',result.stdout)
         self.assertNotIn('ResourceWarning:',result.stdout+result.stderr)

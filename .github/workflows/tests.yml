@@ -12,7 +12,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: PYTHONPATH=src python -S -W error::ResourceWarning -m unittest discover -s tests -t . -v
-      - run: PYTHONPATH=src python -S -W error::ResourceWarning -m tests.benchmark.run
+      - run: PYTHONPATH=src python -S -W error::ResourceWarning -m tests.benchmark.runner --json
   http-and-package:
     runs-on: ubuntu-latest
     strategy:
