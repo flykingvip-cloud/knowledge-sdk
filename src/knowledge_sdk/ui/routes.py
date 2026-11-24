@@ -1,10 +1,10 @@
-from __future__ import annotations
-import knowledge_sdk
 """Static shell and an explicitly opt-in, loopback-only development signer.
 
 Never enable the signer against real data. Production uses the existing HMAC
 host gateway; neither a shared secret nor an unsigned Actor enters the browser.
 """
+from __future__ import annotations
+import knowledge_sdk
 import re
 from pathlib import Path
 from urllib.parse import urlsplit

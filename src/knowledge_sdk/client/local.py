@@ -1,4 +1,5 @@
 from __future__ import annotations
+import knowledge_sdk
 from datetime import datetime, timezone
 from functools import wraps
 import threading
@@ -228,7 +229,7 @@ class LocalKnowledgeClient:
     @serialized
     def health(self):
         pending=self.store.pending_documents()
-        return {"status":"degraded" if pending else "ok","version":"1.1.0","pending_index_count":len(pending)}
+        return {"status":"degraded" if pending else "ok","version":knowledge_sdk.__version__,"pending_index_count":len(pending)}
 
     def can_manage_kb(self, actor: Actor, kb_id: str) -> bool:
         kb = self.store.get_kb(kb_id)

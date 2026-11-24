@@ -1,5 +1,6 @@
 """Dependency-free request signatures and atomic bounded replay protection."""
 from __future__ import annotations
+from contextlib import closing
 import base64
 import hashlib
 import hmac
@@ -23,7 +24,7 @@ class ReplayStore(Protocol):
 
 class InMemoryReplayStore:
     def __init__(self, max_entries=50000):
-        if not isinstance(max_entries, int) or max_entries < 1:
+        if type(max_entries) is not int or max_entries < 1:
             raise ValidationError("Invalid replay capacity")
         self.max_entries = max_entries
         self._entries = {}
@@ -42,8 +43,8 @@ class InMemoryReplayStore:
 
 
 def _valid_replay_input(nonce, ttl, now):
-    return (isinstance(nonce, str) and bool(nonce) and isinstance(ttl, int)
-            and ttl > 0 and isinstance(now, (int, float)) and math.isfinite(now))
+    return (isinstance(nonce, str) and bool(nonce) and type(ttl) is int
+            and ttl > 0 and type(now) in (int, float) and math.isfinite(now))
 
 
 class SQLiteReplayStore:
@@ -56,11 +57,11 @@ class SQLiteReplayStore:
     def __init__(self, path: str, max_entries=50000):
         if not isinstance(path, str) or not path or path == ":memory:" or path.startswith("file:"):
             raise ValidationError("Replay store requires a separate on-disk database")
-        if not isinstance(max_entries, int) or max_entries < 1:
+        if type(max_entries) is not int or max_entries < 1:
             raise ValidationError("Invalid replay capacity")
         self.path, self.max_entries = path, max_entries
         try:
-            with sqlite3.connect(self.path, timeout=10) as conn:
+            with closing(sqlite3.connect(self.path, timeout=10)) as conn, conn:
                 # Refuse existing business databases rather than adding tables.
                 tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
                 if tables - {"auth_replay"}:
@@ -76,7 +77,7 @@ class SQLiteReplayStore:
         if not _valid_replay_input(nonce, ttl_seconds, now):
             return False
         try:
-            with sqlite3.connect(self.path, timeout=10) as conn:
+            with closing(sqlite3.connect(self.path, timeout=10)) as conn, conn:
                 conn.execute("BEGIN IMMEDIATE")
                 conn.execute("DELETE FROM auth_replay WHERE expires <= ?", (now,))
                 if conn.execute("SELECT 1 FROM auth_replay WHERE nonce=?", (nonce,)).fetchone():
@@ -115,8 +116,17 @@ def _decode_object(payload, limit):
     return value
 
 
+def _normalize_headers(headers):
+    items = [(k.lower(), v) for k, v in headers.items()]
+    names = [k for k, _ in items if k.startswith("x-kb-")]
+    if len(set(names)) != len(names):
+        raise ValueError("Duplicate authentication header")
+    return dict(items)
+
+
 def extension_claims(headers, actor):
     """Validate optional signed context without introducing a policy engine."""
+    headers = _normalize_headers(headers)
     agent_payload = headers.get("x-kb-agent")
     purpose = headers.get("x-kb-purpose")
     agent = None
@@ -171,11 +181,7 @@ def signed_headers(actor, secret, method, path, body=b"", timestamp=None, nonce=
 def verify_headers(headers, secret, method, path, body=b"", dev_insecure=False, max_age=300, seen=None,
                    replay_store=None, fallback_secrets: Sequence[str] = ()):
     try:
-        items = [(k.lower(), v) for k, v in headers.items()]
-        auth_names = [k for k, _ in items if k.startswith("x-kb-")]
-        if len(set(auth_names)) != len(auth_names):
-            raise ValueError()  # avoid first-vs-last ambiguity in ASGI Headers
-        headers = dict(items)
+        headers = _normalize_headers(headers)
         payload = headers.get("x-kb-actor", "")
         raw = _decode_object(payload, 16384)
         if not {"user_id", "org_id"}.issubset(raw) or set(raw) - {f.name for f in fields(Actor)}:

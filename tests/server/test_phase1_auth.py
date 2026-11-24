@@ -1,4 +1,5 @@
 from __future__ import annotations
+from contextlib import closing
 import base64
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
@@ -89,7 +90,7 @@ class SQLiteReplayTests(unittest.TestCase):
         self.assertTrue(a.check_and_record('nonceA', 10, now=100))
         self.assertFalse(b.check_and_record('nonceA', 10, now=109))
         self.assertTrue(b.check_and_record('nonceA', 10, now=110))
-        with sqlite3.connect(self.path) as conn:
+        with closing(sqlite3.connect(self.path)) as conn, conn:
             self.assertEqual(conn.execute('PRAGMA journal_mode').fetchone()[0], 'wal')
             self.assertEqual(conn.execute('PRAGMA user_version').fetchone()[0], 0)
 
@@ -138,7 +139,7 @@ class SQLiteReplayTests(unittest.TestCase):
         business.close()
         with self.assertRaises(ValidationError):
             SQLiteReplayStore(self.path)
-        with sqlite3.connect(self.path) as conn:
+        with closing(sqlite3.connect(self.path)) as conn, conn:
             self.assertEqual(conn.execute('PRAGMA user_version').fetchone()[0], 1)
             self.assertNotIn('auth_replay', [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")])
 
