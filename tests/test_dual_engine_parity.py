@@ -41,6 +41,9 @@ def mixed_language_contract(self):
             self.assertFalse(scoped.hits)
         self.assertEqual(f.c.store.get_version('expected',1).text,'知识库 alpha mixed-language evidence')
         self.assertFalse(f.c.search(Actor('reader','foreign'),'知识库 alpha').hits)
+        self.assertEqual(f.c.store.get_anchors('foreign','expected',1),[])
+        self.assertEqual(f.c.store.list_usage_events_for_doc('foreign','expected'),[])
+        self.assertEqual(f.c.store.list_audit_events('foreign',doc_id='expected'),[])
     finally:f.close()
 
 SQLiteParity.test_shared_cjk_english_scope_and_authorized_fetch=mixed_language_contract

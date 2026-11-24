@@ -32,7 +32,7 @@ def tenant_method(fn):
                 if any(o.org_id!=tenant for o in objects):raise ConflictError('Tenant mismatch')
             keys={'doc_id':'document','kb_id':'kb','event_id':'outbox','subscription_id':'webhook'}
             for arg,kind in keys.items():
-                if arg in bound and bound[arg] is not None:
+                if tenant is None and arg in bound and bound[arg] is not None:
                     located=self._locate(kind,bound[arg])
                     if tenant is not None and located!=tenant:raise ConflictError('Tenant mismatch')
                     tenant=located
