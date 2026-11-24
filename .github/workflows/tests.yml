@@ -11,7 +11,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - run: PYTHONPATH=src python -S -m unittest discover -s tests -t . -v
+      - run: PYTHONPATH=src python -S -W error::ResourceWarning -m unittest discover -s tests -t . -v
+      - run: PYTHONPATH=src python -S -W error::ResourceWarning -m tests.benchmark.run
   http-and-package:
     runs-on: ubuntu-latest
     strategy:
@@ -22,6 +23,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install -e '.[http,dev]'
-      - run: python -m unittest discover -s tests -t . -v
+      - run: python -m pip install -e '.[http,dev,mcp]'
+      - run: python -W error::ResourceWarning -m unittest discover -s tests -t . -v
       - run: python -m build
