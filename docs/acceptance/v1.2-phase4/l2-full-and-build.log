@@ -1,7 +1,7 @@
-Authoritative t37u Phase4 L2 | Asia/Shanghai 2026-11-24T21:07:55.148336+08:00
-cf30cf2bd250e15c8e575fd65e3880207034b598
+Authoritative t37u Phase4 L2 | Asia/Shanghai 2026-11-24T21:11:40.649097+08:00
+502cf6e87943dfca55f21eddd8a5e58759af9d07
 Runtime: 3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0]
-Fresh isolated .venv-phase4 installed -e .[mcp,http,dev] plus pytest; external MCP SDK absent.
+Fresh isolated .venv-phase4: pip install -e .[mcp,http,dev] pytest; external MCP SDK absent.
 Optional HTTP versions: [('fastapi', '0.165.0'), ('uvicorn', '0.54.0')]
 
 COMMAND: /workspace/knowledge-sdk/.venv-phase4/bin/python -W error::ResourceWarning -m unittest discover -s tests -t . -v
@@ -455,7 +455,7 @@ test_visibility_mapping (tests.v11.test_v11.V11Tests.test_visibility_mapping) ..
 test_untrusted_vector_candidates_are_sqlite_filtered_for_every_consumer (tests.v11.test_v11.VectorACLTests.test_untrusted_vector_candidates_are_sqlite_filtered_for_every_consumer) ... ok
 
 ----------------------------------------------------------------------
-Ran 446 tests in 12.681s
+Ran 446 tests in 12.062s
 
 OK (skipped=3)
 COMMAND_EXIT_CODE: 0
@@ -474,7 +474,7 @@ tests/server/test_http.py::HTTPTests::test_local_dev_mode_explicit
     from starlette.testclient import TestClient as TestClient  # noqa
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-443 passed, 3 skipped, 1 warning, 167 subtests passed in 13.44s
+443 passed, 3 skipped, 1 warning, 167 subtests passed in 12.51s
 COMMAND_EXIT_CODE: 0
 
 COMMAND: /workspace/knowledge-sdk/.venv-phase4/bin/python -m build
@@ -787,7 +787,7 @@ running install_egg_info
 Copying src/knowledge_sdk.egg-info to build/bdist.linux-x86_64/wheel/./knowledge_sdk-1.2.0-py3.13.egg-info
 running install_scripts
 creating build/bdist.linux-x86_64/wheel/knowledge_sdk-1.2.0.dist-info/WHEEL
-creating '/workspace/knowledge-sdk/dist/.tmp-cqaqqvu3/knowledge_sdk-1.2.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+creating '/workspace/knowledge-sdk/dist/.tmp-98xtzb7r/knowledge_sdk-1.2.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
 adding 'knowledge_sdk/__init__.py'
 adding 'knowledge_sdk/exceptions.py'
 adding 'knowledge_sdk/client/__init__.py'
@@ -864,6 +864,6 @@ Python3.9 AST PASS src 57 files; not an actual3.9 runtime
 Python3.9 AST PASS tests/benchmark 4 files; not an actual3.9 runtime
 Extracted-wheel python -S / third-party blocker / four tools / real console entrypoint stdio PASS
 Version/core zero dependencies/exact mcp HTTP extra/schema2/UI resources/entrypoint PASS
-Wheel knowledge_sdk-1.2.0-py3-none-any.whl SHA256 c8fb0eeeffeb79bd898cfa2df16fc2f9e9809313f9e6adf821d9f85d6f5663a2
+Wheel knowledge_sdk-1.2.0-py3-none-any.whl SHA256 68b73729a05382b2e6a0c978581da32bf787cb6036458584cddcceb1eaddcfc4
 COMMAND_EXIT_CODE: 0
 L2_EXIT_CODE=0

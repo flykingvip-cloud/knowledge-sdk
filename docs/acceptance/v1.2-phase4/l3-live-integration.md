@@ -1,9 +1,9 @@
 # L3 — authoritative taskbook actual JSON-RPC HTTP + stdio
 
 **SELF_TESTED PASS locally**, not independent acceptance or an official SDK claim.
-Executed 2026-11-24 21:07 Asia/Shanghai; Python3.13.5; clean `.venv-phase4` has
+Executed 2026-11-24 21:11 Asia/Shanghai; Python3.13.5; clean `.venv-phase4` has
 FastAPI0.165.0 / uvicorn0.54.0 and **no external MCP SDK distribution**.
-Tested implementation: `cf30cf2bd250e15c8e575fd65e3880207034b598`.
+Tested implementation: `502cf6e87943dfca55f21eddd8a5e58759af9d07`.
 
 Raw log: [l3-local-http-stdio.log](l3-local-http-stdio.log).
 Executable assertions: [live_mcp_probe.py](live_mcp_probe.py).
@@ -26,7 +26,7 @@ Command: `PYTHONPATH=src .venv-phase4/bin/python -W error::ResourceWarning docs/
 | Concurrent tenant requests | Isolated Actor/Agent/doc results, no mutable session identity |
 | Typed HTTP issue listing | POST /v1/issues/list current-authorized/redacted EvidenceIssue responses |
 
-Two temporary HTTP workers used loopback ports49905/54369, a new temporary schema2
+Two temporary HTTP workers used loopback ports57823/46695, a new temporary schema2
 business DB and separate shared replay DB. They were SIGTERM'd and waited in finally;
 raw logs show application shutdown complete for both. Returncodes -15 are expected
 explicit cleanup, probe exit0. All temporary databases were removed. No ResourceWarning

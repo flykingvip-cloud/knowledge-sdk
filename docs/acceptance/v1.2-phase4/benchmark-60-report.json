@@ -54,7 +54,7 @@
   },
   "positive_control_failures": 0,
   "security_assertion_failures": 0,
-  "offline_recall_at_5": {
+  "offline_recall_at_requested_k": {
     "eligible_cases": 7,
     "mean": 1.0,
     "values": [
@@ -849,6 +849,6 @@
       "recall": null
     }
   ],
-  "executed_at": "2026-11-24T21:07:57.833662+08:00",
+  "executed_at": "2026-11-24T21:11:42.993374+08:00",
   "timezone": "Asia/Shanghai"
 }

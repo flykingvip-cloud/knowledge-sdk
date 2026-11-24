@@ -1,6 +1,6 @@
 Authoritative t37u GOLDEN | Asia/Shanghai
-2026-11-24T21:07:55+08:00
-cf30cf2bd250e15c8e575fd65e3880207034b598
+2026-11-24T21:11:40+08:00
+502cf6e87943dfca55f21eddd8a5e58759af9d07
 COMMAND: PYTHONPATH=src python3 -S -W error::ResourceWarning -m tests.benchmark.runner --json --json-output docs/acceptance/v1.2-phase4/benchmark-60-report.json --report docs/acceptance/v1.2-phase4/benchmark-60-report.md
 {
   "gate_passed": true,
@@ -58,7 +58,7 @@ COMMAND: PYTHONPATH=src python3 -S -W error::ResourceWarning -m tests.benchmark.
   },
   "positive_control_failures": 0,
   "security_assertion_failures": 0,
-  "offline_recall_at_5": {
+  "offline_recall_at_requested_k": {
     "eligible_cases": 7,
     "mean": 1.0,
     "values": [
@@ -853,7 +853,7 @@ COMMAND: PYTHONPATH=src python3 -S -W error::ResourceWarning -m tests.benchmark.
       "recall": null
     }
   ],
-  "executed_at": "2026-11-24T21:07:57.833662+08:00",
+  "executed_at": "2026-11-24T21:11:42.993374+08:00",
   "timezone": "Asia/Shanghai"
 }
 

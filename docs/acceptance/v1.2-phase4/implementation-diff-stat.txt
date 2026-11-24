@@ -1,12 +1,23 @@
-Authoritative implementation snapshot cf30cf2bd250e15c8e575fd65e3880207034b598
+Final tested implementation snapshot 502cf6e87943dfca55f21eddd8a5e58759af9d07
 Baseline 83f4a0dd6b859905dbb73003d366a37017c6eea6
 
  .github/workflows/tests.yml                        |   7 +-
+ docs/acceptance/v1.2-phase4/EVIDENCE_INDEX.md      |  34 +
+ .../v1.2-phase4/benchmark-60-report.json           | 854 ++++++++++++++++++++
+ docs/acceptance/v1.2-phase4/benchmark-60-report.md |  95 +++
+ docs/acceptance/v1.2-phase4/benchmark-60-run.log   | 860 ++++++++++++++++++++
+ .../v1.2-phase4/implementation-diff-stat.txt       | 122 +++
+ docs/acceptance/v1.2-phase4/l1-stdlib-only.log     | 457 +++++++++++
+ docs/acceptance/v1.2-phase4/l2-full-and-build.log  | 869 +++++++++++++++++++++
+ docs/acceptance/v1.2-phase4/l3-live-integration.md |  49 ++
+ .../acceptance/v1.2-phase4/l3-local-http-stdio.log |  87 +++
+ docs/acceptance/v1.2-phase4/l4-browser.md          |   5 +
+ .../v1.2-phase4/l5-independent-review.md           |  10 +
  docs/acceptance/v1.2-phase4/live_mcp_probe.py      | 137 ++++
  .../superseded-parent-brief/EVIDENCE_INDEX.md      |  30 +
  .../QUICKSTART_AND_PRODUCTION.md                   | 194 +++++
  .../superseded-parent-brief/SUPERSEDED.md          |   1 +
- .../superseded-parent-brief/benchmark-metrics.json | 850 +++++++++++++++++++++
+ .../superseded-parent-brief/benchmark-metrics.json | 850 ++++++++++++++++++++
  .../superseded-parent-brief/benchmark-raw.log      | 134 ++++
  .../superseded-parent-brief/benchmark-report.md    |  91 +++
  .../gateway_client_example.py                      |  29 +
@@ -48,12 +59,23 @@ Baseline 83f4a0dd6b859905dbb73003d366a37017c6eea6
  tests/mcp/test_phase4_issues.py                    |  51 ++
  tests/mcp/test_phase4_protocol.py                  |  39 +
  tests/mcp/test_phase4_tools.py                     | 199 +++++
- tests/mcp/test_phase4_transport.py                 |  43 ++
+ tests/mcp/test_phase4_transport.py                 |  43 +
  tests/server/test_phase4_mcp_http.py               |  41 +
  tests/storage/test_phase4_scope_pushdown.py        |  80 ++
- 50 files changed, 5082 insertions(+), 16 deletions(-)
+ 61 files changed, 8524 insertions(+), 16 deletions(-)
 
 M	.github/workflows/tests.yml
+A	docs/acceptance/v1.2-phase4/EVIDENCE_INDEX.md
+A	docs/acceptance/v1.2-phase4/benchmark-60-report.json
+A	docs/acceptance/v1.2-phase4/benchmark-60-report.md
+A	docs/acceptance/v1.2-phase4/benchmark-60-run.log
+A	docs/acceptance/v1.2-phase4/implementation-diff-stat.txt
+A	docs/acceptance/v1.2-phase4/l1-stdlib-only.log
+A	docs/acceptance/v1.2-phase4/l2-full-and-build.log
+A	docs/acceptance/v1.2-phase4/l3-live-integration.md
+A	docs/acceptance/v1.2-phase4/l3-local-http-stdio.log
+A	docs/acceptance/v1.2-phase4/l4-browser.md
+A	docs/acceptance/v1.2-phase4/l5-independent-review.md
 A	docs/acceptance/v1.2-phase4/live_mcp_probe.py
 A	docs/acceptance/v1.2-phase4/superseded-parent-brief/EVIDENCE_INDEX.md
 A	docs/acceptance/v1.2-phase4/superseded-parent-brief/QUICKSTART_AND_PRODUCTION.md
@@ -120,3 +142,5 @@ e6463dcb93f4a3e6dc6400c9963d372641b58760 fix(mcp): recheck current authority aft
 c985adb233992f6732d4d271b15a7bbebf62f764 feat(mcp): follow authoritative stdlib JSON-RPC stdio and opt-in signed HTTP taskbook
 3e8856d2ba46931246fc2d1ab0acf8648d86ee4d test(phase4): freeze exact taskbook sixty-case groups, stdio roundtrips and HTTP security gates
 cf30cf2bd250e15c8e575fd65e3880207034b598 fix(phase4): expose safe backend configuration errors and verify wheel stdio entrypoint
+5d2861c31a5f78e115045552da645f3965a11376 docs(phase4): archive authoritative stdlib MCP, sixty-case and separate L1-L5 evidence
+502cf6e87943dfca55f21eddd8a5e58759af9d07 test(benchmark): label fixed-fixture recall by actual requested k instead of claiming uniform k5

@@ -1,6 +1,6 @@
 # Authoritative t37u Phase4 evidence index
 
-Generated 2026-11-24T21:10:11.894882+08:00 Asia/Shanghai. Exact tested implementation: `cf30cf2bd250e15c8e575fd65e3880207034b598`.
+Generated 2026-11-24T21:10:11.894882+08:00 Asia/Shanghai. Exact tested implementation: `502cf6e87943dfca55f21eddd8a5e58759af9d07`.
 Earlier parent-brief architecture/logs remain clearly SUPERSEDED under the historical subdirectory.
 
 | Independently reported runner | Passed | Skipped | Discovery / notes |
@@ -22,13 +22,13 @@ METADATA: core zero dependencies, Python>=3.9, optional mcp exactly FastAPI/uvic
 UI assets and six MCP modules present; superseded handlers/transport modules absent.
 
 Wheel binary not committed: `knowledge_sdk-1.2.0-py3-none-any.whl`.
-SHA256: `c8fb0eeeffeb79bd898cfa2df16fc2f9e9809313f9e6adf821d9f85d6f5663a2`.
+SHA256: `68b73729a05382b2e6a0c978581da32bf787cb6036458584cddcceb1eaddcfc4`.
 
 ## Current raw/generated file SHA256
 
-- `l1-stdlib-only.log`: `e2f8cd19f2389c27b9332a7c3d3287048485811cbbfa38e453859a5916ae9890`
-- `l2-full-and-build.log`: `76aea160666f3201f8a99a506035de998af2aa70176ad333f1ad174cd74d82ab`
-- `l3-local-http-stdio.log`: `463a2e97e87c4c64ef850abd18a3e792ee625e89a166936599f8759f17070e1e`
-- `benchmark-60-run.log`: `93890f4531d5d1dd89878fc3b53270914d4ea29d145b6e14a23bf5e99a8ab1e2`
-- `benchmark-60-report.json`: `fc98ed75481ca1796b5aa18d86711eb162b4a1ac718b0ee554fcfa69cb1a5c96`
-- `benchmark-60-report.md`: `6a3ea18a02582613f6926d4ef4ea0d5333929f6d8d7ba8d797a8726633e1d185`
+- `l1-stdlib-only.log`: `6870cc87dacb293b7394730ac5319a7f95a2e891320c3ea0c3741401a1e3e742`
+- `l2-full-and-build.log`: `632be2e8844183cc22dc4560b91d51b3c5a1ad768ee6832e5e42d64b3d0bb184`
+- `l3-local-http-stdio.log`: `0563dec9b86a119841ff7d7cbe1ff4ba550aa2afeee69bc8cd5d5fc818a02eeb`
+- `benchmark-60-run.log`: `ec8f26457b81b36ef25b3e5e2d9ee512ab77d8d559d8b6ea21aa91bd1b5d9a07`
+- `benchmark-60-report.json`: `b5593ef6bcbacfc2d5cd7ee0cd9e3a7605824612e974e8c8559f466d211fd39d`
+- `benchmark-60-report.md`: `1782eb2074361914f23b8954cee06551ee7769d696745fa0067eca548edf0d37`

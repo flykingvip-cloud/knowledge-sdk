@@ -1,6 +1,6 @@
 Authoritative t37u Phase4 L1 | Asia/Shanghai
-2026-11-24T21:07:55+08:00
-cf30cf2bd250e15c8e575fd65e3880207034b598
+2026-11-24T21:11:40+08:00
+502cf6e87943dfca55f21eddd8a5e58759af9d07
 COMMAND: PYTHONPATH=src python3 -S -W error::ResourceWarning -m unittest discover -s tests -t . -v
 test_b02_offline_pdf_bbox_policy_and_redaction (tests.anchors.test_phase3_anchors_and_reanchor.AnchorClientTests.test_b02_offline_pdf_bbox_policy_and_redaction) ... ok
 test_bad_layout_is_atomic_and_no_source_pollution (tests.anchors.test_phase3_anchors_and_reanchor.AnchorClientTests.test_bad_layout_is_atomic_and_no_source_pollution) ... ok
@@ -450,7 +450,7 @@ test_visibility_mapping (tests.v11.test_v11.V11Tests.test_visibility_mapping) ..
 test_untrusted_vector_candidates_are_sqlite_filtered_for_every_consumer (tests.v11.test_v11.VectorACLTests.test_untrusted_vector_candidates_are_sqlite_filtered_for_every_consumer) ... ok
 
 ----------------------------------------------------------------------
-Ran 446 tests in 6.943s
+Ran 446 tests in 6.510s
 
 OK (skipped=96)
 
