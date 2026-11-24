@@ -394,3 +394,71 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
         sql='SELECT * FROM audit_events WHERE org_id=? AND seq_no>=?';args=[org_id,from_seq]
         if to_seq is not None:sql+=' AND seq_no<=?';args.append(to_seq)
         return iter(self._execute(sql+' ORDER BY seq_no',args))
+
+    def enqueue_outbox(self,event):
+        from ..contracts.events import OutboxEvent
+        if not isinstance(event,OutboxEvent):raise ValidationError('Expected OutboxEvent')
+        if event.status!='pending' or event.attempts!=0:raise ValidationError('New outbox event must be pending')
+        with self._write_scope():
+            rows=self._execute('SELECT * FROM outbox_events WHERE event_id=?',(event.event_id,))
+            if rows:
+                old=self._outbox_from_row(rows[0])
+                if (old.org_id,old.aggregate_type,old.aggregate_id,old.event_type,old.payload)!=(event.org_id,event.aggregate_type,event.aggregate_id,event.event_type,event.payload):
+                    raise ConflictError('Outbox identity conflict')
+                return
+            self._execute('INSERT INTO outbox_events VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+                (event.event_id,event.org_id,event.aggregate_type,event.aggregate_id,event.event_type,json.dumps(dict(event.payload),sort_keys=True),event.status,event.attempts,event.available_at,event.created_at,event.dispatched_at))
+
+    @staticmethod
+    def _outbox_from_row(row):
+        from ..contracts.events import OutboxEvent
+        return OutboxEvent(*row[:5],payload=json.loads(row[5]),status=row[6],attempts=row[7],available_at=row[8],created_at=row[9],dispatched_at=row[10])
+
+    def claim_outbox_batch(self,now_iso,limit=50):
+        from datetime import timedelta
+        from ..contracts.policy import parse_time
+        if type(limit) is not int or not 1<=limit<=1000:raise ValidationError('Invalid outbox limit')
+        lease=(parse_time(now_iso)+timedelta(seconds=60)).isoformat()
+        with self._write_scope():
+            rows=self._execute("SELECT * FROM outbox_events WHERE status IN ('pending','failed','processing') AND julianday(available_at)<=julianday(?) ORDER BY created_at,event_id LIMIT ?",(now_iso,limit))
+            events=[]
+            for row in rows:
+                self._execute("UPDATE outbox_events SET status='processing',attempts=attempts+1,available_at=? WHERE event_id=?",(lease,row[0]))
+                events.append(self._outbox_from_row(self._execute('SELECT * FROM outbox_events WHERE event_id=?',(row[0],))[0]))
+            return events
+
+    def mark_outbox_dispatched(self,event_id,dispatched_at):
+        self._execute("UPDATE outbox_events SET status='dispatched',dispatched_at=? WHERE event_id=? AND status='processing'",(dispatched_at,event_id))
+
+    def mark_outbox_failed(self,event_id,next_available_at,max_attempts=5):
+        self._execute("UPDATE outbox_events SET status=CASE WHEN attempts>=? THEN 'dead_letter' ELSE 'failed' END,available_at=? WHERE event_id=? AND status='processing'",(max_attempts,next_available_at,event_id))
+
+    def put_webhook_subscription(self,sub):
+        from ..contracts.events import WebhookSubscription
+        if not isinstance(sub,WebhookSubscription):raise ValidationError('Expected WebhookSubscription')
+        with self._write_scope():
+            old=self._execute('SELECT org_id FROM webhook_subscriptions WHERE subscription_id=?',(sub.subscription_id,))
+            if old and old[0][0]!=sub.org_id:raise ConflictError('Webhook tenant mismatch')
+            self._execute('INSERT INTO webhook_subscriptions VALUES(?,?,?,?,?) ON CONFLICT(subscription_id) DO UPDATE SET event_types=excluded.event_types,active=excluded.active,data=excluded.data',
+                (sub.subscription_id,sub.org_id,json.dumps(sub.event_types),int(sub.active),self._dump(sub)))
+
+    def list_webhook_subscriptions(self,org_id,*,active_only=True):
+        sql='SELECT data FROM webhook_subscriptions WHERE org_id=?'
+        if active_only:sql+=' AND active=1'
+        return [decode(json.loads(r[0])) for r in self._execute(sql+' ORDER BY subscription_id',(org_id,))]
+
+    def record_webhook_delivery(self,delivery):
+        from ..contracts.events import WebhookDelivery
+        if not isinstance(delivery,WebhookDelivery):raise ValidationError('Expected WebhookDelivery')
+        with self._write_scope():
+            subscriptions=self._execute('SELECT org_id FROM webhook_subscriptions WHERE subscription_id=?',(delivery.subscription_id,))
+            events=self._execute('SELECT org_id FROM outbox_events WHERE event_id=?',(delivery.outbox_event_id,))
+            if not subscriptions or not events or subscriptions[0][0]!=delivery.org_id or events[0][0]!=delivery.org_id:
+                raise ConflictError('Webhook delivery tenant mismatch')
+            # Retrying a failed attempt updates the one logical delivery; a success
+            # is immutable so replay cannot reset it or trigger another POST.
+            self._execute("INSERT INTO webhook_deliveries VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(subscription_id,outbox_event_id) DO UPDATE SET status=excluded.status,http_status=excluded.http_status,attempted_at=excluded.attempted_at,data=excluded.data WHERE webhook_deliveries.status!='delivered'",
+                (delivery.delivery_id,delivery.org_id,delivery.subscription_id,delivery.outbox_event_id,delivery.status,delivery.http_status,delivery.attempted_at,self._dump(delivery)))
+
+    def has_webhook_delivery(self,subscription_id,outbox_event_id):
+        return bool(self._execute("SELECT 1 FROM webhook_deliveries WHERE subscription_id=? AND outbox_event_id=? AND status='delivered'",(subscription_id,outbox_event_id)))

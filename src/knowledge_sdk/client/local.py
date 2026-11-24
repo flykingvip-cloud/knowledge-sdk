@@ -130,6 +130,31 @@ class LocalKnowledgeClient:
             raise PermissionDeniedError('audit_admin_required')
         return verify_audit_chain(self.store,actor.org_id,from_seq=from_seq,to_seq=to_seq)
 
+    def _emit_event(self, actor, event_type, doc_id, version, *, anchor_id='', previous_version=0):
+        from ..contracts.events import OutboxEvent
+        if not self.store.db.in_transaction:
+            raise ConflictError('Outbox must share the authoritative write transaction')
+        stamp=datetime.now(timezone.utc).isoformat()
+        payload={'doc_id':doc_id,'version':version,'previous_version':previous_version}
+        if anchor_id: payload['anchor_id']=anchor_id
+        event=OutboxEvent(str(uuid.uuid4()),actor.org_id,'anchor' if anchor_id else
+                          'acl' if event_type=='acl.updated' else 'document',
+                          anchor_id or doc_id,event_type,payload=payload,
+                          available_at=stamp,created_at=stamp)
+        self.store.enqueue_outbox(event)
+
+    @serialized
+    def register_webhook_subscription(self,actor,url,secret,event_types,*,allow_insecure_local=False):
+        from ..contracts.events import WebhookSubscription
+        from ..impact.webhook import validate_webhook_url
+        if not set(actor.org_roles).intersection(('admin','manage_org')):
+            raise PermissionDeniedError('webhook_admin_required')
+        validate_webhook_url(url,allow_insecure_local=allow_insecure_local)
+        sub=WebhookSubscription(str(uuid.uuid4()),actor.org_id,url,secret,event_types,
+                                allow_insecure_local=allow_insecure_local)
+        self.store.put_webhook_subscription(sub)
+        return sub.public_dict()
+
     def _kb(self,actor,kb_id,write=False,admin=False,*,agent=None,purpose=Purpose.READ,policy_context=None):
         kb=self.store.get_kb(kb_id)
         action = PolicyAction.MANAGE_SPACE if admin else PolicyAction.WRITE_DOCUMENT if write else PolicyAction.READ_CONTENT
@@ -194,7 +219,9 @@ class LocalKnowledgeClient:
         self._kb(actor,d.kb_id,admin=True,agent=agent,purpose=purpose,policy_context=policy_context)
         if not isinstance(rights,ResourceRights): raise ValidationError("Expected ResourceRights")
         d=replace(d,rights=rights)
-        self.store.put_document(d)
+        with self.store.transaction():
+            self.store.put_document(d)
+            self._emit_event(actor,'doc.revoked' if rights.revoked else 'rights.updated',doc_id,d.current_version)
         # A management operation is not a grant to read a personal/denied body
         # or its user-provided descriptive metadata.
         return replace(d,title="",metadata={})
@@ -273,8 +300,13 @@ class LocalKnowledgeClient:
         if classify(previous,raw_hash,semantic_hash)!="new_semantic_version":
             updated=replace(d,**changes)
             # Dataclass validation precedes updates; return is separately read-gated.
-            if changes: self.store.put_document(updated)
-            if acl is not None: self.store.set_acl(doc_id,acl)
+            with self.store.transaction():
+                if changes:
+                    self.store.put_document(updated)
+                    self._emit_event(actor,'doc.revoked' if updated.rights and updated.rights.revoked else 'rights.updated',doc_id,previous.version)
+                if acl is not None:
+                    self.store.set_acl(doc_id,acl)
+                    self._emit_event(actor,'acl.updated',doc_id,previous.version)
             return self._ingested_response(actor,previous,**ctx)
         visibility=visibility or (d.visibility if d else kb.visibility); self._visibility(visibility)
         doc_id=doc_id or str(uuid.uuid4()); version=previous.version+1 if previous else 1
@@ -309,7 +341,15 @@ class LocalKnowledgeClient:
                 except NotFoundError: pass
                 else: raise ConflictError("Document identity already exists")
             self.store.put_document(d); self.store.put_version(v,chunks); self.store.put_anchors(anchors); self.store.refresh_fts(doc_id)
-            if acl is not None: self.store.set_acl(doc_id,acl)
+            self._emit_event(actor,'doc.revised' if previous else 'doc.ingested',doc_id,version,previous_version=previous.version if previous else 0)
+            for anchor in anchors:
+                if anchor.reanchor_status in (ReanchorStatus.DRIFT_PENDING,ReanchorStatus.ORPHANED):
+                    self._emit_event(actor,'anchor.drifted' if anchor.reanchor_status==ReanchorStatus.DRIFT_PENDING else 'anchor.orphaned',doc_id,version,anchor_id=anchor.anchor_id)
+            if changes:
+                self._emit_event(actor,'doc.revoked' if d.rights and d.rights.revoked else 'rights.updated',doc_id,version)
+            if acl is not None:
+                self.store.set_acl(doc_id,acl)
+                self._emit_event(actor,'acl.updated',doc_id,version)
             if self.vector_index is not None: self.store.mark_pending(doc_id)
         self._sync_vector(doc_id)
         return self._ingested_response(actor,v,**ctx)
@@ -361,6 +401,7 @@ class LocalKnowledgeClient:
         d=self._read(actor,doc_id,True,**ctx); self._kb(actor,d.kb_id,write=True,**ctx)
         with self.store.transaction():
             d.archived=True; self.store.put_document(d); self.store.refresh_fts(doc_id)
+            self._emit_event(actor,'doc.archived',doc_id,d.current_version)
             if self.vector_index is not None: self.store.mark_pending(doc_id)
         self._sync_vector(doc_id)
     @serialized
@@ -369,13 +410,16 @@ class LocalKnowledgeClient:
         d=self._read(actor,doc_id,True,**ctx); self._kb(actor,d.kb_id,write=True,**ctx)
         with self.store.transaction():
             d.archived=False; self.store.put_document(d); self.store.refresh_fts(doc_id)
+            self._emit_event(actor,'doc.restored',doc_id,d.current_version)
             if self.vector_index is not None: self.store.mark_pending(doc_id)
         self._sync_vector(doc_id)
     @serialized
     def set_document_acl(self,actor,doc_id,acl,*,agent=None,purpose=Purpose.READ,policy_context=None):
         d=self.store.get_document(doc_id); self._kb(actor,d.kb_id,admin=True,agent=agent,purpose=purpose,policy_context=policy_context)
         if not isinstance(acl,DocumentACL): raise ValidationError("Expected DocumentACL")
-        self.store.set_acl(doc_id,acl)
+        with self.store.transaction():
+            self.store.set_acl(doc_id,acl)
+            self._emit_event(actor,'acl.updated',doc_id,d.current_version)
     @serialized
     def search(self,actor,query,mode="keyword",limit=20,filters=None,scope=None,*,agent=None,purpose=Purpose.READ,policy_context=None):
         ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context)
@@ -507,6 +551,7 @@ class LocalKnowledgeClient:
             confirmed=replace(anchor,reanchor_status=ReanchorStatus.ANCHORED)
             delivered=deliver_anchor(self,confirmed,decision,purpose)
             self.store.update_anchor(confirmed)
+            self._emit_event(actor,'anchor.reanchored',doc_id,version,anchor_id=anchor_id)
         return delivered
 
     @serialized
