@@ -3,11 +3,11 @@
 ## 1. 分支与可核验来源
 
 - Review branch: `feat/phase4-mcp-benchmark`。
-- Branch URL: https://github.com/flykingvip-cloud/knowledge-sdk/tree/feat/phase4-mcp-benchmark
+- 预期 Branch URL（**推送被远端拒绝，尚未创建，不是可访问交付链接**）: https://github.com/flykingvip-cloud/knowledge-sdk/tree/feat/phase4-mcp-benchmark
 - 真正起点 / 已过审 Phase3: `83f4a0dd6b859905dbb73003d366a37017c6eea6`。
 - 实现与测试代码终点: `502cf6e87943dfca55f21eddd8a5e58759af9d07`。
 - 本轮最终原始证据提交: `234b95fb97b16d79316f881882bde7231e467ba8`。
-- 最终报告提交: 本文件第一次加入仓库的后继提交；不在文件内伪造自引用 hash。
+- 最终报告提交: 本文件最后交接修订提交；不在文件内伪造自引用 hash。
   精确解析命令：`git log -1 --format=%H -- docs/acceptance/v1.2-phase4/PHASE4_HANDOFF_REPORT.md`。
   对外最终交付另给该完整 SHA；报告/证据后继提交不改变已实测 src/tests 代码。
 - main 审计仍为 `0ed15b93e2a6eed893369ca81524909c328c8b5c`；不合 main、不建 PR、无 tag/release/部署。
@@ -76,7 +76,7 @@ wheel资源包含6个MCP模块与原UI资源；不含已移除的官方SDK handl
 
 Wheel: `knowledge_sdk-1.2.0-py3-none-any.whl`，二进制不提交。
 SHA256: `68b73729a05382b2e6a0c978581da32bf787cb6036458584cddcceb1eaddcfc4`。原始证据文件hash见 [EVIDENCE_INDEX.md](EVIDENCE_INDEX.md)。
-GitHub现有CI已接硬门禁；本交接不声称远程CI已完成/全绿。
+GitHub现有CI已在本地代码接硬门禁；因OAuth workflow权限不足推送被拒，远端未接收该修改，未运行本分支CI。
 
 ## 4. exactly60 离线黄金指标
 
@@ -144,4 +144,20 @@ G5在 -S 中的HTTP鉴权case复用生产GatewayAuthenticator.authorize_http真�
 L4 NOT_RUN；L5待独立专家。没有把用户批准推进阶段当成本轮通过，也没有自封Q1全面PASS。
 无在线Qdrant/embedding/外部模型调用；没有改生产数据库或任何Mac/既有服务，临时worker已全部停止。
 main/Release/Tag/生产部署未操作；MCP以外统一来源选择器UI、Q2治理/审批/不可变pack、Outbox/Postgres、
-模型训练等仍未解锁。本次仅正常推送指定独立审查分支。
+模型训练等仍未解锁。本次仅尝试正常推送指定独立审查分支，但因下述权限门禁被拒，当前仅本地交付。
+
+
+## 7. 交付阻塞：GitHub workflow权限（未绕过）
+
+2026-11-24 21:14 Asia/Shanghai，唯一一次正常push：
+`GIT_TERMINAL_PROMPT=0 git push -u origin HEAD:refs/heads/feat/phase4-mcp-benchmark`
+被GitHub远端拒绝：
+
+> refusing to allow an OAuth App to create or update workflow `.github/workflows/tests.yml` without `workflow` scope
+
+原始错误见 [push-blocked.log](push-blocked.log)。只读复查确认main/Phase3未变且Phase4远端分支尚不存在。
+没有删掉CI门禁来逃避权限、没有重写提交、没有换API/SSH/Mac身份重试，也没有抓取凭据。
+当前全部实现、测试、原始证据与报告完整保留在本地 `/workspace/knowledge-sdk` 的独立分支。
+本报告GitHub链接均是待成功推送后的预期地址，不能当作已经发布的URL。
+需要具有合法workflow写权限的正常GitHub授权，并在用户确认后才可重试该同一分支push；
+本执行器在已知远端权限拒绝处停止，未扩大权限或改动主分支。

@@ -1,0 +1,8 @@
+2026-11-24 21:14:47–21:14:50 Asia/Shanghai
+COMMAND: GIT_TERMINAL_PROMPT=0 git push -u origin HEAD:refs/heads/feat/phase4-mcp-benchmark
+Local attempted HEAD: 3129eb7c31374c71923dcd7f5845e20df5153699
+To https://github.com/flykingvip-cloud/knowledge-sdk.git
+ ! [remote rejected] HEAD -> feat/phase4-mcp-benchmark (refusing to allow an OAuth App to create or update workflow `.github/workflows/tests.yml` without `workflow` scope)
+error: failed to push some refs to 'https://github.com/flykingvip-cloud/knowledge-sdk.git'
+EXIT_CODE=1
+No retry through another identity/API/transport. Read-only ls-remote confirmed target branch absent, main and Phase3 unchanged.
