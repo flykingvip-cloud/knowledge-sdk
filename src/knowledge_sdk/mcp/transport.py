@@ -31,7 +31,9 @@ def create_app(client,*,auth_secret,replay_store=None,fallback_secrets=(),bound_
         request=server.request_context.request
         context=request.scope.get('knowledge_sdk.mcp_context') if request is not None else None
         try:result=tools.call(name,arguments,context)
-        except ValidationError:return types.CallToolResult(content=[types.TextContent(type='text',text=json.dumps({'status':'denied','error':'invalid_arguments'}))],isError=True)
+        except ValidationError as exc:
+            code='vector_backend_not_configured' if str(exc)=='Vector backend is not configured' else 'invalid_arguments'
+            return types.CallToolResult(content=[types.TextContent(type='text',text=json.dumps({'status':'denied','error':code}))],isError=True)
         except Exception:
             # Fail closed at the wire boundary; never log raw arguments/headers,
             # signing secrets, descriptions or unhandled exception text.
