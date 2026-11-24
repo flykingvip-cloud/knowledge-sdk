@@ -21,6 +21,17 @@ def operation(fn):
             try:
                 with self.store.transaction():
                     result=fn(self,*args,**kwargs)
+                    if fn.__name__ in ('get_release_manifest','submit_for_review','approve_release','reject_release','record_dissent','publish_release','resolve_evidence_issue'):
+                        doc_id=values.get('doc_id') or getattr(result,'doc_id',None)
+                        if doc_id:
+                            from ..contracts.policy import DecisionEffect
+                            decision=self.evaluate_policy(actor,doc_id,action=PolicyAction.APPROVE_RELEASE if fn.__name__=='resolve_evidence_issue' else PolicyAction.WRITE_DOCUMENT,agent=values.get('agent'),purpose=values.get('purpose',Purpose.READ),policy_context=values.get('policy_context'))
+                            if not decision.allowed:raise PermissionDeniedError(decision.reason_code)
+                            if decision.effect==DecisionEffect.ALLOW_WITH_REDACTION:
+                                mask=lambda value:self.redaction_registry.apply(value,decision.redaction_profile,values.get('purpose',Purpose.READ))[0]
+                                if isinstance(result,ReviewDecision):result=replace(result,comment=mask(result.comment),dissent_note=mask(result.dissent_note),conditions=mask(result.conditions))
+                                elif isinstance(result,ReleaseManifest):result=replace(result,dissent_notes=tuple(mask(n) for n in result.dissent_notes))
+                                else:result=replace(result,description=mask(result.description),resolution=replace(result.resolution,note=mask(result.resolution.note)) if result.resolution else None)
                     self._audit_operation(actor,fn.__name__,values,result)
                     return result
             except PermissionDeniedError:
@@ -38,6 +49,7 @@ class GovernanceMixin:
         if not decision.allowed:raise PermissionDeniedError(decision.reason_code)
         version=self.store.latest_version(doc_id) if version is None else version
         if type(version) is not int or version<1:raise ValidationError('Invalid version')
+        if version!=self.store.latest_version(doc_id):raise ConflictError('Stale release candidate')
         if require_expected and expected_version is None or expected_version is not None and (type(expected_version) is not int or expected_version!=version):raise ConflictError('Expected version conflict')
         return d,self.store.get_version(doc_id,version)
 
@@ -59,6 +71,7 @@ class GovernanceMixin:
         d,v=self._governance_version(actor,doc_id,version,expected_version,PolicyAction.WRITE_DOCUMENT,agent=agent,purpose=purpose,policy_context=policy_context)
         if v.lifecycle_state not in ('draft','rejected'):raise ConflictError('Version not draft/rejected')
         v=self.store.update_version_state(doc_id,v.version,'in_review',submitter_id=actor.user_id,reviewer_id='',publisher_id='',published_at='')
+        if d.lifecycle_state!='published':self.store.update_document_lifecycle(doc_id,'in_review',current_version=v.version)
         return self._review(actor,d,v,'submitted',expected_version,comment=note)
 
     def _review_authority(self,actor,d,v):
@@ -70,6 +83,7 @@ class GovernanceMixin:
         d,v=self._governance_version(actor,doc_id,version,expected_version,PolicyAction.APPROVE_RELEASE,require_expected=True,agent=agent,purpose=purpose,policy_context=policy_context)
         self._review_authority(actor,d,v)
         v=self.store.update_version_state(doc_id,version,'approved',reviewer_id=actor.user_id)
+        if d.lifecycle_state!='published':self.store.update_document_lifecycle(doc_id,'approved',current_version=v.version)
         return self._review(actor,d,v,'approved',expected_version,comment,conditions)
 
     @operation
@@ -78,6 +92,7 @@ class GovernanceMixin:
         d,v=self._governance_version(actor,doc_id,version,expected_version,PolicyAction.APPROVE_RELEASE,require_expected=True,agent=agent,purpose=purpose,policy_context=policy_context)
         self._review_authority(actor,d,v)
         v=self.store.update_version_state(doc_id,version,'rejected',reviewer_id=actor.user_id)
+        if d.lifecycle_state!='published':self.store.update_document_lifecycle(doc_id,'rejected',current_version=v.version)
         return self._review(actor,d,v,'rejected',expected_version,comment=reason)
 
     @operation

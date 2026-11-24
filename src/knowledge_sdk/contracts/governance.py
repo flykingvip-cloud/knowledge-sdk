@@ -41,6 +41,7 @@ class ReleaseManifest(PolicyContract):
     resolved_issue_ids: Tuple[str, ...] = ()
     def __post_init__(self):
         integer(self.version,'version',1)
+        if self.lifecycle_state not in ('draft','in_review','rejected','approved','published','superseded','revoked'):raise ValidationError('Invalid release state')
         for n in ('dissent_notes','resolved_issue_ids'):object.__setattr__(self,n,sequence(getattr(self,n),n))
 
 @dataclass(frozen=True)
@@ -58,3 +59,5 @@ class IssueResolution(PolicyContract):
         if self.resolution_action not in ('create_revision_draft','retrieval_tuning','keep_dissent','dismissed'):raise ValidationError('Invalid resolution action')
         integer(self.version,'version',1)
         text(self.note,'note',True)
+        for n in ('issue_id','org_id','doc_id','actor_id','created_at'):text(getattr(self,n),n,True)
+        if self.revision_version is not None:integer(self.revision_version,'revision_version',1)

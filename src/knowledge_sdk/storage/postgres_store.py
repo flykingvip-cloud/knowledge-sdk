@@ -635,6 +635,7 @@ class PostgresStore:
 
     @tenant_method
     def put_review_decision(self,decision):
+        if self.get_document(decision.doc_id).org_id!=decision.org_id:raise ConflictError('Review tenant mismatch')
         self._execute('INSERT INTO review_decisions(decision_id,org_id,doc_id,version,stage,reviewer_id,created_at,data) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',
                       (decision.decision_id,decision.org_id,decision.doc_id,decision.version,decision.stage,decision.reviewer_id,decision.created_at,self._dump(decision)))
 
@@ -663,6 +664,8 @@ class PostgresStore:
         previous=self.get_issue(issue.org_id,issue.issue_id)
         self.lock_document(previous.doc_id)
         previous=self.get_issue(issue.org_id,issue.issue_id)
+        from dataclasses import replace
+        if replace(issue,status=previous.status,resolution=previous.resolution)!=previous:raise ConflictError('Issue identity is immutable')
         if previous.status in ('resolved','dismissed') or expected_version is not None and previous.version!=expected_version:raise ConflictError('Issue conflict')
         self._execute('UPDATE evidence_issues SET status=%s,data=%s WHERE org_id=%s AND issue_id=%s',(issue.status,self._dump(issue),issue.org_id,issue.issue_id))
 

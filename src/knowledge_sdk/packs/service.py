@@ -76,6 +76,8 @@ class PackMixin:
         if type(seal) is not bool or not isinstance(entries,(list,tuple)) or not entries or len(entries)>1000:raise ValidationError('Invalid pack entries')
         allowed={'doc_id','version','anchor_id','stance','condition_note'}
         if any(not isinstance(e,dict) or set(e)-allowed or not {'doc_id','version'}<=set(e) for e in entries):raise ValidationError('Invalid pack entry')
+        for entry in entries:
+            if not isinstance(entry['doc_id'],str) or not entry['doc_id'] or type(entry['version']) is not int or entry['version']<1:raise ValidationError('Invalid pack entry identity')
         self._pack_lock(actor,entries)
         items=[];notes=list(dissent_notes);profiles=[]
         for entry in entries:

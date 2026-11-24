@@ -4,6 +4,8 @@ from dataclasses import dataclass, field, fields
 from typing import Any, Dict, Tuple
 import hashlib
 import json
+import re
+from .uri import parse_uri_v2
 from .policy import PolicyContract, Purpose, enum_value, freeze_json, sequence, text
 from .anchors import integer
 from ..exceptions import ValidationError
@@ -31,6 +33,9 @@ class PackItem(PolicyContract):
     receipt_id: str = ''
     def __post_init__(self):
         integer(self.version,'version',1)
+        uri=parse_uri_v2(self.source_uri)
+        if (uri.doc_id,uri.version,uri.anchor_id or '')!=(self.doc_id,self.version,self.anchor_id) or uri.chunk_id:raise ValidationError('Pack source identity mismatch')
+        if self.excerpt_hash and not re.fullmatch('[0-9a-f]{64}',self.excerpt_hash):raise ValidationError('Invalid excerpt hash')
         if self.stance not in ('supporting','refuting','negative','conflict','contextual'):raise ValidationError('Invalid stance')
         for f in fields(self):
             if f.name!='version':text(getattr(self,f.name),f.name)
@@ -52,6 +57,8 @@ class EvidencePack(PolicyContract):
     created_at: str = ''
     def __post_init__(self):
         for n in ('pack_id','org_id','title'):text(getattr(self,n),n,True)
+        for n in ('topic','created_by','created_at','pack_sha256'):text(getattr(self,n),n)
+        if not isinstance(self.effective_decision,dict):raise ValidationError('Decision metadata must be an object')
         if self.status not in ('draft','sealed','impacted','superseded'):raise ValidationError('Invalid pack status')
         object.__setattr__(self,'purpose_bound',enum_value(Purpose,self.purpose_bound))
         object.__setattr__(self,'items',tuple(PackItem.from_dict(i) if isinstance(i,dict) else i for i in self.items))

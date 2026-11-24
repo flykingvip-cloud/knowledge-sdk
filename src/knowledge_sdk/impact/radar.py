@@ -84,8 +84,8 @@ class ImpactRadar:
                 version=event.payload.get('previous_version') or event.payload['version']
                 reason=self._reason(event,version,'',actor,agent,purpose)
                 if reason is not None:self._alert(event,version,'consumer_binding',binding_target_id(*key),reason,user_id)
-            # Reserved table only: accommodate already-imported sealed records;
-            # no EvidencePack construction/export/governance service is added.
+            # Reuse the reserved-table scan for real M3 packs and historical
+            # imported records. Only the external status column may change.
             rows=self.store.list_reserved_pack_records(event.org_id)
             for pack_id,data in rows:
                 pack=decode(json.loads(data))
@@ -97,6 +97,8 @@ class ImpactRadar:
                     version=item.get('version')
                     if type(version) is not int or version<1:raise ValidationError('Invalid reserved pack version')
                     reason=self._reason(event,version,item.get('anchor_id',''),Actor(owner or 'unknown',event.org_id),None,pack.get('purpose_bound','export'))
+                    if reason is None and event.event_type in ('acl.updated','rights.updated'):
+                        reason=ImpactReason.ACCESS_REVOKED  # conservatively require snapshot re-review
                     if reason is not None:
                         self._alert(event,version,'evidence_pack',pack_id,reason,owner)
                         self.store.mark_reserved_pack_impacted(event.org_id,pack_id)

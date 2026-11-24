@@ -9,9 +9,9 @@ def render(pack,format):
     if format=='json':return snapshot
     parts=[{'@id':'evidence-pack.json'},{'@id':'REVIEW_SUMMARY.md'}]
     graph=[{'@id':'ro-crate-metadata.json','@type':'CreativeWork','conformsTo':{'@id':'https://w3id.org/ro/crate/1.2'},'about':{'@id':'./'}},
-           {'@id':'./','@type':'Dataset','name':pack.title,'datePublished':pack.created_at,'hasPart':parts},
-           {'@id':'evidence-pack.json','@type':'DigitalDocument','encodingFormat':'application/json'},
-           {'@id':'REVIEW_SUMMARY.md','@type':'DigitalDocument','encodingFormat':'text/markdown'}]
+           {'@id':'./','@type':'Dataset','name':pack.title,'description':pack.topic or 'Policy-checked sealed evidence and review snapshot.','license':'No additional rights are granted; source rights and organizational policy apply.','datePublished':pack.created_at,'hasPart':parts},
+           {'@id':'evidence-pack.json','@type':['File','DigitalDocument'],'encodingFormat':'application/json'},
+           {'@id':'REVIEW_SUMMARY.md','@type':['File','DigitalDocument'],'encodingFormat':'text/markdown'}]
     summary=['# '+pack.title,'','Status: '+pack.status,'','## Dissent']+list(pack.dissent_notes)
     for stance in ('supporting','refuting','negative','conflict','contextual'):
         summary+=['','## '+stance]

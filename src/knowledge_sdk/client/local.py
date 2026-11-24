@@ -407,6 +407,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
                 previous=self.store.get_version(doc_id,self.store.latest_version(doc_id) if controlled else d.current_version)
         changes={name:value for name,value in (("rights",rights),("lifecycle_state",lifecycle_state),("valid_from",valid_from),("valid_to",valid_to)) if value is not None}
         if classify(previous,raw_hash,semantic_hash)!="new_semantic_version":
+            if controlled:return self._ingested_response(actor,previous,**ctx)
             updated=replace(d,**changes)
             # Dataclass validation precedes updates; return is separately read-gated.
             with self.store.transaction():
@@ -624,7 +625,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
                 delivered=issue
                 if decision.effect==DecisionEffect.ALLOW_WITH_REDACTION:
                     masked=self.redaction_registry.apply(issue.description,decision.redaction_profile,purpose,{'doc_id':issue.doc_id})[0]
-                    delivered=replace(issue,description=masked,conflicting_uri='',reported_by_user_id='',reported_by_agent_id='',anchor_id='')
+                    delivered=replace(issue,description=masked,conflicting_uri='',reported_by_user_id='',reported_by_agent_id='',anchor_id='',resolution=replace(issue.resolution,note=self.redaction_registry.apply(issue.resolution.note,decision.redaction_profile,purpose)[0]) if issue.resolution else None)
                 if self.evaluate_policy(actor,issue.doc_id,**ctx)!=decision:continue
                 if conflict is not None and self.evaluate_policy(actor,other.doc_id,**ctx)!=conflict:continue
                 result.append(delivered)
