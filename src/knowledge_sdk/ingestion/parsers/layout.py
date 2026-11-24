@@ -29,6 +29,12 @@ class ParsedSpan(PolicyContract):
         if self.section_quote is not None and (self.section_quote.start_offset,self.section_quote.end_offset)!=(self.start_offset,self.end_offset):
             raise ValidationError('Section offsets do not match span')
 
+    def to_dict(self):
+        result=super().to_dict()
+        for name in ('pdf_bbox','table_cell','section_quote'):
+            value=getattr(self,name);result[name]=value.to_dict() if value is not None else None
+        return result
+
 
 @dataclass(frozen=True)
 class LayoutParseResult(PolicyContract):
@@ -46,6 +52,9 @@ class LayoutParseResult(PolicyContract):
             raise ValidationError('Layout span does not match full_text')
         object.__setattr__(self,'spans',spans)
         object.__setattr__(self,'warnings',strings(self.warnings,'warnings'))
+
+    def to_dict(self):
+        result=super().to_dict();result['spans']=[span.to_dict() for span in self.spans];return result
 
 
 class LayoutParser(Protocol):

@@ -63,7 +63,9 @@ class AnchorContracts(unittest.TestCase):
         with self.assertRaises(FrozenInstanceError):a.version=2
         objects=[a,a.quote,a.pdf_bbox,TableCellSelector(col_headers=['a']),SectionQuoteSelector(['h']),ParsedKBURI('o','d',1,anchor_id='a')]
         layout=ParserRegistry.defaults().parse_layout(b'# H\n\nbody','x.md');objects.extend([layout,layout.spans[0]])
-        for value in objects:self.assertEqual(decode(json.loads(json.dumps(encode(value)))),value)
+        for value in objects:
+            self.assertEqual(decode(json.loads(json.dumps(encode(value)))),value)
+            self.assertEqual(type(value).from_dict(json.loads(json.dumps(value.to_dict()))),value)
         self.assertEqual(EvidenceAnchor.from_dict(a.to_dict()),a)
     def test_layout_rejects_bad_plugin_offsets_and_type(self):
         with self.assertRaises(ValidationError):ParsedSpan('x',True,2,SelectorKind.TEXT_OFFSET)
@@ -191,3 +193,13 @@ class AnchorClientTests(unittest.TestCase):
         self.c.parsers.register(['bad'],Bad())
         with self.assertRaises(ValidationError):self.ingest(b'bad','x.bad')
         self.assertEqual(self.c.store.list_documents('o'),[])
+
+    def test_store_anchor_identity_is_rechecked_at_delivery_boundary(self):
+        from unittest.mock import patch
+        v=self.ingest('# H\n\nexact');anchor=self.c.list_anchors(self.admin,v.doc_id)[0]
+        for change in ({'org_id':'other'},{'doc_id':'other'},{'version':2}):
+            forged=replace(anchor,**change)
+            with patch.object(self.c.store,'get_anchors',return_value=[forged]):
+                with self.assertRaisesRegex(PermissionDeniedError,'anchor_identity_mismatch'):self.c.list_anchors(self.admin,v.doc_id)
+            with patch.object(self.c.store,'get_anchor',return_value=forged):
+                with self.assertRaisesRegex(PermissionDeniedError,'anchor_identity_mismatch'):self.c.get_anchor(self.admin,v.doc_id,anchor.anchor_id)

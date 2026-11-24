@@ -18,7 +18,7 @@ from ..contracts.models import (KnowledgeBase, Document, DocumentVersion, Docume
 from ..contracts.uri import build_uri
 from ..contracts.anchors import ReanchorStatus, integer, identifier
 from ..contracts.reanchor import merge_anchors_for_version
-from .anchors import deliver as deliver_anchor, validate_source as validate_anchor_source
+from .anchors import deliver as deliver_anchor, validate_source as validate_anchor_source, validate_identity as validate_anchor_identity
 from ..contracts.receipts import consume, batch_consume, validate_excerpt
 from ..exceptions import PermissionDeniedError, NotFoundError, ValidationError, ConflictError, TamperedExcerptError
 from ..permissions.policy import can_admin, can_read, can_write
@@ -326,6 +326,7 @@ class LocalKnowledgeClient:
         # Even an empty anchor list cannot silently bypass a required hook.
         if decision.effect==DecisionEffect.ALLOW_WITH_REDACTION:self.redaction_registry.apply('',decision.redaction_profile,purpose)
         for anchor in anchors:
+            validate_anchor_identity(anchor,d.org_id,doc_id,v.version)
             if anchor.reanchor_status==ReanchorStatus.ANCHORED:validate_anchor_source(anchor,v)
             result.append(deliver_anchor(self,anchor,decision,purpose))
         return result
@@ -335,6 +336,7 @@ class LocalKnowledgeClient:
         identifier(anchor_id,'anchor_id')
         d,v,decision=self._anchor_authority(actor,doc_id,version,agent=agent,purpose=purpose,policy_context=policy_context)
         anchor=self.store.get_anchor(d.org_id,doc_id,v.version,anchor_id)
+        validate_anchor_identity(anchor,d.org_id,doc_id,v.version,anchor_id)
         if anchor.reanchor_status==ReanchorStatus.ANCHORED:validate_anchor_source(anchor,v)
         return deliver_anchor(self,anchor,decision,purpose)
 
@@ -348,6 +350,7 @@ class LocalKnowledgeClient:
             write=self.evaluate_policy(actor,doc_id,action=PolicyAction.WRITE_DOCUMENT,**ctx)
             if not write.allowed:raise PermissionDeniedError(write.reason_code)
             anchor=self.store.get_anchor(d.org_id,doc_id,v.version,anchor_id)
+            validate_anchor_identity(anchor,d.org_id,doc_id,v.version,anchor_id)
             if anchor.reanchor_status!=ReanchorStatus.DRIFT_PENDING:raise ValidationError('Only drift_pending anchors can be confirmed')
             validate_anchor_source(anchor,v)
             confirmed=replace(anchor,reanchor_status=ReanchorStatus.ANCHORED)

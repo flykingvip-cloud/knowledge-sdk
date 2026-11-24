@@ -1,9 +1,15 @@
 """Detached anchor delivery views. Never persist a masked view as authority."""
 from __future__ import annotations
 from dataclasses import replace
-from ..contracts.anchors import TextQuoteSelector,ReanchorStatus,digest
+from ..contracts.anchors import TextQuoteSelector,ReanchorStatus,EvidenceAnchor,digest
 from ..contracts.policy import DecisionEffect
 from ..exceptions import PermissionDeniedError,ValidationError
+
+
+def validate_identity(anchor,org_id,doc_id,version,anchor_id=None):
+    if (not isinstance(anchor,EvidenceAnchor) or (anchor.org_id,anchor.doc_id,anchor.version)!=(org_id,doc_id,version)
+        or (anchor_id is not None and anchor.anchor_id!=anchor_id)):
+        raise PermissionDeniedError('anchor_identity_mismatch')
 
 
 def validate_source(anchor,version):
