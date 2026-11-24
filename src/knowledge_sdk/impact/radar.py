@@ -36,7 +36,7 @@ class ImpactRadar:
     def _reason(self,event,version,anchor_id,actor,agent,purpose):
         kind=event.event_type;new_version=event.payload['version']
         if version>new_version:return None
-        if kind=='doc.revised':return ImpactReason.SUPERSEDED if version<new_version else None
+        if kind in ('doc.revised','doc.published'):return ImpactReason.SUPERSEDED if version<new_version else None
         if kind=='doc.archived':return ImpactReason.RESOURCE_ARCHIVED
         if kind in ('doc.revoked','acl.updated','rights.updated'):
             return ImpactReason.ACCESS_REVOKED if self._lost_access(event,actor,agent,purpose) else None
@@ -52,7 +52,7 @@ class ImpactRadar:
         self.store.put_impact_alert(alert,actor_id=actor_id,usage_id=usage_id)
 
     def process(self,event):
-        if event.event_type not in ('doc.revised','doc.archived','doc.revoked','acl.updated','rights.updated','anchor.drifted','anchor.orphaned'):return
+        if event.event_type not in ('doc.revised','doc.published','doc.archived','doc.revoked','acl.updated','rights.updated','anchor.drifted','anchor.orphaned'):return
         doc_id=event.payload['doc_id']
         with self.client._lock, self.store._write_scope():
             document=self.store.get_document(doc_id)
@@ -89,6 +89,7 @@ class ImpactRadar:
             rows=self.store.list_reserved_pack_records(event.org_id)
             for pack_id,data in rows:
                 pack=decode(json.loads(data))
+                if hasattr(pack,'to_dict'):pack=pack.to_dict()
                 if not isinstance(pack,dict):raise ValidationError('Invalid reserved pack metadata')
                 owner=pack.get('created_by','')
                 for item in pack.get('items',()):
