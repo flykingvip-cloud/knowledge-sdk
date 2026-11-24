@@ -133,7 +133,8 @@ class DefaultPolicyEngine:
         except (ValidationError, TypeError, ValueError, OverflowError):
             return decision('retention_expired')
         if purpose == Purpose.GROUND_EXTERNAL_LLM and not rights.allow_external_llm: return decision('external_llm_prohibited')
-        if purpose == Purpose.EXPORT and not rights.allow_export: return decision('export_prohibited')
+        if (purpose == Purpose.EXPORT or action == PolicyAction.EXPORT_PACK) and not rights.allow_export: return decision('export_prohibited')
+        if action == PolicyAction.EXPORT_PACK and Purpose.EXPORT not in rights.allowed_purposes:return decision('export_prohibited')
         if purpose == Purpose.EVAL_AND_TRAIN and not rights.allow_eval_and_train: return decision('training_prohibited')
         if purpose not in rights.allowed_purposes: return decision('purpose_not_permitted')
         # 8. Every applicable redaction obligation survives priority resolution.

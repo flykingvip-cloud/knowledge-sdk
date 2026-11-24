@@ -5,7 +5,6 @@ import hashlib
 import uuid
 from ..contracts.packs import EvidencePack, PackItem, PackVerificationReport, ExportResult, digest, canonical, plain
 from ..contracts.policy import Purpose, PolicyAction, DecisionEffect, enum_value
-from ..permissions.engine import intersect_decisions
 from ..contracts.impact import UsageEvent
 from ..contracts.uri import build_uri
 from ..exceptions import PermissionDeniedError, NotFoundError, ConflictError, ValidationError
@@ -16,7 +15,6 @@ class PackMixin:
         doc_id=entry['doc_id'];version=entry['version']
         if type(version) is not int or version<1:raise ValidationError('Invalid pack version')
         decision=self.evaluate_policy(actor,doc_id,action=PolicyAction.EXPORT_PACK,purpose=purpose,agent=agent,policy_context=policy_context)
-        decision=intersect_decisions((decision,self.evaluate_policy(actor,doc_id,action=PolicyAction.EXPORT_PACK,purpose=Purpose.EXPORT,agent=agent,policy_context=policy_context)))
         if not decision.allowed:raise PermissionDeniedError('pack_access_denied')
         d=self.store.get_document(doc_id);v=self.store.get_version(doc_id,version)
         if d.org_id!=actor.org_id or d.archived or d.lifecycle_state!='published' or v.lifecycle_state!='published':raise PermissionDeniedError('pack_source_not_published')
@@ -58,7 +56,6 @@ class PackMixin:
             # every policy AFTER all hooks before returning any sealed plaintext.
             for item,previous in zip(pack.items,decisions):
                 current=self.evaluate_policy(actor,item.doc_id,action=PolicyAction.EXPORT_PACK,purpose=purpose,agent=agent,policy_context=policy_context)
-                current=intersect_decisions((current,self.evaluate_policy(actor,item.doc_id,action=PolicyAction.EXPORT_PACK,purpose=Purpose.EXPORT,agent=agent,policy_context=policy_context)))
                 if current!=previous or not current.allowed:raise PermissionDeniedError('pack_access_changed')
                 for profile in current.redaction_profile.split(','):
                     if profile and not self.redaction_registry.has_profile(profile):raise PermissionDeniedError('redaction_hook_missing')

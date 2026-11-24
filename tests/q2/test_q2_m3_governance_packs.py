@@ -24,7 +24,7 @@ from knowledge_sdk.contracts.anchors import ReanchorStatus
 from knowledge_sdk.storage.sqlite_store import SQLiteStore
 from knowledge_sdk.mcp.tools import EvidenceTools
 from knowledge_sdk.mcp.gateway import GatewayContext
-from knowledge_sdk.contracts.policy import Purpose
+from knowledge_sdk.contracts.policy import Purpose, AgentIdentity
 from knowledge_sdk.permissions.redaction import RegexRedactionHook
 
 class M3Contracts:
@@ -213,6 +213,8 @@ class M3Contracts:
         self.ingest();self.publish();pack=self.pack()
         tools=EvidenceTools(self.c);context=GatewayContext(self.u,None,Purpose.GROUND_INTERNAL_LLM)
         self.assertEqual(tools.call('get_evidence_pack',{'pack_id':pack.pack_id},context)['pack_sha256'],pack.pack_sha256)
+        default_agent_context=GatewayContext(self.u,AgentIdentity('internal-agent','m3'),Purpose.GROUND_INTERNAL_LLM)
+        self.assertEqual(tools.call('get_evidence_pack',{'pack_id':pack.pack_id},default_agent_context)['pack_sha256'],pack.pack_sha256)
         self.assertTrue(tools.call('get_evidence_pack',{'source_uris':['kb://org/m3/doc/d@1']},context)['items'])
         self.assertTrue(tools.call('get_evidence_pack',{'query':'alpha'},context)['items'])
         self.c.set_document_acl(self.a,'d',DocumentACL(deny_users=['reader']))
