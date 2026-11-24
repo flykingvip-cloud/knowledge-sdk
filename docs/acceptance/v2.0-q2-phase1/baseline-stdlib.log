@@ -1,0 +1,495 @@
+tests.anchors.test_phase3_anchors_and_reanchor (unittest.loader._FailedTest.tests.anchors.test_phase3_anchors_and_reanchor) ... ERROR
+tests.benchmark.test_golden_benchmark (unittest.loader._FailedTest.tests.benchmark.test_golden_benchmark) ... ERROR
+tests.contracts.test_contracts (unittest.loader._FailedTest.tests.contracts.test_contracts) ... ERROR
+tests.ingestion.test_ingestion (unittest.loader._FailedTest.tests.ingestion.test_ingestion) ... ERROR
+tests.integration.test_qdrant_live (unittest.loader._FailedTest.tests.integration.test_qdrant_live) ... ERROR
+test_core_end_to_end_without_site_packages (tests.isolation.test_zero_coupling.IsolationTests.test_core_end_to_end_without_site_packages) ... ok
+test_no_business_or_model_imports (tests.isolation.test_zero_coupling.IsolationTests.test_no_business_or_model_imports) ... ok
+test_python39_syntax (tests.isolation.test_zero_coupling.IsolationTests.test_python39_syntax) ... ok
+tests.mcp.test_phase4_issues (unittest.loader._FailedTest.tests.mcp.test_phase4_issues) ... ERROR
+tests.mcp.test_phase4_protocol (unittest.loader._FailedTest.tests.mcp.test_phase4_protocol) ... ERROR
+tests.mcp.test_phase4_tools (unittest.loader._FailedTest.tests.mcp.test_phase4_tools) ... ERROR
+test_actual_jsonrpc_http_and_stdio_four_tools (tests.mcp.test_phase4_transport.OptionalTransportTests.test_actual_jsonrpc_http_and_stdio_four_tools) ... skipped 'optional HTTP dependencies unavailable'
+test_missing_extra_cli_fails_before_opening_databases (tests.mcp.test_phase4_transport.OptionalTransportTests.test_missing_extra_cli_fails_before_opening_databases) ... FAIL
+test_stdlib_module_imports_without_wire_dependencies (tests.mcp.test_phase4_transport.OptionalTransportTests.test_stdlib_module_imports_without_wire_dependencies) ... ERROR
+tests.permissions.test_permissions (unittest.loader._FailedTest.tests.permissions.test_permissions) ... ERROR
+tests.permissions.test_phase2_policy_engine (unittest.loader._FailedTest.tests.permissions.test_phase2_policy_engine) ... ERROR
+tests.retrieval.test_excerpt (unittest.loader._FailedTest.tests.retrieval.test_excerpt) ... ERROR
+tests.retrieval.test_hybrid (unittest.loader._FailedTest.tests.retrieval.test_hybrid) ... ERROR
+tests.retrieval.test_openai_embedder (unittest.loader._FailedTest.tests.retrieval.test_openai_embedder) ... ERROR
+tests.retrieval.test_qdrant (unittest.loader._FailedTest.tests.retrieval.test_qdrant) ... ERROR
+tests.server.test_http (unittest.loader._FailedTest.tests.server.test_http) ... ERROR
+tests.server.test_phase1_auth (unittest.loader._FailedTest.tests.server.test_phase1_auth) ... ERROR
+tests.server.test_phase1_closeout (unittest.loader._FailedTest.tests.server.test_phase1_closeout) ... ERROR
+tests.server.test_phase1_mount (unittest.loader._FailedTest.tests.server.test_phase1_mount) ... ERROR
+tests.server.test_phase2_policy_http (unittest.loader._FailedTest.tests.server.test_phase2_policy_http) ... ERROR
+tests.server.test_phase3_anchors_http (unittest.loader._FailedTest.tests.server.test_phase3_anchors_http) ... ERROR
+tests.server.test_phase4_mcp_http (unittest.loader._FailedTest.tests.server.test_phase4_mcp_http) ... ERROR
+tests.server.test_v11_http (unittest.loader._FailedTest.tests.server.test_v11_http) ... ERROR
+tests.storage.test_phase3_sqlite_v2_and_fetch (unittest.loader._FailedTest.tests.storage.test_phase3_sqlite_v2_and_fetch) ... ERROR
+tests.storage.test_phase4_scope_pushdown (unittest.loader._FailedTest.tests.storage.test_phase4_scope_pushdown) ... ERROR
+tests.storage.test_storage (unittest.loader._FailedTest.tests.storage.test_storage) ... ERROR
+test_all_static_and_dynamic_keys_have_both_locales (tests.test_ui_i18n.LocaleCatalogTests.test_all_static_and_dynamic_keys_have_both_locales) ... ok
+test_chinese_copy_has_no_bilingual_enum_labels (tests.test_ui_i18n.LocaleCatalogTests.test_chinese_copy_has_no_bilingual_enum_labels) ... ok
+test_english_interface_copy_has_no_chinese (tests.test_ui_i18n.LocaleCatalogTests.test_english_interface_copy_has_no_chinese) ... ok
+test_js_syntax (tests.test_ui_i18n.LocaleCatalogTests.test_js_syntax) ... ok
+test_only_locale_preference_is_persisted (tests.test_ui_i18n.LocaleCatalogTests.test_only_locale_preference_is_persisted) ... ok
+test_blocked_storage_fallback (tests.test_ui_i18n.LocaleDOMTests.test_blocked_storage_fallback) ... ok
+test_cached_switch_has_no_network_requests (tests.test_ui_i18n.LocaleDOMTests.test_cached_switch_has_no_network_requests) ... ok
+test_compact_identity_retains_claims_and_both_languages (tests.test_ui_i18n.LocaleDOMTests.test_compact_identity_retains_claims_and_both_languages) ... ok
+test_default_chinese (tests.test_ui_i18n.LocaleDOMTests.test_default_chinese) ... ok
+test_document_policy_labels_and_original_body (tests.test_ui_i18n.LocaleDOMTests.test_document_policy_labels_and_original_body) ... ok
+test_dynamic_evidence_and_server_notices (tests.test_ui_i18n.LocaleDOMTests.test_dynamic_evidence_and_server_notices) ... ok
+test_dynamic_spaces_empty_states_and_original_content (tests.test_ui_i18n.LocaleDOMTests.test_dynamic_spaces_empty_states_and_original_content) ... ok
+test_english_and_interpolation (tests.test_ui_i18n.LocaleDOMTests.test_english_and_interpolation) ... ok
+test_enum_labels (tests.test_ui_i18n.LocaleDOMTests.test_enum_labels) ... ok
+test_identity_switch_retains_locale (tests.test_ui_i18n.LocaleDOMTests.test_identity_switch_retains_locale) ... ok
+test_invalid_locale_and_key_fallback (tests.test_ui_i18n.LocaleDOMTests.test_invalid_locale_and_key_fallback) ... ok
+test_navigation_labels_remain_complete_in_both_languages (tests.test_ui_i18n.LocaleDOMTests.test_navigation_labels_remain_complete_in_both_languages) ... ok
+test_preference_persistence (tests.test_ui_i18n.LocaleDOMTests.test_preference_persistence) ... ok
+test_preference_reload (tests.test_ui_i18n.LocaleDOMTests.test_preference_reload) ... ok
+test_receipt_status_and_no_duplicate_on_rerender (tests.test_ui_i18n.LocaleDOMTests.test_receipt_status_and_no_duplicate_on_rerender) ... ok
+test_refusal_is_localized (tests.test_ui_i18n.LocaleDOMTests.test_refusal_is_localized) ... ok
+test_server_errors_do_not_leak_english (tests.test_ui_i18n.LocaleDOMTests.test_server_errors_do_not_leak_english) ... ok
+test_static_dom_and_attributes (tests.test_ui_i18n.LocaleDOMTests.test_static_dom_and_attributes) ... ok
+test_compact_toolbar_has_intrinsic_height_and_keeps_essential_controls (tests.test_ui_layout.WorkbenchChromeTests.test_compact_toolbar_has_intrinsic_height_and_keeps_essential_controls) ... ok
+test_desktop_label_cannot_inherit_icon_width_or_vertical_wrapping (tests.test_ui_layout.WorkbenchChromeTests.test_desktop_label_cannot_inherit_icon_width_or_vertical_wrapping) ... ok
+test_navigation_has_separate_icon_translation_and_index_tracks (tests.test_ui_layout.WorkbenchChromeTests.test_navigation_has_separate_icon_translation_and_index_tracks) ... ok
+test_requested_noise_is_removed_without_removing_actor_settings (tests.test_ui_layout.WorkbenchChromeTests.test_requested_noise_is_removed_without_removing_actor_settings) ... ok
+test_short_desktop_sidebar_keeps_all_navigation_reachable (tests.test_ui_layout.WorkbenchChromeTests.test_short_desktop_sidebar_keeps_all_navigation_reachable) ... ok
+test_tablet_and_phone_use_page_flow_not_horizontal_overflow (tests.test_ui_layout.WorkbenchChromeTests.test_tablet_and_phone_use_page_flow_not_horizontal_overflow) ... ok
+tests.test_ui_workbench (unittest.loader._FailedTest.tests.test_ui_workbench) ... ERROR
+tests.v11.test_v11 (unittest.loader._FailedTest.tests.v11.test_v11) ... ERROR
+
+======================================================================
+ERROR: tests.anchors.test_phase3_anchors_and_reanchor (unittest.loader._FailedTest.tests.anchors.test_phase3_anchors_and_reanchor)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.anchors.test_phase3_anchors_and_reanchor
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/anchors/test_phase3_anchors_and_reanchor.py", line 5, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.benchmark.test_golden_benchmark (unittest.loader._FailedTest.tests.benchmark.test_golden_benchmark)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.benchmark.test_golden_benchmark
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/benchmark/test_golden_benchmark.py", line 3, in <module>
+    from .runner import run_suite
+  File "/workspace/knowledge-sdk/tests/benchmark/runner.py", line 11, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.contracts.test_contracts (unittest.loader._FailedTest.tests.contracts.test_contracts)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.contracts.test_contracts
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/contracts/test_contracts.py", line 3, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.ingestion.test_ingestion (unittest.loader._FailedTest.tests.ingestion.test_ingestion)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.ingestion.test_ingestion
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/ingestion/test_ingestion.py", line 4, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.integration.test_qdrant_live (unittest.loader._FailedTest.tests.integration.test_qdrant_live)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.integration.test_qdrant_live
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/integration/test_qdrant_live.py", line 17, in <module>
+    from knowledge_sdk import (Actor, LocalKnowledgeClient, ExcerptPolicy, DocumentACL,
+                               OpenAICompatibleEmbedder, PermissionDeniedError)
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.mcp.test_phase4_issues (unittest.loader._FailedTest.tests.mcp.test_phase4_issues)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.mcp.test_phase4_issues
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/mcp/test_phase4_issues.py", line 4, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.mcp.test_phase4_protocol (unittest.loader._FailedTest.tests.mcp.test_phase4_protocol)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.mcp.test_phase4_protocol
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/mcp/test_phase4_protocol.py", line 3, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.mcp.test_phase4_tools (unittest.loader._FailedTest.tests.mcp.test_phase4_tools)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.mcp.test_phase4_tools
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/mcp/test_phase4_tools.py", line 11, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: test_stdlib_module_imports_without_wire_dependencies (tests.mcp.test_phase4_transport.OptionalTransportTests.test_stdlib_module_imports_without_wire_dependencies)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/mcp/test_phase4_transport.py", line 10, in test_stdlib_module_imports_without_wire_dependencies
+    import knowledge_sdk.mcp
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+======================================================================
+ERROR: tests.permissions.test_permissions (unittest.loader._FailedTest.tests.permissions.test_permissions)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.permissions.test_permissions
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/permissions/test_permissions.py", line 2, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.permissions.test_phase2_policy_engine (unittest.loader._FailedTest.tests.permissions.test_phase2_policy_engine)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.permissions.test_phase2_policy_engine
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/permissions/test_phase2_policy_engine.py", line 8, in <module>
+    from knowledge_sdk import (Actor, KnowledgeBase, Document, DocumentACL, ResourceRights,
+    ...<3 lines>...
+        PermissionDeniedError, ValidationError, KnowledgeScope, ConsumerBinding, GeneratedAnswer)
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.retrieval.test_excerpt (unittest.loader._FailedTest.tests.retrieval.test_excerpt)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.retrieval.test_excerpt
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/retrieval/test_excerpt.py", line 2, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.retrieval.test_hybrid (unittest.loader._FailedTest.tests.retrieval.test_hybrid)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.retrieval.test_hybrid
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/retrieval/test_hybrid.py", line 2, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.retrieval.test_openai_embedder (unittest.loader._FailedTest.tests.retrieval.test_openai_embedder)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.retrieval.test_openai_embedder
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/retrieval/test_openai_embedder.py", line 8, in <module>
+    from knowledge_sdk import OpenAICompatibleEmbedder, EmbeddingError, ValidationError
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.retrieval.test_qdrant (unittest.loader._FailedTest.tests.retrieval.test_qdrant)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.retrieval.test_qdrant
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/retrieval/test_qdrant.py", line 4, in <module>
+    from knowledge_sdk.retrieval.adapters.qdrant import QdrantIndex
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.server.test_http (unittest.loader._FailedTest.tests.server.test_http)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.server.test_http
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/server/test_http.py", line 12, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.server.test_phase1_auth (unittest.loader._FailedTest.tests.server.test_phase1_auth)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.server.test_phase1_auth
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/server/test_phase1_auth.py", line 18, in <module>
+    from knowledge_sdk import Actor
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.server.test_phase1_closeout (unittest.loader._FailedTest.tests.server.test_phase1_closeout)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.server.test_phase1_closeout
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/server/test_phase1_closeout.py", line 13, in <module>
+    import knowledge_sdk
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.server.test_phase1_mount (unittest.loader._FailedTest.tests.server.test_phase1_mount)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.server.test_phase1_mount
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/server/test_phase1_mount.py", line 10, in <module>
+    import knowledge_sdk
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.server.test_phase2_policy_http (unittest.loader._FailedTest.tests.server.test_phase2_policy_http)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.server.test_phase2_policy_http
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/server/test_phase2_policy_http.py", line 10, in <module>
+    from knowledge_sdk import (Actor, AgentIdentity, Purpose, PolicyAction, PolicyContext, ResourceRights,
+        LocalKnowledgeClient, DocumentACL, RedactionRegistry, RegexRedactionHook, GeneratedAnswer, ValidationError)
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.server.test_phase3_anchors_http (unittest.loader._FailedTest.tests.server.test_phase3_anchors_http)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.server.test_phase3_anchors_http
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/server/test_phase3_anchors_http.py", line 3, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.server.test_phase4_mcp_http (unittest.loader._FailedTest.tests.server.test_phase4_mcp_http)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.server.test_phase4_mcp_http
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/server/test_phase4_mcp_http.py", line 3, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.server.test_v11_http (unittest.loader._FailedTest.tests.server.test_v11_http)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.server.test_v11_http
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/server/test_v11_http.py", line 4, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.storage.test_phase3_sqlite_v2_and_fetch (unittest.loader._FailedTest.tests.storage.test_phase3_sqlite_v2_and_fetch)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.storage.test_phase3_sqlite_v2_and_fetch
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/storage/test_phase3_sqlite_v2_and_fetch.py", line 9, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.storage.test_phase4_scope_pushdown (unittest.loader._FailedTest.tests.storage.test_phase4_scope_pushdown)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.storage.test_phase4_scope_pushdown
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/storage/test_phase4_scope_pushdown.py", line 4, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.storage.test_storage (unittest.loader._FailedTest.tests.storage.test_storage)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.storage.test_storage
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/storage/test_storage.py", line 5, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.test_ui_workbench (unittest.loader._FailedTest.tests.test_ui_workbench)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.test_ui_workbench
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/test_ui_workbench.py", line 12, in <module>
+    from knowledge_sdk import Actor, LocalKnowledgeClient, DocumentACL
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+ERROR: tests.v11.test_v11 (unittest.loader._FailedTest.tests.v11.test_v11)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: tests.v11.test_v11
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/workspace/knowledge-sdk/tests/v11/test_v11.py", line 7, in <module>
+    from knowledge_sdk import *
+ModuleNotFoundError: No module named 'knowledge_sdk'
+
+
+======================================================================
+FAIL: test_missing_extra_cli_fails_before_opening_databases (tests.mcp.test_phase4_transport.OptionalTransportTests.test_missing_extra_cli_fails_before_opening_databases)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/knowledge-sdk/tests/mcp/test_phase4_transport.py", line 35, in test_missing_extra_cli_fails_before_opening_databases
+    self.assertNotEqual(result.returncode,0);self.assertIn('identity is required',result.stderr)
+                                             ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'identity is required' not found in "/usr/bin/python3: Error while finding module specification for 'knowledge_sdk.mcp' (ModuleNotFoundError: No module named 'knowledge_sdk')\n"
+
+----------------------------------------------------------------------
+Ran 62 tests in 1.356s
+
+FAILED (failures=1, errors=28, skipped=1)

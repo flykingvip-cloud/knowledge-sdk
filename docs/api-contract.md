@@ -117,3 +117,23 @@ is 1.0.0. No application-specific fields enter the kernel. Use metadata for host
 extensions. API-breaking changes require a new major version or `/v2` surface;
 additive optional fields should have defaults. Unknown params are rejected rather
 than silently ignored. Publish contract changes together with both client tests.
+
+## Q2-M1 partial event-foundation checkpoint
+
+New signed operations (same trusted Actor/Agent/Purpose HMAC envelope as existing
+operations; never accept identity claims inside `params`):
+
+- `POST /v1/audit/query` / `query_audit_events(actor, *, doc_id=None,
+  actor_id=None, action=None, since=None, until=None, limit=100)` returns typed
+  `AuditEvent` objects. Tenant scope is always `actor.org_id`; ordinary users can
+  only request their own actor_id. Org `admin`, `manage_org`, or `auditor` claims
+  permit tenant-wide queries. Document-linked results are live-policy checked;
+  required but unavailable redaction hooks fail closed. Limit is 1..1000.
+- `POST /v1/audit/verify` / `verify_audit_chain(actor, *, from_seq=1, to_seq=None)`
+  requires org `admin` or `manage_org`. Returns `AuditChainReport(valid, checked,
+  first_invalid_seq, reason_code, last_hash, org_id)`. Prefix validation starts at
+  genesis even for subrange requests. No public audit update/delete API exists.
+
+`HttpKnowledgeClient` signatures mirror the local methods. These are NOT the
+complete Q2-M1 API: usage lineage, impact list/ack, admin drain entrypoint, and G6
+are still pending. Do not infer phase completion from these two endpoints.

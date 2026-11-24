@@ -1,0 +1,5 @@
+2026-11-24T22:58:46.875604+08:00 Asia/Shanghai
+PASS: actual ephemeral signed HTTP audit/query + audit/verify, typed client parity, unsigned401, non-admin403, tenant isolation
+PASS: actual ephemeral Webhook POST, all four headers, HMAC-SHA256 verification, <60s delivery, no secrets/source text logged
+NOT_IMPLEMENTED: impact/alerts and impact/ack; usage lineage and ImpactRadar; no Q2-M1 completion claim
+All disposable listeners/connections closed; no paid/model/embedding/Qdrant calls

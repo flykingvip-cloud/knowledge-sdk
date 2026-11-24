@@ -139,10 +139,11 @@ class OutboxWebhookTests(unittest.TestCase):
         worker=OutboxDispatcher(self.c.store,webhook=WebhookDispatcher(self.c.store,allow_insecure_local_webhook=True))
         worker.drain_outbox()
         worker.drain_outbox(now=datetime.now(timezone.utc)+timedelta(seconds=10))
-        # Subscription ordering can put failed first; after it succeeds, any already
-        # successful sub must not be retried. Directly prove replay of successful sub.
+        # A failing subscription cannot starve another; a delivered subscription
+        # is not POSTed again when retrying the failed one.
         successful=self.c.store._execute("SELECT COUNT(*) FROM webhook_deliveries WHERE status='delivered'")[0][0]
-        self.assertLessEqual(len(good.requests),1)
+        self.assertEqual(len(good.requests),1)
+        self.assertEqual(successful,1)
         self.assertEqual(len(bad.requests),2)
 
     def test_ssrf_registration_denies_metadata_private_loopback_and_userinfo(self):

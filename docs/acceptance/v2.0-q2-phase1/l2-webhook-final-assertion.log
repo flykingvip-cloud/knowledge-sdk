@@ -1,0 +1,18 @@
+test_all_authoritative_changes_emit_and_payload_contains_no_body (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_all_authoritative_changes_emit_and_payload_contains_no_body) ... ok
+test_claim_serialization_and_expired_worker_lease (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_claim_serialization_and_expired_worker_lease) ... ok
+test_dns_mixed_and_rebinding_blocked_at_delivery (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_dns_mixed_and_rebinding_blocked_at_delivery) ... ok
+test_exponential_retry_and_dead_letter (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_exponential_retry_and_dead_letter) ... ok
+test_failed_sub_does_not_repeat_successful_delivery (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_failed_sub_does_not_repeat_successful_delivery) ... ok
+test_idempotent_enqueue_conflict_and_dispatch_replay (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_idempotent_enqueue_conflict_and_dispatch_replay) ... ok
+test_insecure_sub_needs_explicit_dispatcher_test_switch (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_insecure_sub_needs_explicit_dispatcher_test_switch) ... ok
+test_multi_connection_claim_no_overlap (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_multi_connection_claim_no_overlap) ... ok
+test_outbox_failure_rolls_back_document_version_acl_and_anchors (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_outbox_failure_rolls_back_document_version_acl_and_anchors) ... ok
+test_real_loopback_signature_and_delivery_idempotence (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_real_loopback_signature_and_delivery_idempotence) ... ok
+test_redirect_is_not_followed_even_to_loopback (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_redirect_is_not_followed_even_to_loopback) ... ok
+test_signature_binds_all_headers_and_body (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_signature_binds_all_headers_and_body) ... ok
+test_ssrf_registration_denies_metadata_private_loopback_and_userinfo (tests.q2.test_outbox_webhook.OutboxWebhookTests.test_ssrf_registration_denies_metadata_private_loopback_and_userinfo) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 3.152s
+
+OK
