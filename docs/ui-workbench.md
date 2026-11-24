@@ -196,3 +196,31 @@ Raw logs and live HTTP evidence are in `docs/acceptance/ui-workbench/`; the
 locally built wheel is in `reports/ui-workbench/wheels/`. These are local review
 artifacts, not published releases. Rendered-browser click/screenshot acceptance
 remains separate from this HTTP/static test run.
+
+## Interface language (local change, 2026-11-24)
+
+- The Workbench defaults to Simplified Chinese. The header language selector
+  switches the entire interface between Simplified Chinese and English.
+- Only `knowledge-workbench-language` is saved to browser local storage. No
+  identity, role, credential, document, or receipt is persisted there. Blocked
+  storage falls back safely to an in-memory preference; unknown locales default
+  to Chinese. Identity switches and dynamic results retain the selected language.
+- Locale changes rerender cached data without signing, searching, asking, or
+  calling a model. Ordinary labels, enum captions, empty states, success/error
+  messages, and refusal notices are localized. Untrusted server errors use a
+  localized overview, never raw diagnostics in a toast.
+- Document/space names, source text, generated answer content, identifiers,
+  filenames, paths, and explicitly labeled expandable technical JSON remain
+  original data. The interface does not claim to translate knowledge content.
+  Known access, scope, clearance, identity-role, and receipt enums receive localized
+  captions while their wire values stay unchanged.
+- Static assets remain offline, with no CDN, npm build, or added Python dependency.
+  HMAC authentication and the default-disabled demo signer are unchanged.
+- Verification: full pytest **224 passed, 3 skipped** (203 baseline + 21 locale
+  tests), standard-library-only discovery **175 passed, 52 skipped**, JavaScript
+  syntax and whitespace checks. The locale suite includes dependency-free Node
+  DOM contract mocks; these are deterministic tests, not real-browser clicks.
+  A separate parsed-HTML DOM startup/switch integration check also passed.
+- Real-browser visual/click acceptance remains recommended, especially narrow
+  layouts and native file selection. Refresh the existing local Workbench to
+  load the updated static assets; the service and demo database need no restart.
