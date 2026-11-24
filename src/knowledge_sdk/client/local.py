@@ -62,6 +62,7 @@ class _AuditedEngine:
     """Capture decisions made by retrieval too, not just direct evaluate_policy."""
     def __init__(self, client, delegate):
         self.client=client;self.delegate=delegate
+    def __getattr__(self,name):return getattr(self.delegate,name)
     def evaluate(self, actor, agent, kb, document=None, acl=None, member_role=None,
                  action=PolicyAction.READ_CONTENT, purpose=Purpose.READ, context=None):
         decision=self.delegate.evaluate(actor,agent,kb,document,acl,member_role,action,purpose,context)
@@ -107,7 +108,7 @@ class LocalKnowledgeClient:
                purpose=audit_purpose,doc_id=doc_id,
                effect=effect,reason=reason,redaction_profile=profile,
                request_id=context.request_id if context else '',task_id=context.task_id if context else '',
-               policy_generation=getattr(result,"policy_generation",actor.policy_generation))
+               policy_generation=getattr(result,"policy_generation",(context.policy_generation if context and context.policy_generation else actor.policy_generation)))
 
     @staticmethod
     def _audit_admin(actor):
@@ -135,8 +136,9 @@ class LocalKnowledgeClient:
 
     @staticmethod
     def _org_agent(actor,agent,purpose):
+        purpose=enum_value(Purpose,purpose)
         if agent is not None:
-            if agent.org_id!=actor.org_id or enum_value(Purpose,purpose) not in agent.allowed_purposes or agent.allowed_kb_ids:
+            if agent.org_id!=actor.org_id or purpose not in agent.allowed_purposes or agent.allowed_kb_ids:
                 raise PermissionDeniedError('org_agent_scope_denied')
 
     @serialized

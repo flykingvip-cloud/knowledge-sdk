@@ -252,3 +252,8 @@ class ImpactTests(unittest.TestCase):
         for agent in (AgentIdentity('limited','org',allowed_kb_ids=('kb',)),AgentIdentity('other','foreign')):
             with self.assertRaises(PermissionDeniedError):self.c.drain_outbox(self.a,agent=agent)
             with self.assertRaises(PermissionDeniedError):self.c.verify_audit_chain(self.a,agent=agent)
+
+    def test_invalid_drain_purpose_cannot_mutate_pending_events(self):
+        before=self.c.store._execute('SELECT * FROM outbox_events')
+        with self.assertRaises(ValidationError):self.c.drain_outbox(self.a,purpose='not-a-purpose')
+        self.assertEqual(self.c.store._execute('SELECT * FROM outbox_events'),before)

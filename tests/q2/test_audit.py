@@ -91,3 +91,10 @@ class AuditTests(unittest.TestCase):
                 with self.assertRaises(RuntimeError),one.transaction():
                     append(one,self.a,'rollback');raise RuntimeError('abort')
                 self.assertEqual(len(one.list_audit_events('org')),50)
+
+    def test_write_audit_uses_actual_context_generation_request_task(self):
+        context=PolicyContext(policy_generation='current-9',request_id='request',task_id='task')
+        self.c.archive(self.a,'d',policy_context=context)
+        event=self.c.store.list_audit_events('org',action='archive')[0]
+        self.assertEqual((event.policy_generation,event.request_id,event.task_id),('current-9','request','task'))
+        self.assertEqual(self.c.policy_engine.rules,())
