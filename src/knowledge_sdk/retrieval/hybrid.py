@@ -80,6 +80,7 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
                 if scope is not None and not scope.contains(d,kb): continue
                 if additional_scope is not None and not additional_scope.contains(d,kb): continue
                 if d.current_version!=version: continue
+                if kb.governance_tier=='l2_controlled' and (d.lifecycle_state!='published' or store.get_version(doc_id,version).lifecycle_state!='published'):continue
                 decision=policy_engine.evaluate(actor,agent,kb,d,store.get_acl(doc_id),store.member_role(kb.kb_id,actor.user_id),PolicyAction.SEARCH_INDEX,purpose,policy_context)
                 if not decision.allowed: continue
                 if any(filters.get(k) is not None and filters[k]!=getattr(d,k) for k in ("kb_id","doc_id")): continue

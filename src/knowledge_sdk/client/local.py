@@ -20,6 +20,9 @@ from ..contracts.models import (KnowledgeBase, Document, DocumentVersion, Docume
 from ..contracts.uri import build_uri, parse_uri_v2
 from ..contracts.anchors import ReanchorStatus, integer, identifier
 from ..contracts.reanchor import merge_anchors_for_version
+from ..governance.workflow import GovernanceMixin
+from ..governance.issues import IssueMixin
+from ..packs.service import PackMixin
 from .anchors import deliver as deliver_anchor, validate_source as validate_anchor_source, validate_identity as validate_anchor_identity
 from ..contracts.receipts import consume, batch_consume, validate_excerpt
 from ..exceptions import PermissionDeniedError, NotFoundError, ValidationError, ConflictError, TamperedExcerptError
@@ -37,6 +40,8 @@ def serialized(method):
     audited = method.__name__ in {
         'ingest','archive','restore','set_document_acl','set_document_rights',
         'search','retrieve','consume','attach','confirm_anchor_reanchor',
+        'submit_for_review','approve_release','reject_release','publish_release','record_dissent',
+        'resolve_evidence_issue','create_evidence_pack','get_evidence_pack','verify_evidence_pack','export_evidence_pack',
         'report_evidence_issue','get_document','reference','query_audit_events',
         'list_impact_alerts','acknowledge_impact_alert','drain_outbox','ask','batch_consume','verify_ref'}
     @wraps(method)
@@ -71,7 +76,7 @@ class _AuditedEngine:
         return decision
 
 
-class LocalKnowledgeClient:
+class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
     """Trusted in-process API. Caller supplies an authenticated Actor, not user input."""
     def __init__(self,store=None,blob_store=None,parsers=None,chunker=None,vector_index=None,embedder=None,excerpt_policy=None,*,policy_engine:Optional[KnowledgePolicyEngine]=None,redaction_registry:Optional[RedactionRegistry]=None,policy_rules:Sequence[PolicyRule]=(),identity_resolver=None,allow_insecure_local_webhook=False):
         self.policy_engine = policy_engine if policy_engine is not None else DefaultPolicyEngine(policy_rules)
@@ -283,6 +288,7 @@ class LocalKnowledgeClient:
         if version is not None and (type(version) is not int or version < 1): raise ValidationError("Invalid version")
         d = self.store.get_document(doc_id)
         v = self.store.get_version(doc_id,version if version is not None else d.current_version)
+        self._published_version(d,v)
         chunks = self.store.get_chunks(doc_id,v.version)
         if decision.effect != DecisionEffect.ALLOW_WITH_REDACTION: return d,v,chunks,decision,""
         def mask(value):
@@ -302,6 +308,10 @@ class LocalKnowledgeClient:
             if isinstance(value,list): return [safe(v) for v in value]
             return value
         return replace(d,title=mask(d.title)[0],metadata=safe(d.metadata)),delivered,safe_chunks,decision,summary
+
+    def _published_version(self,d,v):
+        if self.store.get_kb(d.kb_id).governance_tier=='l2_controlled' and v.lifecycle_state!='published':
+            raise PermissionDeniedError('lifecycle_not_published')
 
     def _ingested_response(self,actor,v,**context):
         try: return self.get_document(actor,v.doc_id,v.version,**context)
@@ -362,7 +372,7 @@ class LocalKnowledgeClient:
         self.store.mark_pending(doc_id)
         d=self.store.get_document(doc_id)
         self.vector_index.delete_document(doc_id)
-        if not d.archived:
+        if not d.archived and d.lifecycle_state=="published":
             chunks=self.store.get_chunks(doc_id,d.current_version)
             vectors=self.embedder.embed([c.text for c in chunks])
             if len(vectors)!=len(chunks): raise ValidationError("Embedder returned wrong number of vectors")
@@ -372,6 +382,8 @@ class LocalKnowledgeClient:
     def ingest(self,actor,kb_id,content,filename="document.txt",title=None,visibility=None,doc_id=None,metadata=None,acl=None,*,rights=None,lifecycle_state=None,valid_from=None,valid_to=None,agent=None,purpose=Purpose.READ,policy_context=None):
         ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context)
         kb=self._kb(actor,kb_id,write=True,**ctx)
+        controlled=kb.governance_tier=='l2_controlled'
+        if controlled and lifecycle_state not in (None,'draft'):raise PermissionDeniedError('Controlled ingest must create a draft')
         if any(v is not None for v in (rights,lifecycle_state,valid_from,valid_to)):
             self._kb(actor,kb_id,admin=True,**ctx)
         if rights is not None and not isinstance(rights,ResourceRights): raise ValidationError("Expected ResourceRights")
@@ -391,8 +403,8 @@ class LocalKnowledgeClient:
                 if d.kb_id!=kb_id or d.org_id!=actor.org_id: raise PermissionDeniedError("Access denied")
                 write_decision=self.evaluate_policy(actor,doc_id,action=PolicyAction.WRITE_DOCUMENT,**ctx)
                 if not write_decision.allowed: raise PermissionDeniedError(write_decision.reason_code)
-                self._read(actor,doc_id,**ctx)
-                previous=self.store.get_version(doc_id,d.current_version)
+                if not controlled:self._read(actor,doc_id,**ctx)
+                previous=self.store.get_version(doc_id,self.store.latest_version(doc_id) if controlled else d.current_version)
         changes={name:value for name,value in (("rights",rights),("lifecycle_state",lifecycle_state),("valid_from",valid_from),("valid_to",valid_to)) if value is not None}
         if classify(previous,raw_hash,semantic_hash)!="new_semantic_version":
             updated=replace(d,**changes)
@@ -414,7 +426,8 @@ class LocalKnowledgeClient:
         if not isinstance(metadata,dict): raise ValidationError("metadata must be an object")
         chunks=self.chunker.split(text,doc_id,version)
         blob_key=None
-        if kb.governance_tier == "l2_controlled" and lifecycle_state is None:
+        live_document=d
+        if controlled:
             changes["lifecycle_state"]="draft"
         security = {name:getattr(d,name) for name in ("rights","lifecycle_state","valid_from","valid_to")} if d else {}
         security.update(changes)
@@ -427,28 +440,33 @@ class LocalKnowledgeClient:
                                                        PolicyAction.WRITE_DOCUMENT,purpose,policy_context)
             if not write_decision.allowed: raise PermissionDeniedError(write_decision.reason_code)
         blob_key=self.blob_store.put(actor.org_id,doc_id,raw_hash,raw) if self.blob_store else None
-        v=DocumentVersion(doc_id,version,text,raw_hash,semantic_hash,datetime.now(timezone.utc).isoformat(),filename,blob_key)
+        v=DocumentVersion(doc_id,version,text,raw_hash,semantic_hash,datetime.now(timezone.utc).isoformat(),filename,blob_key,lifecycle_state="draft" if controlled else d.lifecycle_state,author_id=actor.user_id)
         anchors=merge_anchors_for_version(actor.org_id,doc_id,version,layout,
                     self.store.get_anchors(actor.org_id,doc_id,previous.version) if previous else ())
         with self.store.transaction():
             # Separate processes can race; the unique version key prevents lost history.
-            if previous and self.store.get_document(doc_id).current_version!=previous.version: raise ConflictError("Concurrent version update")
+            if previous:
+                self.store.lock_document(doc_id)
+                if self.store.latest_version(doc_id)!=previous.version:raise ConflictError("Concurrent version update")
             if previous is None:
                 try: self.store.get_document(doc_id)
                 except NotFoundError: pass
                 else: raise ConflictError("Document identity already exists")
-            self.store.put_document(d); self.store.put_version(v,chunks); self.store.put_anchors(anchors); self.store.refresh_fts(doc_id)
-            self._emit_event(actor,'doc.revised' if previous else 'doc.ingested',doc_id,version,previous_version=previous.version if previous else 0)
-            for anchor in anchors:
+            serving_old=controlled and live_document is not None and live_document.lifecycle_state=='published'
+            self.store.put_document(live_document if serving_old else d)
+            self.store.put_version(v,chunks); self.store.put_anchors(anchors)
+            if not controlled:self.store.refresh_fts(doc_id)
+            self._emit_event(actor,'doc.draft_created' if controlled else 'doc.revised' if previous else 'doc.ingested',doc_id,version,previous_version=previous.version if previous else 0)
+            for anchor in (() if controlled else anchors):
                 if anchor.reanchor_status in (ReanchorStatus.DRIFT_PENDING,ReanchorStatus.ORPHANED):
                     self._emit_event(actor,'anchor.drifted' if anchor.reanchor_status==ReanchorStatus.DRIFT_PENDING else 'anchor.orphaned',doc_id,version,anchor_id=anchor.anchor_id)
-            if changes:
+            if changes and not controlled:
                 self._emit_event(actor,'doc.revoked' if d.rights and d.rights.revoked else 'rights.updated',doc_id,version)
             if acl is not None:
                 self.store.set_acl(doc_id,acl)
                 self._emit_event(actor,'acl.updated',doc_id,version)
-            if self.vector_index is not None: self.store.mark_pending(doc_id)
-        self._sync_vector(doc_id)
+            if self.vector_index is not None and not controlled: self.store.mark_pending(doc_id)
+        if not controlled:self._sync_vector(doc_id)
         return self._ingested_response(actor,v,**ctx)
     @serialized
     def list_documents(self,actor,kb_id=None,include_archived=False,*,agent=None,purpose=Purpose.READ,policy_context=None):
@@ -542,6 +560,7 @@ class LocalKnowledgeClient:
         d=self.store.get_document(doc_id)
         if version is not None:integer(version,'version',1)
         v=self.store.get_version(doc_id,d.current_version if version is None else version)
+        self._published_version(d,v)
         return d,v,decision
 
     @serialized
