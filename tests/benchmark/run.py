@@ -395,7 +395,9 @@ def run_suite(path=None,verbose=False):
     passed=sum(r['status']=='passed' for r in results);by_group={g:{'passed':sum(r['status']=='passed' for r in results if r['group']==g),'total':sum(r['group']==g for r in results)} for g in ('G1','G2','G3','G4','G5')}
     ratio=lambda n,d:{'numerator':n,'denominator':d,'rate':n/d if d else None}
     attempts=sum(r['injection_attempts'] for r in results);blocked=sum(r['injection_blocked'] for r in results);recalls=[r['recall'] for r in results if r['recall'] is not None]
-    return {'gate_passed':passed==60,'case_count':60,'passed':passed,'failed':60-passed,'skipped':0,'groups':by_group,
+    hard_gate=(passed==60 and sum(r['safety_failures'] for r in results)==0 and sum(r['positive_failures'] for r in results)==0
+               and sum(r['model_calls'] for r in results)==0 and attempts==40 and blocked==40 and len(recalls)==8 and all(v==1.0 for v in recalls))
+    return {'gate_passed':hard_gate,'case_count':60,'passed':passed,'failed':60-passed,'skipped':0,'groups':by_group,
       'acl_violation':ratio(sum(r['safety_failures'] for r in results if r['group']=='G1'),20),
       'no_evidence_refusal':ratio(by_group['G2']['passed'],10),'anchoring_status_accuracy':ratio(by_group['G4']['passed'],10),
       'mcp_injection_blocked':ratio(blocked,attempts),'model_call_count':sum(r['model_calls'] for r in results),
