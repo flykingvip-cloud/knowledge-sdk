@@ -1,4 +1,5 @@
 from __future__ import annotations
+import knowledge_sdk
 """Static shell and an explicitly opt-in, loopback-only development signer.
 
 Never enable the signer against real data. Production uses the existing HMAC
@@ -41,7 +42,7 @@ def mount_workbench(app, client, auth_secret, enable_demo_switcher):
     async def config():
         return {"demo_enabled": bool(enable_demo_switcher), "operations": OPERATIONS,
                 "vector_available": getattr(client, "vector_index", None) is not None,
-                "auth": "hmac-gateway", "version": "1.1.0"}
+                "auth": "hmac-gateway", "version": knowledge_sdk.__version__}
 
     if enable_demo_switcher:
         @app.post("/ui/demo/sign", include_in_schema=False)

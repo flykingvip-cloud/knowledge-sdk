@@ -1,4 +1,5 @@
 from __future__ import annotations
+import knowledge_sdk
 import base64
 import inspect
 import json
@@ -13,7 +14,7 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
     if not dev_insecure and (not auth_secret or len(auth_secret)<32): raise ValidationError("Auth secret must contain at least 32 characters")
     if enable_demo_switcher and (dev_insecure or not auth_secret or len(auth_secret)<32):
         raise ValidationError("Demo switcher requires HMAC authentication, not dev_insecure")
-    app=FastAPI(title="knowledge-sdk",version="1.1.0"); seen={}
+    app=FastAPI(title="knowledge-sdk",version=knowledge_sdk.__version__); seen={}
     @app.exception_handler(KnowledgeSDKError)
     async def sdk_error(request,exc):
         status=403 if isinstance(exc,PermissionDeniedError) else 404 if isinstance(exc,NotFoundError) else 409 if isinstance(exc,ConflictError) else 400
