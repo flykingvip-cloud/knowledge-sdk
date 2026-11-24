@@ -284,18 +284,33 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
         else: self._execute("DELETE FROM pending_indexes WHERE doc_id=?",(doc_id,))
     def pending_documents(self): return [r[0] for r in self._execute("SELECT doc_id FROM pending_indexes ORDER BY doc_id")]
 
-    def put_binding(self, actor: Actor, binding: ConsumerBinding) -> None:
+    @staticmethod
+    def _binding_data(data):
+        value=decode(json.loads(data))
+        return value['binding'] if isinstance(value,dict) and 'binding' in value else value
+
+    def put_binding(self,actor,binding,*,agent=None,purpose='read'):
+        data=json.dumps({'binding':encode(binding),'actor':encode(actor),'agent':encode(agent),'purpose':purpose},sort_keys=True)
         self._execute("INSERT INTO consumer_bindings VALUES(?,?,?,?,?) ON CONFLICT(org_id,user_id,consumer_type,consumer_id) DO UPDATE SET data=excluded.data",
-                      (actor.org_id, actor.user_id, binding.consumer_type, binding.consumer_id, self._dump(binding)))
+                      (actor.org_id,actor.user_id,binding.consumer_type,binding.consumer_id,data))
 
-    def get_binding(self, actor: Actor, consumer_type: str, consumer_id: str) -> ConsumerBinding:
-        return self._get("SELECT data FROM consumer_bindings WHERE org_id=? AND user_id=? AND consumer_type=? AND consumer_id=?",
-                         (actor.org_id, actor.user_id, consumer_type, consumer_id))
+    def get_binding(self,actor,consumer_type,consumer_id):
+        rows=self._execute('SELECT data FROM consumer_bindings WHERE org_id=? AND user_id=? AND consumer_type=? AND consumer_id=?',
+                           (actor.org_id,actor.user_id,consumer_type,consumer_id))
+        if not rows:raise NotFoundError('Binding not found')
+        return self._binding_data(rows[0][0])
 
-    def list_bindings(self, actor: Actor):
-        return [decode(json.loads(row[0])) for row in self._execute(
-            "SELECT data FROM consumer_bindings WHERE org_id=? AND user_id=? ORDER BY consumer_type,consumer_id",
-            (actor.org_id, actor.user_id))]
+    def list_bindings(self,actor):
+        return [self._binding_data(row[0]) for row in self._execute(
+            'SELECT data FROM consumer_bindings WHERE org_id=? AND user_id=? ORDER BY consumer_type,consumer_id',(actor.org_id,actor.user_id))]
+
+    def binding_identity(self,org_id,user_id,consumer_type,consumer_id):
+        rows=self._execute('SELECT data FROM consumer_bindings WHERE org_id=? AND user_id=? AND consumer_type=? AND consumer_id=?',
+                           (org_id,user_id,consumer_type,consumer_id))
+        if not rows:raise NotFoundError('Binding not found')
+        value=decode(json.loads(rows[0][0]))
+        if isinstance(value,dict) and 'binding' in value:return value.get('actor'),value.get('agent'),value.get('purpose','read')
+        return None,None,'read'
 
     def put_anchors(self,anchors):
         from ..contracts.anchors import EvidenceAnchor
@@ -483,7 +498,8 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
             data=json.dumps({'event':encode(event),'actor':encode(actor),'agent':encode(agent)},sort_keys=True)
             rows=self._execute('SELECT data FROM usage_events WHERE usage_id=?',(event.usage_id,))
             if rows:
-                if rows[0][0]!=data:raise ConflictError('Usage events are immutable')
+                old=decode(json.loads(rows[0][0]))
+                if old.get('event')!=event or (actor is not None and old.get('actor')!=actor) or (agent is not None and old.get('agent')!=agent):raise ConflictError('Usage events are immutable')
                 return
             document=self.get_document(event.doc_id)
             if document.org_id!=event.org_id:raise ConflictError('Usage tenant mismatch')
@@ -534,4 +550,4 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
             self._execute('UPDATE impact_alerts SET status=? WHERE org_id=? AND alert_id=?',(status,org_id,alert_id))
 
     def list_all_bindings(self,org_id):
-        return [(r[0],decode(json.loads(r[1]))) for r in self._execute('SELECT user_id,data FROM consumer_bindings WHERE org_id=? ORDER BY user_id,consumer_type,consumer_id',(org_id,))]
+        return [(r[0],self._binding_data(r[1])) for r in self._execute('SELECT user_id,data FROM consumer_bindings WHERE org_id=? ORDER BY user_id,consumer_type,consumer_id',(org_id,))]

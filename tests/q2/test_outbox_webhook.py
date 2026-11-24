@@ -181,3 +181,8 @@ class OutboxWebhookTests(unittest.TestCase):
         self.c.register_webhook_subscription(self.a,receiver.url,SECRET,['doc.ingested'],allow_insecure_local=True)
         self.assertEqual(OutboxDispatcher(self.c.store,webhook=WebhookDispatcher(self.c.store)).drain_outbox().failed,1)
         self.assertEqual(receiver.requests,[])
+
+    def test_ipv6_translation_and_deprecated_site_local_are_not_ssrf_bypasses(self):
+        for url in ('https://[64:ff9b::a00:1]','https://[64:ff9b:1::a00:1]',
+                    'https://[2002:0a00:0001::1]','https://[2001:0000::1]','https://[fec0::1]'):
+            with self.subTest(url=url),self.assertRaises(ValidationError):validate_webhook_url(url)

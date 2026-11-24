@@ -54,7 +54,7 @@ class ImpactRadar:
     def process(self,event):
         if event.event_type not in ('doc.revised','doc.archived','doc.revoked','acl.updated','rights.updated','anchor.drifted','anchor.orphaned'):return
         doc_id=event.payload['doc_id']
-        with self.store._write_scope():
+        with self.client._lock, self.store._write_scope():
             document=self.store.get_document(doc_id)
             if document.org_id!=event.org_id:raise PermissionDeniedError('impact_tenant_mismatch')
             usages=self.store.list_usage_events_for_doc(event.org_id,doc_id)
@@ -79,9 +79,10 @@ class ImpactRadar:
                 key=(user_id,binding.consumer_type,binding.consumer_id)
                 if key in known_bindings or not binding.default_scope.contains(document,kb):continue
                 if event.event_type.startswith('anchor.'):continue  # No anchor lineage to match.
-                actor=Actor(user_id,event.org_id)
+                actor,agent,purpose=self.store.binding_identity(event.org_id,user_id,binding.consumer_type,binding.consumer_id)
+                actor=actor or Actor(user_id,event.org_id)
                 version=event.payload.get('previous_version') or event.payload['version']
-                reason=self._reason(event,version,'',actor,None,'read')
+                reason=self._reason(event,version,'',actor,agent,purpose)
                 if reason is not None:self._alert(event,version,'consumer_binding',binding_target_id(*key),reason,user_id)
             # Reserved table only: accommodate already-imported sealed records;
             # no EvidencePack construction/export/governance service is added.

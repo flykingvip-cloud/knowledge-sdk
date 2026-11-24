@@ -174,3 +174,76 @@ class ImpactTests(unittest.TestCase):
         self.c.archive(self.a,'doc');self.c.restore(self.a,'doc');self.use()
         self.c.drain_outbox(self.a)
         self.assertEqual(self.alerts(),[])
+
+    def test_audit_failure_rolls_back_authoritative_write_and_outbox(self):
+        original=self.c.store.append_audit_event
+        count=self.c.store._execute('SELECT COUNT(*) FROM outbox_events')[0][0]
+        def fail(event):
+            if event.action=='archive':raise RuntimeError('audit sink failed')
+            return original(event)
+        with patch.object(self.c.store,'append_audit_event',side_effect=fail):
+            with self.assertRaises(RuntimeError):self.c.archive(self.a,'doc')
+        self.assertFalse(self.c.store.get_document('doc').archived)
+        self.assertEqual(self.c.store._execute('SELECT COUNT(*) FROM outbox_events')[0][0],count)
+        self.assertEqual(self.c.store.list_audit_events('org',action='archive'),[])
+
+    def test_wrong_agent_cannot_read_owned_impact_metadata(self):
+        self.use();self.c.archive(self.a,'doc');self.c.drain_outbox(self.a)
+        agent=AgentIdentity('limited','org',allowed_kb_ids=('elsewhere',))
+        self.assertEqual(self.c.list_impact_alerts(self.u,agent=agent),[])
+
+    def test_background_dispatcher_converges_without_lock_inversion(self):
+        import threading
+        from knowledge_sdk.impact.webhook import WebhookDispatcher
+        finished=threading.Event()
+        self.use();self.c.register_webhook_subscription(self.a,'https://93.184.216.34/hook','offline-test-only-key-123456789012345',['doc.revised'])
+        self.c.ingest(self.a,'kb','revision',doc_id='doc')
+        def deliver(*args,**kwargs):finished.set();return 204
+        worker=OutboxDispatcher(self.c.store,radar=ImpactRadar(self.c),webhook=WebhookDispatcher(self.c.store,transport=deliver))
+        worker.start(interval=.01)
+        try:self.assertTrue(finished.wait(3))
+        finally:worker.close()
+        self.assertEqual(len(self.alerts(ImpactReason.SUPERSEDED)),2)
+
+    def test_stale_claim_is_fenced_and_expired_attempt_cap_prevents_post(self):
+        from knowledge_sdk.impact.webhook import WebhookDispatcher
+        now=datetime.now(timezone.utc)
+        old=self.c.store.claim_outbox_batch(now.isoformat())[0]
+        new=self.c.store.claim_outbox_batch((now+timedelta(seconds=61)).isoformat())[0]
+        calls=[];worker=OutboxDispatcher(self.c.store,radar=ImpactRadar(self.c))
+        with patch.object(self.c.store,'claim_outbox_batch',return_value=[old]):
+            self.assertEqual(worker.drain_outbox(now=now).dispatched,0)
+        self.assertEqual(self.c.store._execute('SELECT attempts FROM outbox_events')[0][0],new.attempts)
+        self.c.store._execute("UPDATE outbox_events SET attempts=5,available_at=?",(now.isoformat(),))
+        result=worker.drain_outbox(now=now)
+        self.assertEqual(result.dead_letter,1)
+        self.assertEqual(self.c.store._execute('SELECT status FROM outbox_events')[0][0],'dead_letter')
+
+    def test_saved_binding_identity_prevents_false_positive_role_revocation(self):
+        scientist=Actor('reader','org',roles=('scientist',))
+        self.c.set_document_acl(self.a,'doc',DocumentACL(allow_roles=['scientist']))
+        self.c.bind_consumer(scientist,self.binding)
+        self.c.drain_outbox(self.a)
+        self.c.set_document_rights(self.a,'doc',ResourceRights())
+        self.c.drain_outbox(self.a)
+        self.assertEqual(self.c.list_impact_alerts(scientist),[])
+        self.assertEqual(self.c.get_consumer_binding(scientist,'task','consumer'),self.binding)
+
+    def test_pre_q2_tagged_binding_rows_remain_readable_and_unchanged(self):
+        raw=self.c.store._dump(self.binding)
+        self.c.store._execute('INSERT INTO consumer_bindings VALUES(?,?,?,?,?)',('org','reader','task','consumer',raw))
+        self.assertEqual(self.c.get_consumer_binding(self.u,'task','consumer'),self.binding)
+        self.assertEqual(self.c.list_consumer_bindings(self.u),[self.binding])
+        self.c.archive(self.a,'doc');self.c.drain_outbox(self.a)
+        self.assertEqual(self.c.store._execute('SELECT data FROM consumer_bindings')[0][0],raw)
+        self.assertEqual(len(self.alerts(ImpactReason.RESOURCE_ARCHIVED)),1)
+
+    def test_cross_tenant_denial_audit_contains_no_source_text_or_titles(self):
+        foreign=Actor('attacker','foreign',org_roles=('admin',))
+        with self.assertRaises(PermissionDeniedError):self.c.retrieve(foreign,'doc')
+        events=self.c.store.list_audit_events('foreign')
+        self.assertTrue(events);self.assertTrue(all(e.org_id=='foreign' and e.decision_effect==DecisionEffect.DENY for e in events))
+        data=json.dumps(encode(events))
+        self.assertNotIn('Original evidence alpha',data)
+        self.assertFalse(any(e.actor_id=='attacker' for e in self.c.query_audit_events(self.a)))
+        self.assertTrue(self.c.verify_audit_chain(foreign).valid)

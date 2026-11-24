@@ -1,6 +1,7 @@
 """Transactional-outbox worker; all handlers are idempotent on event_id."""
 from __future__ import annotations
 from datetime import datetime, timezone, timedelta
+from contextlib import nullcontext
 import threading
 from ..contracts.events import DispatchSummary
 from ..contracts.policy import parse_time
@@ -14,6 +15,13 @@ class OutboxDispatcher:
         self._stop=threading.Event();self._thread=None
 
     def drain_outbox(self,limit=50,now=None,*,org_id=None):
+        # Match LocalKnowledgeClient's lock order before taking the store lock,
+        # including background workers, to avoid client/store lock inversion.
+        client=getattr(self.radar,'client',None)
+        with client._lock if client is not None else nullcontext():
+            return self._drain_outbox(limit,now,org_id=org_id)
+
+    def _drain_outbox(self,limit=50,now=None,*,org_id=None):
         when=datetime.now(timezone.utc) if now is None else parse_time(now) if isinstance(now,str) else now
         if not isinstance(when,datetime) or when.tzinfo is None:raise ValidationError('Expected timezone-aware now')
         events=self.store.claim_outbox_batch(when.isoformat(),limit,org_id=org_id)
@@ -25,6 +33,10 @@ class OutboxDispatcher:
             with self.store._write_scope():
                 current=self.store._execute("SELECT 1 FROM outbox_events WHERE event_id=? AND status='processing' AND attempts=?",(event.event_id,event.attempts))
                 if not current:continue
+                if event.attempts>self.max_attempts:
+                    self.store.mark_outbox_failed(event.event_id,when.isoformat(),self.max_attempts)
+                    dead+=1
+                    continue
                 try:
                     if self.radar is not None:self.radar.process(event)
                     if self.webhook is not None:self.webhook.dispatch(event)

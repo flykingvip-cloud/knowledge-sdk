@@ -42,17 +42,20 @@ def serialized(method):
     @wraps(method)
     def wrapped(self,*args,**kwargs):
         with self._lock:
-            values = signature.bind(self,*args,**kwargs).arguments
-            actor = values.get('actor')
+            values=signature.bind(self,*args,**kwargs).arguments
+            actor=values.get('actor')
+            frame={'action':method.__name__,'values':values,'recorded':False}
+            self._audit_frames.append(frame)
             try:
-                result = method(self,*args,**kwargs)
-            except PermissionDeniedError:
-                if actor is not None:
-                    self._audit_operation(actor,method.__name__,values,None,denied=True)
-                raise
-            if audited and actor is not None:
-                self._audit_operation(actor,method.__name__,values,result)
-            return result
+                try:result=method(self,*args,**kwargs)
+                except PermissionDeniedError:
+                    if actor is not None:self._audit_operation(actor,method.__name__,values,None,denied=True)
+                    raise
+                if audited and actor is not None and not frame['recorded']:
+                    self._audit_operation(actor,method.__name__,values,result)
+                return result
+            finally:self._audit_frames.pop()
+
     return wrapped
 
 class _AuditedEngine:
@@ -63,7 +66,7 @@ class _AuditedEngine:
                  action=PolicyAction.READ_CONTENT, purpose=Purpose.READ, context=None):
         decision=self.delegate.evaluate(actor,agent,kb,document,acl,member_role,action,purpose,context)
         self.client._audit_operation(actor,'evaluate_policy',
-                    {'agent':agent,'purpose':purpose,'doc_id':document.doc_id if document else ''},decision)
+                    {'agent':agent,'purpose':purpose,'doc_id':document.doc_id if document else '', 'policy_context':context},decision)
         return decision
 
 
@@ -77,6 +80,7 @@ class LocalKnowledgeClient:
         if (vector_index is None)!=(embedder is None): raise ValidationError("Provide both vector_index and embedder")
         self.vector_index=vector_index; self.embedder=embedder; self.excerpt_policy=excerpt_policy or ExcerptPolicy()
         self._lock=threading.RLock()
+        self._audit_frames=[]
         self.identity_resolver=identity_resolver
         self.allow_insecure_local_webhook=allow_insecure_local_webhook
     @property
@@ -97,9 +101,11 @@ class LocalKnowledgeClient:
             effect=result.effect;reason=result.reason_code;profile=result.redaction_profile
         elif isinstance(result,MaterialReceipt) and result.status not in ('consumed','partial'):
             effect=DecisionEffect.DENY;reason=result.reason_code or 'unavailable'
+        context=values.get('policy_context')
         append(self.store,actor,action,agent=values.get('agent'),
                purpose=values.get('purpose',Purpose.READ),doc_id=doc_id,
                effect=effect,reason=reason,redaction_profile=profile,
+               request_id=context.request_id if context else '',task_id=context.task_id if context else '',
                policy_generation=getattr(result,"policy_generation",actor.policy_generation))
 
     @staticmethod
@@ -138,6 +144,8 @@ class LocalKnowledgeClient:
         document=self.store.get_document(alert.doc_id)
         if document.org_id!=actor.org_id:return False
         owner=self.store.impact_owner(actor.org_id,alert.alert_id)==actor.user_id
+        boundary=self.evaluate_policy(actor,kb_id=document.kb_id,agent=agent,purpose=purpose,policy_context=policy_context)
+        if not boundary.allowed:return False
         # Permission to know an alert exists is distinct from permission to read
         # its revoked source. Only owners/managers get identifier-only metadata.
         management=self.evaluate_policy(actor,kb_id=document.kb_id,action=PolicyAction.MANAGE_SPACE,
@@ -198,6 +206,17 @@ class LocalKnowledgeClient:
                          created_at=datetime.now(timezone.utc).isoformat())
         self.store.put_usage_event(event,actor=actor,agent=agent)
 
+    def _audit_current_write(self,actor,doc_id,result=None):
+        writes={'ingest','archive','restore','set_document_acl','set_document_rights',
+                'confirm_anchor_reanchor','report_evidence_issue','consume','attach'}
+        for frame in reversed(self._audit_frames):
+            if frame['action'] not in writes:continue
+            if not frame['recorded']:
+                values=dict(frame['values']);values['doc_id']=doc_id
+                self._audit_operation(actor,frame['action'],values,result)
+                frame['recorded']=True
+            break
+
     def _emit_event(self, actor, event_type, doc_id, version, *, anchor_id='', previous_version=0):
         from ..contracts.events import OutboxEvent
         stamp=datetime.now(timezone.utc).isoformat()
@@ -208,6 +227,7 @@ class LocalKnowledgeClient:
                           anchor_id or doc_id,event_type,payload=payload,
                           available_at=stamp,created_at=stamp)
         self.store.enqueue_outbox(event)
+        self._audit_current_write(actor,doc_id)
 
     @serialized
     def register_webhook_subscription(self,actor,url,secret,event_types,*,allow_insecure_local=False):
@@ -554,6 +574,7 @@ class LocalKnowledgeClient:
                 reported_by_user_id=actor.user_id,reported_by_agent_id=agent.agent_id if agent else '',
                 created_at=datetime.now(timezone.utc).isoformat())
             self.store.put_issue(issue)
+            self._audit_current_write(actor,issue.doc_id,issue)
         return issue
 
     @serialized
@@ -649,6 +670,7 @@ class LocalKnowledgeClient:
         with self.store._write_scope():
             receipt=consume(self,actor,ref,agent=agent,purpose=purpose,policy_context=policy_context)
             self._record_usage(actor,ref,receipt,agent=agent,purpose=purpose,policy_context=policy_context)
+            self._audit_current_write(actor,ref.doc_id,receipt)
             return receipt
     @serialized
     def batch_consume(self,actor,refs,*,agent=None,purpose=Purpose.READ,policy_context=None):
@@ -691,7 +713,7 @@ class LocalKnowledgeClient:
     @serialized
     def bind_consumer(self, actor: Actor, binding: ConsumerBinding,*,agent=None,purpose=Purpose.READ,policy_context=None) -> ConsumerBinding:
         binding = self.validate_binding(actor, binding,agent=agent,purpose=purpose,policy_context=policy_context)
-        self.store.put_binding(actor, binding)
+        self.store.put_binding(actor,binding,agent=agent,purpose=enum_value(Purpose,purpose).value)
         return binding
 
     @serialized
@@ -734,6 +756,7 @@ class LocalKnowledgeClient:
                     raise PermissionDeniedError('Reference outside consumer scope')
                 receipt=replace(receipt,consumer_type=binding.consumer_type,consumer_id=binding.consumer_id,used_by_stage=binding.stage)
             self._record_usage(actor,ref,receipt,agent=agent,purpose=purpose,policy_context=policy_context)
+            self._audit_current_write(actor,ref.doc_id,receipt)
             return Attachment(ref,receipt)
 
     @serialized

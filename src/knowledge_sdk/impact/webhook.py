@@ -34,6 +34,8 @@ def validate_webhook_url(url, *, allow_insecure_local=False):
         for address in addresses:
             ip=ipaddress.ip_address(address)
             if getattr(ip,'ipv4_mapped',None) is not None:ip=ip.ipv4_mapped
+            if ip.version==6 and (getattr(ip,'is_site_local',False) or any(ip in ipaddress.ip_network(net) for net in ('64:ff9b::/96','64:ff9b:1::/48','2002::/16','2001::/32'))):
+                raise ValueError()
             all_loopback=all_loopback and ip.is_loopback
             if ip.is_loopback and allow_insecure_local:continue
             if not ip.is_global or ip.is_multicast or ip.is_reserved or ip.is_unspecified:
@@ -95,8 +97,10 @@ class WebhookDispatcher:
         for sub in self.store.list_webhook_subscriptions(event.org_id):
             if event.event_type not in sub.event_types or self.store.has_webhook_delivery(sub.subscription_id,event.event_id):continue
             delivery_id=str(uuid.uuid5(uuid.NAMESPACE_URL,sub.subscription_id+':'+event.event_id))
+            from dataclasses import replace
+            alerts=[replace(a,status='open').to_dict() for a in self.store.list_impact_alerts(event.org_id,doc_id=event.payload.get('doc_id')) if a.source_event_id==event.event_id]
             body=json.dumps({'event_id':event.event_id,'org_id':event.org_id,
-                             'event_type':event.event_type,'payload':dict(event.payload)},
+                             'event_type':event.event_type,'payload':dict(event.payload),'impact_alerts':alerts},
                             sort_keys=True,separators=(',',':')).encode('utf-8')
             stamp=str(int(time.time()))
             headers={'Content-Type':'application/json','X-KB-Webhook-Id':delivery_id,

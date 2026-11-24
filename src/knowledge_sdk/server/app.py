@@ -119,6 +119,7 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
         if verb!="GET":
             extra["requestBody"]={"required":True,"content":{"application/json":{"schema":{"type":"object","required":["params"],"properties":{"params":{"type":"object","description":"See docs/api-contract.md for operation parameters"}}}}}}
         app.add_api_route(path,endpoint(name),methods=[verb],operation_id=name,openapi_extra=extra)
+    app.add_api_route('/v1/outbox/drain',endpoint('drain_outbox'),methods=['POST'],operation_id='drain_outbox_alias')
     # Resource-oriented aliases. Same domain methods/authorization as transport operations.
     def trusted_context(request):
         return dict(agent=request.state.agent,purpose=request.state.purpose)

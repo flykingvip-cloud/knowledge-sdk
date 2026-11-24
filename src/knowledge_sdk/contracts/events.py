@@ -5,7 +5,7 @@ from typing import Any, Dict, Tuple, Optional
 from .policy import PolicyContract, text, freeze_json, parse_time
 from ..exceptions import ValidationError
 
-EVENT_TYPES = frozenset(('doc.ingested','doc.revised','doc.archived','doc.restored',
+EVENT_TYPES = frozenset(('doc.ingested','doc.published','doc.revised','doc.archived','doc.restored',
                         'doc.revoked','acl.updated','rights.updated','anchor.drifted',
                         'anchor.orphaned','anchor.reanchored'))
 
