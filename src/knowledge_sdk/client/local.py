@@ -326,6 +326,7 @@ class LocalKnowledgeClient:
             or not isinstance(description,str) or not description.strip() or len(description)>4000):
             raise ValidationError('Invalid issue parameters')
         ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context)
+        snapshots=[]
         def authorize(uri):
             if not isinstance(uri,str) or not 1<=len(uri)<=2048:raise ValidationError('Invalid issue parameters')
             parsed=parse_uri_v2(uri)
@@ -342,11 +343,17 @@ class LocalKnowledgeClient:
             if not obligations.allowed:raise PermissionDeniedError('access_denied')
             if obligations.effect==DecisionEffect.ALLOW_WITH_REDACTION:
                 self.redaction_registry.apply('',obligations.redaction_profile,purpose)
+            snapshots.append((parsed.doc_id,obligations))
             return parsed
         with self.store.transaction():
             try:
                 parsed=authorize(source_uri)
                 if conflicting_uri is not None:authorize(conflicting_uri)
+                # Hooks can re-enter trusted clients. Recheck both sources only
+                # AFTER every hook, immediately before writing the review queue.
+                for identity,previous in snapshots:
+                    final=intersect_decisions((self.evaluate_policy(actor,identity,**ctx),self.evaluate_policy(actor,identity,action=PolicyAction.REPORT_ISSUE,**ctx)))
+                    if final!=previous or not final.allowed:raise PermissionDeniedError('access_denied')
             except NotFoundError:raise PermissionDeniedError('access_denied') from None
             issue={'issue_id':str(uuid.uuid4()),'org_id':actor.org_id,'doc_id':parsed.doc_id,'version':parsed.version,
                    'anchor_id':parsed.anchor_id or '', 'status':'open','created_at':datetime.now(timezone.utc).isoformat(),

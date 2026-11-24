@@ -25,11 +25,12 @@ class ToolTests(unittest.TestCase):
     def call(self,name,**args):return self.t.call(name,args,self.ctx)
     def test_exact_four_strict_schemas_and_runtime_identity_rejection(self):
         self.assertEqual({t['name'] for t in tool_definitions()},{'search_evidence','verify_citation','get_evidence_pack','report_evidence_issue'})
+        bases={'search_evidence':{'query':'alpha'},'verify_citation':{'source_uri':self.uri},'get_evidence_pack':{'source_uris':[self.uri]},'report_evidence_issue':{'source_uri':self.uri,'issue_type':'inaccuracy','description':'inert'}}
         for tool in tool_definitions():
             self.assertFalse(tool['inputSchema']['additionalProperties'])
             for field in ('user_id','org_id','roles','clearance_level','actor','agent','purpose','policy_context','self'):
                 self.assertNotIn(field,tool['inputSchema']['properties'])
-                with self.assertRaises(ValidationError):self.t.call(tool['name'],{field:'admin'},self.ctx)
+                with self.assertRaises(ValidationError):self.t.call(tool['name'],{**bases[tool['name']],field:'admin'},self.ctx)
     def test_typed_argument_bounds_unknowns_arrays_and_bool(self):
         for params in ({'query':''},{'query':'a'*1001},{'query':'alpha','limit':True},{'query':'alpha','limit':21},
                        {'query':'alpha','kb_ids':[]},{'query':'alpha','doc_ids':'d'},{'query':'alpha','kb_ids':['k'],'doc_ids':['d']},
@@ -112,6 +113,32 @@ class ToolTests(unittest.TestCase):
         self.c.redaction_registry.register('p',RegexRedactionHook([('secret','[MASK]')]))
         self.c.policy_engine=DefaultPolicyEngine((PolicyRule('read-mask','o',DecisionEffect.ALLOW_WITH_REDACTION,actions=(PolicyAction.READ_CONTENT,),purposes=(Purpose.GROUND_INTERNAL_LLM,),redaction_profile='p'),))
         result=self.call('search_evidence',query='alpha');self.assertEqual(result['status'],'ok');self.assertNotIn('secret',json.dumps(result))
+
+    def test_verify_rechecks_after_last_receipt_before_return(self):
+        original=self.c.verify_ref
+        def revoke(*args,**kwargs):
+            receipt=original(*args,**kwargs)
+            self.c.store.put_document(replace(self.c.store.get_document('d'),rights=ResourceRights(revoked=True)))
+            return receipt
+        with patch.object(self.c,'verify_ref',side_effect=revoke):
+            result=self.call('verify_citation',source_uri=self.uri)
+        self.assertFalse(result['valid']);self.assertEqual(result['current_status'],'denied');self.assertIsNone(result['latest_version'])
+    def test_feedback_hook_cannot_queue_after_reentrant_revocation(self):
+        class Revoke:
+            def redact(hook,text,*args):
+                self.c.store.put_document(replace(self.c.store.get_document('d'),rights=ResourceRights(revoked=True)))
+                return text,'masked'
+        self.c.redaction_registry.register('revoke',Revoke());self.c.set_document_rights(self.admin,'d',ResourceRights(redaction_profile='revoke'))
+        out=self.call('report_evidence_issue',source_uri=self.uri,issue_type='inaccuracy',description='inert')
+        self.assertEqual(out['status'],'denied');self.assertFalse(self.c.store._execute('SELECT issue_id FROM evidence_issues'))
+    def test_search_drops_version_changed_after_delivery_view(self):
+        original=self.t._unit
+        def update(*args,**kwargs):
+            result=original(*args,**kwargs)
+            self.c.ingest(self.admin,'k','alpha new version',doc_id='d')
+            return result
+        with patch.object(self.t,'_unit',side_effect=update):out=self.call('search_evidence',query='alpha')
+        self.assertEqual(out['hits'],[])
 
 
 class GatewayTests(unittest.TestCase):

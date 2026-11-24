@@ -309,10 +309,19 @@ def g502(f,o):
         h=headers(f,secret=f.old_secret);a.authenticate(h,'POST','/mcp',b'{}');o.invalid(lambda:b.authenticate(h,'POST','/mcp',b'{}'));o.invalid(lambda:gateway(f,secret='short'))
 @scenario('mcp_runtime_identity_fields_rejected')
 def g503(f,o):
+    f.doc()
+    bases={'search_evidence':{'query':'alpha'},'verify_citation':{'source_uri':f.uri()},
+           'get_evidence_pack':{'source_uris':[f.uri()]},
+           'report_evidence_issue':{'source_uri':f.uri(),'issue_type':'inaccuracy','description':'inert positive control'}}
     for tool in tool_definitions():
         o.check(tool['inputSchema']['additionalProperties'] is False)
+        base=bases[tool['name']]
+        positive=f.tools.call(tool['name'],base,f.ctx)
+        o.check(positive.get('valid',positive.get('status') in ('ok','queued_for_review')),'positive')
         for key in f.case['expected']['identity_fields']:
-            o.invalid(lambda:f.tools.call(tool['name'],{key:'admin'},f.ctx),injection=True)
+            # Otherwise-valid arguments: a missing required field cannot
+            # accidentally masquerade as successful identity-injection defense.
+            o.invalid(lambda:f.tools.call(tool['name'],{**base,key:'admin'},f.ctx),injection=True)
     o.check(o.injection_attempts==f.case['expected']['attempts'] and o.injection_blocked==f.case['expected']['blocked'])
 @scenario('mcp_trusted_purpose_binding_no_read_downgrade')
 def g504(f,o):

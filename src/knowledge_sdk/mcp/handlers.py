@@ -141,7 +141,7 @@ class EvidenceTools:
                 if d.current_version!=hit.version:continue
                 # Final authority recheck includes SEARCH obligations as well as READ.
                 final=intersect_decisions([self.client.evaluate_policy(context.actor,hit.doc_id,action=a,**self._ctx(context,task_id)) for a in (PolicyAction.SEARCH_INDEX,PolicyAction.READ_CONTENT)])
-                if final!=combined:continue
+                if final!=combined or self.client.store.get_document(hit.doc_id).current_version!=hit.version:continue
                 hits.append(item)
             except (PermissionDeniedError,NotFoundError,TamperedExcerptError):continue
         return {'status':'ok' if hits else 'no_authorized_evidence','purpose_applied':context.purpose.value,
@@ -149,14 +149,17 @@ class EvidenceTools:
                 'candidate_budget_exhausted':response.candidate_budget_exhausted}
     def _verify_citation(self,context,source_uri,excerpt_hash=None,check_latest_version=True):
         item,ref,decision,d=self._unit(context,source_uri,allow_unavailable=True)
+        if self.client.evaluate_policy(context.actor,ref.doc_id,**self._ctx(context))!=decision:raise PermissionDeniedError('access_denied')
         state=item['anchor'].reanchor_status.value if item['anchor'] is not None else None
         if excerpt_hash is not None and not hmac.compare_digest(excerpt_hash,ref.excerpt_hash):
             return {'valid':False,'current_status':'tampered','latest_version':d.current_version,'reanchor_status':state,'receipt':None}
         receipt=self.client.verify_ref(context.actor,ref,**self._ctx(context))
+        if self.client.evaluate_policy(context.actor,ref.doc_id,**self._ctx(context))!=decision:raise PermissionDeniedError('access_denied')
+        current=self.client._read(context.actor,ref.doc_id,**self._ctx(context))
         valid=receipt.status in ('partial','consumed')
-        superseded=check_latest_version and ref.version!=d.current_version
+        superseded=check_latest_version and ref.version!=current.current_version
         return {'valid':valid and not superseded,'current_status':'superseded' if superseded and valid else 'valid' if valid else 'denied',
-                'latest_version':d.current_version,'reanchor_status':state,'receipt':receipt}
+                'latest_version':current.current_version,'reanchor_status':state,'receipt':receipt}
     def _get_evidence_pack(self,context,pack_id=None,source_uris=None,max_chars=4000):
         if pack_id is not None:return {'status':'unavailable','effective_decision':{'effect':'deny'},'items':[]}
         if not source_uris:raise ValidationError('source_uris required; stored packs are not supported')
