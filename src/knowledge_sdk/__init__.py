@@ -20,3 +20,6 @@ from .permissions.redaction import RedactionHook, RedactionRegistry, RegexRedact
 
 from .contracts.anchors import (SelectorKind, ReanchorStatus, TextQuoteSelector, PdfBBoxSelector, TableCellSelector, SectionQuoteSelector, EvidenceAnchor)
 from .contracts.uri import ParsedKBURI, parse_uri_v2
+
+from .ingestion.parsers.layout import ParsedSpan, LayoutParseResult, LayoutParser
+from .contracts.reanchor import build_anchors_from_layout, reanchor_to_version

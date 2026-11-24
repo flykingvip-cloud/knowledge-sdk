@@ -309,9 +309,11 @@ class KnowledgeAnswer:
     binding_applied: Optional[ConsumerBinding] = None
 
 
+from ..ingestion.parsers.layout import ParsedSpan, LayoutParseResult
+
 # Tagged transport serialization avoids guessing model types or exposing pickle.
 _MODELS = {c.__name__: c for c in (Actor, KnowledgeBase, Document, DocumentVersion, Chunk,
-    DocumentACL, KnowledgeRef, MaterialReceipt, ExcerptPolicy, SearchHit, SearchResponse, RetrieveResponse, KnowledgeScope, ConsumerBinding, Attachment, GeneratedAnswer, KnowledgeAnswer, AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision, ParsedKBURI, TextQuoteSelector, PdfBBoxSelector, TableCellSelector, SectionQuoteSelector, EvidenceAnchor)}
+    DocumentACL, KnowledgeRef, MaterialReceipt, ExcerptPolicy, SearchHit, SearchResponse, RetrieveResponse, KnowledgeScope, ConsumerBinding, Attachment, GeneratedAnswer, KnowledgeAnswer, AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision, ParsedKBURI, TextQuoteSelector, PdfBBoxSelector, TableCellSelector, SectionQuoteSelector, EvidenceAnchor, ParsedSpan, LayoutParseResult)}
 def encode(value):
     if isinstance(value, Enum): return value.value
     if type(value).__name__ in _MODELS:
