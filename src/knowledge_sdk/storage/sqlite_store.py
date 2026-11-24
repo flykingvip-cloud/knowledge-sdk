@@ -26,7 +26,7 @@ class SQLiteStore:
         try:
             self.db.execute("PRAGMA foreign_keys=ON");self.db.execute("PRAGMA busy_timeout=5000")
             schema=self.db.execute("PRAGMA user_version").fetchone()[0]
-            if schema not in (0,1,2):raise ConflictError("Unsupported database schema version")
+            if schema not in (0,1,2,3):raise ConflictError("Unsupported database schema version")
             if schema<2:
                 with self.transaction():
                     for statement in self._BASE_SCHEMA.split(';'):
@@ -38,6 +38,11 @@ class SQLiteStore:
                         if statement.strip():self.db.execute(statement)
                     self._backfill()
                     self.db.execute("PRAGMA user_version=2")
+            if schema<3:
+                with self.transaction():
+                    for statement in self._V3_SCHEMA.split(';'):
+                        if statement.strip():self.db.execute(statement)
+                    self.db.execute("PRAGMA user_version=3")
             self.db.execute("PRAGMA journal_mode=WAL")
         except BaseException:
             self.db.close();raise
@@ -65,6 +70,124 @@ class SQLiteStore:
         CREATE TABLE IF NOT EXISTS policy_rules(rule_id TEXT PRIMARY KEY,org_id TEXT NOT NULL,scope_kb_id TEXT NOT NULL DEFAULT '',scope_doc_id TEXT NOT NULL DEFAULT '',priority INTEGER NOT NULL DEFAULT 100,effect TEXT NOT NULL,data TEXT NOT NULL);
         CREATE INDEX IF NOT EXISTS idx_policy_org_scope ON policy_rules(org_id,scope_kb_id,scope_doc_id,priority);
         CREATE TABLE IF NOT EXISTS evidence_issues(issue_id TEXT PRIMARY KEY,org_id TEXT NOT NULL,doc_id TEXT NOT NULL,version INTEGER NOT NULL,anchor_id TEXT NOT NULL DEFAULT '',status TEXT NOT NULL DEFAULT 'open',created_at TEXT NOT NULL,data TEXT NOT NULL);
+    """
+    _V3_SCHEMA="""
+CREATE TABLE IF NOT EXISTS outbox_events (
+  event_id TEXT PRIMARY KEY,
+  org_id TEXT NOT NULL,
+  aggregate_type TEXT NOT NULL,
+  aggregate_id TEXT NOT NULL,
+  event_type TEXT NOT NULL,
+  payload_json TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  attempts INTEGER NOT NULL DEFAULT 0,
+  available_at TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  dispatched_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_outbox_pending
+  ON outbox_events(status, available_at, created_at);
+CREATE TABLE IF NOT EXISTS audit_events (
+  event_id TEXT PRIMARY KEY,
+  org_id TEXT NOT NULL,
+  seq_no INTEGER NOT NULL,
+  prev_hash TEXT NOT NULL,
+  event_hash TEXT NOT NULL,
+  occurred_at TEXT NOT NULL,
+  actor_id TEXT NOT NULL,
+  agent_id TEXT NOT NULL DEFAULT '',
+  action TEXT NOT NULL,
+  purpose TEXT NOT NULL,
+  resource_uri TEXT NOT NULL DEFAULT '',
+  doc_id TEXT NOT NULL DEFAULT '',
+  decision_effect TEXT NOT NULL,
+  reason_code TEXT NOT NULL,
+  policy_generation TEXT NOT NULL DEFAULT '0',
+  redaction_profile TEXT NOT NULL DEFAULT '',
+  data TEXT NOT NULL,
+  UNIQUE(org_id, seq_no)
+);
+CREATE INDEX IF NOT EXISTS idx_audit_org_time
+  ON audit_events(org_id, occurred_at, seq_no);
+CREATE TABLE IF NOT EXISTS usage_events (
+  usage_id TEXT PRIMARY KEY,
+  org_id TEXT NOT NULL,
+  doc_id TEXT NOT NULL,
+  version INTEGER NOT NULL,
+  anchor_id TEXT NOT NULL DEFAULT '',
+  consumer_type TEXT NOT NULL,
+  consumer_id TEXT NOT NULL,
+  task_id TEXT NOT NULL DEFAULT '',
+  actor_id TEXT NOT NULL,
+  agent_id TEXT NOT NULL DEFAULT '',
+  purpose TEXT NOT NULL,
+  receipt_hash TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  data TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_usage_doc
+  ON usage_events(org_id, doc_id, version, anchor_id);
+CREATE TABLE IF NOT EXISTS impact_alerts (
+  alert_id TEXT PRIMARY KEY,
+  org_id TEXT NOT NULL,
+  source_event_id TEXT NOT NULL,
+  doc_id TEXT NOT NULL,
+  source_version INTEGER NOT NULL,
+  target_type TEXT NOT NULL,
+  target_id TEXT NOT NULL,
+  impact_reason TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'open',
+  created_at TEXT NOT NULL,
+  data TEXT NOT NULL,
+  UNIQUE(org_id, source_event_id, target_type, target_id)
+);
+CREATE INDEX IF NOT EXISTS idx_impact_org_status
+  ON impact_alerts(org_id, status, created_at);
+CREATE TABLE IF NOT EXISTS webhook_subscriptions (
+  subscription_id TEXT PRIMARY KEY,
+  org_id TEXT NOT NULL,
+  event_types TEXT NOT NULL,
+  active INTEGER NOT NULL DEFAULT 1,
+  data TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS webhook_deliveries (
+  delivery_id TEXT PRIMARY KEY,
+  org_id TEXT NOT NULL,
+  subscription_id TEXT NOT NULL,
+  outbox_event_id TEXT NOT NULL,
+  status TEXT NOT NULL,
+  http_status INTEGER NOT NULL DEFAULT 0,
+  attempted_at TEXT NOT NULL,
+  data TEXT NOT NULL,
+  UNIQUE(subscription_id, outbox_event_id)
+);
+CREATE TABLE IF NOT EXISTS review_decisions (
+  decision_id TEXT PRIMARY KEY,
+  org_id TEXT NOT NULL,
+  doc_id TEXT NOT NULL,
+  version INTEGER NOT NULL,
+  stage TEXT NOT NULL,
+  reviewer_id TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  data TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS evidence_packs (
+  pack_id TEXT PRIMARY KEY,
+  org_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'sealed',
+  pack_sha256 TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  data TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS connector_sync_state (
+  connector_id TEXT NOT NULL,
+  org_id TEXT NOT NULL,
+  cursor TEXT NOT NULL DEFAULT '',
+  updated_at TEXT NOT NULL,
+  data TEXT NOT NULL,
+  PRIMARY KEY(org_id, connector_id)
+);
     """
     @contextmanager
     def _write_scope(self):
