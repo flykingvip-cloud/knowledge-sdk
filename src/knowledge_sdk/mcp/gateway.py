@@ -30,7 +30,12 @@ class GatewayAuthenticator:
         if self.bound_purpose not in (Purpose.GROUND_EXTERNAL_LLM,Purpose.GROUND_INTERNAL_LLM):raise ValidationError('Invalid gateway purpose')
     def authenticate(self,headers,method,path,body=b''):
         try:
-            normalized=_normalize_headers(headers)
+            items=list(headers) if isinstance(headers,(list,tuple)) else list(headers.items())
+            if any(not isinstance(item,(list,tuple)) or len(item)!=2 or not all(isinstance(v,str) for v in item) for item in items):
+                raise ValidationError('Invalid headers')
+            class Pairs:
+                def items(self):return items
+            normalized=_normalize_headers(Pairs())
             # Typed preflight before consuming a valid nonce. No authentication
             # result escapes until the full HMAC verification succeeds below.
             actor=verify_headers(normalized,self.secret,method,path,body,dev_insecure=True)
@@ -40,5 +45,5 @@ class GatewayAuthenticator:
             if 'x-kb-purpose' in normalized and Purpose(purpose)!=self.bound_purpose:raise ValidationError('Purpose binding mismatch')
             verified=verify_headers(normalized,self.secret,method,path,body,replay_store=self.replay_store,fallback_secrets=self.fallback_secrets)
             return GatewayContext(verified,agent,self.bound_purpose)
-        except (ValidationError,ValueError,TypeError,UnicodeError):
+        except (ValidationError,ValueError,TypeError,UnicodeError,AttributeError):
             raise ValidationError('Invalid gateway authentication') from None
