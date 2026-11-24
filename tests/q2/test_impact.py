@@ -247,3 +247,8 @@ class ImpactTests(unittest.TestCase):
         self.assertNotIn('Original evidence alpha',data)
         self.assertFalse(any(e.actor_id=='attacker' for e in self.c.query_audit_events(self.a)))
         self.assertTrue(self.c.verify_audit_chain(foreign).valid)
+
+    def test_org_operations_reject_restricted_or_cross_tenant_agents(self):
+        for agent in (AgentIdentity('limited','org',allowed_kb_ids=('kb',)),AgentIdentity('other','foreign')):
+            with self.assertRaises(PermissionDeniedError):self.c.drain_outbox(self.a,agent=agent)
+            with self.assertRaises(PermissionDeniedError):self.c.verify_audit_chain(self.a,agent=agent)

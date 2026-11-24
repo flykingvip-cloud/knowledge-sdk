@@ -37,6 +37,8 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
         if root and incoming != root and not incoming.startswith(root + "/"):
             request.scope["path"] = root + incoming
         path = route_path(request)
+        if dev_insecure and (path.startswith('/v1/audit/') or path.startswith('/v1/impact/') or path in ('/v1/events/drain','/v1/outbox/drain')):
+            return JSONResponse(status_code=401,content={'error':'PermissionDeniedError','message':'Event APIs require signed authentication'},headers={'Cache-Control':'no-store'})
         if path=='/v1/mcp' and not enable_mcp:
             return JSONResponse(status_code=404,content={'message':'Not found'},headers={'Cache-Control':'no-store'})
         # Disabled signer and former/default UI paths never become auth endpoints.
@@ -74,7 +76,10 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
             request.state.purpose = Purpose(purpose)
         except (ValidationError,ValueError,TypeError,UnicodeError):
             return JSONResponse(status_code=401,content={"error":"PermissionDeniedError","message":"Invalid request authentication"},headers={"Cache-Control":"no-store"})
-        return await call_next(request)
+        response=await call_next(request)
+        if path.startswith(('/v1/audit/','/v1/impact/')) or path in ('/v1/events/drain','/v1/outbox/drain'):
+            response.headers['Cache-Control']='no-store'
+        return response
     if enable_mcp:
         from ..mcp.protocol import MCPProtocol
         from fastapi.responses import Response

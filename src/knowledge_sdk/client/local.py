@@ -38,7 +38,7 @@ def serialized(method):
         'ingest','archive','restore','set_document_acl','set_document_rights',
         'search','retrieve','consume','attach','confirm_anchor_reanchor',
         'report_evidence_issue','get_document','reference','query_audit_events',
-        'list_impact_alerts','acknowledge_impact_alert','drain_outbox'}
+        'list_impact_alerts','acknowledge_impact_alert','drain_outbox','ask','batch_consume','verify_ref'}
     @wraps(method)
     def wrapped(self,*args,**kwargs):
         with self._lock:
@@ -102,8 +102,9 @@ class LocalKnowledgeClient:
         elif isinstance(result,MaterialReceipt) and result.status not in ('consumed','partial'):
             effect=DecisionEffect.DENY;reason=result.reason_code or 'unavailable'
         context=values.get('policy_context')
+        audit_purpose=values.get('purpose') or (Purpose.GROUND_INTERNAL_LLM if values.get('generator') is not None else Purpose.READ)
         append(self.store,actor,action,agent=values.get('agent'),
-               purpose=values.get('purpose',Purpose.READ),doc_id=doc_id,
+               purpose=audit_purpose,doc_id=doc_id,
                effect=effect,reason=reason,redaction_profile=profile,
                request_id=context.request_id if context else '',task_id=context.task_id if context else '',
                policy_generation=getattr(result,"policy_generation",actor.policy_generation))
@@ -132,9 +133,16 @@ class LocalKnowledgeClient:
             result.append(event)
         return result
 
+    @staticmethod
+    def _org_agent(actor,agent,purpose):
+        if agent is not None:
+            if agent.org_id!=actor.org_id or enum_value(Purpose,purpose) not in agent.allowed_purposes or agent.allowed_kb_ids:
+                raise PermissionDeniedError('org_agent_scope_denied')
+
     @serialized
     def verify_audit_chain(self,actor,*,from_seq=1,to_seq=None,agent=None,purpose=Purpose.READ,policy_context=None):
         from ..audit.ledger import verify_audit_chain
+        self._org_agent(actor,agent,purpose)
         if not set(actor.org_roles).intersection(('admin','manage_org')):
             raise PermissionDeniedError('audit_admin_required')
         return verify_audit_chain(self.store,actor.org_id,from_seq=from_seq,to_seq=to_seq)
@@ -186,6 +194,7 @@ class LocalKnowledgeClient:
         from ..events.outbox import OutboxDispatcher
         from ..impact.radar import ImpactRadar
         from ..impact.webhook import WebhookDispatcher
+        self._org_agent(actor,agent,purpose)
         if not set(actor.org_roles).intersection(('admin','manage_org')):raise PermissionDeniedError('outbox_admin_required')
         worker=OutboxDispatcher(self.store,radar=ImpactRadar(self),webhook=WebhookDispatcher(self.store,
                                   allow_insecure_local_webhook=self.allow_insecure_local_webhook))
