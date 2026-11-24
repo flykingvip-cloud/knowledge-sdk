@@ -1,4 +1,4 @@
-"""Exactly 75 offline executable scenarios (original 60 unchanged). No network, LLM, skips or random rank claims."""
+"""Exactly 75 executable scenarios (original 60 unchanged). SQLite offline or real optional PostgreSQL; no LLM, skips or random rank claims."""
 from __future__ import annotations
 import argparse
 import concurrent.futures
@@ -483,14 +483,14 @@ def main():
     result['executed_at']=datetime.now(timezone(timedelta(hours=8))).isoformat();result['timezone']='Asia/Shanghai'
     if args.json_output:Path(args.json_output).write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
     if args.report:
-        lines=['# Q2-M1 offline golden benchmark','',result['executed_at']+' Asia/Shanghai','',f"Cases: {result['passed']}/{result['case_count']} passed; 0 skipped; gate_passed={result['gate_passed']}",'', '| Group | Passed / Total |','|---|---|']
+        lines=['# Q2-M2 golden benchmark ('+args.engine+')','',result['executed_at']+' Asia/Shanghai','',f"Cases: {result['passed']}/{result['case_count']} passed; 0 skipped; gate_passed={result['gate_passed']}",'', '| Group | Passed / Total |','|---|---|']
         lines.extend('| '+g+' | '+str(v['passed'])+' / '+str(v['total'])+' |' for g,v in result['groups'].items())
         lines.extend(['','```json',json.dumps({k:v for k,v in result.items() if k!='results'},indent=2),'```','',
          'These are 75 distinct executable offline scenarios (the original 60 are unchanged), not 60 unittest methods or added subtests. No skips are allowed.',
          'ACL denominator: 20 G1 security scenarios; refusal denominator: 10 G2 no-evidence scenarios with real generator spies; anchor denominator: 10 G4 fixture scenarios.',
          'MCP injection denominator: actual runtime rejected argument/purpose attempts (not tool schema declarations). Positive controls and safety assertions are tracked separately.',
-         'implicit_model_calls is the measured generator-spy invocation count in G1 missing-hook ask and G2; no real model/network/vector service is configured. Positive answer control uses the local extractive generator.',
-         'Recall@k (k=3 for the three-target scope fixture, otherwise5) is measured only on the seven eligible fixed SQLite FTS / deterministic hybrid-stub fixtures. Two deliberate 500-cap negative fixtures are excluded. No online semantic improvement or historical baseline uplift is claimed.',
+         'implicit_model_calls is the measured generator-spy invocation count in G1 missing-hook ask and G2; no remote model or embedding service is configured. PostgreSQL mode uses real local PG/pgvector fixtures; deterministic adversarial vector stubs are retained. Positive answer control uses the local extractive generator.',
+         'Recall@k (k=3 for the three-target scope fixture, otherwise5) is measured only on the seven eligible selected-engine keyword / deterministic hybrid-stub fixtures. Two deliberate 500-cap negative fixtures are excluded. No online semantic improvement or historical baseline uplift is claimed.',
          'PDF geometry is a host-injected offline layout fixture, not a PDF/OCR parser. Handler golden checks are not HTTP/stdio wire acceptance; actual transports are separately exercised at L3.',''])
         Path(args.report).write_text('\n'.join(lines))
     print(json.dumps(result if args.json else {k:v for k,v in result.items() if k!='results'},ensure_ascii=False,indent=2))
