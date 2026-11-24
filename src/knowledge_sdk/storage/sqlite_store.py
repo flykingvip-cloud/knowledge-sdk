@@ -5,7 +5,7 @@ import sqlite3
 import threading
 from contextlib import contextmanager
 from ..contracts.models import (KnowledgeBase, Document, DocumentVersion, DocumentACL, Chunk, Actor, ConsumerBinding, encode, decode)
-from ..exceptions import NotFoundError, ConflictError
+from ..exceptions import NotFoundError, ConflictError, ValidationError
 
 def tokens(text):
     # unicode61 cannot segment CJK. Add individual CJK characters and bigrams.
@@ -23,11 +23,26 @@ class SQLiteStore:
     def __init__(self,path=":memory:"):
         self.lock=threading.RLock()
         self.db=sqlite3.connect(str(path),check_same_thread=False,isolation_level=None)
-        self.db.execute("PRAGMA foreign_keys=ON"); self.db.execute("PRAGMA busy_timeout=5000")
-        self.db.execute("PRAGMA journal_mode=WAL")
-        schema=self.db.execute("PRAGMA user_version").fetchone()[0]
-        if schema not in (0,1): raise ConflictError("Unsupported database schema version")
-        self.db.executescript("""
+        try:
+            self.db.execute("PRAGMA foreign_keys=ON");self.db.execute("PRAGMA busy_timeout=5000")
+            schema=self.db.execute("PRAGMA user_version").fetchone()[0]
+            if schema not in (0,1,2):raise ConflictError("Unsupported database schema version")
+            if schema<2:
+                with self.transaction():
+                    for statement in self._BASE_SCHEMA.split(';'):
+                        if statement.strip():self.db.execute(statement)
+                    columns={r[1] for r in self.db.execute("PRAGMA table_info(documents)")}
+                    for name,kind in self._DERIVED:
+                        if name not in columns:self.db.execute('ALTER TABLE documents ADD COLUMN '+name+' '+kind)
+                    for statement in self._V2_SCHEMA.split(';'):
+                        if statement.strip():self.db.execute(statement)
+                    self._backfill()
+                    self.db.execute("PRAGMA user_version=2")
+            self.db.execute("PRAGMA journal_mode=WAL")
+        except BaseException:
+            self.db.close();raise
+
+    _BASE_SCHEMA="""
         CREATE TABLE IF NOT EXISTS knowledge_bases(kb_id TEXT PRIMARY KEY,org_id TEXT NOT NULL,data TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS kb_members(kb_id TEXT NOT NULL REFERENCES knowledge_bases(kb_id),user_id TEXT NOT NULL,role TEXT NOT NULL,PRIMARY KEY(kb_id,user_id));
         CREATE TABLE IF NOT EXISTS documents(doc_id TEXT PRIMARY KEY,org_id TEXT NOT NULL,kb_id TEXT NOT NULL REFERENCES knowledge_bases(kb_id),data TEXT NOT NULL);
@@ -38,8 +53,33 @@ class SQLiteStore:
         CREATE VIRTUAL TABLE IF NOT EXISTS chunks_fts USING fts5(doc_id UNINDEXED,version UNINDEXED,chunk_id UNINDEXED,org_id UNINDEXED,content,tokenize='unicode61');
         CREATE TABLE IF NOT EXISTS pending_indexes(doc_id TEXT PRIMARY KEY REFERENCES documents(doc_id));
         CREATE TABLE IF NOT EXISTS consumer_bindings(org_id TEXT NOT NULL,user_id TEXT NOT NULL,consumer_type TEXT NOT NULL,consumer_id TEXT NOT NULL,data TEXT NOT NULL,PRIMARY KEY(org_id,user_id,consumer_type,consumer_id));
-        PRAGMA user_version=1;
-        """)
+
+        """
+    _DERIVED=(('space_type',"TEXT NOT NULL DEFAULT 'enterprise'"),('governance_tier',"TEXT NOT NULL DEFAULT 'l1_agile'"),
+              ('access_level',"TEXT NOT NULL DEFAULT 'public'"),('lifecycle_state',"TEXT NOT NULL DEFAULT 'published'"),
+              ('archived','INTEGER NOT NULL DEFAULT 0'),('revoked','INTEGER NOT NULL DEFAULT 0'),('valid_from','TEXT'),('valid_to','TEXT'))
+    _V2_SCHEMA="""
+        CREATE INDEX IF NOT EXISTS idx_docs_pushdown ON documents(org_id,kb_id,archived,revoked,lifecycle_state,access_level);
+        CREATE TABLE IF NOT EXISTS evidence_anchors(anchor_id TEXT NOT NULL,org_id TEXT NOT NULL,doc_id TEXT NOT NULL,version INTEGER NOT NULL,selector_kind TEXT NOT NULL,reanchor_status TEXT NOT NULL DEFAULT 'anchored',data TEXT NOT NULL,PRIMARY KEY(org_id,doc_id,version,anchor_id),FOREIGN KEY(doc_id,version) REFERENCES document_versions(doc_id,version));
+        CREATE INDEX IF NOT EXISTS idx_anchors_lookup ON evidence_anchors(org_id,anchor_id);
+        CREATE TABLE IF NOT EXISTS policy_rules(rule_id TEXT PRIMARY KEY,org_id TEXT NOT NULL,scope_kb_id TEXT NOT NULL DEFAULT '',scope_doc_id TEXT NOT NULL DEFAULT '',priority INTEGER NOT NULL DEFAULT 100,effect TEXT NOT NULL,data TEXT NOT NULL);
+        CREATE INDEX IF NOT EXISTS idx_policy_org_scope ON policy_rules(org_id,scope_kb_id,scope_doc_id,priority);
+        CREATE TABLE IF NOT EXISTS evidence_issues(issue_id TEXT PRIMARY KEY,org_id TEXT NOT NULL,doc_id TEXT NOT NULL,version INTEGER NOT NULL,anchor_id TEXT NOT NULL DEFAULT '',status TEXT NOT NULL DEFAULT 'open',created_at TEXT NOT NULL,data TEXT NOT NULL);
+    """
+    @contextmanager
+    def _write_scope(self):
+        with self.lock:
+            if self.db.in_transaction:yield
+            else:
+                with self.transaction():yield
+    def _sync_document(self,doc_id):
+        d=self.get_document(doc_id);kb=self.get_kb(d.kb_id);acl=self.get_acl(doc_id)
+        if d.org_id!=kb.org_id:raise ConflictError('Document tenant mismatch')
+        values=(kb.space_type,kb.governance_tier,acl.access_level,d.lifecycle_state,int(d.archived),
+                int(d.lifecycle_state=='revoked' or bool(d.rights and d.rights.revoked)),d.valid_from,d.valid_to,doc_id)
+        self._execute('UPDATE documents SET '+','.join(name+'=?' for name,_ in self._DERIVED)+' WHERE doc_id=?',values)
+    def _backfill(self):
+        for row in self._execute('SELECT doc_id FROM documents'):self._sync_document(row[0])
     @contextmanager
     def transaction(self):
         with self.lock:
@@ -58,7 +98,12 @@ class SQLiteStore:
         return decode(json.loads(rows[0][0]))
     @staticmethod
     def _dump(obj): return json.dumps(encode(obj),ensure_ascii=False)
-    def put_kb(self,kb): self._execute("INSERT INTO knowledge_bases VALUES(?,?,?)",(kb.kb_id,kb.org_id,self._dump(kb)))
+    def put_kb(self,kb):
+        with self._write_scope():
+            rows=self._execute('SELECT org_id FROM knowledge_bases WHERE kb_id=?',(kb.kb_id,))
+            if rows and rows[0][0]!=kb.org_id:raise ConflictError('Knowledge base identity conflict')
+            self._execute("INSERT INTO knowledge_bases VALUES(?,?,?) ON CONFLICT(kb_id) DO UPDATE SET data=excluded.data",(kb.kb_id,kb.org_id,self._dump(kb)))
+            for row in self._execute('SELECT doc_id FROM documents WHERE kb_id=?',(kb.kb_id,)):self._sync_document(row[0])
     def get_kb(self,kb_id): return self._get("SELECT data FROM knowledge_bases WHERE kb_id=?",(kb_id,))
     def list_kbs(self,org_id): return [decode(json.loads(r[0])) for r in self._execute("SELECT data FROM knowledge_bases WHERE org_id=? ORDER BY kb_id",(org_id,))]
     def grant_member(self,kb_id,user_id,role):
@@ -67,7 +112,11 @@ class SQLiteStore:
         rows=self._execute("SELECT role FROM kb_members WHERE kb_id=? AND user_id=?",(kb_id,user_id)); return rows[0][0] if rows else None
     def get_document(self,doc_id): return self._get("SELECT data FROM documents WHERE doc_id=?",(doc_id,))
     def put_document(self,d):
-        self._execute("INSERT INTO documents VALUES(?,?,?,?) ON CONFLICT(doc_id) DO UPDATE SET data=excluded.data",(d.doc_id,d.org_id,d.kb_id,self._dump(d)))
+        with self._write_scope():
+            rows=self._execute('SELECT org_id,kb_id FROM documents WHERE doc_id=?',(d.doc_id,))
+            if rows and rows[0]!=(d.org_id,d.kb_id):raise ConflictError('Document identity conflict')
+            self._execute("INSERT INTO documents(doc_id,org_id,kb_id,data) VALUES(?,?,?,?) ON CONFLICT(doc_id) DO UPDATE SET data=excluded.data",(d.doc_id,d.org_id,d.kb_id,self._dump(d)))
+            self._sync_document(d.doc_id)
     def list_documents(self,org_id): return [decode(json.loads(r[0])) for r in self._execute("SELECT data FROM documents WHERE org_id=? ORDER BY doc_id",(org_id,))]
     def get_version(self,doc_id,version): return self._get("SELECT data FROM document_versions WHERE doc_id=? AND version=?",(doc_id,version))
     def put_version(self,v,chunks):
@@ -80,7 +129,9 @@ class SQLiteStore:
         try: return self._get("SELECT data FROM document_acls WHERE doc_id=?",(doc_id,))
         except NotFoundError: return DocumentACL()
     def set_acl(self,doc_id,acl):
-        self._execute("INSERT INTO document_acls VALUES(?,?) ON CONFLICT(doc_id) DO UPDATE SET data=excluded.data",(doc_id,self._dump(acl)))
+        with self._write_scope():
+            self._execute("INSERT INTO document_acls VALUES(?,?) ON CONFLICT(doc_id) DO UPDATE SET data=excluded.data",(doc_id,self._dump(acl)))
+            self._sync_document(doc_id)
     def refresh_fts(self,doc_id):
         self._execute("DELETE FROM chunks_fts WHERE doc_id=?",(doc_id,))
         d=self.get_document(doc_id)
@@ -114,3 +165,48 @@ class SQLiteStore:
         return [decode(json.loads(row[0])) for row in self._execute(
             "SELECT data FROM consumer_bindings WHERE org_id=? AND user_id=? ORDER BY consumer_type,consumer_id",
             (actor.org_id, actor.user_id))]
+
+    def put_anchors(self,anchors):
+        from ..contracts.anchors import EvidenceAnchor
+        with self._write_scope():
+            for anchor in anchors:
+                if not isinstance(anchor,EvidenceAnchor):raise ValidationError('Expected EvidenceAnchor')
+                if self.get_document(anchor.doc_id).org_id!=anchor.org_id:raise ConflictError('Anchor tenant mismatch')
+                self._execute('INSERT INTO evidence_anchors VALUES(?,?,?,?,?,?,?)',
+                    (anchor.anchor_id,anchor.org_id,anchor.doc_id,anchor.version,anchor.selector_kind.value,anchor.reanchor_status.value,self._dump(anchor)))
+    def get_anchors(self,org_id,doc_id,version):
+        return [decode(json.loads(r[0])) for r in self._execute('SELECT data FROM evidence_anchors WHERE org_id=? AND doc_id=? AND version=? ORDER BY anchor_id',(org_id,doc_id,version))]
+    def get_anchor(self,org_id,doc_id,version,anchor_id):
+        return self._get('SELECT data FROM evidence_anchors WHERE org_id=? AND doc_id=? AND version=? AND anchor_id=?',(org_id,doc_id,version,anchor_id))
+    def update_anchor(self,anchor):
+        from ..contracts.anchors import EvidenceAnchor
+        if not isinstance(anchor,EvidenceAnchor):raise ValidationError('Expected EvidenceAnchor')
+        with self._write_scope():
+            self.get_anchor(anchor.org_id,anchor.doc_id,anchor.version,anchor.anchor_id)
+            self._execute('UPDATE evidence_anchors SET selector_kind=?,reanchor_status=?,data=? WHERE org_id=? AND doc_id=? AND version=? AND anchor_id=?',
+                (anchor.selector_kind.value,anchor.reanchor_status.value,self._dump(anchor),anchor.org_id,anchor.doc_id,anchor.version,anchor.anchor_id))
+    def put_policy_rule(self,rule):
+        from ..contracts.policy import PolicyRule
+        if not isinstance(rule,PolicyRule):raise ValidationError('Expected PolicyRule')
+        with self._write_scope():
+            rows=self._execute('SELECT org_id FROM policy_rules WHERE rule_id=?',(rule.rule_id,))
+            if rows and rows[0][0]!=rule.org_id:raise ConflictError('Policy identity conflict')
+            self._execute('INSERT INTO policy_rules VALUES(?,?,?,?,?,?,?) ON CONFLICT(rule_id) DO UPDATE SET scope_kb_id=excluded.scope_kb_id,scope_doc_id=excluded.scope_doc_id,priority=excluded.priority,effect=excluded.effect,data=excluded.data',
+                (rule.rule_id,rule.org_id,rule.scope_kb_id,rule.scope_doc_id,rule.priority,rule.effect.value,self._dump(rule)))
+    def list_policy_rules(self,org_id):
+        return [decode(json.loads(r[0])) for r in self._execute('SELECT data FROM policy_rules WHERE org_id=? ORDER BY priority,rule_id',(org_id,))]
+    def delete_policy_rule(self,org_id,rule_id):self._execute('DELETE FROM policy_rules WHERE org_id=? AND rule_id=?',(org_id,rule_id))
+    def keyword_search_pushdown(self,query,org_id,limit=100,*,kb_ids=None,doc_ids=None):
+        ts=tokens(query)
+        if re.search(r"[\u3400-\u9fff]{2}",query):ts=[t for t in ts if not re.fullmatch(r"[\u3400-\u9fff]",t)]
+        if not ts:return []
+        match=' OR '.join('"'+t.replace('"','""')+'"' for t in ts[:64])
+        sql='SELECT chunks_fts.doc_id,version,chunk_id,bm25(chunks_fts) FROM chunks_fts JOIN documents d ON chunks_fts.doc_id=d.doc_id WHERE chunks_fts MATCH ? AND d.org_id=? AND chunks_fts.org_id=? AND d.archived=0 AND d.revoked=0'
+        args=[match,org_id,org_id]
+        for column,values in (('kb_id',kb_ids),('doc_id',doc_ids)):
+            if values is not None:
+                if isinstance(values,str) or not isinstance(values,(list,tuple,set,frozenset)) or any(not isinstance(v,str) for v in values):raise ValidationError('Invalid pushdown scope')
+                if not values:return []
+                sql+=' AND d.'+column+' IN ('+','.join('?' for _ in values)+')';args.extend(values)
+        sql+=' ORDER BY bm25(chunks_fts),chunks_fts.doc_id,version,chunk_id LIMIT ?';args.append(limit)
+        return self._execute(sql,args)

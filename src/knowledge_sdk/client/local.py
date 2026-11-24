@@ -132,6 +132,9 @@ class LocalKnowledgeClient:
         decision=self.policy_engine.evaluate(actor,agent,kb,action=PolicyAction.MANAGE_SPACE,purpose=purpose,context=policy_context)
         if not decision.allowed: raise PermissionDeniedError(decision.reason_code)
         with self.store.transaction():
+            try:self.store.get_kb(kb_id)
+            except NotFoundError:pass
+            else:raise ConflictError("KB identity already exists")
             self.store.put_kb(kb); self.store.grant_member(kb_id,actor.user_id,"admin")
         return kb
     @serialized

@@ -15,37 +15,60 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
     filters=filters if filters is not None else {}
     if not isinstance(filters,dict): raise ValidationError("Search filters must be an object")
     if set(filters)-{"kb_id","doc_id","tags"}: raise ValidationError("Unsupported search filter")
-    # Weighted reciprocal rank fusion avoids comparing incompatible BM25/cosine scales.
-    candidates={}; count=max(100,limit*10)
-    def add(key,score): candidates[key]=candidates.get(key,0)+score
-    if mode!="vector":
-        for rank,(doc_id,version,cid,score) in enumerate(store.keyword_search(query,actor.org_id,count),1):
-            add((doc_id,int(version),cid),(1 if mode=="keyword" else keyword_weight)/(60+rank))
-    if mode!="keyword":
-        for rank,hit in enumerate(vector_index.search(embedder.embed([query])[0],count),1):
-            add((hit.doc_id,hit.version,hit.chunk_id),(1 if mode=="vector" else 1-keyword_weight)/(60+rank))
+    # Prefix batches plus one identity-only lookahead; never evaluate key 501.
     policy_engine=policy_engine if policy_engine is not None else DefaultPolicyEngine()
     redaction_registry=redaction_registry if redaction_registry is not None else RedactionRegistry()
-    hits=[]
-    for (doc_id,version,cid),score in sorted(candidates.items(),key=lambda p:(-p[1],p[0])):
-        try:
-            # Never trust vector payload text, org, ACL, version or archive flags.
-            d=store.get_document(doc_id); kb=store.get_kb(d.kb_id)
-            if scope is not None and not scope.contains(d,kb): continue
-            if additional_scope is not None and not additional_scope.contains(d,kb): continue
-            if d.current_version!=version: continue
-            decision=policy_engine.evaluate(actor,agent,kb,d,store.get_acl(doc_id),store.member_role(kb.kb_id,actor.user_id),PolicyAction.SEARCH_INDEX,purpose,policy_context)
-            if not decision.allowed: continue
-            if any(filters.get(k) is not None and filters[k]!=getattr(d,k) for k in ("kb_id","doc_id")): continue
-            if not set(filters.get("tags",[])).issubset(d.metadata.get("tags",[])): continue
-            chunk=next((c for c in store.get_chunks(doc_id,version) if c.chunk_id==cid),None)
-            if chunk is None: continue
-            text=chunk.text; title=d.title; notice=d.metadata.get("partial_notice",""); summary=d.metadata.get("masking_summary","")
-            if decision.effect == DecisionEffect.ALLOW_WITH_REDACTION:
-                def mask(value): return redaction_registry.apply(value,decision.redaction_profile,purpose,{"doc_id":doc_id,"version":version})
-                text,summary=mask(text); title=mask(title)[0]; notice=mask(notice)[0]
-            excerpt=make_excerpt(text,policy,d.visibility=="enterprise",query=query,partial_notice=notice,masking_summary=summary)
-            hits.append(SearchHit(doc_id,version,cid,title,score,source_uri=build_uri(d.org_id,doc_id,version,cid),**excerpt))
-            if len(hits)>=limit: break
-        except (NotFoundError,PermissionDeniedError): continue
-    return SearchResponse(hits,mode)
+    evaluated=set();accepted={};candidates={};more=False
+    vector=embedder.embed([query])[0] if mode!='keyword' else None
+    batches=tuple(dict.fromkeys((min(max(limit*4,40),500),min(max(limit*12,120),500),500)))
+    for batch in batches:
+        candidates={};more=False
+        def add(key,score):
+            if (isinstance(key[0],str) and type(key[1]) is int and key[1]>=1 and isinstance(key[2],str)):
+                candidates[key]=candidates.get(key,0)+score
+        if mode!='vector':
+            pushdown=getattr(store,'keyword_search_pushdown',None)
+            rows=pushdown(query,actor.org_id,batch+1,kb_ids=[filters['kb_id']] if filters.get('kb_id') is not None else None,
+                          doc_ids=[filters['doc_id']] if filters.get('doc_id') is not None else None) if callable(pushdown) else store.keyword_search(query,actor.org_id,batch+1)
+            more=more or len(rows)>batch
+            for rank,row in enumerate(rows[:batch],1):
+                try:add((row[0],int(row[1]),row[2]),(1 if mode=='keyword' else keyword_weight)/(60+rank))
+                except (ValueError,TypeError,IndexError):continue
+        if mode!='keyword':
+            rows=vector_index.search(vector,batch+1);more=more or len(rows)>batch
+            for rank,hit in enumerate(rows[:batch],1):
+                try:add((hit.doc_id,hit.version,hit.chunk_id),(1 if mode=='vector' else 1-keyword_weight)/(60+rank))
+                except AttributeError:continue
+        for key,score in candidates.items():
+            if key in accepted:
+                from dataclasses import replace
+                accepted[key]=replace(accepted[key],score=score)
+        for (doc_id,version,cid),score in sorted(candidates.items(),key=lambda p:(-p[1],p[0])):
+            key=(doc_id,version,cid)
+            if key in evaluated:continue
+            if len(evaluated)>=500:break
+            evaluated.add(key)
+            try:
+                # Never trust vector payload text, org, ACL, version or archive flags.
+                d=store.get_document(doc_id); kb=store.get_kb(d.kb_id)
+                if scope is not None and not scope.contains(d,kb): continue
+                if additional_scope is not None and not additional_scope.contains(d,kb): continue
+                if d.current_version!=version: continue
+                decision=policy_engine.evaluate(actor,agent,kb,d,store.get_acl(doc_id),store.member_role(kb.kb_id,actor.user_id),PolicyAction.SEARCH_INDEX,purpose,policy_context)
+                if not decision.allowed: continue
+                if any(filters.get(k) is not None and filters[k]!=getattr(d,k) for k in ("kb_id","doc_id")): continue
+                if not set(filters.get("tags",[])).issubset(d.metadata.get("tags",[])): continue
+                chunk=next((c for c in store.get_chunks(doc_id,version) if c.chunk_id==cid),None)
+                if chunk is None: continue
+                text=chunk.text; title=d.title; notice=d.metadata.get("partial_notice",""); summary=d.metadata.get("masking_summary","")
+                if decision.effect == DecisionEffect.ALLOW_WITH_REDACTION:
+                    def mask(value): return redaction_registry.apply(value,decision.redaction_profile,purpose,{"doc_id":doc_id,"version":version})
+                    text,summary=mask(text); title=mask(title)[0]; notice=mask(notice)[0]
+                excerpt=make_excerpt(text,policy,d.visibility=="enterprise",query=query,partial_notice=notice,masking_summary=summary)
+                accepted[key]=SearchHit(doc_id,version,cid,title,score,source_uri=build_uri(d.org_id,doc_id,version,cid),**excerpt)
+                if len(accepted)>=limit: break
+            except (NotFoundError,PermissionDeniedError): continue
+        if len(accepted)>=limit or len(evaluated)>=500 or not more:break
+    hits=sorted(accepted.values(),key=lambda h:(-h.score,h.doc_id,h.version,h.chunk_id))[:limit]
+    exhausted=len(hits)<limit and len(evaluated)>=500 and (more or bool(set(candidates)-evaluated))
+    return SearchResponse(hits,mode,candidate_budget_exhausted=exhausted)
