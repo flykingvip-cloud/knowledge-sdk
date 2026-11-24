@@ -60,7 +60,8 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
                 try:add((row[0],int(row[1]),row[2]),(1 if mode=='keyword' else keyword_weight)/(60+rank))
                 except (ValueError,TypeError,IndexError):continue
         if mode!='keyword':
-            rows=vector_index.search(vector,batch+1);more=more or len(rows)>batch
+            rows=vector_index.search_for_org(actor.org_id,vector,batch+1) if hasattr(vector_index,'search_for_org') else vector_index.search(vector,batch+1)
+            more=more or len(rows)>batch
             for rank,hit in enumerate(rows[:batch],1):
                 try:add((hit.doc_id,hit.version,hit.chunk_id),(1 if mode=='vector' else 1-keyword_weight)/(60+rank))
                 except AttributeError:continue

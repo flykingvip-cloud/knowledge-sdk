@@ -11,7 +11,7 @@ from ..exceptions import KnowledgeSDKError, PermissionDeniedError, NotFoundError
 from ..client.http_client import OPERATIONS
 from .auth import verify_headers, InMemoryReplayStore, extension_claims, _validate_secrets, _decode_object
 
-def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,*,enable_ui=True,enable_demo_switcher=False,replay_store=None,fallback_secrets=(),ui_prefix="/ui",enable_mcp=False,default_mcp_purpose=Purpose.GROUND_INTERNAL_LLM):
+def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=None,*,enable_ui=True,enable_demo_switcher=False,replay_store=None,fallback_secrets=(),ui_prefix="/ui",enable_mcp=False,default_mcp_purpose=Purpose.GROUND_INTERNAL_LLM,dsn=None,pg_rls=True,pgvector_dims=None):
     if not dev_insecure and (not auth_secret or len(auth_secret)<32): raise ValidationError("Auth secret must contain at least 32 characters")
     if enable_demo_switcher and (dev_insecure or not auth_secret or len(auth_secret)<32):
         raise ValidationError("Demo switcher requires HMAC authentication, not dev_insecure")
@@ -21,8 +21,28 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
     if enable_mcp and dev_insecure:raise ValidationError('MCP requires signed authentication')
     from ..ui.routes import normalize_ui_prefix, public_ui_path, route_path
     ui_prefix = normalize_ui_prefix(ui_prefix)
+    owned_client=False;owned_replay=False
+    if dsn is not None:
+        if client is not None:raise ValidationError('Choose client or DSN, not both')
+        from .postgres import postgres_client
+        from .replay_pg import PostgresReplayStore
+        client=postgres_client(dsn,enable_rls=pg_rls,pgvector_dims=pgvector_dims);owned_client=True
+        try:
+            if replay_store is None:
+                replay_store=PostgresReplayStore(dsn,enable_rls=pg_rls);owned_replay=True
+        except BaseException:client.store.close();raise
+    if client is None:raise ValidationError('Client or DSN required')
     replay_store = replay_store if replay_store is not None else InMemoryReplayStore()
-    app=FastAPI(title="knowledge-sdk",version=knowledge_sdk.__version__)
+    from contextlib import asynccontextmanager
+    @asynccontextmanager
+    async def lifespan(app):
+        try:yield
+        finally:
+            if owned_replay:replay_store.close()
+            if owned_client:client.store.close()
+    app=FastAPI(lifespan=lifespan,title="knowledge-sdk",version=knowledge_sdk.__version__)
+    app.state.knowledge_client=client
+    app.state.replay_store=replay_store
     @app.exception_handler(KnowledgeSDKError)
     async def sdk_error(request,exc):
         status=403 if isinstance(exc,PermissionDeniedError) else 404 if isinstance(exc,NotFoundError) else 409 if isinstance(exc,ConflictError) else 400

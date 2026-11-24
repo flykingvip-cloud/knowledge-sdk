@@ -15,13 +15,18 @@ def main():
     parser.add_argument("--no-ui",action="store_true",help="Disable the optional Workbench")
     parser.add_argument("--replay-db", help="Dedicated SQLite replay database shared by all workers")
     parser.add_argument("--ui-prefix", default="/ui", help="Workbench path (not the API base)")
+    parser.add_argument('--dsn',default=os.environ.get('KNOWLEDGE_SDK_DSN'),help='Optional PostgreSQL connection; prefer environment for credentials')
+    parser.add_argument('--pg-rls',action=argparse.BooleanOptionalAction,default=True)
+    parser.add_argument('--pgvector-dims',type=int)
     args=parser.parse_args()
+    if args.dsn and args.demo_seed:parser.error('Demo seed cannot use PostgreSQL')
+    if args.dsn and args.replay_db:parser.error('PostgreSQL uses shared replay storage')
     if args.demo_seed and args.host not in ("127.0.0.1", "localhost", "::1"): parser.error("Demo must bind loopback")
     if args.demo_seed and (args.dev_insecure or args.no_ui): parser.error("Demo requires signed API and UI")
     if args.demo_seed and args.db != ":memory:": parser.error("Demo seed uses an isolated in-memory database only")
     if args.dev_insecure and args.host not in ("127.0.0.1","localhost","::1"): parser.error("Insecure mode must bind loopback")
     import uvicorn
-    client=LocalKnowledgeClient(SQLiteStore(args.db))
+    client=None if args.dsn else LocalKnowledgeClient(SQLiteStore(args.db))
     if args.demo_seed:
         from ..ui.demo import seed_demo
         seed_demo(client)
@@ -29,7 +34,8 @@ def main():
                    dev_insecure=args.dev_insecure,enable_ui=not args.no_ui,enable_demo_switcher=args.demo_seed,
                    replay_store=SQLiteReplayStore(args.replay_db) if args.replay_db else None,
                    fallback_secrets=tuple(v.strip() for v in os.environ.get("KNOWLEDGE_AUTH_FALLBACK_SECRETS", "").split(",") if v.strip()),
-                   ui_prefix=args.ui_prefix)
+                   ui_prefix=args.ui_prefix,dsn=args.dsn,pg_rls=args.pg_rls,pgvector_dims=args.pgvector_dims)
     try: uvicorn.run(app,host=args.host,port=args.port,proxy_headers=False)
-    finally: client.store.close()
+    finally:
+        if client is not None:client.store.close()
 if __name__=="__main__": main()

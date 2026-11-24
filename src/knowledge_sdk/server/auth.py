@@ -209,7 +209,9 @@ def verify_headers(headers, secret, method, path, body=b"", dev_insecure=False, 
         # integer timestamp boundary: a full 2*window+1 seconds after first use.
         ttl = max_age * 2 + 1
         if replay_store is not None:
-            if not replay_store.check_and_record(nonce, ttl, now=now):
+            recorded=(replay_store.check_and_record_for_org(actor.org_id,nonce,ttl,now=now)
+                      if hasattr(replay_store,'check_and_record_for_org') else replay_store.check_and_record(nonce,ttl,now=now))
+            if not recorded:
                 raise ValueError()
         elif seen is not None:
             for key, expiry in list(seen.items()):
