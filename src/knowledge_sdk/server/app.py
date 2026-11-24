@@ -9,7 +9,7 @@ from ..contracts.models import encode, decode
 from ..contracts.policy import AgentIdentity, Purpose
 from ..exceptions import KnowledgeSDKError, PermissionDeniedError, NotFoundError, ConflictError, ValidationError
 from ..client.http_client import OPERATIONS
-from .auth import verify_headers, InMemoryReplayStore, extension_claims, _validate_secrets
+from .auth import verify_headers, InMemoryReplayStore, extension_claims, _validate_secrets, _decode_object
 
 def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,*,enable_ui=True,enable_demo_switcher=False,replay_store=None,fallback_secrets=(),ui_prefix="/ui"):
     if not dev_insecure and (not auth_secret or len(auth_secret)<32): raise ValidationError("Auth secret must contain at least 32 characters")
@@ -51,11 +51,16 @@ def create_app(client,auth_secret=None,dev_insecure=False,answer_generator=None,
         raw_path=request.scope.get("raw_path",request.url.path.encode("utf-8")).decode("ascii")
         target=raw_path+("?"+request.url.query if request.url.query else "")
         try:
+            # Strict identity parsing is a preflight, before verify_headers can
+            # atomically consume a nonce. Signature/tenant validation still
+            # happens in verify_headers before any state is trusted.
+            encoded_agent=request.headers.get("x-kb-agent")
+            typed_agent=AgentIdentity.from_dict(_decode_object(encoded_agent,8192)) if encoded_agent is not None else None
             request.state.actor=verify_headers(request.headers,auth_secret,request.method,target,body,dev_insecure=dev_insecure,replay_store=replay_store,fallback_secrets=fallback_secrets)
             agent, purpose = extension_claims(request.headers, request.state.actor)
-            request.state.agent = AgentIdentity.from_dict(agent) if agent is not None else None
+            request.state.agent = typed_agent
             request.state.purpose = Purpose(purpose)
-        except ValidationError:
+        except (ValidationError,ValueError,TypeError,UnicodeError):
             return JSONResponse(status_code=401,content={"error":"PermissionDeniedError","message":"Invalid request authentication"})
         return await call_next(request)
     @app.get("/v1/health")

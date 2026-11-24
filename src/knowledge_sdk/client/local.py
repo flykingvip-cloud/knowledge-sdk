@@ -5,9 +5,9 @@ from functools import wraps
 import threading
 import uuid
 import math
-from typing import Optional
-from ..contracts.policy import (ResourceRights, PolicyContext, PolicyAction, Purpose, DecisionEffect, enum_value)
-from ..permissions.engine import DefaultPolicyEngine, intersect_decisions
+from typing import Optional, Sequence
+from ..contracts.policy import (ResourceRights, PolicyContext, PolicyAction, Purpose, DecisionEffect, PolicyRule, enum_value)
+from ..permissions.engine import KnowledgePolicyEngine, DefaultPolicyEngine, intersect_decisions
 from ..permissions.redaction import RedactionRegistry
 from ..contracts.models import Actor
 from dataclasses import replace
@@ -35,7 +35,7 @@ def serialized(method):
 
 class LocalKnowledgeClient:
     """Trusted in-process API. Caller supplies an authenticated Actor, not user input."""
-    def __init__(self,store=None,blob_store=None,parsers=None,chunker=None,vector_index=None,embedder=None,excerpt_policy=None,*,policy_engine=None,redaction_registry=None,policy_rules=()):
+    def __init__(self,store=None,blob_store=None,parsers=None,chunker=None,vector_index=None,embedder=None,excerpt_policy=None,*,policy_engine:Optional[KnowledgePolicyEngine]=None,redaction_registry:Optional[RedactionRegistry]=None,policy_rules:Sequence[PolicyRule]=()):
         self.policy_engine = policy_engine if policy_engine is not None else DefaultPolicyEngine(policy_rules)
         self.redaction_registry = redaction_registry if redaction_registry is not None else RedactionRegistry()
         self.store=store if store is not None else SQLiteStore()
@@ -175,6 +175,8 @@ class LocalKnowledgeClient:
             except NotFoundError: pass
             if d:
                 if d.kb_id!=kb_id or d.org_id!=actor.org_id: raise PermissionDeniedError("Access denied")
+                write_decision=self.evaluate_policy(actor,doc_id,action=PolicyAction.WRITE_DOCUMENT,**ctx)
+                if not write_decision.allowed: raise PermissionDeniedError(write_decision.reason_code)
                 self._read(actor,doc_id,**ctx)
                 previous=self.store.get_version(doc_id,d.current_version)
         changes={name:value for name,value in (("rights",rights),("lifecycle_state",lifecycle_state),("valid_from",valid_from),("valid_to",valid_to)) if value is not None}
@@ -192,12 +194,20 @@ class LocalKnowledgeClient:
         json.dumps(metadata)
         if not isinstance(metadata,dict): raise ValidationError("metadata must be an object")
         chunks=self.chunker.split(text,doc_id,version)
-        blob_key=self.blob_store.put(actor.org_id,doc_id,raw_hash,raw) if self.blob_store else None
+        blob_key=None
         if kb.governance_tier == "l2_controlled" and lifecycle_state is None:
             changes["lifecycle_state"]="draft"
         security = {name:getattr(d,name) for name in ("rights","lifecycle_state","valid_from","valid_to")} if d else {}
         security.update(changes)
         d=Document(doc_id,actor.org_id,kb_id,d.owner_id if d else actor.user_id,title or (d.title if d else filename),visibility,version,False,metadata,**security)
+        if previous is None:
+            # No existing resource state/rights to override: evaluate the new
+            # identity's write boundary before persisting the proposed controls.
+            identity=Document(doc_id,actor.org_id,kb_id,actor.user_id,"",visibility)
+            write_decision=self.policy_engine.evaluate(actor,agent,kb,identity,acl,self.store.member_role(kb_id,actor.user_id),
+                                                       PolicyAction.WRITE_DOCUMENT,purpose,policy_context)
+            if not write_decision.allowed: raise PermissionDeniedError(write_decision.reason_code)
+        blob_key=self.blob_store.put(actor.org_id,doc_id,raw_hash,raw) if self.blob_store else None
         v=DocumentVersion(doc_id,version,text,raw_hash,semantic_hash,datetime.now(timezone.utc).isoformat(),filename,blob_key)
         with self.store.transaction():
             # Separate processes can race; the unique version key prevents lost history.
@@ -367,14 +377,17 @@ class LocalKnowledgeClient:
     @serialized
     def verify_receipt(self, actor: Actor, ref: KnowledgeRef, receipt: MaterialReceipt, binding=None,*,agent=None,purpose=Purpose.READ,policy_context=None) -> bool:
         if not isinstance(receipt, MaterialReceipt): raise ValidationError("Expected MaterialReceipt")
-        if binding is not None:
-            binding = self.validate_binding(actor, binding,agent=agent,purpose=purpose,policy_context=policy_context)
-            if (receipt.consumer_type, receipt.consumer_id, receipt.used_by_stage) != (binding.consumer_type, binding.consumer_id, binding.stage): return False
-            document = self._read(actor, ref.doc_id,agent=agent,purpose=purpose,policy_context=policy_context)
-            if not binding.default_scope.contains(document, self.store.get_kb(document.kb_id)): return False
-        current = self.verify_ref(actor, ref,agent=agent,purpose=purpose,policy_context=policy_context)
-        fields = ("status", "source_uri", "evidence_kind", "chunk_ids", "reason_code", "excerpt_hash")
-        return current.status in ("partial", "consumed") and all(getattr(current,k) == getattr(receipt,k) for k in fields)
+        try:
+            if binding is not None:
+                binding = self.validate_binding(actor, binding,agent=agent,purpose=purpose,policy_context=policy_context)
+                if (receipt.consumer_type, receipt.consumer_id, receipt.used_by_stage) != (binding.consumer_type, binding.consumer_id, binding.stage): return False
+                document = self._read(actor, ref.doc_id,agent=agent,purpose=purpose,policy_context=policy_context)
+                if not binding.default_scope.contains(document, self.store.get_kb(document.kb_id)): return False
+            current = self.verify_ref(actor, ref,agent=agent,purpose=purpose,policy_context=policy_context)
+            fields = ("status", "source_uri", "evidence_kind", "chunk_ids", "reason_code", "excerpt_hash")
+            return current.status in ("partial", "consumed") and all(getattr(current,k) == getattr(receipt,k) for k in fields)
+        except (PermissionDeniedError,NotFoundError):
+            return False
 
     @serialized
     def attach(self, actor: Actor, ref: KnowledgeRef, binding=None,*,agent=None,purpose=Purpose.READ,policy_context=None) -> Attachment:

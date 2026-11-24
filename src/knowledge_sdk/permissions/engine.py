@@ -37,9 +37,9 @@ class DefaultPolicyEngine:
     def __init__(self, rules=()):
         if not isinstance(rules, (list, tuple)) or any(not isinstance(r, PolicyRule) for r in rules):
             raise ValidationError('Expected policy rules')
-        if len({r.rule_id for r in rules}) != len(rules):
+        if len({(r.org_id,r.rule_id) for r in rules}) != len(rules):
             raise ValidationError('Duplicate policy rule id')
-        self.rules = tuple(sorted(rules, key=lambda r: (r.priority, r.rule_id)))
+        self.rules = tuple(sorted(rules, key=lambda r: r.priority))
 
     @staticmethod
     def _matches(rule, actor, agent, kb, document, action, purpose):
