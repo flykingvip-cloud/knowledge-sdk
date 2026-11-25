@@ -22,7 +22,7 @@ class RerankContracts(unittest.TestCase):
         for kw in ({'doc_id':''},{'chunk_id':''},{'source_uri':''},{'version':True},{'rank':False},{'version':0},{'rank':1.0},{'base_score':True},{'base_score':math.nan},{'base_score':math.inf},{'base_score':10**400},{'redacted':1},{'title':'x'*2001},{'excerpt':'x'*32001}):
             with self.subTest(kw=str(kw)[:60]),self.assertRaises(ValidationError):candidate(**kw)
     def test_bad_scores_fail_closed(self):
-        for values in ([],[.1,.2],[1],[True],[math.nan],[math.inf],['.1'],None):
+        for values in ([],[.1,.2],[1],[True],[math.nan],[math.inf],['.1'],iter([.1]),None):
             r=CallableRerankerAdapter('probe',lambda q,c:values)
             with self.assertRaises(ValidationError):apply_reranker('q',[candidate()],r)
     def test_empty_no_invocation(self):
@@ -93,6 +93,12 @@ class SearchCases:
         self.assertFalse(response.hits);self.assertEqual(response.filtered_by_threshold_count,1)
         fn=Mock(side_effect=AssertionError('empty'));r=CallableRerankerAdapter('empty',fn)
         self.assertFalse(self.c.search(self.u,'alpha',scope=KnowledgeScope('none'),reranker=r).hits);fn.assert_not_called()
+    def test_internal_search_threshold_and_window_are_strict(self):
+        from knowledge_sdk.retrieval.hybrid import search
+        self.f.doc('alpha evidence')
+        result=search(self.c.store,self.u,'alpha',min_calibrated_score=1.0)
+        self.assertTrue(result.calibration_applied)
+        with self.assertRaises(ValidationError):search(self.c.store,self.u,'alpha',rerank_top_k=501)
     def test_options_rejected_even_empty(self):
         for kw in ({'rerank':1},{'reranker_id':'unknown'},{'calibrator_id':'unknown'},{'reranker_id':True},{'min_calibrated_score':True},{'min_calibrated_score':math.nan},{'min_calibrated_score':math.inf},{'rerank_top_k':501},{'rerank_top_k':True}):
             with self.subTest(kw=kw),self.assertRaises(ValidationError):self.c.search(self.u,'absent',scope=KnowledgeScope('none'),**kw)

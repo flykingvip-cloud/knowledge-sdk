@@ -2,6 +2,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, asdict
 from collections import Counter
+from collections.abc import Sequence as RuntimeSequence
 from typing import Protocol, Sequence
 import math
 from ..exceptions import ValidationError
@@ -61,7 +62,10 @@ def apply_reranker(query,candidates,reranker):
     candidates=tuple(candidates)
     if any(not isinstance(c,RerankCandidate) for c in candidates):raise ValidationError('Invalid candidates')
     if not candidates: return ()  # no callable/model invocation on empty input
-    try: values=tuple(reranker.score(query,candidates))
+    try:
+        raw=reranker.score(query,candidates)
+        if not isinstance(raw,RuntimeSequence) or isinstance(raw,(str,bytes,bytearray)) or len(raw)!=len(candidates):raise ValueError()
+        values=tuple(raw)
     except Exception as exc: raise ValidationError('Reranker failed') from None
     if len(values)!=len(candidates) or any(type(v) is not float or not math.isfinite(v) for v in values):
         raise ValidationError('Invalid reranker scores')

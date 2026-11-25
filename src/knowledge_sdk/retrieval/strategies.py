@@ -32,6 +32,7 @@ def resolve(rerank=False,reranker_id=None,calibrator_id=None,min_calibrated_scor
         reranker=rr[reranker_id]
     if reranker is not None and (not callable(getattr(reranker,'score',None)) or not isinstance(getattr(reranker,'reranker_id',None),str)):
         raise ValidationError('Invalid injected reranker')
+    if reranker is not None:identifier(reranker.reranker_id)
     if rerank and reranker is None:reranker=rr['lexical-v1']
     if calibrator_id is not None:
         identifier(calibrator_id)

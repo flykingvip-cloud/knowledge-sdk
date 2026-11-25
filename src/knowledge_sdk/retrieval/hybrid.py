@@ -32,6 +32,8 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
     from .rerank import RerankCandidate, apply_reranker
     from dataclasses import replace
     validate_threshold(min_calibrated_score)
+    from .strategies import resolve
+    reranker,calibrator=resolve(min_calibrated_score=min_calibrated_score,rerank_top_k=rerank_top_k,reranker=reranker,calibrator=calibrator)
     enhanced=reranker is not None or calibrator is not None
     if mode not in ("keyword","vector","hybrid"): raise ValidationError("Unknown search mode")
     if not isinstance(query,str) or not 0<len(query)<=10000 or type(limit) is not int or not 1<=limit<=100: raise ValidationError("Invalid search query/limit")
