@@ -1,0 +1,374 @@
+{
+  "schema": "m1-readiness-1",
+  "work_item": "SDK-22",
+  "status": "pending_joint_signoff",
+  "scope_authorization": "owner-t58u-engineering-only-not-joint-signoff",
+  "refs": {
+    "main": "b953c9922cc1096e0e88455dab6746c01a9d27f9",
+    "v2.0.0_object": "4afc1d71f9f5583d93c28f3f4380544a4e5fcc46",
+    "v2.0.0_peeled": "b953c9922cc1096e0e88455dab6746c01a9d27f9",
+    "q3_m1": "69b6c986251161ca02b1e77b0806e2c8861a30b6",
+    "q3_m2": "d1532951b08c8ef950dc604aa3427ceb9eab5d75",
+    "wave1": "60b6436ed9fccb4b49ae32e30f1664412e505888"
+  },
+  "source_hashes": {
+    "00_CURRENT_STATE_AUDIT.md": "1e81d14f58047a9c4fb26fbd3e92b01f0636142cb21221d1ec10f9a60908944c",
+    "01_OPENBOT_REQUIREMENTS_MAPPING.md": "f49981aba20434398abda986be87dd9c8f8d840c6c43828f55b638051d2dbfd7",
+    "02_DOMAIN_MODEL_ALIGNMENT.md": "ffe3c7a530f979f7ad93721116179bb1ce346ecbe6d3576cf6251e5d56c1968e",
+    "03_DOMAIN_CONTRACTS.md": "f91e79e9b5cfe8bd7b9fedc5e420fc85961e5079bc3b217e3ba686ee8519a825",
+    "04_TEAM_A_NEXT_STAGE_EXECUTION_PLAN.md": "05bc5296482b7c7218c7a4ecec6e93b7f7bb1c87fc61fe2cc34632ce692c4450",
+    "05_TEAM_A_EXECUTION_DIRECTIVE_WAVE1.md": "c8120808051d58f229e2e4d0138b5b7d3709ad874c99665663d01ef3609fd715"
+  },
+  "required_signoff_roles": [
+    "owner",
+    "architecture",
+    "team_a",
+    "team_b"
+  ],
+  "approvals": [],
+  "decisions": [
+    {
+      "id": "D1",
+      "title": "Abolish canReadViaRobotBinding authority shortcut",
+      "status": "pending_joint_signoff",
+      "owner_role": "joint_architecture_sdk_adapter_review",
+      "owner_identity": null,
+      "options": [
+        {
+          "id": "A",
+          "description": "User \u2229 Agent with explicit Deny, current generation/clearance/scope",
+          "pros": [
+            "No user privilege expansion; auditable common policy path"
+          ],
+          "cons": [
+            "Requires adapter to preserve trusted human identity"
+          ],
+          "risks": [
+            "Misbound human/agent identity must fail closed"
+          ],
+          "migration": "Remove shortcut in future adapter only after joint review; SDK already intersects"
+        },
+        {
+          "id": "B",
+          "description": "Robot binding grants human access",
+          "pros": [
+            "Alternative to compare, not approved"
+          ],
+          "cons": [
+            "Does not satisfy the recommended compatibility/security direction without a separate design"
+          ],
+          "risks": [
+            "Misbound human/agent identity must fail closed"
+          ],
+          "migration": "Not authorized; requires joint written decision and explicit implementation scope"
+        }
+      ],
+      "recommendation": "A",
+      "selected_option": null,
+      "dissent": [],
+      "open_questions": [
+        "Joint reviewers must record acceptance or dissent; absence is not agreement"
+      ],
+      "evidence": [
+        "docs/agent-runtime-compat.md",
+        "docs/architecture/knowledge-sdk-alignment/03_DOMAIN_CONTRACTS.md",
+        "docs/acceptance/v2.1-align-wave1/ALIGN_WAVE1_HANDOFF_REPORT.md"
+      ],
+      "approvals": []
+    },
+    {
+      "id": "D2",
+      "title": "Stable user_id for membership and ACL",
+      "status": "pending_joint_signoff",
+      "owner_role": "joint_architecture_sdk_adapter_review",
+      "owner_identity": null,
+      "options": [
+        {
+          "id": "A",
+          "description": "Canonical stable tenant+user_id; issuer/subject mapping upstream",
+          "pros": [
+            "Renames cannot transfer access"
+          ],
+          "cons": [
+            "Migration requires verified identity mapping"
+          ],
+          "risks": [
+            "Email recycling/ambiguous mappings must never grant access"
+          ],
+          "migration": "Future explicit mapping/backfill with orphan/duplicate checks; no current ACL migration"
+        },
+        {
+          "id": "B",
+          "description": "Email/username as ACL identity",
+          "pros": [
+            "Alternative to compare, not approved"
+          ],
+          "cons": [
+            "Does not satisfy the recommended compatibility/security direction without a separate design"
+          ],
+          "risks": [
+            "Email recycling/ambiguous mappings must never grant access"
+          ],
+          "migration": "Not authorized; requires joint written decision and explicit implementation scope"
+        }
+      ],
+      "recommendation": "A",
+      "selected_option": null,
+      "dissent": [],
+      "open_questions": [
+        "Joint reviewers must record acceptance or dissent; absence is not agreement"
+      ],
+      "evidence": [
+        "docs/agent-runtime-compat.md",
+        "docs/architecture/knowledge-sdk-alignment/03_DOMAIN_CONTRACTS.md",
+        "docs/acceptance/v2.1-align-wave1/ALIGN_WAVE1_HANDOFF_REPORT.md"
+      ],
+      "approvals": []
+    },
+    {
+      "id": "D3",
+      "title": "Personal-space tenant ownership",
+      "status": "pending_joint_signoff",
+      "owner_role": "joint_architecture_sdk_adapter_review",
+      "owner_identity": null,
+      "options": [
+        {
+          "id": "A",
+          "description": "Personal space stays inside explicit canonical tenant with owner_user_id",
+          "pros": [
+            "Preserves tenant hard boundary and current v5 behavior"
+          ],
+          "cons": [
+            "Cross-tenant personal portability requires separate future design"
+          ],
+          "risks": [
+            "Never guess tenant from URI or robot binding"
+          ],
+          "migration": "No current data moves; future explicit owner/tenant migration needs signed plan"
+        },
+        {
+          "id": "B",
+          "description": "Implicit personal tenant inferred from user/email/OpenBot alias",
+          "pros": [
+            "Alternative to compare, not approved"
+          ],
+          "cons": [
+            "Does not satisfy the recommended compatibility/security direction without a separate design"
+          ],
+          "risks": [
+            "Never guess tenant from URI or robot binding"
+          ],
+          "migration": "Not authorized; requires joint written decision and explicit implementation scope"
+        }
+      ],
+      "recommendation": "A",
+      "selected_option": null,
+      "dissent": [],
+      "open_questions": [
+        "Joint reviewers must record acceptance or dissent; absence is not agreement"
+      ],
+      "evidence": [
+        "docs/agent-runtime-compat.md",
+        "docs/architecture/knowledge-sdk-alignment/03_DOMAIN_CONTRACTS.md",
+        "docs/acceptance/v2.1-align-wave1/ALIGN_WAVE1_HANDOFF_REPORT.md"
+      ],
+      "approvals": []
+    },
+    {
+      "id": "D4",
+      "title": "version + opaque version_id dual identity",
+      "status": "pending_joint_signoff",
+      "owner_role": "joint_architecture_sdk_adapter_review",
+      "owner_identity": null,
+      "options": [
+        {
+          "id": "A",
+          "description": "Keep v1 integer version and authoritative bijective coordinate mapping",
+          "pros": [
+            "Lossless compatibility and evidence identity"
+          ],
+          "cons": [
+            "Requires trusted lookup and ambiguity rejection"
+          ],
+          "risks": [
+            "Wrong mapping can cite another resource; mapping grants no authority"
+          ],
+          "migration": "Future physical version_id only in approved reversible migration; current TS helper is reference mapping only"
+        },
+        {
+          "id": "B",
+          "description": "Replace integer version or derive opaque ID heuristically",
+          "pros": [
+            "Alternative to compare, not approved"
+          ],
+          "cons": [
+            "Does not satisfy the recommended compatibility/security direction without a separate design"
+          ],
+          "risks": [
+            "Wrong mapping can cite another resource; mapping grants no authority"
+          ],
+          "migration": "Not authorized; requires joint written decision and explicit implementation scope"
+        }
+      ],
+      "recommendation": "A",
+      "selected_option": null,
+      "dissent": [],
+      "open_questions": [
+        "Joint reviewers must record acceptance or dissent; absence is not agreement"
+      ],
+      "evidence": [
+        "docs/agent-runtime-compat.md",
+        "docs/architecture/knowledge-sdk-alignment/03_DOMAIN_CONTRACTS.md",
+        "docs/acceptance/v2.1-align-wave1/ALIGN_WAVE1_HANDOFF_REPORT.md"
+      ],
+      "approvals": []
+    },
+    {
+      "id": "D5",
+      "title": "Future standard JSON v2 route evolution",
+      "status": "pending_joint_signoff",
+      "owner_role": "joint_architecture_sdk_adapter_review",
+      "owner_identity": null,
+      "options": [
+        {
+          "id": "A",
+          "description": "Parallel draft /v2 JSON and stable v1; unified error envelope",
+          "pros": [
+            "Backwards-compatible adapter preparation"
+          ],
+          "cons": [
+            "Two contracts need explicit version governance"
+          ],
+          "risks": [
+            "Draft fields are not frozen/implemented API promises"
+          ],
+          "migration": "Only assets now; no runtime routes until signed M1/Wave2 taskbook"
+        },
+        {
+          "id": "B",
+          "description": "Rewrite/wrap existing v1 immediately",
+          "pros": [
+            "Alternative to compare, not approved"
+          ],
+          "cons": [
+            "Does not satisfy the recommended compatibility/security direction without a separate design"
+          ],
+          "risks": [
+            "Draft fields are not frozen/implemented API promises"
+          ],
+          "migration": "Not authorized; requires joint written decision and explicit implementation scope"
+        }
+      ],
+      "recommendation": "A",
+      "selected_option": null,
+      "dissent": [],
+      "open_questions": [
+        "Joint reviewers must record acceptance or dissent; absence is not agreement"
+      ],
+      "evidence": [
+        "docs/agent-runtime-compat.md",
+        "docs/architecture/knowledge-sdk-alignment/03_DOMAIN_CONTRACTS.md",
+        "docs/acceptance/v2.1-align-wave1/ALIGN_WAVE1_HANDOFF_REPORT.md"
+      ],
+      "approvals": []
+    },
+    {
+      "id": "D6",
+      "title": "Baseline convergence and 1.2.0/v2.0.0 metadata drift",
+      "status": "pending_joint_signoff",
+      "owner_role": "joint_architecture_sdk_adapter_review",
+      "owner_identity": null,
+      "options": [
+        {
+          "id": "A",
+          "description": "Preserve exact refs; make future release/version decision explicitly",
+          "pros": [
+            "No unapproved consequential Git/release operation"
+          ],
+          "cons": [
+            "Known historical SemVer drift remains visible"
+          ],
+          "risks": [
+            "v2.0.0 is historical Q2+CI marker, not package metadata2.0"
+          ],
+          "migration": "No current main/tag/version mutation; future owner release approval must define version/breaking policy"
+        },
+        {
+          "id": "B",
+          "description": "Move tag, merge Q3 into main, or silently relabel package now",
+          "pros": [
+            "Alternative to compare, not approved"
+          ],
+          "cons": [
+            "Does not satisfy the recommended compatibility/security direction without a separate design"
+          ],
+          "risks": [
+            "v2.0.0 is historical Q2+CI marker, not package metadata2.0"
+          ],
+          "migration": "Not authorized; requires joint written decision and explicit implementation scope"
+        }
+      ],
+      "recommendation": "A",
+      "selected_option": null,
+      "dissent": [],
+      "open_questions": [
+        "Joint reviewers must record acceptance or dissent; absence is not agreement"
+      ],
+      "evidence": [
+        "docs/agent-runtime-compat.md",
+        "docs/architecture/knowledge-sdk-alignment/03_DOMAIN_CONTRACTS.md",
+        "docs/acceptance/v2.1-align-wave1/ALIGN_WAVE1_HANDOFF_REPORT.md"
+      ],
+      "approvals": []
+    },
+    {
+      "id": "D7",
+      "title": "Future Schema6 NON-security metadata_snapshot",
+      "status": "pending_joint_signoff",
+      "owner_role": "joint_architecture_sdk_adapter_review",
+      "owner_identity": null,
+      "options": [
+        {
+          "id": "A",
+          "description": "Consider allowlisted business metadata snapshot after joint schema review",
+          "pros": [
+            "Could support real historical title/business metadata rollback"
+          ],
+          "cons": [
+            "New model/migration/storage/privacy requirements; absent old history remains absent"
+          ],
+          "risks": [
+            "Explicitly exclude ACL, rights, principals, generations, secrets, grants; current security always authoritative"
+          ],
+          "migration": "Future approved Schema6 only; forward/backward restore/retention design required"
+        },
+        {
+          "id": "B",
+          "description": "No snapshots, or security/ACL historical snapshots",
+          "pros": [
+            "Alternative to compare, not approved"
+          ],
+          "cons": [
+            "Does not satisfy the recommended compatibility/security direction without a separate design"
+          ],
+          "risks": [
+            "Explicitly exclude ACL, rights, principals, generations, secrets, grants; current security always authoritative"
+          ],
+          "migration": "Not authorized; requires joint written decision and explicit implementation scope"
+        }
+      ],
+      "recommendation": "A",
+      "selected_option": null,
+      "dissent": [],
+      "open_questions": [
+        "Joint reviewers must record acceptance or dissent; absence is not agreement"
+      ],
+      "evidence": [
+        "docs/agent-runtime-compat.md",
+        "docs/architecture/knowledge-sdk-alignment/03_DOMAIN_CONTRACTS.md",
+        "docs/acceptance/v2.1-align-wave1/ALIGN_WAVE1_HANDOFF_REPORT.md"
+      ],
+      "approvals": []
+    }
+  ]
+}
