@@ -2,7 +2,7 @@
 
 All C-01…C-09 contracts remain `draft-pending-m1-freeze`. These assets implement
 no `/v2` route, no new database schema and no OpenBot integration. Team B and
-architecture-owner review, six joint decisions and M1 signatures remain pending.
+architecture-owner review, seven joint decisions and M1 signatures remain pending.
 Q3-M2 independent acceptance is not inferred from this branch baseline.
 
 The `.yaml` is intentionally JSON syntax (a YAML 1.2 subset), so standard-library
@@ -44,3 +44,25 @@ version/opaque version-ID coordinates. A kb:// string alone cannot recover kb_id
 or version_id; a trusted lookup is necessary. The typed ku:// representation is
 adapter-only and never rewrites the SDK's canonical runtime URI. No information-
 losing bare-string round trip is claimed.
+
+## Executable draft URI reference helper (Wave1p5)
+
+uri-mapping.ts performs no I/O and adds zero external runtime dependencies. It
+requires an authoritative explicit DualUriMapping table; no tenant/KB/version-ID
+is guessed from a bare URI. Both bases must match all supplied coordinates.
+Legacy section fragments and section_path metadata are supplied, not inferred
+into SDK anchors; a missing/ambiguous lookup fails closed. No mapping authenticates
+content or grants authority; SDK verification/policy checks are still mandatory.
+
+Lossless conditions: exact full strings in a unique mapping, positive safe JS
+integer version, canonical UTF-8 percent quoting (same quoting as Python safe=''),
+non-control opaque IDs, and no dot path segments. Unicode/reserved characters
+remain percent-encoded opaque values; percent text is decoded exactly once, never
+double-decoded. Encoded slash inside a non-traversal opaque ID is not a filesystem
+path. Traversal/control/malformed/alias/query/duplicate-selector inputs reject.
+The stricter adapter subset does not change the SDK parser or canonical URIs.
+section_path is cloned/frozen intact, not treated as a grant/selector derivation.
+
+Development toolchain is locked in package-lock.json; npm ci installs TypeScript
+for checks only. Run tsc --noEmit, then compile mapping/test to a disposable
+output directory and node that test JS. These tests EXECUTE, not just typecheck.

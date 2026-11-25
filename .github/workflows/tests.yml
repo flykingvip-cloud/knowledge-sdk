@@ -64,6 +64,7 @@ jobs:
         run: |
           python - <<'PYCODE'
           import os, psycopg
+          from pathlib import Path
           dsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'
           with open(os.environ['GITHUB_ENV'],'a') as file:
               file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\n')
@@ -71,6 +72,12 @@ jobs:
               c.execute('CREATE EXTENSION IF NOT EXISTS vector')
               c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')
               c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')
+              c.execute('CREATE DATABASE openbot_fixture')
+          fixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')
+          with psycopg.connect(fixture_dsn,autocommit=True) as c:
+              c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())
+          with open(os.environ['GITHUB_ENV'],'a') as file:
+              file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\n')
           PYCODE
       - run: python -W error::ResourceWarning -m unittest discover -s tests -t . -v
       - run: python -m build
@@ -85,8 +92,25 @@ jobs:
           python -m tests.benchmark.runner --engine postgres --legacy100 --json
       - run: python docs/architecture/knowledge-sdk-alignment/contracts/validate_assets.py
       - run: python docs/acceptance/v2.1-align-wave1/verify_package.py dist/*.whl
-      - name: TypeScript draft DTO typecheck
-        run: npm exec --yes --package=typescript@5.9.3 -- tsc --strict --noEmit --skipLibCheck false docs/architecture/knowledge-sdk-alignment/contracts/openbot-adapter-dto.d.ts
+      - run: python docs/architecture/knowledge-sdk-alignment/validate_m1_manifest.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Locked dev-only TypeScript DTO mapping compile and execute
+        working-directory: docs/architecture/knowledge-sdk-alignment/contracts
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx --no-install tsc --strict --noEmit --target ES2020 --module commonjs openbot-adapter-dto.d.ts uri-mapping.ts uri-mapping.test.ts
+          npx --no-install tsc --strict --target ES2020 --module commonjs --outDir /tmp/sdk22-ts-executed openbot-adapter-dto.d.ts uri-mapping.ts uri-mapping.test.ts
+          node /tmp/sdk22-ts-executed/uri-mapping.test.js
+      - name: Actual isolated SQLite and PostgreSQL adapter sandbox image runs
+        if: matrix.python == '3.12'
+        run: python docs/acceptance/v2.1-align-wave1p5/docker_sandbox_probe.py --require --output align-wave1p5-ci-evidence
+      - uses: actions/upload-artifact@v4
+        if: always() && matrix.python == '3.12'
+        with:
+          name: align-wave1p5-sandbox-test
+          path: align-wave1p5-ci-evidence/
       - name: Isolated non-publishing Docker build and live runtime probe
         if: matrix.python == '3.12'
         run: python docs/acceptance/v2.1-align-wave1/docker_probe.py --require --output align-wave1-ci-evidence
