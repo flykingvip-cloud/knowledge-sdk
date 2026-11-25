@@ -18,23 +18,26 @@ function kb(uri:string):{tenant:string;doc:string;version:number} {
   const version=Number(m[3]);if(!Number.isSafeInteger(version)||version<1)return fail();
   if(m[5])decodeOnce(m[5]);return {tenant:decodeOnce(m[1]),doc:decodeOnce(m[2]),version};
 }
-function ku(uri:string):{space:string;doc:string;versionId:string} {
+function ku(uri:string):{space:string;doc:string;versionId:string;sections:string[]} {
   if(typeof uri!=='string')return fail();const m=KU.exec(uri);if(!m)return fail();
-  if(m[4])m[4].split('/').forEach(decodeOnce);
-  return {space:decodeOnce(m[1]),doc:decodeOnce(m[2]),versionId:decodeOnce(m[3])};
+  const sections=m[4]?m[4].split('/').map(decodeOnce):[];
+  return {space:decodeOnce(m[1]),doc:decodeOnce(m[2]),versionId:decodeOnce(m[3]),sections};
 }
 function checked(record:DualUriMapping):DualUriMapping {
-  if(!record||!record.coordinates||!Array.isArray(record.section_path))return fail();
+  if(!record||!record.coordinates||!Array.isArray(record.section_path)||Object.keys(record).sort().join(',')!=='canonical_uri,coordinates,legacy_ku_uri,section_path'||Object.keys(record.coordinates).sort().join(',')!=='doc_id,kb_id,tenant_id,version,version_id')return fail();
   const c:VersionCoordinate=record.coordinates,a=kb(record.canonical_uri),b=ku(record.legacy_ku_uri);
   for(const v of [c.tenant_id,c.kb_id,c.doc_id,c.version_id])encodeOpaque(v);
   if(!Number.isSafeInteger(c.version)||c.version<1||a.tenant!==c.tenant_id||a.doc!==c.doc_id||a.version!==c.version||b.space!==c.kb_id||b.doc!==c.doc_id||b.versionId!==c.version_id)return fail();
   // section_path is retained metadata, NOT an inferred anchor or authentication fact.
   const section=record.section_path.map(x=>{if(typeof x!=='string'||/[\u0000-\u001f\u007f]/.test(x))return fail();return x;});
+  if(b.sections.length&&JSON.stringify(b.sections)!==JSON.stringify(section))return fail();
   return Object.freeze({coordinates:Object.freeze({...c}),canonical_uri:record.canonical_uri,legacy_ku_uri:record.legacy_ku_uri,section_path:Object.freeze(section)});
 }
 function select(uri:string,records:ReadonlyArray<DualUriMapping>,canonical:boolean):DualUriMapping {
   if(!Array.isArray(records)||records.length>1000)return fail();canonical?kb(uri):ku(uri);
-  const matches=records.map(checked).filter(r=>(canonical?r.canonical_uri:r.legacy_ku_uri)===uri);
+  const all=records.map(checked);
+  if(new Set(all.map(r=>r.canonical_uri)).size!==all.length||new Set(all.map(r=>r.legacy_ku_uri)).size!==all.length)return fail();
+  const matches=all.filter(r=>(canonical?r.canonical_uri:r.legacy_ku_uri)===uri);
   if(matches.length!==1)return fail();return matches[0];
 }
 export function toKu(uri:CanonicalKbUri,records:ReadonlyArray<DualUriMapping>):DualUriMapping {return select(uri,records,true);}

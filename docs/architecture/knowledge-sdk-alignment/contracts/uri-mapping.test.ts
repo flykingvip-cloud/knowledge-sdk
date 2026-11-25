@@ -3,7 +3,7 @@ import type {DualUriMapping,CanonicalKbUri,LegacyKuUri} from './openbot-adapter-
 let assertions=0;
 function assert(value:unknown):asserts value {assertions++;if(!value)throw new Error('URI mapping assertion failed');}
 function rejects(f:()=>unknown){let failed=false;try{f();}catch{failed=true;}assert(failed);}
-const record=(tenant='fixture-tenant',space='fixture-space',doc='fixture-doc',versionId='ver-fixture'):DualUriMapping=>({coordinates:{tenant_id:tenant,kb_id:space,doc_id:doc,version:3,version_id:versionId},canonical_uri:`kb://org/${encodeOpaque(tenant)}/doc/${encodeOpaque(doc)}@3#anchor=anchor-fixture`,legacy_ku_uri:`ku://kb/${encodeOpaque(space)}/doc/${encodeOpaque(doc)}@${encodeOpaque(versionId)}#Section`,section_path:['Section','中文 / metadata #?%']});
+const record=(tenant='fixture-tenant',space='fixture-space',doc='fixture-doc',versionId='ver-fixture'):DualUriMapping=>({coordinates:{tenant_id:tenant,kb_id:space,doc_id:doc,version:3,version_id:versionId},canonical_uri:`kb://org/${encodeOpaque(tenant)}/doc/${encodeOpaque(doc)}@3#anchor=anchor-fixture`,legacy_ku_uri:`ku://kb/${encodeOpaque(space)}/doc/${encodeOpaque(doc)}@${encodeOpaque(versionId)}#Section/${encodeOpaque('中文 / metadata #?%')}`,section_path:['Section','中文 / metadata #?%']});
 for(const r of [record(),record('租户甲','空间','文档 / ?#@%','版本 !()*'),record('t','k','literal%2F','opaque%252F')]){
  const mapped=toKu(r.canonical_uri,[r]);assert(mapped.legacy_ku_uri===r.legacy_ku_uri);assert(toKb(mapped.legacy_ku_uri,[r]).canonical_uri===r.canonical_uri);assert(JSON.stringify(mapped.section_path)===JSON.stringify(r.section_path));assert(Object.isFrozen(mapped)&&Object.isFrozen(mapped.coordinates)&&Object.isFrozen(mapped.section_path));
 }
@@ -17,4 +17,11 @@ const pct=record('t','k','literal%2F');assert(toKb(pct.legacy_ku_uri,[pct]).coor
 const lower=record('租户');const lowerUri=lower.canonical_uri.replace(/%[0-9A-F]{2}/g,x=>x.toLowerCase()) as CanonicalKbUri;
 // Valid escape aliases never silently select a different record. Exact lookup is deliberate.
 if(lowerUri!==lower.canonical_uri)rejects(()=>toKu(lowerUri,[lower]));
+
+const other: DualUriMapping={...r,canonical_uri:r.canonical_uri.replace('anchor-fixture','another-anchor') as CanonicalKbUri};
+rejects(()=>toKu(r.canonical_uri,[r,other]));
+rejects(()=>toKb(r.legacy_ku_uri,[r,other]));
+rejects(()=>toKu(r.canonical_uri,[{...r,section_path:['mismatched-fragment']} ]));
+rejects(()=>toKu(r.canonical_uri,[{...r,unknown:'rejected'} as DualUriMapping]));
+rejects(()=>toKu(r.canonical_uri,[{...r,coordinates:{...r.coordinates,unknown:'rejected'}} as DualUriMapping]));
 console.log(JSON.stringify({status:'EXECUTED_TS_URI_MAPPING_PASSED',assertions,authority_granted:false}));

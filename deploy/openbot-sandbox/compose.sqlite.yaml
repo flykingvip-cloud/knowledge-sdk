@@ -1,4 +1,5 @@
 {
+  "name": "${SANDBOX_PROJECT:?prepare first}",
   "services": {
     "seed": {
       "image": "${SANDBOX_IMAGE:?prepare first}",

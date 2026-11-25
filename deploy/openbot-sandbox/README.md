@@ -16,21 +16,22 @@ No UI is required; no OpenBot repository/account/Enterprise/StratAI is touched.
    a random ephemeral HMAC file0600, and0600 public-only sandbox.env. Never cat,
    commit, print, screenshot or reuse the key as a real credential. No baked key.
 3. Choose exactly one config, SQLite or PostgreSQL:
-   `docker compose --env-file /tmp/sdk22-my-new-fixture/sandbox.env -p sdk22-my-new-fixture -f deploy/openbot-sandbox/compose.sqlite.yaml up -d`.
+   `docker compose --env-file /tmp/sdk22-my-new-fixture/sandbox.env -f deploy/openbot-sandbox/compose.sqlite.yaml up -d`.
    For PG use `compose.postgres.yaml` with the SAME flags but a fresh state/project.
-   Choose a unique project name you own; never reuse another running project.
+   The prepared environment supplies a fresh UUID project name automatically;
+   never override it to reuse an existing project.
    JSON syntax of these files is valid YAML1.2. The application uses your nonzero
    host UID/GID to read0600 bind-mounted keys, overriding image's nonroot65532
    with another nonroot identity. Root is refused; no chmod-world-readable key.
    Data and secret are separate mounts; secret bind mount is read-only.
 4. Real signed probe (inside your sandbox container, no host SDK install required):
-   `docker compose --env-file /tmp/sdk22-my-new-fixture/sandbox.env -p sdk22-my-new-fixture -f deploy/openbot-sandbox/compose.sqlite.yaml exec -T sandbox python /opt/sandbox/probe_openbot_sandbox.py --url http://127.0.0.1:8088`.
+   `docker compose --env-file /tmp/sdk22-my-new-fixture/sandbox.env -f deploy/openbot-sandbox/compose.sqlite.yaml exec -T sandbox python /opt/sandbox/probe_openbot_sandbox.py --url http://127.0.0.1:8088`.
    `/v1/health` and `/v1/ready` are minimal public GETs; business/MCP/metrics use
    real HMAC headers and canonical current fixture Directory identities. There
    is no dev_insecure/demo signer/bypassed auth. A stale/inactive/unknown subject,
    explicit Deny, foreign tenant or profile-only private-KB binding is denied.
 5. Cleanup ONLY your explicitly new project:
-   `docker compose --env-file /tmp/sdk22-my-new-fixture/sandbox.env -p sdk22-my-new-fixture -f deploy/openbot-sandbox/compose.sqlite.yaml down --volumes`.
+   `docker compose --env-file /tmp/sdk22-my-new-fixture/sandbox.env -f deploy/openbot-sandbox/compose.sqlite.yaml down --volumes`.
    Remove ONLY your own fixture directory/key after container cleanup. Do not
    use prune, drop-all, existing project/container/network or production URLs.
 

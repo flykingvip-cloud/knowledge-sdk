@@ -7,7 +7,7 @@ def prepare(root,port=8878):
     root=Path(root).absolute()
     if root.exists():raise ValueError('Choose a new unused fixture directory')
     if not 1024<=port<=65535 or port in (3000,3001,8000,8002,8090,8091):raise ValueError('Unsafe fixture port')
-    if any(c in str(root) for c in ('\n','\r',' ','"',"'",'$','`')):raise ValueError('Use a simple local fixture path')
+    if any(c in str(root) for c in ('\n','\r',':',' ','"',"'",'$','`')):raise ValueError('Use a simple local fixture path')
     uid=os.getuid();gid=os.getgid()
     if uid==0:raise ValueError('Prepare/run application as a non-root host user')
     with socket.socket() as s:s.bind(('127.0.0.1',port))

@@ -66,3 +66,10 @@ section_path is cloned/frozen intact, not treated as a grant/selector derivation
 Development toolchain is locked in package-lock.json; npm ci installs TypeScript
 for checks only. Run tsc --noEmit, then compile mapping/test to a disposable
 output directory and node that test JS. These tests EXECUTE, not just typecheck.
+
+Lookup tables must be one-to-one in BOTH directions; a unique canonical match
+with an ambiguous legacy reverse lookup is rejected even on forward conversion.
+When a legacy section fragment is supplied, its once-decoded segments must match
+section_path exactly. A fragment-less whole-document legacy URI may still carry
+explicit retained metadata; no anchor is inferred from it. Extra record/coordinate
+fields fail closed instead of leaking undeclared data into the typed DTO.
