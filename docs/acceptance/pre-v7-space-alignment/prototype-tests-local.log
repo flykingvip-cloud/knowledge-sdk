@@ -1,0 +1,102 @@
+test_P_DRY_actual_cli_exit_codes_and_non_echoing_errors (test_dry_run.ReadOnlyDryRun.test_P_DRY_actual_cli_exit_codes_and_non_echoing_errors) ... ok
+test_P_DRY_bad_format_unsigned_adapter_refused (test_dry_run.ReadOnlyDryRun.test_P_DRY_bad_format_unsigned_adapter_refused) ... ok
+test_P_DRY_canonical_order_is_input_independent (test_dry_run.ReadOnlyDryRun.test_P_DRY_canonical_order_is_input_independent) ... ok
+test_P_DRY_counts_null_collision_no_inference (test_dry_run.ReadOnlyDryRun.test_P_DRY_counts_null_collision_no_inference) ... ok
+test_P_DRY_cross_tenant_alias_not_collision (test_dry_run.ReadOnlyDryRun.test_P_DRY_cross_tenant_alias_not_collision) ... ok
+test_P_DRY_duplicate_nan_json_refused (test_dry_run.ReadOnlyDryRun.test_P_DRY_duplicate_nan_json_refused) ... ok
+test_P_DRY_no_database_or_network_imports (test_dry_run.ReadOnlyDryRun.test_P_DRY_no_database_or_network_imports) ... ok
+test_P_DRY_pii_content_secret_unknown_fields_refused (test_dry_run.ReadOnlyDryRun.test_P_DRY_pii_content_secret_unknown_fields_refused) ... ok
+test_P_DRY_readonly_hashes_output_and_exit_codes (test_dry_run.ReadOnlyDryRun.test_P_DRY_readonly_hashes_output_and_exit_codes) ... ok
+test_P_SPACE_all_eight_independent_actions_and_deny (test_prototype.PostgreSQLPrototype.test_P_SPACE_all_eight_independent_actions_and_deny) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_collaboration_groups_same_tenant_isolated (test_prototype.PostgreSQLPrototype.test_P_SPACE_collaboration_groups_same_tenant_isolated) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_deliverable_fine_scope_requires_current_user (test_prototype.PostgreSQLPrototype.test_P_SPACE_deliverable_fine_scope_requires_current_user) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_detach_never_archives (test_prototype.PostgreSQLPrototype.test_P_SPACE_detach_never_archives) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_external_missing_expired_provider_failure_deny (test_prototype.PostgreSQLPrototype.test_P_SPACE_external_missing_expired_provider_failure_deny) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_external_revoked_cached_assertion_denies (test_prototype.PostgreSQLPrototype.test_P_SPACE_external_revoked_cached_assertion_denies) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_frozen_archived_fail_closed (test_prototype.PostgreSQLPrototype.test_P_SPACE_frozen_archived_fail_closed) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_no_cross_space_move_by_detach_reattach (test_prototype.PostgreSQLPrototype.test_P_SPACE_no_cross_space_move_by_detach_reattach) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_personal_admin_has_no_read_bypass (test_prototype.PostgreSQLPrototype.test_P_SPACE_personal_admin_has_no_read_bypass) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_polymorphic_hydration_never_leaks_denied_metadata (test_prototype.PostgreSQLPrototype.test_P_SPACE_polymorphic_hydration_never_leaks_denied_metadata) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_profile_ceiling_fine_scope_and_current_user_intersection (test_prototype.PostgreSQLPrototype.test_P_SPACE_profile_ceiling_fine_scope_and_current_user_intersection) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_real_force_rls_owner_and_non_superuser (test_prototype.PostgreSQLPrototype.test_P_SPACE_real_force_rls_owner_and_non_superuser) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_resource_deny_overrides_owner_profile_and_folder (test_prototype.PostgreSQLPrototype.test_P_SPACE_resource_deny_overrides_owner_profile_and_folder) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_revocation_outbox_generation_atomic_rollback (test_prototype.PostgreSQLPrototype.test_P_SPACE_revocation_outbox_generation_atomic_rollback) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_source_revocation_linearizes_with_inflight_read (test_prototype.PostgreSQLPrototype.test_P_SPACE_source_revocation_linearizes_with_inflight_read) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_stale_generation_and_invalid_claims_fail_closed (test_prototype.PostgreSQLPrototype.test_P_SPACE_stale_generation_and_invalid_claims_fail_closed) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_SPACE_tenant_boundary_and_foreign_key (test_prototype.PostgreSQLPrototype.test_P_SPACE_tenant_boundary_and_foreign_key) ... WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+WARNING: password file "/dev/null" is not a plain file
+ok
+test_P_GUARD_arbitrary_dsn_refused_before_connection (test_prototype.ProvisionGuards.test_P_GUARD_arbitrary_dsn_refused_before_connection) ... ok
+test_P_GUARD_capability_cannot_be_constructed (test_prototype.ProvisionGuards.test_P_GUARD_capability_cannot_be_constructed) ... ok
+test_P_SPACE_all_eight_independent_actions_and_deny (test_prototype.SQLitePrototype.test_P_SPACE_all_eight_independent_actions_and_deny) ... ok
+test_P_SPACE_collaboration_groups_same_tenant_isolated (test_prototype.SQLitePrototype.test_P_SPACE_collaboration_groups_same_tenant_isolated) ... ok
+test_P_SPACE_deliverable_fine_scope_requires_current_user (test_prototype.SQLitePrototype.test_P_SPACE_deliverable_fine_scope_requires_current_user) ... ok
+test_P_SPACE_detach_never_archives (test_prototype.SQLitePrototype.test_P_SPACE_detach_never_archives) ... ok
+test_P_SPACE_external_missing_expired_provider_failure_deny (test_prototype.SQLitePrototype.test_P_SPACE_external_missing_expired_provider_failure_deny) ... ok
+test_P_SPACE_external_revoked_cached_assertion_denies (test_prototype.SQLitePrototype.test_P_SPACE_external_revoked_cached_assertion_denies) ... ok
+test_P_SPACE_frozen_archived_fail_closed (test_prototype.SQLitePrototype.test_P_SPACE_frozen_archived_fail_closed) ... ok
+test_P_SPACE_no_cross_space_move_by_detach_reattach (test_prototype.SQLitePrototype.test_P_SPACE_no_cross_space_move_by_detach_reattach) ... ok
+test_P_SPACE_personal_admin_has_no_read_bypass (test_prototype.SQLitePrototype.test_P_SPACE_personal_admin_has_no_read_bypass) ... ok
+test_P_SPACE_polymorphic_hydration_never_leaks_denied_metadata (test_prototype.SQLitePrototype.test_P_SPACE_polymorphic_hydration_never_leaks_denied_metadata) ... ok
+test_P_SPACE_profile_ceiling_fine_scope_and_current_user_intersection (test_prototype.SQLitePrototype.test_P_SPACE_profile_ceiling_fine_scope_and_current_user_intersection) ... ok
+test_P_SPACE_real_force_rls_owner_and_non_superuser (test_prototype.SQLitePrototype.test_P_SPACE_real_force_rls_owner_and_non_superuser) ... ok
+test_P_SPACE_resource_deny_overrides_owner_profile_and_folder (test_prototype.SQLitePrototype.test_P_SPACE_resource_deny_overrides_owner_profile_and_folder) ... ok
+test_P_SPACE_revocation_outbox_generation_atomic_rollback (test_prototype.SQLitePrototype.test_P_SPACE_revocation_outbox_generation_atomic_rollback) ... ok
+test_P_SPACE_source_revocation_linearizes_with_inflight_read (test_prototype.SQLitePrototype.test_P_SPACE_source_revocation_linearizes_with_inflight_read) ... ok
+test_P_SPACE_stale_generation_and_invalid_claims_fail_closed (test_prototype.SQLitePrototype.test_P_SPACE_stale_generation_and_invalid_claims_fail_closed) ... ok
+test_P_SPACE_tenant_boundary_and_foreign_key (test_prototype.SQLitePrototype.test_P_SPACE_tenant_boundary_and_foreign_key) ... ok
+
+----------------------------------------------------------------------
+Ran 45 tests in 1.696s
+
+OK

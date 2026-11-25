@@ -1,0 +1,11 @@
+{
+  "status": "P_SPACE_PROTOTYPE_ONLY",
+  "formal_acceptance": false,
+  "exit_code": 0,
+  "owned_generated_cluster": true,
+  "loopback_port": 54479,
+  "remaining_generated_databases": 0,
+  "remaining_generated_roles": 0,
+  "finished_at_cst": "2026-11-25T23:55:42.598258+08:00",
+  "owned_cluster_stopped": true
+}

@@ -1,0 +1,366 @@
+{
+  "attachments": [
+    {
+      "file": "0499e8ed01931429f689c4a2e0373aa67b11638a827a136a3cdfb7e20ffe1d3f.md",
+      "sha256": "22a4a3df56d6a5f8857396c03863e005bf5d21c0c054c0fad62e6cc3ca2be02d",
+      "bytes": 23378,
+      "heading": "# Q2 第三阶段实施指令书（Q2-M3）：L2 双轨审批、纠偏闭环与 EvidencePack"
+    },
+    {
+      "file": "2862ba47be238c7199eada0bc656a9019c148e52a7e3c992fda69a929adeee2a.zip",
+      "sha256": "04f303b1b110ff50c4d1e346b65132788009ab0b0785982be0a5c8e2c16054da",
+      "bytes": 105183,
+      "members": [
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/00_CURRENT_STATE_AUDIT.md",
+          "sha256": "1e81d14f58047a9c4fb26fbd3e92b01f0636142cb21221d1ec10f9a60908944c"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/01_OPENBOT_REQUIREMENTS_MAPPING.md",
+          "sha256": "f49981aba20434398abda986be87dd9c8f8d840c6c43828f55b638051d2dbfd7"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/02_DOMAIN_MODEL_ALIGNMENT.md",
+          "sha256": "ffe3c7a530f979f7ad93721116179bb1ce346ecbe6d3576cf6251e5d56c1968e"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/03_DOMAIN_CONTRACTS.md",
+          "sha256": "f91e79e9b5cfe8bd7b9fedc5e420fc85961e5079bc3b217e3ba686ee8519a825"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/04_TEAM_A_NEXT_STAGE_EXECUTION_PLAN.md",
+          "sha256": "05bc5296482b7c7218c7a4ecec6e93b7f7bb1c87fc61fe2cc34632ce692c4450"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/05_TEAM_A_EXECUTION_DIRECTIVE_WAVE1.md",
+          "sha256": "c8120808051d58f229e2e4d0138b5b7d3709ad874c99665663d01ef3609fd715"
+        }
+      ]
+    },
+    {
+      "file": "550b0df27a9f209e393d2419a148116e6f8514cb26844674d74c69459061959a.md",
+      "sha256": "3c01cfb0e8fb43f675116ffb0963273a6edcc58596b01685172d854ccf0afc2c",
+      "bytes": 13414,
+      "heading": "# Align-Wave1.5 独立验收结论、延迟豁免裁定与 Align-Wave1.5b 契约收口指令"
+    },
+    {
+      "file": "639c879dc47b2771eac636ee1251c72ffd71fcdea580a4bb83a577b53c197acf.zip",
+      "sha256": "639c879dc47b2771eac636ee1251c72ffd71fcdea580a4bb83a577b53c197acf",
+      "bytes": 792570,
+      "members": [
+        {
+          "name": "FINAL_RESOLVED_RECEIPT.md",
+          "sha256": "635c499bd39b01d11e4d4562e30b7b84bbda6cf727527d35abc25b48eb5457ff"
+        },
+        {
+          "name": "12_WAVE1P8_PRE_M2_FOUNDATION_DIRECTIVE.md",
+          "sha256": "daa48b8853d0849b1df812ee0b87228ff57364e10ae41f90afb9fa330a096949"
+        },
+        {
+          "name": "final-ci-run.json",
+          "sha256": "3e0cdeda7d020b067f487cb6d78e2469c27afc884376f9d10fc635e4811777b3"
+        },
+        {
+          "name": "final-ci-jobs.json",
+          "sha256": "c768a71bb8e12bdecc8154cba4d1cc5b0ed99e1f60ae50c07166611a2252b9c3"
+        },
+        {
+          "name": "final-ci-all-jobs.log",
+          "sha256": "537074e36fe6fd2b6b722e083f151bc43c368823de2f4713b80c7c07fce8287e"
+        },
+        {
+          "name": "final-ci-warning-scan.json",
+          "sha256": "e3b941b3730e1949d556422bbb4c9f8fd8e122813f1cf9aa1134259dbd507826"
+        },
+        {
+          "name": "frozen-contract-asset-hashes.json",
+          "sha256": "2a2bc4a8e3fd067c79708e2204f3ed962b1079c7377853d81e349082b53cde98"
+        },
+        {
+          "name": "frozen-path-diff.patch",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "verify-scope-final.json",
+          "sha256": "483aaec5fb1ea7be619a736e0cc379d54496265383df51252e95d0c4f8596bb5"
+        },
+        {
+          "name": "validate-assets-final.json",
+          "sha256": "6ce6b3fdfe854210e1a5160cd1b317298aac1f5b354e00281cbac80963362a4b"
+        },
+        {
+          "name": "validate-manifest-final.json",
+          "sha256": "fac246e1d48d5a88a4c97d9bb9902ffdca34c60785871a08ea2d10ad8649cfe5"
+        },
+        {
+          "name": "delivery-files-sha256.txt",
+          "sha256": "b046426e8af7850ccea932c87e89927a869eb384590cda452ce5972477e91ddf"
+        },
+        {
+          "name": "delivery-diff-stat.txt",
+          "sha256": "1a6b226c9025008f11c85dbd1dc8b198ba64d6d41f98cae24c7dedea3be5b72e"
+        },
+        {
+          "name": "delivery-commits.txt",
+          "sha256": "ff6c4b4328b1440a268f8fdf32a4b46e4a6f58bd796ce5e7aace11fb370bf04a"
+        },
+        {
+          "name": "golden-results.json",
+          "sha256": "967c3466a43624bda793bb4f0742de9e3b8e86e6b2ce988bb3e20758dc7f8c6a"
+        },
+        {
+          "name": "final-full-unittest.log",
+          "sha256": "6fc8d3352452fc3ee065ce9f2cee6c16530584f6f879809ad10ffce249662b81"
+        },
+        {
+          "name": "final-full-pytest.log",
+          "sha256": "2b70a74068c03c382f31598e02d69b158b4869e47fd0ae2882b6926495192725"
+        },
+        {
+          "name": "core-final-unittest.log",
+          "sha256": "2d40ccc7330ebc39d9187f7b26314c9d1b1fe606cd907edd2587de5209bd6a79"
+        },
+        {
+          "name": "corrective-tests.log",
+          "sha256": "d3ee44c1d75c656020a3cb4e40221249debf4b2c0d31722c04835c732cc492c5"
+        },
+        {
+          "name": "operations-parity-final.log",
+          "sha256": "b1b7e32408198e6c617bb206e7dd6f4290ba190e30e1219bf64a1e4d4d7615c6"
+        },
+        {
+          "name": "make_final_receipt.py",
+          "sha256": "1ac11a206c49a244f205d963d28f251a672b8cbfa99a7f6b16f08c17f7bcbd37"
+        },
+        {
+          "name": "golden-postgres-legacy75.json",
+          "sha256": "23cd5900751834a3f8e640ca8b84872a6a4a402a74a6aba629f7e4f9d4740227"
+        },
+        {
+          "name": "golden-sqlite-legacy100.json",
+          "sha256": "ec0401fd0ca9475cf9c68d0cab55dbd2dc51189053c4d2514f395920d66f44f0"
+        },
+        {
+          "name": "golden-postgres-legacy100.json",
+          "sha256": "f8ae6f288eeb3dafe3c4ebf32daf9e8b77f07096133c304274833cf5b3088125"
+        },
+        {
+          "name": "golden-postgres-115.json",
+          "sha256": "12fede1715dbd2fb2a60f3481edb965874732376bdc90c94fce662ef56c2a9c2"
+        },
+        {
+          "name": "golden-sqlite-legacy75.json",
+          "sha256": "77a2a71adcf1c3b04518e272df947475e8a37eee7fe2023d49dde002a88326ac"
+        },
+        {
+          "name": "golden-sqlite-115.json",
+          "sha256": "0d61728cdea8a7f4ee5acbd8fac6dd2316f83b29c4acf6ce67ba58b0213a5ca2"
+        },
+        {
+          "name": "ci-logs/contracts-docker-3.12.log",
+          "sha256": "ea18e910a40ff957af464276441ea1eee4712bebe0af3c624fa6fdaf12068cee"
+        },
+        {
+          "name": "ci-logs/unit-3.9.log",
+          "sha256": "98c1d961021055112c966c248a0f4af75133279c4a5baca60f082523b04a367e"
+        },
+        {
+          "name": "ci-logs/unit-3.9-summary.log",
+          "sha256": "52922f475d9ac9e1a60b2a03cd8918f4bf3f06ecad6d9039b0a0c4278001d0bb"
+        },
+        {
+          "name": "ci-logs/core-3.12.log",
+          "sha256": "37dec9ffc17f679a39a8c7d6c573dd61da0e430f4401752380d8637cd92e0f31"
+        },
+        {
+          "name": "ci-logs/core-golden-3.9.log",
+          "sha256": "78dcba1e15f99806bbdb64fc3940e372fe3d49ae35c042193b6a0b1ef589c72a"
+        },
+        {
+          "name": "ci-logs/contracts-validators-ts-3.9-full.log",
+          "sha256": "6d32a21d9f2530c473e0c9cecd8f7307b2f4c7b3830221b3062ad27bf28d6229"
+        },
+        {
+          "name": "ci-logs/pg-legacy100-3.12.log",
+          "sha256": "6653ac0371391670460ae7158528e0e985a998aaa6660d393f37688a22f8cc8c"
+        },
+        {
+          "name": "ci-logs/contracts-validators-ts-3.9.log",
+          "sha256": "65aeddfd72b703fc7a601c658d6e75927ffcf1f1d1f20b91adbcd8a892099d9c"
+        },
+        {
+          "name": "ci-logs/package-3.12.log",
+          "sha256": "83af31403ad7e3dba60c0c36e05611bd80d79aa6b90f9c7397f7f0095a9e395e"
+        },
+        {
+          "name": "ci-logs/unit-3.12.log",
+          "sha256": "27168303b8010ad45593d318a3b0144ff676217446ac6a35262390a83e22a11d"
+        },
+        {
+          "name": "ci-logs/pytest-3.9.log",
+          "sha256": "445a69d276303976b1be689d9e1dccad76b3e751014e3c46cf0337c6e4f9a9c3"
+        },
+        {
+          "name": "ci-logs/pytest-3.12.log",
+          "sha256": "1b11f3eb5f49ad9450b9bd6cdc9666dd0111d22ffc77784594e246ee3d67e8ba"
+        },
+        {
+          "name": "final-ci-artifacts/sandbox/sandbox-sqlite-runtime.log",
+          "sha256": "ee59ea5aebc34089945264c9436030a2815520d09f1cb9689036bf637432ec1b"
+        },
+        {
+          "name": "final-ci-artifacts/sandbox/sandbox-image-build.log",
+          "sha256": "c1ce8b562cc5ab3101e670602677e5bb0670280941228e3e9bc13cc13cec2b37"
+        },
+        {
+          "name": "final-ci-artifacts/sandbox/sandbox-postgres-runtime.log",
+          "sha256": "bfaa5ceb3d7ffd9f4ccb3710fbacae8763fb3e48b946a4baebe6e2e1c6a16f8f"
+        },
+        {
+          "name": "final-ci-artifacts/sandbox/sandbox-docker.json",
+          "sha256": "a31328e06c5fe02bc739d2f23660334ab3ac46ca701d3420b8f569a13b522b87"
+        },
+        {
+          "name": "final-ci-artifacts/runtime/docker-runtime.log",
+          "sha256": "a888f72d16cd080dbdbf42a0b7901f0e460cfc6415e44535ec99bcc2de134d09"
+        },
+        {
+          "name": "final-ci-artifacts/runtime/docker-build.log",
+          "sha256": "af2c2b1f35b9b85c760668e76adb1b95e298e41aab5bd7aa38a4c50df268b7d5"
+        },
+        {
+          "name": "final-ci-artifacts/runtime/docker-status.json",
+          "sha256": "4a2f3e51836b31719f365e626673debe6ccb8ad3c40148b4551991a5366b8ffe"
+        },
+        {
+          "name": "ALIGN_WAVE1P8_HANDOFF_REPORT.md",
+          "sha256": "e9295a4d6fd551fe957cf60f2d603bc4f4fb349bc16f9b39948e8b104cdbf27d"
+        },
+        {
+          "name": "CI_STEP_MAPPING.json",
+          "sha256": "0146f9b709fb7106ea15cdd734bcc8f190ba18a40940b02daef1cba28e0a5eea"
+        }
+      ]
+    },
+    {
+      "file": "809ce8f1f059171500f4a4c240b59560c5decd3cd5e8b8400662d023d997dfaa.md",
+      "sha256": "c8120808051d58f229e2e4d0138b5b7d3709ad874c99665663d01ef3609fd715",
+      "bytes": 14281,
+      "heading": "# 团队 A 执行指令书（对齐第一波次 · Align-Wave1）"
+    },
+    {
+      "file": "8975871054748253830e6ef5000ea83c748dbe88d7d6a2ef549dbdf9f9661f0b.zip",
+      "sha256": "d56268b4ebd533d23ee296544cd23bbe00ba1cec21e1bb54ea71572d3778e5e5",
+      "bytes": 194342,
+      "members": [
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/00_CURRENT_STATE_AUDIT.md",
+          "sha256": "1e81d14f58047a9c4fb26fbd3e92b01f0636142cb21221d1ec10f9a60908944c"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/01_OPENBOT_REQUIREMENTS_MAPPING.md",
+          "sha256": "f49981aba20434398abda986be87dd9c8f8d840c6c43828f55b638051d2dbfd7"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/02_DOMAIN_MODEL_ALIGNMENT.md",
+          "sha256": "ffe3c7a530f979f7ad93721116179bb1ce346ecbe6d3576cf6251e5d56c1968e"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/03_DOMAIN_CONTRACTS.md",
+          "sha256": "f91e79e9b5cfe8bd7b9fedc5e420fc85961e5079bc3b217e3ba686ee8519a825"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/04_TEAM_A_NEXT_STAGE_EXECUTION_PLAN.md",
+          "sha256": "05bc5296482b7c7218c7a4ecec6e93b7f7bb1c87fc61fe2cc34632ce692c4450"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/05_TEAM_A_EXECUTION_DIRECTIVE_WAVE1.md",
+          "sha256": "c8120808051d58f229e2e4d0138b5b7d3709ad874c99665663d01ef3609fd715"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/06_WAVE1_ACCEPTANCE_AND_NEXT_DIRECTIVE.md",
+          "sha256": "aa4adb3c73ef4488f24540f73f05f2f79567b635cea1ae39936709184c28d560"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/07_TEAM_A_TO_TEAM_B_CONSENSUS_RESPONSE.md",
+          "sha256": "1cfe9b4b60522ed48871ce5272cfd2bfa8c35baaf7f6dc528de59731e696a70c"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/08_TEAM_A_DELTA_SIGNOFF_AND_MIN_SLICE.md",
+          "sha256": "78efad1e4bc90c179edf46226475d4f3c1acfd4ba25b30390234c75cfb230096"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/09_WAVE1P5_CONSOLIDATED_EXECUTION_DIRECTIVE.md",
+          "sha256": "0ed8076cf0fffda4dd794c9438cfd581e6a2c7c430a70fe4f03a3464cd4f3cac"
+        },
+        {
+          "name": "docs/architecture/knowledge-sdk-alignment/10_WAVE1P5_ACCEPTANCE_AND_DELTA_DIRECTIVE.md",
+          "sha256": "d7c3330c0c2c7ae9756fe23a2cab0de8b3c14bc192ea7eb2d4105d32e82a401d"
+        }
+      ]
+    },
+    {
+      "file": "a14eb16abbf86b823a3f4e56b82e2ab4de7d37d9ffd65432aa2fdafbe2114ab8.md",
+      "sha256": "a14eb16abbf86b823a3f4e56b82e2ab4de7d37d9ffd65432aa2fdafbe2114ab8",
+      "bytes": 35012,
+      "heading": "# SDK-22 Wave1.5b — FINAL RESOLVED EVIDENCE (outside Git)"
+    },
+    {
+      "file": "adc4fb46536bd22a915e1ca95920133d7b078a8b7fc560a58d139aa4f288b9a9.md",
+      "sha256": "daa48b8853d0849b1df812ee0b87228ff57364e10ae41f90afb9fa330a096949",
+      "bytes": 18391,
+      "heading": "# Align-Wave1.8 执行指令书：M1 冻结前并行基础夯实与 M2 零 DDL 预备波次"
+    },
+    {
+      "file": "b3ce6d2b48bcf28b552959a14ac1ace914c10774dc5b4689f5e297712965a66f.md",
+      "sha256": "b3ce6d2b48bcf28b552959a14ac1ace914c10774dc5b4689f5e297712965a66f",
+      "bytes": 13412,
+      "heading": "# PHASE4_HANDOFF_REPORT — Q1-M4 交接（以 t37u 唯一执行任务书为准）"
+    },
+    {
+      "file": "ba3bcbe48e6a45cb8e7da3fd7306c2005c43a55d63e3e70d797b582eebdfea04.md",
+      "sha256": "95e6aef82e87c3418589cda64a4cb1b33d8f2aea450fc0371b9a53775c7fa909",
+      "bytes": 21950,
+      "heading": "# Q2 第四阶段实施指令书（Q2-M4）：企业身份网关、Connector 同步与 Q2 退出验收"
+    },
+    {
+      "file": "c09c0dbfd077fe9d09c279e51bcc14fecd4804c383f28c0a039a6e6aef7504ba.md",
+      "sha256": "1988a2c5cae36fb4471ec2fb669d97e87256f79ec929f13e880fae42ea0e0aef",
+      "bytes": 19081,
+      "heading": "# Q2 第二阶段实施指令书（Q2-M2）：PostgreSQL + pgvector 双引擎底座"
+    },
+    {
+      "file": "d1439accb727523335ea972e91899c7e0f84195733a90d0be246a1c16ac234b8.md",
+      "sha256": "9bb675f1b039aa0fe2dee2d131234e0e3e15aab076b62a400a52edff0973ec1b",
+      "bytes": 20502,
+      "heading": "# Q3 第一阶段实施指令书（Q3-M1）：基线收口、Schema v5 与 Agent Knowledge Runtime"
+    },
+    {
+      "file": "d1c9153392b72ef52225f0def07613cd7d37006f90a1440049a0755224f2c4b6.md",
+      "sha256": "037eaf1682a01b9ac490a455d78a5aead680f6331f2936cc7a4315b37980f1d9",
+      "bytes": 19687,
+      "heading": "# Q3 第二阶段实施指令书（Q3-M2）：可插拔 Reranker、分数独立校准与成对离线评测"
+    },
+    {
+      "file": "d1fda749001c104b030e0b143e6073e345662c0d5db7fe3cb2c54c00b6b497a0.md",
+      "sha256": "be16bfc6adfd1b472f2249caf2d10d88c033843c8aee61e73300f59d224a05ff",
+      "bytes": 9211,
+      "heading": "# OpenBot × Knowledge SDK 双团队前置并行执行指令（Pre-v7 非破坏性准备与补证波次）"
+    },
+    {
+      "file": "f614fb214efdecedbb13a46bf20e31bff62eaaa805df25382d74dd4131fa7575.md",
+      "sha256": "f614fb214efdecedbb13a46bf20e31bff62eaaa805df25382d74dd4131fa7575",
+      "bytes": 45565,
+      "heading": "# 知识库产品战略与演进架构专家评审稿"
+    }
+  ],
+  "source_status": "Only current81line directive supplies SPACE-C01–C10 wording; staged archives contain historical00–10 and Wave1.8 evidence.",
+  "missing": [
+    "Six referenced prior Space documents (actual names/versions not supplied)",
+    "Project-lead suggested-ruling original",
+    "Prior space-alignment-v1 draft",
+    "Official PRE-03 sanitized schema/data",
+    "PRE-01–04 signed evidence"
+  ],
+  "not_claimed": "No full calibration, owner ruling, final alignment or formal acceptance."
+}

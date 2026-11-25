@@ -1,0 +1,28 @@
+{
+  "accepted_base": "9940818b962ccb186c0dfb0158de6bd9bd49057b",
+  "all_old_workflow_bytes_preserved_as_prefix": true,
+  "all_old_jobs_semantically_identical": true,
+  "old_matrix_job_count": 36,
+  "new_total_job_count": 37,
+  "added_job": "pre-v7-space-prototype",
+  "old_job_names": [
+    "core",
+    "unit-suite",
+    "pytest-suite",
+    "package-suite",
+    "golden-1",
+    "golden-2",
+    "golden-3",
+    "golden-4",
+    "golden-5",
+    "golden-6",
+    "contracts-ts-and-docker-sandbox",
+    "wave2-v6-golden-1",
+    "wave2-v6-golden-2",
+    "wave2-v6-golden-3",
+    "wave2-v6-golden-4",
+    "wave2-v6-golden-5",
+    "wave2-v6-golden-6",
+    "wave2-runtime"
+  ]
+}

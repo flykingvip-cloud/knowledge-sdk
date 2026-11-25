@@ -1,0 +1,22 @@
+{
+  "scanned_original_markdown_and_zip_markdown": true,
+  "matches": [
+    {
+      "source": "d1fda749001c104b030e0b143e6073e345662c0d5db7fe3cb2c54c00b6b497a0.md",
+      "markers": [
+        "PRE-01",
+        "PRE-02",
+        "PRE-03",
+        "PRE-04",
+        "SPACE-C01",
+        "SPACE-C03",
+        "SPACE-C04",
+        "SPACE-C05",
+        "SPACE-C06",
+        "SPACE-C08",
+        "SPACE-C09",
+        "SPACE-C10"
+      ]
+    }
+  ]
+}

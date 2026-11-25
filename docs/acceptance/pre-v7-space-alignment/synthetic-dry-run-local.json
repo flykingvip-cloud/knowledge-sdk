@@ -1,0 +1,61 @@
+{
+  "alerts": [
+    {
+      "code": "ALIAS_COLLISION",
+      "legacy_kb_id": "syn_legacy_b",
+      "tenant_id": "syn_org"
+    },
+    {
+      "code": "MAPPING_COLLISION",
+      "legacy_kb_id": "syn_legacy_b",
+      "tenant_id": "syn_org"
+    },
+    {
+      "code": "NAME_COLLISION",
+      "legacy_kb_id": "syn_legacy_b",
+      "tenant_id": "syn_org"
+    },
+    {
+      "code": "NULL_ALIAS_MANUAL_REVIEW",
+      "legacy_kb_id": "syn_orphan",
+      "tenant_id": null
+    },
+    {
+      "code": "NULL_TENANT_MANUAL_REVIEW_NO_ASSIGNMENT",
+      "legacy_kb_id": "syn_orphan",
+      "tenant_id": null
+    },
+    {
+      "code": "UNMAPPED_NO_INFERENCE",
+      "legacy_kb_id": "syn_orphan",
+      "tenant_id": null
+    }
+  ],
+  "counts": {
+    "alerts": 6,
+    "mappings": 2,
+    "null_legacy_rows": 1,
+    "rows": 3,
+    "tenants": 1
+  },
+  "input_provenance": "SYNTHETIC_EXAMPLE",
+  "input_sha256_after": "2ccd6acf27dbca0df98f01786270df48923b1b8bcb697cc96caff1a3e6772997",
+  "input_sha256_before": "2ccd6acf27dbca0df98f01786270df48923b1b8bcb697cc96caff1a3e6772997",
+  "input_unchanged": true,
+  "mappings": [
+    {
+      "legacy_kb_id": "syn_legacy_a",
+      "proposed_kb_id": "syn_kb",
+      "proposed_space_id": "syn_team",
+      "tenant_id": "syn_org"
+    },
+    {
+      "legacy_kb_id": "syn_legacy_b",
+      "proposed_kb_id": "syn_kb",
+      "proposed_space_id": "syn_team",
+      "tenant_id": "syn_org"
+    }
+  ],
+  "migration_authorized": false,
+  "status": "CANDIDATE_PRE03_FORMAT_NOT_SIGNED"
+}
