@@ -1,0 +1,14 @@
+{
+  "scope": "Task0 semantic/audit-only extension, runtime v1 response and schema unchanged",
+  "commit": "d8a6176",
+  "action": "rollback_document",
+  "validated_audit_details": {
+    "rollback_scope": "content_and_filename_only",
+    "security_metadata_preserved": true
+  },
+  "meaning": "Restores target content and filename only; current ACL/rights/business metadata/L2 lifecycle rules retained. rollback_from_version is the target source version.",
+  "actual_dual_engine_regression": "tests.alignment_p5.test_rollback.SQLiteRollback and PostgresRollback in final-full-unittest.log",
+  "negative_behavior": "Current denied reader remains denied; revoked rights prevent rollback, no old history or security resurrection.",
+  "v1_return_fields_added": false,
+  "schema_ddl_added": false
+}

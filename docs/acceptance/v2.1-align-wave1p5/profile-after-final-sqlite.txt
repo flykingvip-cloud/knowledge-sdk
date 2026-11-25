@@ -1,0 +1,51 @@
+         4241412 function calls (4124973 primitive calls) in 1.385 seconds
+
+   Ordered by: cumulative time
+   List reduced from 383 to 45 due to restriction <45>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    1.412    1.412 /workspace/knowledge-sdk/docs/acceptance/v2.1-align-wave1/perf_snapshot.py:55(run)
+        1    0.002    0.002    1.412    1.412 /workspace/knowledge-sdk/src/knowledge_sdk/retrieval/eval.py:186(evaluate)
+  523/333    0.003    0.000    1.380    0.004 /workspace/knowledge-sdk/src/knowledge_sdk/client/local.py:50(wrapped)
+       48    0.002    0.000    1.081    0.023 /workspace/knowledge-sdk/src/knowledge_sdk/client/local.py:594(search)
+       48    0.018    0.000    1.074    0.022 /workspace/knowledge-sdk/src/knowledge_sdk/retrieval/hybrid.py:30(search)
+     1342    0.004    0.000    0.496    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/client/local.py:76(evaluate)
+     1580    0.009    0.000    0.479    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/client/local.py:140(_audit_operation)
+     1580    0.009    0.000    0.467    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/audit/ledger.py:16(append)
+     1580    0.021    0.000    0.389    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/storage/sqlite_store.py:423(append_audit_event)
+     7544    0.137    0.000    0.253    0.000 {built-in method builtins.sum}
+       51    0.005    0.000    0.253    0.005 /workspace/knowledge-sdk/tests/retrieval/q3_m2_fixture.py:19(search_for_org)
+       24    0.000    0.000    0.158    0.007 /workspace/knowledge-sdk/src/knowledge_sdk/retrieval/rerank.py:60(apply_reranker)
+       23    0.001    0.000    0.157    0.007 /workspace/knowledge-sdk/docs/acceptance/v2.1-align-wave1/perf_snapshot.py:51(observe)
+       23    0.008    0.000    0.147    0.006 /workspace/knowledge-sdk/src/knowledge_sdk/retrieval/rerank.py:90(score)
+     5720    0.006    0.000    0.147    0.000 /usr/lib/python3.13/dataclasses.py:1580(replace)
+      285    0.001    0.000    0.139    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/client/local.py:321(evaluate_policy)
+     5720    0.031    0.000    0.138    0.000 /usr/lib/python3.13/dataclasses.py:1599(_replace)
+     4740    0.040    0.000    0.134    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/contracts/audit.py:35(__post_init__)
+     1544    0.024    0.000    0.127    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/storage/sqlite_store.py:10(tokens)
+       95    0.001    0.000    0.123    0.001 /workspace/knowledge-sdk/src/knowledge_sdk/client/local.py:757(consume)
+      190    0.001    0.000    0.123    0.001 /workspace/knowledge-sdk/src/knowledge_sdk/client/local.py:332(_delivered_source)
+82820/6564    0.063    0.000    0.109    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/contracts/models.py:355(decode)
+     3160    0.023    0.000    0.097    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/contracts/policy.py:106(to_dict)
+     1342    0.018    0.000    0.082    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/permissions/engine.py:56(evaluate)
+     1580    0.005    0.000    0.078    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/contracts/audit.py:65(audit_hash)
+   723091    0.074    0.000    0.075    0.000 {built-in method builtins.isinstance}
+       95    0.001    0.000    0.072    0.001 /workspace/knowledge-sdk/src/knowledge_sdk/contracts/receipts.py:24(consume)
+       41    0.003    0.000    0.072    0.002 /workspace/knowledge-sdk/src/knowledge_sdk/storage/runtime.py:151(search_sources)
+     8245    0.015    0.000    0.070    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/storage/sqlite_store.py:239(_execute)
+       95    0.001    0.000    0.070    0.001 /workspace/knowledge-sdk/src/knowledge_sdk/client/local.py:733(reference)
+     1580    0.002    0.000    0.061    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/storage/sqlite_store.py:251(_dump)
+     1110    0.004    0.000    0.060    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/contracts/uri.py:30(build_uri)
+     1756    0.003    0.000    0.059    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/storage/sqlite_store.py:247(_get)
+   747099    0.058    0.000    0.058    0.000 /workspace/knowledge-sdk/tests/retrieval/q3_m2_fixture.py:25(<genexpr>)
+41745/2438    0.038    0.000    0.053    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/contracts/models.py:344(encode)
+    46813    0.019    0.000    0.053    0.000 /usr/lib/python3.13/re/__init__.py:169(fullmatch)
+   747099    0.052    0.000    0.052    0.000 /workspace/knowledge-sdk/tests/retrieval/q3_m2_fixture.py:24(<genexpr>)
+    60040    0.029    0.000    0.051    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/contracts/policy.py:107(convert)
+    39663    0.014    0.000    0.051    0.000 /usr/lib/python3.13/re/__init__.py:270(findall)
+     5280    0.008    0.000    0.047    0.000 /usr/lib/python3.13/json/__init__.py:183(dumps)
+    12050    0.012    0.000    0.046    0.000 {built-in method builtins.any}
+     1205    0.002    0.000    0.046    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/contracts/uri.py:23(__post_init__)
+     3615    0.003    0.000    0.043    0.000 /workspace/knowledge-sdk/src/knowledge_sdk/contracts/anchors.py:31(identifier)
+     6566    0.006    0.000    0.043    0.000 /usr/lib/python3.13/json/__init__.py:299(loads)
+     8345    0.043    0.000    0.043    0.000 {method 'execute' of 'sqlite3.Connection' objects}

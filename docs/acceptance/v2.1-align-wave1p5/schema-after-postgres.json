@@ -1,0 +1,8 @@
+{
+  "engine": "postgres",
+  "schema_version": 5,
+  "structural_rows": 344,
+  "physical_schema_sha256": "9554a62062611ac737bb20f0d4b0e1e87de00502cc026ef55eb7b9ab48b2c636",
+  "read_only_catalog_query": true,
+  "includes_columns_indexes_rls_policies": true
+}

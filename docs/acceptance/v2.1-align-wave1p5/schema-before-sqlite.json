@@ -1,0 +1,8 @@
+{
+  "engine": "sqlite",
+  "schema_version": 5,
+  "structural_rows": 48,
+  "physical_schema_sha256": "a49a93bfe2e216fb76d37d983b39edfb95f19f5296fe5eed8976ed562c0bcc5d",
+  "read_only_catalog_query": true,
+  "includes_columns_indexes_rls_policies": false
+}

@@ -1,0 +1,49 @@
+{
+  "harness_limitation": "Original preserved harness records per-search perf_counter durations but not wallclock start/end; actual original file completion timestamps are disclosed here, not fabricated.",
+  "measurements": [
+    {
+      "file": "perf-before-sqlite.json",
+      "sha256": "75f09a3c11f1e93ecf03b26ebbdebd09c3a879cc33c4e6118f04287408e20624",
+      "recorded_source_sha": "60b6436ed9fccb4b49ae32e30f1664412e505888",
+      "completed_file_mtime_asia_shanghai": "2026-11-25T15:11:05.173314+08:00",
+      "timestamp_provenance": "Original write-once result file filesystem completion mtime, NOT an invented internal harness wallclock start/end",
+      "before_first_extension_commit": true,
+      "warmups": 1,
+      "paired_repeats": 5,
+      "samples_per_arm": 120
+    },
+    {
+      "file": "perf-before-postgres.json",
+      "sha256": "eab97477002ced766eba6a1ce1cd5d69c82ebc818935594017b954c2abb9df13",
+      "recorded_source_sha": "60b6436ed9fccb4b49ae32e30f1664412e505888",
+      "completed_file_mtime_asia_shanghai": "2026-11-25T15:11:30.249483+08:00",
+      "timestamp_provenance": "Original write-once result file filesystem completion mtime, NOT an invented internal harness wallclock start/end",
+      "before_first_extension_commit": true,
+      "warmups": 1,
+      "paired_repeats": 5,
+      "samples_per_arm": 120
+    },
+    {
+      "file": "perf-after-final-sqlite.json",
+      "sha256": "fc7dd0e9959fcd0b19fbd48c2697815b0d64662e96a2aede1c48874ca40f620d",
+      "recorded_source_sha": "841f67ed610205889fc56c7185d3b53eab1e7173",
+      "completed_file_mtime_asia_shanghai": "2026-11-25T15:37:21.371940+08:00",
+      "timestamp_provenance": "Original write-once result file filesystem completion mtime, NOT an invented internal harness wallclock start/end",
+      "before_first_extension_commit": false,
+      "warmups": 1,
+      "paired_repeats": 5,
+      "samples_per_arm": 120
+    },
+    {
+      "file": "perf-after-final-postgres.json",
+      "sha256": "dbbc9c9e71f3e7a6fd34953142fc1459eb39ee0abfa70dd7c563778fa3c016c7",
+      "recorded_source_sha": "841f67ed610205889fc56c7185d3b53eab1e7173",
+      "completed_file_mtime_asia_shanghai": "2026-11-25T15:37:43.796091+08:00",
+      "timestamp_provenance": "Original write-once result file filesystem completion mtime, NOT an invented internal harness wallclock start/end",
+      "before_first_extension_commit": false,
+      "warmups": 1,
+      "paired_repeats": 5,
+      "samples_per_arm": 120
+    }
+  ]
+}

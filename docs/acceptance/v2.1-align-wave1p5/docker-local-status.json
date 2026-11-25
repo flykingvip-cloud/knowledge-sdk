@@ -1,0 +1,5 @@
+{
+  "status": "BUILD_NOT_RUN",
+  "reason": "Local Docker CLI/daemon unavailable; actual CI receipt separate",
+  "local_container_claim": false
+}

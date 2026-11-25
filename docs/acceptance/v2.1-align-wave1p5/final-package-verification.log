@@ -1,0 +1,16 @@
+Extracted wheel -S strict rerank/calibration/refusal/runtime smoke passed
+Wave1 extracted wheel stdlib strict compatibility smoke passed
+Wave1p5 extracted wheel strict zero-dependency audit and request-lifetime smoke passed
+Python 3.9 AST passed: 188
+golden_cases_v1.jsonl byte-identical 1b7c5ace8249495477457431e7b64f047868757ce28985ede56c483771b13fea
+golden_cases_v2.jsonl byte-identical 8503fd7962f23f97ca96d30476ba1c976db239ef5ca56bc0a552c8cb5a5232e1
+g6.py byte-identical c12cb690dae8e97545211068d30f162ee13bf375b0953ebcb75238ad2a56f412
+golden_cases_v3_enterprise.jsonl byte-identical 82a95b745c23ddf21ce71265380b76a43def01914824c9d50d14111344ce9d7b
+g7_g8.py byte-identical 0ebdbcf6a2389702706ce1e6b51c1c4051875b5a11b17fbc17297b65d813356e
+golden_cases_v4_runtime.jsonl byte-identical 41a90a9ccb1bca52048aad37e12948f02c32a6dfcfdee40206a5954d52e42167
+g9.py byte-identical e26c4eeb5600b199da963bd02848a0085d59936c77890944d7e90c7fc3120093
+Original runner scenario sources unchanged: 60
+Wheel RECORD verified; dependencies=[] unchanged
+knowledge_sdk-1.2.0-py3-none-any.whl 07b3eccec1834e65dee62e65ccdb9955d66c31d7524690b13d3e4783e0bb4977
+Wave1 acceptance/draft Python3.9 AST passed: 6
+Wave1p5 assets/tests Python3.9 AST passed: 14

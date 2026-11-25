@@ -1,0 +1,56 @@
+INFO:     Started server process [1472880]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:33083 (Press CTRL+C to quit)
+INFO:     127.0.0.1:33952 - "GET /v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33960 - "POST /v1/kbs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33966 - "POST /v1/documents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33974 - "POST /v1/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33986 - "POST /v1/governance/publish HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:33996 - "POST /v1/governance/submit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34008 - "POST /v1/governance/approve HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:34018 - "POST /v1/governance/dissent HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34026 - "POST /v1/governance/approve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34036 - "POST /v1/governance/publish HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:34050 - "POST /v1/governance/publish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34060 - "POST /v1/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34066 - "POST /v1/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34068 - "POST /v1/references HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34078 - "POST /v1/issues HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34084 - "POST /v1/issues/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34090 - "POST /v1/issues HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34094 - "POST /v1/issues/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34102 - "POST /v1/issues HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34104 - "POST /v1/issues/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34116 - "POST /v1/issues HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34120 - "POST /v1/issues/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34126 - "POST /v1/packs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34138 - "POST /v1/packs/get HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34148 - "POST /v1/packs/verify HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34164 - "POST /v1/packs/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34172 - "POST /v1/packs/export HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34188 - "POST /v1/documents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34204 - "POST /v1/retrieve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34216 - "POST /v1/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34218 - "POST /v1/governance/submit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34226 - "POST /v1/governance/approve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34230 - "POST /v1/governance/publish HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34244 - "POST /v1/retrieve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34258 - "POST /v1/events/drain HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34272 - "POST /v1/packs/verify HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34288 - "POST /v1/impact/alerts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34298 - "POST /v1/documents/rights HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34310 - "POST /v1/packs/get HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:34320 - "POST /v1/packs/export HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:34326 - "POST /v1/packs/export HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:34328 - "POST /v1/events/drain HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34340 - "POST /v1/impact/alerts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34348 - "POST /v1/audit/verify HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34358 - "POST /v1/packs/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34360 - "POST /v1/packs/list HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:34364 - "POST /v1/packs/list HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:34368 - "POST /v1/packs/export HTTP/1.1" 400 Bad Request
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1472880]

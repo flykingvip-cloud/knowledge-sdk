@@ -1,0 +1,14 @@
+{
+  "initial_run_id": 45569559720,
+  "initial_url": "https://github.com/flykingvip-cloud/knowledge-sdk/actions/runs/45569559720",
+  "initial_sha": "841f67ed610205889fc56c7185d3b53eab1e7173",
+  "observed_initial_status": "NOT_GREEN",
+  "initial_core_jobs": "both passed",
+  "initial_http312": "unit/pytest/golden/OpenAPI/TS39 passed; sandbox actual host readiness failed",
+  "initial_http39_last_observed": "golden modes running",
+  "failure_evidence": "ci-initial-sandbox-sqlite-runtime.log",
+  "diagnosis": "Seed completed and app started normally, but host-published port was inaccessible on internal-only Docker network. Fresh loopback-adapter frontend added; PG remains private internal. Actual retest required, not guessed PASS.",
+  "final_exact_head_rule": "A final CI receipt matching delivered HEAD must accompany this report. Do not reuse initial run as green.",
+  "final_receipt_box_path": "/workspace/knowledge-sdk-align-wave1p5-artifacts/final-receipt.json",
+  "branch_actions_url": "https://github.com/flykingvip-cloud/knowledge-sdk/actions?query=branch%3Afeat%2Falign-wave1p5-m1-readiness"
+}

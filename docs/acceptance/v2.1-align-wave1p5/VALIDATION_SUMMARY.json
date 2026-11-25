@@ -1,0 +1,108 @@
+{
+  "source_sha_at_frozen_final_suite_start": "4b59d48cec5c9bead6073b1f9fb45fa2f19cbb8b",
+  "stdlib": {
+    "total": 966,
+    "passed": 654,
+    "skipped": 312,
+    "failed": 0,
+    "resource_warnings": 0,
+    "seconds": 25.988
+  },
+  "unittest": {
+    "total": 966,
+    "passed": 962,
+    "skipped": 4,
+    "failed": 0,
+    "resource_warnings": 0,
+    "seconds": 168.093
+  },
+  "pytest": {
+    "passed": 962,
+    "skipped": 4,
+    "non_resource_warnings": 1,
+    "subtests_passed": 264,
+    "failed": 0,
+    "resource_warnings": 0,
+    "warning_kind": "Existing optional Starlette TestClient deprecation; not a core/ResourceWarning"
+  },
+  "golden": {
+    "sqlite": {
+      "default": {
+        "case_count": 115,
+        "passed": 115,
+        "failed": 0,
+        "skipped": 0,
+        "implicit_model_calls": 0,
+        "security_assertion_failures": 0
+      },
+      "legacy75": {
+        "case_count": 75,
+        "passed": 75,
+        "failed": 0,
+        "skipped": 0,
+        "implicit_model_calls": 0,
+        "security_assertion_failures": 0
+      },
+      "legacy100": {
+        "case_count": 100,
+        "passed": 100,
+        "failed": 0,
+        "skipped": 0,
+        "implicit_model_calls": 0,
+        "security_assertion_failures": 0
+      }
+    },
+    "postgres": {
+      "default": {
+        "case_count": 115,
+        "passed": 115,
+        "failed": 0,
+        "skipped": 0,
+        "implicit_model_calls": 0,
+        "security_assertion_failures": 0
+      },
+      "legacy75": {
+        "case_count": 75,
+        "passed": 75,
+        "failed": 0,
+        "skipped": 0,
+        "implicit_model_calls": 0,
+        "security_assertion_failures": 0
+      },
+      "legacy100": {
+        "case_count": 100,
+        "passed": 100,
+        "failed": 0,
+        "skipped": 0,
+        "implicit_model_calls": 0,
+        "security_assertion_failures": 0
+      }
+    }
+  },
+  "wire": {
+    "sqlite": {
+      "wave1_groups": 111,
+      "m2_runtime_groups": 80,
+      "m1_six_family_groups": 109,
+      "provider_attempts": 0
+    },
+    "postgres": {
+      "wave1_groups": 114,
+      "m2_runtime_groups": 80,
+      "m1_six_family_groups": 109,
+      "provider_attempts": 0
+    }
+  },
+  "wheel_current_source_match": {
+    "wheel": "knowledge_sdk-1.2.0-py3-none-any.whl",
+    "wheel_sha256": "07b3eccec1834e65dee62e65ccdb9955d66c31d7524690b13d3e4783e0bb4977",
+    "package_files_byte_identical_to_current_source": 113,
+    "core_source_digest": "30061729a10d53e07586a3de533acf894828c205fee388e6cd23797fc674b732",
+    "inherited_all_record_ast39_extracted_stdlib_gates": "PASSED",
+    "metadata_version": "1.2.0",
+    "mandatory_dependencies": []
+  },
+  "L4": "DRAFT_ASSET_SELFCHECK_AND_NO_UI_CHANGES; no new browser claim",
+  "L5": "HANDOFF_COMPLIANCE_ONLY_INDEPENDENT_REVIEW_PENDING",
+  "m1_joint_freeze": "PENDING_NOT_AUTHORIZED"
+}

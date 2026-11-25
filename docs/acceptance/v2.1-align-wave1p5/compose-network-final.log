@@ -1,0 +1,7 @@
+test_both_complete_compose_assets_are_nonroot_readonly_and_fixture_only (tests.alignment_p5.test_sandbox.Preparation.test_both_complete_compose_assets_are_nonroot_readonly_and_fixture_only) ... ok
+test_refuses_existing_and_unsafe_port_without_mutation (tests.alignment_p5.test_sandbox.Preparation.test_refuses_existing_and_unsafe_port_without_mutation) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK

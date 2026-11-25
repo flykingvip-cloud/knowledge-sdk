@@ -1,0 +1,5 @@
+seed-1     | {"status": "SEEDED_NEW_FIXTURE", "tenants": 2, "space_classes": 3, "spaces": 6, "documents": 10, "business_sha256": "be2d01c825f68cc1c058211d28b7440fd8787b59e9949cb97e4ed35574a796b1", "security_audit_times_are_fresh_not_bit_identical": true}
+sandbox-1  | INFO:     Started server process [1]
+sandbox-1  | INFO:     Waiting for application startup.
+sandbox-1  | INFO:     Application startup complete.
+sandbox-1  | INFO:     Uvicorn running on http://0.0.0.0:8088 (Press CTRL+C to quit)

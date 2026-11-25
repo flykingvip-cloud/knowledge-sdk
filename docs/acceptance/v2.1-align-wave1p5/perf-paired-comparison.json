@@ -1,0 +1,84 @@
+{
+  "sqlite": {
+    "identical_dataset_corpus_index_config_and_protected_pools": true,
+    "arms": {
+      "baseline": {
+        "quality_unchanged": true,
+        "before": {
+          "samples": 120,
+          "p50_ms": 1.9080575002590194,
+          "p95_ms": 2.2122070542536676,
+          "mean_ms": 1.666221025273747
+        },
+        "after": {
+          "samples": 120,
+          "p50_ms": 1.9461870033410378,
+          "p95_ms": 2.4842804508807603,
+          "mean_ms": 1.7727688501812129
+        },
+        "p50_delta_ms": 0.038129503082018346,
+        "p50_percent_change": 1.9983414062124671
+      },
+      "candidate": {
+        "quality_unchanged": true,
+        "before": {
+          "samples": 120,
+          "p50_ms": 16.28554300259566,
+          "p95_ms": 18.609804402512964,
+          "mean_ms": 12.273298325574919
+        },
+        "after": {
+          "samples": 120,
+          "p50_ms": 16.66665999800898,
+          "p95_ms": 19.604097445699153,
+          "mean_ms": 12.998423950436214
+        },
+        "p50_delta_ms": 0.381116995413322,
+        "p50_percent_change": 2.340216690058039
+      }
+    },
+    "same_physical_schema_sha256": "a49a93bfe2e216fb76d37d983b39edfb95f19f5296fe5eed8976ed562c0bcc5d",
+    "schema_version": 5
+  },
+  "postgres": {
+    "identical_dataset_corpus_index_config_and_protected_pools": true,
+    "arms": {
+      "baseline": {
+        "quality_unchanged": true,
+        "before": {
+          "samples": 120,
+          "p50_ms": 9.180810498946812,
+          "p95_ms": 13.555175056535518,
+          "mean_ms": 9.205099791264123
+        },
+        "after": {
+          "samples": 120,
+          "p50_ms": 9.36662100139074,
+          "p95_ms": 13.426326108310603,
+          "mean_ms": 9.206085632831673
+        },
+        "p50_delta_ms": 0.18581050244392827,
+        "p50_percent_change": 2.0239008578299744
+      },
+      "candidate": {
+        "quality_unchanged": true,
+        "before": {
+          "samples": 120,
+          "p50_ms": 75.54288650135277,
+          "p95_ms": 84.46565125486813,
+          "mean_ms": 56.90132524941873
+        },
+        "after": {
+          "samples": 120,
+          "p50_ms": 63.0748514959123,
+          "p95_ms": 70.89756950663286,
+          "mean_ms": 48.422729449763814
+        },
+        "p50_delta_ms": -12.46803500544047,
+        "p50_percent_change": -16.504578502195834
+      }
+    },
+    "same_physical_schema_sha256": "9554a62062611ac737bb20f0d4b0e1e87de00502cc026ef55eb7b9ab48b2c636",
+    "schema_version": 5
+  }
+}

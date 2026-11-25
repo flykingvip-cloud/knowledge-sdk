@@ -1,0 +1,1 @@
+[{"mode": "sqlite", "startup_refusal_closed_real_store": true}, {"mode": "postgres", "startup_refusal_closed_real_store": true}]
