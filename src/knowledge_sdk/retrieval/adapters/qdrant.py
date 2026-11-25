@@ -35,7 +35,7 @@ class QdrantIndex:
             # Universal Query exists since 1.10; older servers only expose search.
             # Never hide authentication, validation or server failures via fallback.
             if exc.code not in (404,405): raise
-            exc.close()
+            if exc.fp is not None:exc.close()
             data=self._request("POST","/points/search",{"vector":vector,"limit":limit,"with_payload":True})
             rows=data["result"]
         hits=[]

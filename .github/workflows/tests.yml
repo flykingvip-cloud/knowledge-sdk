@@ -1,5 +1,7 @@
 name: tests
 on: [push, pull_request]
+env:
+  PYTHONPATH: src
 jobs:
   core:
     runs-on: ${{ matrix.os }}
