@@ -46,6 +46,8 @@ schemas['KBMemberPage']=obj({'items':{'type':'array','items':ref('KBMember')},'n
 schemas['SpaceUpdate']=copy.deepcopy(schemas['KnowledgeBase']);schemas['SpaceUpdate']['properties']={k:v for k,v in schemas['SpaceUpdate']['properties'].items() if k in ('name','description','visibility','tags','metadata','governance_tier')};schemas['SpaceUpdate']['required']=[]
 schemas['VersionPair']=obj({'from_version':{'type':'integer','minimum':1},'to_version':{'type':'integer','minimum':1}})
 schemas['RollbackRequest']=obj({'target_version':{'type':'integer','minimum':1}})
+schemas['RollbackAuditDetails']=obj({'rollback_from_version':{'type':'integer','minimum':1},'previous_current_version':{'type':'integer','minimum':1},'created_version':{'type':'integer','minimum':1},'rollback_scope':{'type':'string','const':'content_and_filename_only'},'security_metadata_preserved':{'type':'boolean','const':True}})
+schemas['RollbackAuditDetails']['description']='AUDIT ONLY, not v1 return fields. Content+filename rollback keeps CURRENT metadata/ACL/rights/validity and L2 draft workflow; never restores historical security grants.'
 schemas['VersionDiff']=obj({'doc_id':{'type':'string'},'from_version':{'type':'integer','minimum':1},'to_version':{'type':'integer','minimum':1},'changes':{'type':'array','items':obj({'operation':{'type':'string','enum':['insert','delete','replace']},'before':{'type':'array','items':{'type':'string'}},'after':{'type':'array','items':{'type':'string'}}})}})
 schemas['AssetIngestRequest']=obj({'kb_id':{'type':'string'},'content':{'type':'string'},'filename':{'type':'string'},'asset_type':{'type':'string','enum':ENUMS['asset_type']},'idempotency_key':{'type':'string'}})
 schemas['SyncRequest']=obj({'kb_id':{'type':'string'},'cursor_in':{'type':'string'}})
@@ -72,6 +74,7 @@ route('/v2/search','post',ref('SearchResponse'),ref('SearchRequest'));route('/v2
 route('/v2/ingestion/jobs','post',ref('IngestionJob'),ref('AssetIngestRequest'));route('/v2/ingestion/jobs/{job_id}','get',ref('IngestionJob'))
 for action in ('retry','cancel'):route('/v2/ingestion/jobs/{job_id}/'+action,'post',ref('IngestionJob'))
 for action in ('plan','commit'):route('/v2/connectors/{connector_id}/'+action,'post',ref('ConnectorSyncExchange'),ref('SyncRequest'))
+paths['/v2/assets/{doc_id}/rollback']['post']['x-v1-rollback-audit-semantics']={'audit_schema':ref('RollbackAuditDetails'),'runtime_v1_response_unchanged':True,'historical_business_metadata_restored':False,'current_security_metadata_preserved':True,'controlled_space_creates_draft':True}
 spec={'openapi':'3.1.0','info':{'title':'Knowledge SDK / OpenBot Adapter DRAFT','version':'0.1.0-draft','description':'SDK-side review assets only; no v2 routes implemented. M1 joint freeze and Team B review PENDING. JSON syntax is valid YAML 1.2. Never trust unsigned client tenant/actor headers; gateway cryptographically binds both contexts. All nine contracts remain proposals.'},'x-contract-status':'draft-pending-m1-freeze','x-authority':'OIDC-verified or gateway-signature-verified identity and canonical tenant mapping; client headers are not authority','x-runtime-implemented':False,'security':[{'TrustedGateway':[]}],'paths':paths,'components':{'parameters':parameters,'securitySchemes':{'TrustedGateway':{'type':'http','scheme':'bearer','bearerFormat':'Verified OIDC JWT or trusted gateway token bound to signed context'}},'schemas':schemas}}
 (ROOT/'openapi-v2-draft.yaml').write_text(json.dumps(spec,ensure_ascii=False,indent=2)+'\n')
 def ts(s):
@@ -86,7 +89,7 @@ def ts(s):
   return '{\n'+''.join('  readonly '+json.dumps(k)+('' if k in s.get('required',[]) else '?')+': '+ts(v)+';\n' for k,v in props.items())+'}'
  if typ=='array':return 'ReadonlyArray<'+ts(s['items'])+'>'
  return {'null':'null','boolean':'boolean','integer':'number','number':'number','string':'string'}[typ]
-text='// GENERATED DRAFT: pending M1 joint freeze; no v2 runtime implementation.\n// Tenant/actor claims are trusted gateway-verified mappings, not client authority.\n'
+text='// GENERATED DRAFT: pending M1 joint freeze; no v2 runtime implementation.\n// Tenant/actor claims are trusted gateway-verified mappings, not client authority.\n// RollbackAuditDetails is audit-only semantics, never added v1 response fields.\n'
 for name,schema in schemas.items():
  value=ts(schema)
  if name=='CanonicalKbUri':value='`kb://org/${string}/doc/${string}@${number}${string}`'

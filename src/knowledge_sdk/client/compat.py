@@ -140,7 +140,7 @@ class CompatMixin:
                 if anchor.reanchor_status in (ReanchorStatus.DRIFT_PENDING,ReanchorStatus.ORPHANED):
                     self._emit_event(actor,'anchor.drifted' if anchor.reanchor_status==ReanchorStatus.DRIFT_PENDING else 'anchor.orphaned',doc_id,n,anchor_id=anchor.anchor_id)
         from ..audit.ledger import append
-        append(self.store,actor,'rollback_document',agent=agent,purpose=purpose,doc_id=doc_id,details={'rollback_from_version':target_version,'previous_current_version':d.current_version,'created_version':n})
+        append(self.store,actor,'rollback_document',agent=agent,purpose=purpose,doc_id=doc_id,details={'rollback_from_version':target_version,'previous_current_version':d.current_version,'created_version':n,'rollback_scope':'content_and_filename_only','security_metadata_preserved':True})
         if not controlled:self._sync_vector(doc_id)
         return self._ingested_response(actor,v,**ctx)
 

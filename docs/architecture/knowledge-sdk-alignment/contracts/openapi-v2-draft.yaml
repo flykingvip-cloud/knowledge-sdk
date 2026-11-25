@@ -1138,6 +1138,15 @@
               }
             }
           }
+        },
+        "x-v1-rollback-audit-semantics": {
+          "audit_schema": {
+            "$ref": "#/components/schemas/RollbackAuditDetails"
+          },
+          "runtime_v1_response_unchanged": true,
+          "historical_business_metadata_restored": false,
+          "current_security_metadata_preserved": true,
+          "controlled_space_creates_draft": true
         }
       }
     },
@@ -3401,6 +3410,40 @@
           "target_version"
         ],
         "additionalProperties": false
+      },
+      "RollbackAuditDetails": {
+        "type": "object",
+        "properties": {
+          "rollback_from_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "previous_current_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "created_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "rollback_scope": {
+            "type": "string",
+            "const": "content_and_filename_only"
+          },
+          "security_metadata_preserved": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "rollback_from_version",
+          "previous_current_version",
+          "created_version",
+          "rollback_scope",
+          "security_metadata_preserved"
+        ],
+        "additionalProperties": false,
+        "description": "AUDIT ONLY, not v1 return fields. Content+filename rollback keeps CURRENT metadata/ACL/rights/validity and L2 draft workflow; never restores historical security grants."
       },
       "VersionDiff": {
         "type": "object",

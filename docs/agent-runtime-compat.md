@@ -75,3 +75,16 @@ or principal-generation checks are skipped; no cross-request/tenant/generation
 rank cache exists. Pools/window=100/threshold=.6/weights and the 24-family fixture
 are frozen and independently hashed, with pool-observer evidence. Public server
 allowlists and enhanced score meanings remain Q3-M2 contracts.
+
+## Wave1p5 explicit rollback scope (owner t58u; not M1 joint signoff)
+
+The rollback audit includes `rollback_scope="content_and_filename_only"` and
+`security_metadata_preserved=true`, alongside target `rollback_from_version`,
+`previous_current_version` and `created_version`. These are AUDIT details, not
+new DocumentVersion/v1 response fields. Current Document.metadata/title, ACL,
+rights, validity, archive/revocation controls remain authoritative; no historical
+security grant or revoked right is resurrected. L2 remains a new draft under
+the existing three-person workflow. Exact historical arbitrary metadata is not
+claimed: t58u explicitly defines available v5 content+filename semantics.
+D7 asks only whether a future approved Schema6 should persist NON-security
+business metadata snapshots. This patch adds zero DDL/return fields.

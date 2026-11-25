@@ -1,5 +1,6 @@
 // GENERATED DRAFT: pending M1 joint freeze; no v2 runtime implementation.
 // Tenant/actor claims are trusted gateway-verified mappings, not client authority.
+// RollbackAuditDetails is audit-only semantics, never added v1 response fields.
 export type JsonValue = (null) | (boolean) | (number) | (string) | (ReadonlyArray<JsonValue>) | ({readonly [key: string]: JsonValue});
 
 export type ErrorCode = "VALIDATION_ERROR" | "UNAUTHENTICATED" | "SIGNATURE_INVALID" | "REPLAY_DETECTED" | "PERMISSION_DENIED" | "IDENTITY_REVOKED" | "POLICY_GENERATION_STALE" | "REDACTION_FAIL_CLOSED" | "RESOURCE_NOT_FOUND" | "CONFLICT" | "IDEMPOTENCY_CONFLICT" | "LIFECYCLE_CONFLICT" | "TAMPERED_EXCERPT" | "ANCHOR_UNRESOLVABLE" | "RATE_LIMITED" | "CONTEXT_BUDGET_EXCEEDED" | "BACKEND_UNAVAILABLE";
@@ -314,6 +315,14 @@ export type VersionPair = {
 
 export type RollbackRequest = {
   readonly "target_version": number;
+};
+
+export type RollbackAuditDetails = {
+  readonly "rollback_from_version": number;
+  readonly "previous_current_version": number;
+  readonly "created_version": number;
+  readonly "rollback_scope": "content_and_filename_only";
+  readonly "security_metadata_preserved": true;
 };
 
 export type VersionDiff = {

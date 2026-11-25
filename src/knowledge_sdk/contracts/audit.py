@@ -52,6 +52,10 @@ class AuditEvent(PolicyContract):
             if key == 'excerpt_hash':
                 if not isinstance(value, str) or not re.fullmatch('[0-9a-f]{64}', value):
                     raise ValidationError('Invalid excerpt hash')
+            elif key == 'rollback_scope':
+                if self.action!='rollback_document' or value!='content_and_filename_only':raise ValidationError('Invalid rollback audit scope')
+            elif key == 'security_metadata_preserved':
+                if self.action!='rollback_document' or value is not True:raise ValidationError('Invalid rollback audit preservation')
             elif key in ('count', 'version', 'result_count','rollback_from_version','previous_current_version','created_version'):
                 if type(value) is not int or value < 0: raise ValidationError('Invalid audit count')
             else: raise ValidationError('Audit details may contain only hashes and counts')
