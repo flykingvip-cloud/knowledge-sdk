@@ -44,21 +44,21 @@ class ParityCases:
             data=json.load(r);status=r.status
         if status!=200:return {}
         return data.get('result',{}).get('structuredContent',{})
-    def matrix(self,label,allowed,actor=None,agent=None,version=None):
-        actor=actor or self.u;version=version or self.c.store.get_document('d').current_version
-        uri='kb://org/t/doc/d@'+str(version);ctx=dict(agent=agent,purpose=Purpose.READ)
+    def matrix(self,label,allowed,actor=None,agent=None,version=None,doc="d"):
+        actor=actor or self.u;version=version or self.c.store.get_document(doc).current_version
+        uri='kb://org/t/doc/'+doc+'@'+str(version);ctx=dict(agent=agent,purpose=Purpose.READ)
         for name,c in (('python',self.c),('http',self.h)):
             with self.subTest(case=label,transport=name):
-                try:found=bool(c.search(actor,'alpha',scope=KnowledgeScope('documents',doc_ids=['d']),**ctx).hits)
+                try:found=bool(c.search(actor,'alpha',scope=KnowledgeScope('documents',doc_ids=[doc]),**ctx).hits)
                 except (PermissionDeniedError,NotFoundError):found=False
                 self.assertEqual(found,allowed)
                 try:
-                    c.get_document(actor,'d',version,**ctx);ref=c.reference(actor,'d',version,**ctx)
+                    c.get_document(actor,doc,version,**ctx);ref=c.reference(actor,doc,version,**ctx)
                     verified=c.verify_ref(actor,ref,**ctx).status in ('consumed','partial')
                     c.report_evidence_issue(actor,uri,'outdated','fixture issue',**ctx)
                 except (PermissionDeniedError,NotFoundError):verified=False
                 self.assertEqual(verified,allowed)
-        args={'search_evidence':dict(query='alpha',doc_ids=['d']), 'verify_citation':dict(source_uri=uri),
+        args={'search_evidence':dict(query='alpha',doc_ids=[doc]), 'verify_citation':dict(source_uri=uri),
               'get_evidence_pack':dict(source_uris=[uri]),'report_evidence_issue':dict(source_uri=uri,issue_type='outdated',description='fixture')}
         for tool,params in args.items():
             with self.subTest(case=label,tool=tool):
@@ -115,7 +115,7 @@ class ParityCases:
             self.h.submit_for_review(a,'d2',version=version,expected_version=version)
             self.h.approve_release(r,'d2',version=version,expected_version=version)
             self.h.publish_release(p,'d2',version=version,expected_version=version)
-        publish(1);self.assertTrue(self.mcp('verify_citation',dict(source_uri='kb://org/t/doc/d2@1'))['valid'])
+        publish(1);self.matrix('l2_published_all_four_tools',True,doc='d2')
         self.h.ingest(a,'l2','alpha controlled revision',doc_id='d2');publish(2)
         self.h.set_document_acl(a,'d2',DocumentACL(deny_users=['blocked']))
         draft=self.h.rollback_document(a,'d2',1);self.assertEqual(draft.version,3)
@@ -123,7 +123,7 @@ class ParityCases:
         for transport in (c,self.h):
             with self.assertRaises(PermissionDeniedError):transport.get_document(self.u,'d2',3)
         publish(3)
-        self.assertTrue(self.mcp('verify_citation',dict(source_uri='kb://org/t/doc/d2@3'))['valid'])
+        self.matrix('l2_rollback_published_all_four_tools',True,doc='d2')
         self.assertEqual(list(self.c.store.get_acl('d2').deny_users),['blocked'])
         self.c.register_agent_profile(a,'small',allowed_kb_ids=['k'],default_budget=ContextBudget(max_documents=1,max_items=1,max_chars_per_item=5,max_total_chars=5))
         for transport in (c,self.h):

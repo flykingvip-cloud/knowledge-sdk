@@ -75,6 +75,9 @@ class JobTests(unittest.TestCase):
         with self.assertRaises(ConflictError):self.s.retry('t',j.job_id,expected_revision=j.revision)
     def test_cancel_race_and_idempotent_submission(self):
         j=self.job();self.assertEqual(self.job(),j)
+        with ThreadPoolExecutor(16) as pool:
+            submitted=list(pool.map(lambda _: self.job().job_id,range(16)))
+        self.assertEqual(set(submitted),{j.job_id})
         with self.assertRaises(ConflictError):self.s.submit('t','k',{'doc':'other'},max_attempts=2)
         with self.assertRaises(NotFoundError):self.s.get('foreign',j.job_id)
         gate=threading.Barrier(2)

@@ -1,4 +1,5 @@
 """Operational telemetry is not the audit ledger: never serialize caller values."""
+from __future__ import annotations
 import hashlib
 import json
 import logging
