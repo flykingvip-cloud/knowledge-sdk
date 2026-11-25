@@ -1,0 +1,603 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Space Alignment v1 candidate (no mounted runtime)",
+    "version": "0.0.0-draft"
+  },
+  "x-contract-status": "DRAFT_PENDING_OWNER_RULING",
+  "x-proposed-labels": "PROPOSED_PENDING_OWNER_RULING; eight action names and five deliverable states are candidate names, not supplied owner decisions.",
+  "x-contract-ids": [
+    "SPACE-C01",
+    "SPACE-C02",
+    "SPACE-C03",
+    "SPACE-C04",
+    "SPACE-C05",
+    "SPACE-C06",
+    "SPACE-C07",
+    "SPACE-C08",
+    "SPACE-C09",
+    "SPACE-C10"
+  ],
+  "paths": {
+    "/v3/spaces": {
+      "get": {
+        "operationId": "proposedListSpaces",
+        "description": "Candidate path ONLY; not mounted. Alternative /v2/knowledge-spaces remains undecided. Current /v2/spaces unchanged.",
+        "responses": {
+          "200": {
+            "description": "Proposed only",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Space"
+                  },
+                  "maxItems": 100
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v3/favorites:hydrate": {
+      "post": {
+        "operationId": "proposedHydrateFavorites",
+        "description": "Read-only SDK hydration candidate; OpenBot remains only favorite writer. No endpoint mounted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HydrateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authoritative current ACL hydration, no denied metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HydrateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Space": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "space_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "kind": {
+            "enum": [
+              "enterprise",
+              "team",
+              "personal"
+            ]
+          },
+          "owner_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "lifecycle": {
+            "enum": [
+              "active",
+              "frozen",
+              "archived"
+            ]
+          },
+          "policy_generation": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "sharing_enabled": {
+            "const": false
+          },
+          "offboarding_enabled": {
+            "const": false
+          }
+        },
+        "required": [
+          "tenant_id",
+          "space_id",
+          "kind",
+          "owner_id",
+          "lifecycle",
+          "policy_generation",
+          "sharing_enabled",
+          "offboarding_enabled"
+        ],
+        "additionalProperties": false
+      },
+      "Uploaded": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "version_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          }
+        },
+        "required": [
+          "document_id",
+          "version_id"
+        ],
+        "additionalProperties": false
+      },
+      "Deliverable": {
+        "type": "object",
+        "properties": {
+          "deliverable_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "state": {
+            "enum": [
+              "draft",
+              "generating",
+              "ready",
+              "published",
+              "withdrawn"
+            ]
+          }
+        },
+        "required": [
+          "deliverable_id",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "Freshness": {
+        "type": "object",
+        "properties": {
+          "asserted_at": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "valid_until": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "policy_generation": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "asserted_at",
+          "valid_until",
+          "policy_generation"
+        ],
+        "additionalProperties": false
+      },
+      "Tombstone": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "enum": [
+              "source_revoked",
+              "expired",
+              "unavailable"
+            ]
+          },
+          "observed_generation": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "reason",
+          "observed_generation"
+        ],
+        "additionalProperties": false
+      },
+      "ExternalRef": {
+        "type": "object",
+        "properties": {
+          "projection_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "scope_applied": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+            },
+            "maxItems": 100
+          },
+          "masked_fields": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "title",
+                "excerpt",
+                "source_uri"
+              ]
+            },
+            "maxItems": 100
+          },
+          "trace_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+            },
+            "maxItems": 100
+          },
+          "freshness": {
+            "$ref": "#/components/schemas/Freshness"
+          },
+          "publication_state": {
+            "enum": [
+              "complete",
+              "partial"
+            ]
+          },
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "tombstone": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Tombstone"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "projection_id",
+          "scope_applied",
+          "masked_fields",
+          "trace_refs",
+          "freshness",
+          "publication_state",
+          "cursor",
+          "tombstone"
+        ],
+        "additionalProperties": false
+      },
+      "AssetEnvelope": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "tenant_id": {
+                "type": "string",
+                "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+              },
+              "asset_id": {
+                "type": "string",
+                "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+              },
+              "kind": {
+                "const": "uploaded_document"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/Uploaded"
+              }
+            },
+            "required": [
+              "tenant_id",
+              "asset_id",
+              "kind",
+              "payload"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "tenant_id": {
+                "type": "string",
+                "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+              },
+              "asset_id": {
+                "type": "string",
+                "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+              },
+              "kind": {
+                "const": "agent_deliverable"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/Deliverable"
+              }
+            },
+            "required": [
+              "tenant_id",
+              "asset_id",
+              "kind",
+              "payload"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "tenant_id": {
+                "type": "string",
+                "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+              },
+              "asset_id": {
+                "type": "string",
+                "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+              },
+              "kind": {
+                "const": "enterprise_materialized_ref"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/ExternalRef"
+              }
+            },
+            "required": [
+              "tenant_id",
+              "asset_id",
+              "kind",
+              "payload"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "FavoriteTarget": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "target_type": {
+            "enum": [
+              "kb",
+              "asset"
+            ]
+          },
+          "target_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "target_type",
+          "target_id"
+        ],
+        "additionalProperties": false
+      },
+      "FavoriteHydrated": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "target_type": {
+                "enum": [
+                  "kb",
+                  "asset"
+                ]
+              },
+              "target_id": {
+                "type": "string",
+                "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+              },
+              "state": {
+                "const": "unavailable"
+              }
+            },
+            "required": [
+              "target_type",
+              "target_id",
+              "state"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "target_type": {
+                "enum": [
+                  "kb",
+                  "asset"
+                ]
+              },
+              "target_id": {
+                "type": "string",
+                "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+              },
+              "state": {
+                "const": "available"
+              },
+              "display_name": {
+                "type": "string",
+                "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+              },
+              "policy_generation": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "target_type",
+              "target_id",
+              "state",
+              "display_name",
+              "policy_generation"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "HydrateRequest": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "subject_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FavoriteTarget"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "tenant_id",
+          "subject_id",
+          "targets"
+        ],
+        "additionalProperties": false
+      },
+      "HydrateResponse": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FavoriteHydrated"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "tenant_id",
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "ToolBoundary": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "data_capability"
+          },
+          "capability_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "mediated": {
+            "const": true
+          },
+          "credentials_exposed": {
+            "const": false
+          }
+        },
+        "required": [
+          "kind",
+          "capability_id",
+          "mediated",
+          "credentials_exposed"
+        ],
+        "additionalProperties": false
+      },
+      "PolicyCheck": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "space_tenant_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "kb_tenant_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "action": {
+            "enum": [
+              "read_metadata",
+              "read_content",
+              "create_kb",
+              "attach_kb",
+              "detach_kb",
+              "manage_members",
+              "transfer_owner",
+              "freeze_archive"
+            ]
+          },
+          "user_allowed": {
+            "type": "boolean"
+          },
+          "agent_allowed": {
+            "type": "boolean"
+          },
+          "fine_scope_allowed": {
+            "type": "boolean"
+          },
+          "explicit_deny": {
+            "type": "boolean"
+          },
+          "policy_generation": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "current_generation": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "tenant_id",
+          "space_tenant_id",
+          "kb_tenant_id",
+          "action",
+          "user_allowed",
+          "agent_allowed",
+          "fine_scope_allowed",
+          "explicit_deny",
+          "policy_generation",
+          "current_generation"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "x-source-gaps": [
+    "Six original Space documents and prior suggested ruling not supplied",
+    "C02/C07 canonical semantics unknown",
+    "C03 Team mapping pending PRE01 and owner ruling",
+    "Official PRE03 input format and PRE01\u201304 signatures unavailable"
+  ]
+}

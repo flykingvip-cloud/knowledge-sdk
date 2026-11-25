@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CANDIDATE_PRE03_FORMAT_NOT_SIGNED",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "sanitized",
+    "provenance",
+    "rows"
+  ],
+  "properties": {
+    "format": {
+      "const": "candidate-pre03-v1"
+    },
+    "sanitized": {
+      "const": true
+    },
+    "provenance": {
+      "enum": [
+        "SYNTHETIC_EXAMPLE",
+        "SANITIZED_CANDIDATE"
+      ]
+    },
+    "rows": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "legacy_kb_id",
+          "tenant_id",
+          "proposed_space_id",
+          "proposed_kb_id",
+          "alias_token",
+          "name_token"
+        ],
+        "properties": {
+          "legacy_kb_id": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          },
+          "tenant_id": {
+            "oneOf": [
+              {
+                "type": "string",
+                "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "proposed_space_id": {
+            "oneOf": [
+              {
+                "type": "string",
+                "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "proposed_kb_id": {
+            "oneOf": [
+              {
+                "type": "string",
+                "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "alias_token": {
+            "oneOf": [
+              {
+                "type": "string",
+                "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name_token": {
+            "type": "string",
+            "pattern": "^syn_[A-Za-z0-9_-]{1,64}$"
+          }
+        }
+      }
+    }
+  }
+}

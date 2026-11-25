@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2020",
+    "module": "CommonJS",
+    "outDir": "ts-generated",
+    "noEmitOnError": true
+  },
+  "include": [
+    "dto.ts",
+    "check.ts"
+  ]
+}

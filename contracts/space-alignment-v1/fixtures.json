@@ -1,0 +1,924 @@
+{
+  "synthetic_only": true,
+  "reference_now": 100,
+  "vectors": [
+    {
+      "id": "P_CONTRACT_SPACE",
+      "schema": "Space",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_id": "syn_personal",
+        "kind": "personal",
+        "owner_id": "syn_user",
+        "lifecycle": "active",
+        "policy_generation": 1,
+        "sharing_enabled": false,
+        "offboarding_enabled": false
+      },
+      "valid": true
+    },
+    {
+      "id": "P_NEG_SPACE_parent_space_id_syn_parent",
+      "schema": "Space",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_id": "syn_personal",
+        "kind": "personal",
+        "owner_id": "syn_user",
+        "lifecycle": "active",
+        "policy_generation": 1,
+        "sharing_enabled": false,
+        "offboarding_enabled": false,
+        "parent_space_id": "syn_parent"
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_SPACE_sharing_enabled_True",
+      "schema": "Space",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_id": "syn_personal",
+        "kind": "personal",
+        "owner_id": "syn_user",
+        "lifecycle": "active",
+        "policy_generation": 1,
+        "sharing_enabled": true,
+        "offboarding_enabled": false
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_SPACE_offboarding_enabled_True",
+      "schema": "Space",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_id": "syn_personal",
+        "kind": "personal",
+        "owner_id": "syn_user",
+        "lifecycle": "active",
+        "policy_generation": 1,
+        "sharing_enabled": false,
+        "offboarding_enabled": true
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_SPACE_lifecycle_deleted",
+      "schema": "Space",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_id": "syn_personal",
+        "kind": "personal",
+        "owner_id": "syn_user",
+        "lifecycle": "deleted",
+        "policy_generation": 1,
+        "sharing_enabled": false,
+        "offboarding_enabled": false
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_SPACE_policy_generation_True",
+      "schema": "Space",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_id": "syn_personal",
+        "kind": "personal",
+        "owner_id": "syn_user",
+        "lifecycle": "active",
+        "policy_generation": true,
+        "sharing_enabled": false,
+        "offboarding_enabled": false
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_SPACE_policy_generation_9007199254740992",
+      "schema": "Space",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_id": "syn_personal",
+        "kind": "personal",
+        "owner_id": "syn_user",
+        "lifecycle": "active",
+        "policy_generation": 9007199254740992,
+        "sharing_enabled": false,
+        "offboarding_enabled": false
+      },
+      "valid": false
+    },
+    {
+      "id": "P_SUPPLY_uploaded_document",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_asset",
+        "kind": "uploaded_document",
+        "payload": {
+          "document_id": "syn_doc",
+          "version_id": "syn_v1"
+        }
+      },
+      "valid": true
+    },
+    {
+      "id": "P_SUPPLY_agent_deliverable",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_asset",
+        "kind": "agent_deliverable",
+        "payload": {
+          "deliverable_id": "syn_deliverable",
+          "state": "ready"
+        }
+      },
+      "valid": true
+    },
+    {
+      "id": "P_DELIVERABLE_draft",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_asset",
+        "kind": "agent_deliverable",
+        "payload": {
+          "deliverable_id": "syn_deliverable",
+          "state": "draft"
+        }
+      },
+      "valid": true
+    },
+    {
+      "id": "P_DELIVERABLE_generating",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_asset",
+        "kind": "agent_deliverable",
+        "payload": {
+          "deliverable_id": "syn_deliverable",
+          "state": "generating"
+        }
+      },
+      "valid": true
+    },
+    {
+      "id": "P_DELIVERABLE_published",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_asset",
+        "kind": "agent_deliverable",
+        "payload": {
+          "deliverable_id": "syn_deliverable",
+          "state": "published"
+        }
+      },
+      "valid": true
+    },
+    {
+      "id": "P_DELIVERABLE_withdrawn",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_asset",
+        "kind": "agent_deliverable",
+        "payload": {
+          "deliverable_id": "syn_deliverable",
+          "state": "withdrawn"
+        }
+      },
+      "valid": true
+    },
+    {
+      "id": "P_DELIVERABLE_unknown",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_asset",
+        "kind": "agent_deliverable",
+        "payload": {
+          "deliverable_id": "syn_deliverable",
+          "state": "unknown"
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_SUPPLY_EXTERNAL",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "cursor": "syn_cursor",
+          "tombstone": null
+        }
+      },
+      "valid": true
+    },
+    {
+      "id": "P_NEG_STALE_EXTERNAL",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 99,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "cursor": "syn_cursor",
+          "tombstone": null
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_EXTERNAL_TOMBSTONE",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "cursor": null,
+          "tombstone": {
+            "reason": "source_revoked",
+            "observed_generation": 2
+          }
+        }
+      },
+      "valid": true
+    },
+    {
+      "id": "P_NEG_REF_MISSING_projection_id",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "cursor": "syn_cursor",
+          "tombstone": null
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_REF_MISSING_scope_applied",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "cursor": "syn_cursor",
+          "tombstone": null
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_REF_MISSING_masked_fields",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "cursor": "syn_cursor",
+          "tombstone": null
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_REF_MISSING_trace_refs",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "cursor": "syn_cursor",
+          "tombstone": null
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_REF_MISSING_freshness",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "publication_state": "partial",
+          "cursor": "syn_cursor",
+          "tombstone": null
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_REF_MISSING_publication_state",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "cursor": "syn_cursor",
+          "tombstone": null
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_REF_MISSING_cursor",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "tombstone": null
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_REF_MISSING_tombstone",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "cursor": "syn_cursor"
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_REF_LEAK_credentials",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "cursor": "syn_cursor",
+          "tombstone": null,
+          "credentials": "DO_NOT_LEAK"
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_REF_LEAK_body",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "cursor": "syn_cursor",
+          "tombstone": null,
+          "body": "DO_NOT_LEAK"
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_REF_LEAK_content",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "cursor": "syn_cursor",
+          "tombstone": null,
+          "content": "DO_NOT_LEAK"
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_REF_LEAK_password",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "cursor": "syn_cursor",
+          "tombstone": null,
+          "password": "DO_NOT_LEAK"
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_REF_LEAK_source_uri",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_ref",
+        "kind": "enterprise_materialized_ref",
+        "payload": {
+          "projection_id": "syn_projection",
+          "scope_applied": [
+            "syn_org"
+          ],
+          "masked_fields": [
+            "excerpt"
+          ],
+          "trace_refs": [
+            "syn_trace"
+          ],
+          "freshness": {
+            "asserted_at": 90,
+            "valid_until": 120,
+            "policy_generation": 1
+          },
+          "publication_state": "partial",
+          "cursor": "syn_cursor",
+          "tombstone": null,
+          "source_uri": "DO_NOT_LEAK"
+        }
+      },
+      "valid": false
+    },
+    {
+      "id": "P_FAVORITE_kb",
+      "schema": "FavoriteHydrated",
+      "data": {
+        "target_type": "kb",
+        "target_id": "syn_target",
+        "state": "available",
+        "display_name": "syn_label",
+        "policy_generation": 1
+      },
+      "valid": true
+    },
+    {
+      "id": "P_UNAVAILABLE_kb",
+      "schema": "FavoriteHydrated",
+      "data": {
+        "target_type": "kb",
+        "target_id": "syn_target",
+        "state": "unavailable"
+      },
+      "valid": true
+    },
+    {
+      "id": "P_DENIED_METADATA_kb",
+      "schema": "FavoriteHydrated",
+      "data": {
+        "target_type": "kb",
+        "target_id": "syn_target",
+        "state": "unavailable",
+        "display_name": "syn_hidden"
+      },
+      "valid": false
+    },
+    {
+      "id": "P_FAVORITE_asset",
+      "schema": "FavoriteHydrated",
+      "data": {
+        "target_type": "asset",
+        "target_id": "syn_target",
+        "state": "available",
+        "display_name": "syn_label",
+        "policy_generation": 1
+      },
+      "valid": true
+    },
+    {
+      "id": "P_UNAVAILABLE_asset",
+      "schema": "FavoriteHydrated",
+      "data": {
+        "target_type": "asset",
+        "target_id": "syn_target",
+        "state": "unavailable"
+      },
+      "valid": true
+    },
+    {
+      "id": "P_DENIED_METADATA_asset",
+      "schema": "FavoriteHydrated",
+      "data": {
+        "target_type": "asset",
+        "target_id": "syn_target",
+        "state": "unavailable",
+        "display_name": "syn_hidden"
+      },
+      "valid": false
+    },
+    {
+      "id": "P_TOOL_BOUNDARY",
+      "schema": "ToolBoundary",
+      "data": {
+        "kind": "data_capability",
+        "capability_id": "syn_tool",
+        "mediated": true,
+        "credentials_exposed": false
+      },
+      "valid": true
+    },
+    {
+      "id": "P_TOOL_CREDENTIAL_LEAK",
+      "schema": "ToolBoundary",
+      "data": {
+        "kind": "data_capability",
+        "capability_id": "syn_tool",
+        "mediated": true,
+        "credentials_exposed": true
+      },
+      "valid": false
+    },
+    {
+      "id": "P_POLICY_ALLOW",
+      "schema": "PolicyCheck",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_tenant_id": "syn_org",
+        "kb_tenant_id": "syn_org",
+        "action": "read_content",
+        "user_allowed": true,
+        "agent_allowed": true,
+        "fine_scope_allowed": true,
+        "explicit_deny": false,
+        "policy_generation": 1,
+        "current_generation": 1
+      },
+      "valid": true
+    },
+    {
+      "id": "P_POLICY_DENY_kb_tenant_id",
+      "schema": "PolicyCheck",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_tenant_id": "syn_org",
+        "kb_tenant_id": "syn_other",
+        "action": "read_content",
+        "user_allowed": true,
+        "agent_allowed": true,
+        "fine_scope_allowed": true,
+        "explicit_deny": false,
+        "policy_generation": 1,
+        "current_generation": 1
+      },
+      "valid": false
+    },
+    {
+      "id": "P_POLICY_DENY_explicit_deny",
+      "schema": "PolicyCheck",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_tenant_id": "syn_org",
+        "kb_tenant_id": "syn_org",
+        "action": "read_content",
+        "user_allowed": true,
+        "agent_allowed": true,
+        "fine_scope_allowed": true,
+        "explicit_deny": true,
+        "policy_generation": 1,
+        "current_generation": 1
+      },
+      "valid": false
+    },
+    {
+      "id": "P_POLICY_DENY_agent_allowed",
+      "schema": "PolicyCheck",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_tenant_id": "syn_org",
+        "kb_tenant_id": "syn_org",
+        "action": "read_content",
+        "user_allowed": true,
+        "agent_allowed": false,
+        "fine_scope_allowed": true,
+        "explicit_deny": false,
+        "policy_generation": 1,
+        "current_generation": 1
+      },
+      "valid": false
+    },
+    {
+      "id": "P_POLICY_DENY_user_allowed",
+      "schema": "PolicyCheck",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_tenant_id": "syn_org",
+        "kb_tenant_id": "syn_org",
+        "action": "read_content",
+        "user_allowed": false,
+        "agent_allowed": true,
+        "fine_scope_allowed": true,
+        "explicit_deny": false,
+        "policy_generation": 1,
+        "current_generation": 1
+      },
+      "valid": false
+    },
+    {
+      "id": "P_POLICY_DENY_fine_scope_allowed",
+      "schema": "PolicyCheck",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_tenant_id": "syn_org",
+        "kb_tenant_id": "syn_org",
+        "action": "read_content",
+        "user_allowed": true,
+        "agent_allowed": true,
+        "fine_scope_allowed": false,
+        "explicit_deny": false,
+        "policy_generation": 1,
+        "current_generation": 1
+      },
+      "valid": false
+    },
+    {
+      "id": "P_POLICY_DENY_policy_generation",
+      "schema": "PolicyCheck",
+      "data": {
+        "tenant_id": "syn_org",
+        "space_tenant_id": "syn_org",
+        "kb_tenant_id": "syn_org",
+        "action": "read_content",
+        "user_allowed": true,
+        "agent_allowed": true,
+        "fine_scope_allowed": true,
+        "explicit_deny": false,
+        "policy_generation": 2,
+        "current_generation": 1
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_CAPABILITY_AS_DOCUMENT",
+      "schema": "AssetEnvelope",
+      "data": {
+        "tenant_id": "syn_org",
+        "asset_id": "syn_tool",
+        "kind": "data_capability",
+        "payload": {}
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_HYDRATE_CROSS_TENANT",
+      "schema": "HydrateRequest",
+      "data": {
+        "tenant_id": "syn_org",
+        "subject_id": "syn_user",
+        "targets": [
+          {
+            "tenant_id": "syn_other",
+            "target_type": "kb",
+            "target_id": "syn_kb"
+          }
+        ]
+      },
+      "valid": false
+    },
+    {
+      "id": "P_NEG_UNKNOWN_FAVORITE_TYPE",
+      "schema": "FavoriteHydrated",
+      "data": {
+        "target_type": "folder",
+        "target_id": "syn_folder",
+        "state": "unavailable"
+      },
+      "valid": false
+    }
+  ]
+}
