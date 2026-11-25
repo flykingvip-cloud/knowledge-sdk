@@ -29,7 +29,7 @@ def run(output,required=False):
                 compose=['compose','--env-file',str(state/'sandbox.env'),'-p',project,'-f',str(SCRIPTS/('compose.'+mode+'.yaml'))]
                 try:
                     cmd(compose+['config','--quiet'],env=env)
-                    cmd(compose+['up','--detach','--wait','--wait-timeout','120'],env=env,timeout=180)
+                    cmd(compose+['up','--detach'],env=env,timeout=180)
                     assert wait('http://127.0.0.1:'+str(port),attempts=150),'Actual fixture readiness failed'
                     wire=cmd(compose+['exec','-T','sandbox','python','/opt/sandbox/probe_openbot_sandbox.py','--url','http://127.0.0.1:8088'],env=env);result=json.loads(wire.stdout)
                     assert result['status']=='REAL_SIGNED_SANDBOX_WIRE_PASSED'
