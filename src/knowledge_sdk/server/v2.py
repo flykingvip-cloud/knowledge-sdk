@@ -130,6 +130,9 @@ def mount_v2(app,client,secret,fallback_secrets,replay_store,issuer):
                     result=space(check_space(request.path_params['kb_id']));schema='KnowledgeBase'
                 elif path=='/v2/assets':
                     validate('AssetIngestRequest',payload)
+                    # This frozen request always creates a NEW document. A task
+                    # bound to existing document IDs cannot authorize its creation.
+                    if task_scope is not None and task_scope.mode in ('none','documents'):raise PermissionDeniedError()
                     if request.url.query:raise ValidationError()
                     check_space(payload['kb_id'],write_access=True)
                     key=request.headers.get('idempotency-key')
@@ -141,6 +144,7 @@ def mount_v2(app,client,secret,fallback_secrets,replay_store,issuer):
                         v=client.ingest(actor,payload['kb_id'],payload['content'],payload['filename'],metadata={'asset_type':payload['asset_type']},**ctx)
                         return validate('DocumentWriteResponse',write(actor,v,ctx=ctx))
                     result=(PersistentIdempotencyStore(client.store,actor.org_id).execute(method,path,key,dict(actor=actor.user_id,agent=context.get('agent',{}).get('agent_id'),purpose=context['purpose'],payload=payload),authorize=authorize,mutate=mutate) if key is not None else mutate())
+                    check_doc(result['doc_id'])
                     # Exact replay still passes fresh document-specific Deny/redaction.
                     if result['lifecycle_state']=='draft':
                         fresh=draft_receipt_authority(actor,result['doc_id'],result['created_version'],ctx)

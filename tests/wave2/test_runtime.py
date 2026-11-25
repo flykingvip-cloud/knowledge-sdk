@@ -184,6 +184,24 @@ class RuntimeCases:
         self.assertEqual(current['name'],'renamed');self.assertEqual(current['description'],'persisted description');self.assertEqual(current['metadata'],payload['metadata'])
         self.assertNotIn('_v2_space',self.client.get_kb(self.owner,'created').__dict__)
 
+    def test_current_task_document_scope_cannot_create_unbound_asset(self):
+        from knowledge_sdk.contracts.models import KnowledgeScope
+        from knowledge_sdk.contracts.policy import Purpose
+        original=self.ingest('task-source')
+        task=self.client.create_task_context(self.owner,'bound-agent',purpose=Purpose.READ,scope=KnowledgeScope('documents',doc_ids=(original['doc_id'],)))
+        ctx=context();ctx['agent']['task_id']=task.task_id
+        self.wire('GET','/v2/assets/'+original['doc_id'],ctx=ctx)
+        before=len(self.store.list_documents('enterprise-a'))
+        self.wire('POST','/v2/assets',dict(kb_id='primary',content='scope must not expand',filename='new.txt',asset_type='document',idempotency_key='scope-denial'),ctx=ctx,headers={'Idempotency-Key':'scope-denial'},expected=403)
+        self.assertEqual(len(self.store.list_documents('enterprise-a')),before)
+        with self.store.tenant_scope('enterprise-a') if self.pg else self.store.transaction():
+            rows=self.store._execute("SELECT count(*) FROM idempotency_records WHERE idempotency_key='scope-denial'")
+        self.assertEqual(rows[0][0],0)
+        allowed=self.client.create_task_context(self.owner,'bound-agent',purpose=Purpose.READ,scope=KnowledgeScope('spaces',kb_ids=('primary',)))
+        ctx['agent']['task_id']=allowed.task_id
+        created=self.ingest('task-space',ctx=ctx)
+        self.wire('GET','/v2/assets/'+created['doc_id'],ctx=ctx)
+
     def test_full_logs_zero_content_pii_secrets_on_validation_and_deny(self):
         stream=io.StringIO();handler=logging.StreamHandler(stream);logger=logging.getLogger();old=logger.level;logger.setLevel(logging.INFO);logger.addHandler(handler)
         try:
