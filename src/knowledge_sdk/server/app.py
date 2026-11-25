@@ -11,7 +11,10 @@ from ..exceptions import KnowledgeSDKError, PermissionDeniedError, NotFoundError
 from ..client.http_client import OPERATIONS
 from .auth import verify_headers, InMemoryReplayStore, extension_claims, _validate_secrets, _decode_object
 
-def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=None,*,enable_ui=True,enable_demo_switcher=False,replay_store=None,fallback_secrets=(),ui_prefix="/ui",enable_mcp=False,default_mcp_purpose=Purpose.GROUND_INTERNAL_LLM,dsn=None,pg_rls=True,pgvector_dims=None,auth_mode="hmac",oidc_authenticator=None,scim_tokens=None,connectors=None,session_cookie_secure=True):
+def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=None,*,enable_ui=True,enable_demo_switcher=False,replay_store=None,fallback_secrets=(),ui_prefix="/ui",enable_mcp=False,default_mcp_purpose=Purpose.GROUND_INTERNAL_LLM,dsn=None,pg_rls=True,pgvector_dims=None,auth_mode="hmac",oidc_authenticator=None,scim_tokens=None,connectors=None,session_cookie_secure=True,enable_v2=False,v2_issuer=None):
+    if type(enable_v2) is not bool:raise ValidationError('Invalid v2 enable flag')
+    if enable_v2 and (not isinstance(v2_issuer,str) or not v2_issuer.strip()):raise ValidationError('Explicit trusted v2 issuer required')
+    if enable_v2 and (dev_insecure or auth_mode!='hmac'):raise ValidationError('V2 requires the signed trusted gateway channel')
     if auth_mode not in ('hmac','oidc','dual'):raise ValidationError('Invalid auth_mode')
     if auth_mode in ('oidc','dual') and (dev_insecure or enable_demo_switcher):raise ValidationError('OIDC forbids insecure/demo identity')
     if auth_mode in ('oidc','dual') and oidc_authenticator is None:raise ValidationError('OIDC authenticator required')
@@ -35,6 +38,14 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
                 replay_store=PostgresReplayStore(dsn,enable_rls=pg_rls);owned_replay=True
         except BaseException:client.store.close();raise
     if client is None:raise ValidationError('Client or DSN required')
+    if enable_v2:
+        try:
+            from ..storage.migration_v6 import require_v6
+            require_v6(client.store)
+        except BaseException:
+            if owned_replay:replay_store.close()
+            if owned_client:client.store.close()
+            raise
     replay_store = replay_store if replay_store is not None else (oidc_authenticator.replay_store if auth_mode in ('oidc','dual') else InMemoryReplayStore())
     if auth_mode in ('oidc','dual'):oidc_authenticator.replay_store=replay_store
     from contextlib import asynccontextmanager
@@ -80,6 +91,10 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
             return JSONResponse(status_code=404, content={"message": "Not found"})
         if enable_ui and public_ui_path(path, ui_prefix):
             # Only static/config/demo routes live here. All business APIs remain signed.
+            return await call_next(request)
+        if path.startswith('/v2/') and enable_v2:
+            # v2 performs its own signed numeric IdentityContext verification;
+            # never feed it into the legacy string Actor parser or OIDC fallback.
             return await call_next(request)
         if path in ("/v1/health","/v1/ready"): return await call_next(request)
         if path in ("/docs","/openapi.json","/redoc"):
@@ -188,6 +203,9 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
                 return JSONResponse(status_code=403,content={'message':'Origin denied'},headers={'Cache-Control':'no-store'})
             result=protocol.handle(await request.body(),request.state.mcp_context)
             return Response(status_code=204,headers={'Cache-Control':'no-store'}) if result is None else JSONResponse(content=result,headers={'Cache-Control':'no-store'})
+    if enable_v2:
+        from .v2 import mount_v2
+        mount_v2(app,client,auth_secret,fallback_secrets,replay_store,v2_issuer)
     from .operations import mount_operations
     mount_operations(app,client)
     @app.get("/v1/health")

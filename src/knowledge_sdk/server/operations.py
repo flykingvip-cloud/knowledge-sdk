@@ -53,7 +53,11 @@ def mount_operations(app, client):
             with client._lock, client.store.transaction():
                 if client.store._execute('SELECT 1') != [(1,)]: raise ValueError()
                 query = 'SELECT COALESCE(MAX(version),0) FROM schema_migrations' if hasattr(client.store, '_pg') else 'PRAGMA user_version'
-                if client.store._execute(query) != [(5,)]: raise ValueError()
+                version=client.store._execute(query)
+                if version not in ([(5,)],[(6,)]): raise ValueError()
+                if version==[(6,)]:
+                    from ..storage.migration_v6 import validate_v6
+                    validate_v6(client.store)
         except Exception:
             return JSONResponse({'status': 'not_ready'}, status_code=503, headers={'Cache-Control': 'no-store'})
         return JSONResponse({'status': 'ready'}, headers={'Cache-Control': 'no-store'})

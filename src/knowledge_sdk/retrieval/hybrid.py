@@ -27,7 +27,7 @@ def scope_constraints(filters,scope=None,additional_scope=None):
     return {key:None if value is None else sorted(value) for key,value in result.items()}
 
 
-def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=None,embedder=None,policy=None,keyword_weight=0.5,scope=None,additional_scope=None,*,policy_engine=None,redaction_registry=None,agent=None,purpose=Purpose.READ,policy_context=None,reranker=None,calibrator=None,min_calibrated_score=None,rerank_top_k=None):
+def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=None,embedder=None,policy=None,keyword_weight=0.5,scope=None,additional_scope=None,*,policy_engine=None,redaction_registry=None,agent=None,purpose=Purpose.READ,policy_context=None,reranker=None,calibrator=None,min_calibrated_score=None,rerank_top_k=None,trace=None):
     from .calibration import validate_threshold
     from .rerank import RerankCandidate, apply_reranker
     from dataclasses import replace
@@ -55,6 +55,7 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
     batches=tuple(dict.fromkeys((min(max(limit*4,40),500),min(max(limit*12,120),500),500)))
     for batch in batches:
         candidates={};more=False
+        if trace is not None:trace.clear()
         def add(key,score):
             if (isinstance(key[0],str) and type(key[1]) is int and key[1]>=1 and isinstance(key[2],str)):
                 candidates[key]=candidates.get(key,0)+score
@@ -68,7 +69,10 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
             else:rows=store.keyword_search(query,actor.org_id,batch+1)
             more=more or len(rows)>batch
             for rank,row in enumerate(rows[:batch],1):
-                try:add((row[0],int(row[1]),row[2]),(1 if mode=='keyword' else keyword_weight)/(60+rank))
+                try:
+                    key=(row[0],int(row[1]),row[2])
+                    add(key,(1 if mode=='keyword' else keyword_weight)/(60+rank))
+                    if trace is not None:trace.setdefault(key,{})['keyword_rank']=rank
                 except (ValueError,TypeError,IndexError):continue
         if mode!='keyword':
             rows=vector_index.search_for_org(actor.org_id,vector,batch+1) if hasattr(vector_index,'search_for_org') else vector_index.search(vector,batch+1)
@@ -76,6 +80,7 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
             for rank,hit in enumerate(rows[:batch],1):
                 try:
                     add((hit.doc_id,hit.version,hit.chunk_id),(1 if mode=='vector' else 1-keyword_weight)/(60+rank))
+                    if trace is not None:trace.setdefault((hit.doc_id,hit.version,hit.chunk_id),{})['vector_rank']=rank
                     if mode=='vector' and calibrator is not None and reranker is None:vector_scores[(hit.doc_id,hit.version,hit.chunk_id)]=hit.score
                 except AttributeError:continue
         for key,score in candidates.items():
