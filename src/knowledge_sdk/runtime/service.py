@@ -40,13 +40,19 @@ def operation(fn):
 
 
 class RuntimeMixin:
+    def _runtime_principal(self,actor):
+        self._check_principal(actor)
+        principal=self.store.get_principal(actor.org_id,actor.user_id)
+        if principal is not None and (not principal.active or str(principal.policy_generation)!=actor.policy_generation):
+            raise PermissionDeniedError('principal_session_stale')
+
     @staticmethod
     def _runtime_admin(actor):
         if not set(actor.org_roles)&{'admin','manage_org'}:raise PermissionDeniedError('profile_admin_required')
 
     @operation
     def register_agent_profile(self,actor,agent_id,display_name='',allowed_purposes=(Purpose.READ,Purpose.GROUND_INTERNAL_LLM),allowed_kb_ids=(),allowed_space_types=(),max_clearance_level='internal',default_budget=None):
-        self._check_principal(actor);self._runtime_admin(actor)
+        self._runtime_principal(actor);self._runtime_admin(actor)
         try:self.store.get_agent_profile(actor.org_id,agent_id)
         except NotFoundError:pass
         else:raise ConflictError('Profile already registered')
@@ -56,7 +62,7 @@ class RuntimeMixin:
 
     @operation
     def update_agent_profile(self,actor,agent_id,*,display_name=None,allowed_purposes=None,allowed_kb_ids=None,allowed_space_types=None,max_clearance_level=None,default_budget=None,active=None):
-        self._check_principal(actor);self._runtime_admin(actor)
+        self._runtime_principal(actor);self._runtime_admin(actor)
         old=self.store.get_agent_profile(actor.org_id,agent_id)
         values=locals();changes={n:values[n] for n in ('display_name','allowed_purposes','allowed_kb_ids','allowed_space_types','max_clearance_level','default_budget','active') if values[n] is not None}
         profile=replace(old,**changes,profile_generation=old.profile_generation+1,updated_at=now())
@@ -71,15 +77,15 @@ class RuntimeMixin:
 
     @operation
     def get_agent_profile(self,actor,agent_id):
-        self._check_principal(actor);return self.store.get_agent_profile(actor.org_id,agent_id)
+        self._runtime_principal(actor);return self.store.get_agent_profile(actor.org_id,agent_id)
 
     @operation
     def list_agent_profiles(self,actor):
-        self._check_principal(actor);return self.store.list_agent_profiles(actor.org_id)
+        self._runtime_principal(actor);return self.store.list_agent_profiles(actor.org_id)
 
     @operation
     def create_task_context(self,actor,agent_id,*,purpose=Purpose.GROUND_INTERNAL_LLM,budget=None,ttl_seconds=900,scope=None):
-        self._check_principal(actor)
+        self._runtime_principal(actor)
         profile=self.store.get_agent_profile(actor.org_id,agent_id);purpose=enum_value(Purpose,purpose)
         if not profile.active or purpose not in profile.allowed_purposes:raise PermissionDeniedError('agent_profile_denied')
         if type(ttl_seconds) is not int or ttl_seconds<0:raise ValidationError('Invalid ttl_seconds')
@@ -110,7 +116,7 @@ class RuntimeMixin:
             self.store.update_task_context_status(actor.org_id,task_id,'expired',stamp=now())
             raise PermissionDeniedError('mid_task_revocation:expired')
         reason=''
-        try:self._check_principal(actor)
+        try:self._runtime_principal(actor)
         except PermissionDeniedError:reason='principal_stale'
         principal=self.store.get_principal(actor.org_id,actor.user_id)
         if principal is not None and (not principal.active or principal.policy_generation!=task.policy_generation):reason='principal_stale'
@@ -199,7 +205,7 @@ class RuntimeMixin:
 
     @operation
     def list_task_revocations(self,actor,task_id):
-        self._check_principal(actor);self._runtime_owned(actor,task_id)
+        self._runtime_principal(actor);self._runtime_owned(actor,task_id)
         return self.store.list_task_revocations(actor.org_id,task_id)
 
     def _runtime_revoke(self,task,reason,event_id='',doc_id='',version=0,anchor_id=''):

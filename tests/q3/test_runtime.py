@@ -94,6 +94,12 @@ class RuntimeCases:
         self.s.bump_policy_generation('org','reader')
         with self.assertRaisesRegex(PermissionDeniedError,'mid_task_revocation'):self.c.read_task_snapshot(self.u,t.task_id,s.snapshot_id)
         self.assertTrue(self.s.list_task_revocations('org',t.task_id));self.assertTrue(any(e.task_id==t.task_id and e.decision_effect.value=='deny' for e in self.s.list_audit_events('org',actor_id='reader')))
+    def test_future_directory_generation_is_not_a_task_or_admin_grant(self):
+        self.s.upsert_principal(IdentityPrincipal('org','reader'))
+        future=replace(self.u,policy_generation='999',org_roles=('admin',))
+        with self.assertRaises(PermissionDeniedError):self.c.create_task_context(future,'agent')
+        with self.assertRaises(PermissionDeniedError):self.c.update_agent_profile(future,'agent',active=False)
+        self.assertTrue(self.c.get_agent_profile(self.a,'agent').active)
     def test_direct_acl_change_real_time_create_denies(self):
         t=self.task();self.snapshot(t);self.s.set_acl('doc',DocumentACL(deny_users=['reader']))
         with self.assertRaisesRegex(PermissionDeniedError,'mid_task_revocation'):self.snapshot(t)
