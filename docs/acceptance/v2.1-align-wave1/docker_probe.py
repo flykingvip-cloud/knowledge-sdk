@@ -1,6 +1,6 @@
 """Owned, bounded CI image build/run only. Never publishes or alters existing containers."""
 from __future__ import annotations
-import argparse,json,subprocess,tempfile,secrets,shutil,uuid,time,threading
+import argparse,json,subprocess,tempfile,secrets,shutil,uuid,time,threading,os
 from pathlib import Path
 from urllib.request import urlopen,Request
 from urllib.error import URLError,HTTPError
@@ -35,11 +35,14 @@ def run(output,required=False):
         assert '@sha256:' in base
         build=command(['build','--build-arg','PYTHON_IMAGE='+base,'--tag',tag,'.'],cwd=root,timeout=480);built=True
         (output/'docker-build.log').write_text(build.stdout+build.stderr)
+        assert command(['image','inspect',tag,'--format','{{.Config.User}}']).stdout.strip()=='65532:65532'
+        probe_user=str(os.getuid())+':'+str(os.getgid());assert os.getuid()!=0
         with tempfile.TemporaryDirectory(prefix='sdk-align-container-test-') as directory:
-            secret=secrets.token_hex(32);file=Path(directory)/'hmac';file.write_text(secret);file.chmod(0o644)
-            # The temporary parent must be traversable by the non-root container UID.
-            Path(directory).chmod(0o755)
-            command(['run','--detach','--name',name,'--label','knowledge-sdk-owned-fixture='+identity,'--read-only','--cap-drop=ALL','--security-opt','no-new-privileges','--memory','512m','--cpus','2','--pids-limit','128','--tmpfs','/data:uid=65532,gid=65532,mode=0700','--tmpfs','/tmp:uid=65532,gid=65532,mode=0700','--mount','type=bind,src='+str(file)+',dst=/run/secrets/knowledge_auth_secret,readonly','--publish','127.0.0.1::8088',tag]);created=True
+            secret=secrets.token_hex(32);file=Path(directory)/'hmac';file.write_text(secret);file.chmod(0o600)
+            # Retain the image's default-UID assertion above, but run the probe
+            # as the nonzero host UID so a minimal-permission mounted key works.
+            Path(directory).chmod(0o700)
+            command(['run','--detach','--user',probe_user,'--name',name,'--label','knowledge-sdk-owned-fixture='+identity,'--read-only','--cap-drop=ALL','--security-opt','no-new-privileges','--memory','512m','--cpus','2','--pids-limit','128','--tmpfs','/data:uid='+str(os.getuid())+',gid='+str(os.getgid())+',mode=0700','--tmpfs','/tmp:uid='+str(os.getuid())+',gid='+str(os.getgid())+',mode=0700','--mount','type=bind,src='+str(file)+',dst=/run/secrets/knowledge_auth_secret,readonly','--publish','127.0.0.1::8088',tag]);created=True
             port=int(command(['port',name,'8088/tcp']).stdout.strip().rsplit(':',1)[1]);assert port not in (3000,3001,8000,8002,8090,8091)
             base_url='http://127.0.0.1:'+str(port)
             assert wait_ready(base_url),'Container did not reach real schema-v5 readiness'
@@ -53,8 +56,8 @@ def run(output,required=False):
             headers=signed_headers(a,secret,'GET','/v1/metrics',b'')
             with urlopen(Request(base_url+'/v1/metrics',headers=headers),timeout=5) as response:assert len(json.load(response)['counters'])==5 and response.headers['Cache-Control']=='no-store'
             logs=command(['logs',name]);assert secret not in logs.stdout+logs.stderr
-            config=command(['inspect',name,'--format','{{.Config.User}} {{.HostConfig.ReadonlyRootfs}}']).stdout.strip();assert config=='65532:65532 true'
-        result={'status':'ACTUAL_ISOLATED_BUILD_RUN_PASSED','base_image_digest':base,'nonroot_uid_gid':'65532:65532','read_only_rootfs':True,'capabilities_dropped':True,'memory_limit_mb':512,'cpus':2,'pids_limit':128,'health_ready':True,'signed_v1_compat':True,'mcp_four_tools':True,'authenticated_metrics_no_store':True,'published':False,'production_deployment':False}
+            config=command(['inspect',name,'--format','{{.Config.User}} {{.HostConfig.ReadonlyRootfs}}']).stdout.strip();assert config==probe_user+' true' and file.stat().st_mode&0o777==0o600
+        result={'status':'ACTUAL_ISOLATED_BUILD_RUN_PASSED','base_image_digest':base,'nonroot_uid_gid':probe_user,'image_default_uid_gid':'65532:65532','key_permissions':'0600','read_only_rootfs':True,'capabilities_dropped':True,'memory_limit_mb':512,'cpus':2,'pids_limit':128,'health_ready':True,'signed_v1_compat':True,'mcp_four_tools':True,'authenticated_metrics_no_store':True,'published':False,'production_deployment':False}
         (output/'docker-status.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result));return result
     finally:
         try:
