@@ -44,3 +44,4 @@ from .contracts.runtime import ContextBudget, AgentProfile, TaskContext, Snapsho
 
 from .retrieval.rerank import RerankCandidate, Reranker, DeterministicLexicalReranker, apply_reranker
 from .retrieval.calibration import CalibrationChannelConfig, ScoreCalibrationConfig, ScoreCalibrator
+from .retrieval.eval import RetrievalEvalCase, PairwiseEvalConfig, PairwiseEvalReport, PairwiseRetrievalEvaluator

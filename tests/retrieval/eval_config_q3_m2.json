@@ -1,0 +1,7 @@
+{
+  "reranker_id": "lexical-v1",
+  "calibrator_id": "default-v1",
+  "min_calibrated_score": 0.6,
+  "rerank_top_k": 100,
+  "split": "evaluation"
+}

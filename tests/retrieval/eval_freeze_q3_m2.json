@@ -1,0 +1,14 @@
+{
+  "status": "FROZEN_BEFORE_FIRST_MEASURED_PAIRWISE_RUN",
+  "families": {
+    "train": 4,
+    "calibration": 4,
+    "evaluation": 24
+  },
+  "fitting": "No labels used to fit rank/calibration. Default algorithm/config fixed before measured runs; labels used only after search to compute metrics. No per-case thresholds.",
+  "files": {
+    "eval_dataset_q3_m2.jsonl": "467d2ce67589339bbba9620b9ba54c2b7642d57eb100a7fabc67b65c9eb0f48d",
+    "eval_corpus_q3_m2.jsonl": "58e8d1832be5402e9d71c2433fb4117002e54c2e6b865ed2663cf180c40eb990",
+    "eval_config_q3_m2.json": "176abeceb483176e4024972d9deb4d155604193a6b7e54e7619aab63a3c1d19b"
+  }
+}
