@@ -55,6 +55,7 @@ class ControlledFilesystemConnector(BaseConnector):
             if current[relative]==previous.get(relative):continue
             if side.get('deleted') or side.get('revoked'):
                 if relative in previous:tombstones.append(TombstoneRecord(relative,doc_id,self.missing_action))
+                else:current.pop(relative,None)  # Never track an unsynchronized deleted source.
                 continue
             upserts.append(ConnectorDocument(relative,doc_id,kb_id,raw,filename=relative,title=relative,acl=side.get('acl'),rights=side.get('rights'),source_sha256=sha,governance_tier=side.get('governance_tier','l1_agile')))
         for relative,state in sorted(previous.items()):
