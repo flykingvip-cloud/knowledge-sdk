@@ -1,6 +1,9 @@
 import ast,copy,json,tempfile,unittest
 from pathlib import Path
-from dry_run import analyze,run_file,parse,Invalid
+if __package__:
+    from .dry_run import analyze,run_file,parse,Invalid
+else:
+    from dry_run import analyze,run_file,parse,Invalid
 SAMPLE=Path(__file__).with_name('synthetic-pre03.json')
 class ReadOnlyDryRun(unittest.TestCase):
     def setUp(self):self.data=json.loads(SAMPLE.read_text())

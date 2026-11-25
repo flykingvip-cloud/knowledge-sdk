@@ -24,16 +24,18 @@ def run(output,pg_bin='/usr/lib/postgresql/17/bin'):
                 c.execute(sql.SQL("COMMENT ON DATABASE {} IS 'SDK25_OWNED_EPHEMERAL_CONTROL_V1'").format(sql.Identifier(name)))
             env=dict(os.environ,SDK25_PROVISION_DSN=admin.replace('dbname=postgres','dbname='+name),SDK25_REQUIRE_PG='1')
             with (output/'prototype-tests.log').open('w')as log:
-                result=subprocess.run([sys.executable,'-W','error::ResourceWarning','-m','unittest','discover','-s','sandbox/space_alignment_v1','-v'],cwd=repo,env=env,stdout=log,stderr=subprocess.STDOUT,timeout=180)
+                result=subprocess.run([sys.executable,'-W','error::ResourceWarning','-m','unittest','discover','-s','sandbox/space_alignment_v1','-p','*_cases.py','-v'],cwd=repo,env=env,stdout=log,stderr=subprocess.STDOUT,timeout=180)
+            with (output/'prototype-pytest.log').open('w')as log:
+                pytest_result=subprocess.run([sys.executable,'-W','error::ResourceWarning','-m','pytest','sandbox/space_alignment_v1/prototype_cases.py','sandbox/space_alignment_v1/dry_run_cases.py','-q'],cwd=repo,env=env,stdout=log,stderr=subprocess.STDOUT,timeout=180)
             with psycopg.connect(admin,autocommit=True)as c:
                 remaining_db=c.execute("SELECT count(*) FROM pg_database WHERE datname LIKE 'sdk25_proto_%'").fetchone()[0]
                 remaining_roles=c.execute("SELECT count(*) FROM pg_roles WHERE rolname LIKE 'sdk25_role_%'").fetchone()[0]
             assert remaining_db==remaining_roles==0
-            receipt=dict(status='P_SPACE_PROTOTYPE_ONLY',formal_acceptance=False,exit_code=result.returncode,owned_generated_cluster=True,loopback_port=port,remaining_generated_databases=remaining_db,remaining_generated_roles=remaining_roles,finished_at_cst=datetime.datetime.now().astimezone().isoformat())
+            receipt=dict(status='P_SPACE_PROTOTYPE_ONLY',formal_acceptance=False,exit_code=result.returncode or pytest_result.returncode,unittest_exit_code=result.returncode,pytest_exit_code=pytest_result.returncode,owned_generated_cluster=True,loopback_port=port,remaining_generated_databases=remaining_db,remaining_generated_roles=remaining_roles,finished_at_cst=datetime.datetime.now().astimezone().isoformat())
         finally:
             if started or(data/'postmaster.pid').exists():cmd([str(binaries/'pg_ctl'),'-D',str(data),'-m','fast','-w','stop'])
             if(root/'server.log').exists():(output/'owned-server.log').write_bytes((root/'server.log').read_bytes())
         receipt['owned_cluster_stopped']=True;(output/'owned-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
-        return result.returncode
+        return result.returncode or pytest_result.returncode
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--output',required=True);p.add_argument('--pg-bin',default='/usr/lib/postgresql/17/bin');a=p.parse_args();raise SystemExit(run(a.output,a.pg_bin))

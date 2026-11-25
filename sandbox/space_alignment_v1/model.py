@@ -9,7 +9,8 @@ class Prototype:
     def __init__(self,owned=None):
         self.pg=owned is not None;self._depth=0;self._org=None
         if self.pg:
-            from owned_pg import OwnedPostgres
+            if __package__:from .owned_pg import OwnedPostgres
+            else:from owned_pg import OwnedPostgres
             if not isinstance(owned,OwnedPostgres):raise ValueError('OWNED_CAPABILITY_REQUIRED')
             self.db=owned.connect()
         else:self.db=sqlite3.connect(':memory:',isolation_level=None);self.db.execute('PRAGMA foreign_keys=ON')

@@ -1,7 +1,11 @@
 """P_SPACE identifiers only. These are NOT formal T-01–27 acceptance tests."""
 import os,json,unittest
-from model import Prototype,ACTIONS,TABLES
-from owned_pg import OwnedPostgres
+if __package__:
+    from .model import Prototype,ACTIONS,TABLES
+    from .owned_pg import OwnedPostgres
+else:
+    from model import Prototype,ACTIONS,TABLES
+    from owned_pg import OwnedPostgres
 DSN=os.environ.get('SDK25_PROVISION_DSN')
 if os.environ.get('SDK25_REQUIRE_PG')=='1'and not DSN:raise RuntimeError('OWNED_PG_REQUIRED_NO_SKIP')
 class Cases:
