@@ -26,6 +26,9 @@ class StrictContracts(unittest.TestCase):
         source=['kb'];p=AgentProfile('o','a',allowed_kb_ids=source);source.append('evil');self.assertEqual(p.allowed_kb_ids,('kb',))
         with self.assertRaises(FrozenInstanceError):p.default_budget.max_items=999
         self.assertEqual(AgentProfile.from_dict(p.to_dict()),p);self.assertEqual(decode(encode(p)),p)
+        with self.assertRaises(ValidationError):AgentProfile('o','a',updated_at=False)
+        with self.assertRaises(ValidationError):SnapshotItem('d',1,'text','kb://org/o/doc/d@1',excerpt_hash=False)
+        with self.assertRaises(ValidationError):ContextSnapshot('s','t','o',1,(),'2026-11-25T10:00:00+08:00',snapshot_sha256=False)
     def test_empty_scope_distinct_from_none(self):
         self.assertNotEqual(KnowledgeScope(),KnowledgeScope('none'))
         with self.assertRaises(ValidationError):KnowledgeScope('none',kb_ids=['kb'])

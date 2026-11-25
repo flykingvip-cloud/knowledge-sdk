@@ -66,6 +66,7 @@ class AgentProfile(RuntimeContract):
         if not isinstance(self.default_budget,ContextBudget):raise ValidationError('Invalid default budget')
         if type(self.active) is not bool:raise ValidationError('Invalid active')
         integer(self.profile_generation,'profile_generation',1)
+        text(self.updated_at,'updated_at')
         if self.updated_at:parse_time(self.updated_at)
 
 
@@ -115,6 +116,7 @@ class SnapshotItem(RuntimeContract):
         text(self.text,'text');text(self.anchor_id,'anchor_id')
         integer(self.version,'version',1)
         object.__setattr__(self,'chunk_ids',sequence(self.chunk_ids,'chunk_ids'))
+        text(self.excerpt_hash,'excerpt_hash')
         expected=hashlib.sha256(self.text.encode()).hexdigest()
         if self.excerpt_hash and self.excerpt_hash!=expected:raise ValidationError('Invalid excerpt hash')
         object.__setattr__(self,'excerpt_hash',expected)
@@ -142,6 +144,7 @@ class ContextSnapshot(RuntimeContract):
         if self.status not in ('valid','revoked'):raise ValidationError('Invalid snapshot status')
         integer(self.item_count,'item_count');integer(self.total_chars,'total_chars')
         if self.item_count!=len(values) or self.total_chars!=sum(len(v.text) for v in values):raise ValidationError('Invalid snapshot counts')
+        text(self.snapshot_sha256,'snapshot_sha256')
         if self.snapshot_sha256 and not re.fullmatch('[0-9a-f]{64}',self.snapshot_sha256):raise ValidationError('Invalid snapshot hash')
     def digest(self):
         data=self.to_dict();data.pop('snapshot_sha256');data.pop('status')
