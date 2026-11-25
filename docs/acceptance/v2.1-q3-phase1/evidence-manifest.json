@@ -1,0 +1,57 @@
+{
+  "implementation_sha": "8acce646760da46f7c1797b83ea3b4fbd56a0d6e",
+  "generated_date_shanghai": "2026-11-25",
+  "goldens": {
+    "sqlite": {
+      "default": 115,
+      "legacy75": 75,
+      "legacy100": 100
+    },
+    "postgres": {
+      "default": 115,
+      "legacy75": 75,
+      "legacy100": 100
+    }
+  },
+  "stdlib": {
+    "run": 849,
+    "passed": 588,
+    "skipped": 261,
+    "resource_warnings": 0
+  },
+  "unittest": {
+    "run": 849,
+    "passed": 846,
+    "skipped": 3
+  },
+  "pytest": {
+    "passed": 846,
+    "skipped": 3,
+    "subtests_passed": 220,
+    "upstream_deprecation_warnings": 1
+  },
+  "files": {
+    "verify_package.py": "04ae10dd3bf5ab256689ec21279b4ba08331365acb2fd937df2b89adf910e871",
+    "live_runtime_probe.py": "c9b07bfb571c6f411a667338af162bdc0dd7149bde2b1dfa8aad67d46367eeac",
+    "l1-stdlib-only.log": "080f1713c2940cd5d3111acc4ee556e8cdc63f7fd0c4739bd331df678a8420d6",
+    "ci-four-job-matrix.json": "1ed69eb5d22f9ec78aec0b479d0b83fe3ae27b5bc96ce9edf9caa7ff5edd0003",
+    "benchmark-115-postgres.json": "9db172863ac22d5a4f94bb9fbc9497dd235b3185b996a4fdbb0393e0ca29219e",
+    "ci-q2-convergence-candidate.json": "db4bf3ae939c9e7259d1e7bcfe97c3a6eb67e3ba82274f485c0797b70906663a",
+    "dr-v5-fingerprints.json": "5a40b1573885c9f1fd09910c36377c66f78f1ee2df25884048f642c13ed7f773",
+    "l4-browser.md": "5120b09d81fbc7f73515cc22e477f1192d563b9767288ac85fee87431e9427f3",
+    "l3-runtime-http-results.json": "d6a16b4c82409fc1e7e66899035debb5b1151a436d9b0b6f26ad7fb59c513268",
+    "main-policy-observation.json": "cd884a5ebceba33b6984672103e8ace866e39ab24f3bf90babaa63eb1a79673a",
+    "legacy100-postgres.json": "860b1b81fdcc78b5c12bbe324d662c1a9c879a74e52ce076de34320e8492e94c",
+    "task0-convergence.md": "283d5a02c0d908bdd3a93a07fbcab21db926d241b92a3eac7966c44eb4f761c3",
+    "l2-full-and-build.log": "f91aa2e388d17161ac76d9760504730dd87be1209a52db46038ddefc8b3a322c",
+    "l3-runtime-postgres-http.md": "a388dd82642e133f1d01414446576dbd79fba2e3c13126d75d93a7f39d19affd",
+    "Q3_PHASE1_HANDOFF_REPORT.md": "f7746ee67c5d47b4599957553721e372349adabc578f984295b28e2f0e8e7657",
+    "cleanup.json": "610d7a4febdd0f907428f3a3c2e9f2edd58cf0e37489acee4b9f5dcc8da669b6",
+    "legacy75-sqlite.json": "1bb1d69498522bf12c5ce8fbb9def1ea2f2da679740272fd63bc8d0c464370ae",
+    "package-sha256.json": "037abcb0c7b2185da1001a64018c4c3cd1d414f8c91310174573053817c83f3b",
+    "postgres-v0-v4-migration.json": "c6ec4f144d00c2c7ad5573d8a91c059a904c939ee87c8b2cecb85e98bf2d864b",
+    "legacy75-postgres.json": "4ad9553b08c77b77cdee70c409e958b605ebeecfa998aab94be178ce6d5c79cb",
+    "benchmark-115-sqlite.json": "f1b3fe9e0d8189992e9ee79b7dc184a06d78fba3b60b09e698df4877760eab5a",
+    "legacy100-sqlite.json": "e12885eb867851918a8eba60e71feacfecfeb6e786a16a230a5ea5f9edb1d253"
+  }
+}

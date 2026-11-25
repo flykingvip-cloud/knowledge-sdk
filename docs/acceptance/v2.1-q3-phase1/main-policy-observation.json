@@ -1,0 +1,17 @@
+{
+  "observed_at_shanghai": "2026-11-25T10:36:00.490537+08:00",
+  "main_sha": "0ed15b93e2a6eed893369ca81524909c328c8b5c",
+  "protected": false,
+  "protection": {
+    "enabled": false,
+    "required_status_checks": {
+      "enforcement_level": "off",
+      "contexts": [],
+      "checks": []
+    }
+  },
+  "rulesets": [],
+  "remote_tags_observed": [],
+  "convergence": "PENDING_EXPLICIT_CONFIRMATION",
+  "changed_main_or_tags": false
+}
