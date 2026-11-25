@@ -105,6 +105,7 @@ class SCIMService:
                 ops=data.get('Operations')
                 if not isinstance(ops,list) or not ops:raise ValidationError('Invalid SCIM patch')
                 for op in ops:
+                    if not isinstance(op,dict):raise ValidationError('Invalid SCIM operation')
                     kind=str(op.get('op','')).lower();path=op.get('path');v=op.get('value')
                     if kind not in ('add','replace','remove'):raise ValidationError('Invalid SCIM operation')
                     match=re.fullmatch(r'members\[value eq "([^"\x00-\x1f]+)"\]',path or '')
@@ -146,6 +147,11 @@ def mount_scim(app,client):
     globals()['Request']=Request
     from fastapi.responses import JSONResponse,Response
     service=SCIMService(client)
+    async def body(request):
+        try:value=await request.json()
+        except (ValueError,UnicodeError):raise ValidationError('Invalid SCIM JSON') from None
+        if not isinstance(value,dict):raise ValidationError('Expected SCIM object')
+        return value
     def listing(values,request):
         filter_value=request.query_params.get('filter')
         if filter_value is not None:
@@ -158,22 +164,22 @@ def mount_scim(app,client):
         return {'schemas':[LIST_SCHEMA],'totalResults':len(values),'startIndex':start,'itemsPerPage':len(values[start-1:start-1+count]),'Resources':values[start-1:start-1+count]}
     @app.post('/scim/v2/Users',status_code=201)
     async def create_user(request:Request):
-        data=await request.json();data['_create']=True
+        data=await body(request);data['_create']=True
         return service.write(request.state.actor,data)
     @app.get('/scim/v2/Users')
     async def users(request:Request):return listing(service.users(request.state.actor),request)
     @app.get('/scim/v2/Users/{user_id}')
     async def user(user_id:str,request:Request):return service.get(request.state.actor,user_id)
     @app.patch('/scim/v2/Users/{user_id}')
-    async def patch(user_id:str,request:Request):return service.patch(request.state.actor,user_id,await request.json())
+    async def patch(user_id:str,request:Request):return service.patch(request.state.actor,user_id,await body(request))
     @app.put('/scim/v2/Users/{user_id}')
-    async def put(user_id:str,request:Request):return service.write(request.state.actor,await request.json(),user_id,replace_all=True)
+    async def put(user_id:str,request:Request):return service.write(request.state.actor,await body(request),user_id,replace_all=True)
     @app.delete('/scim/v2/Users/{user_id}',status_code=204)
     async def delete(user_id:str,request:Request):
         service.write(request.state.actor,{},user_id,delete=True);return Response(status_code=204)
     @app.post('/scim/v2/Groups',status_code=201)
-    async def create_group(request:Request):return service.group_write(request.state.actor,await request.json())
+    async def create_group(request:Request):return service.group_write(request.state.actor,await body(request))
     @app.get('/scim/v2/Groups')
     async def groups(request:Request):return listing(service.groups(request.state.actor),request)
     @app.patch('/scim/v2/Groups/{group_id}')
-    async def patch_group(group_id:str,request:Request):return service.group_write(request.state.actor,await request.json(),group_id)
+    async def patch_group(group_id:str,request:Request):return service.group_write(request.state.actor,await body(request),group_id)

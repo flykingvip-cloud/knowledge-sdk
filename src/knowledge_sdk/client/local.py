@@ -72,7 +72,10 @@ class _AuditedEngine:
     def __getattr__(self,name):return getattr(self.delegate,name)
     def evaluate(self, actor, agent, kb, document=None, acl=None, member_role=None,
                  action=PolicyAction.READ_CONTENT, purpose=Purpose.READ, context=None):
-        self.client._check_principal(actor)
+        try:self.client._check_principal(actor)
+        except PermissionDeniedError:
+            self.client._audit_operation(actor,'evaluate_policy',{},None,denied=True)
+            raise
         decision=self.delegate.evaluate(actor,agent,kb,document,acl,member_role,action,purpose,context)
         self.client._audit_operation(actor,'evaluate_policy',
                     {'agent':agent,'purpose':purpose,'doc_id':document.doc_id if document else '', 'policy_context':context},decision)

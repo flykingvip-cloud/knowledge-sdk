@@ -70,9 +70,7 @@ class ConnectorSyncRunner:
                     else:
                         if d.rights is not None and d.rights.revoked:continue
                         c.set_document_rights(actor,d.doc_id,replace(d.rights or ResourceRights(),revoked=True))
-                        # rights.updated is emitted by the public API; explicit
-                        # tombstone event is required for source lineage consumers.
-                        c._emit_event(actor,'doc.revoked',d.doc_id,d.current_version)
+                        # The public rights API already atomically emits doc.revoked.
                     counts[2]+=1;events+=1
                 s.put_connector_sync_state(ConnectorSyncState(org_id,connector.connector_id,batch.next_cursor,now()))
                 c._audit_operation(actor,'connector.sync',{},None)
