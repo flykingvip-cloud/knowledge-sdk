@@ -1,0 +1,152 @@
+{
+  "contract_status": "draft-pending-m1-freeze",
+  "runtime_captured": false,
+  "evidence_kind": "contract_scenario_fixture",
+  "source_documents": [
+    "08_TEAM_A_DELTA_SIGNOFF_AND_MIN_SLICE.md#2.3"
+  ],
+  "cases": [
+    {
+      "id": "one",
+      "submitted": {
+        "policy_generation": 1
+      },
+      "stored_generation": 1,
+      "expected": {
+        "allowed": true,
+        "code": null,
+        "http_status": 200
+      }
+    },
+    {
+      "id": "max_safe",
+      "submitted": {
+        "policy_generation": 9007199254740991
+      },
+      "stored_generation": 1,
+      "expected": {
+        "allowed": true,
+        "code": null,
+        "http_status": 200
+      }
+    },
+    {
+      "id": "stale",
+      "submitted": {
+        "policy_generation": 1
+      },
+      "stored_generation": 2,
+      "expected": {
+        "allowed": false,
+        "code": "POLICY_GENERATION_STALE",
+        "http_status": 403
+      }
+    },
+    {
+      "id": "zero",
+      "submitted": {
+        "policy_generation": 0
+      },
+      "stored_generation": 1,
+      "expected": {
+        "allowed": false,
+        "code": "VALIDATION_ERROR",
+        "http_status": 400
+      }
+    },
+    {
+      "id": "negative",
+      "submitted": {
+        "policy_generation": -1
+      },
+      "stored_generation": 1,
+      "expected": {
+        "allowed": false,
+        "code": "VALIDATION_ERROR",
+        "http_status": 400
+      }
+    },
+    {
+      "id": "missing",
+      "submitted": {},
+      "stored_generation": 1,
+      "expected": {
+        "allowed": false,
+        "code": "VALIDATION_ERROR",
+        "http_status": 400
+      }
+    },
+    {
+      "id": "null",
+      "submitted": {
+        "policy_generation": null
+      },
+      "stored_generation": 1,
+      "expected": {
+        "allowed": false,
+        "code": "VALIDATION_ERROR",
+        "http_status": 400
+      }
+    },
+    {
+      "id": "string_one",
+      "submitted": {
+        "policy_generation": "1"
+      },
+      "stored_generation": 1,
+      "expected": {
+        "allowed": false,
+        "code": "VALIDATION_ERROR",
+        "http_status": 400
+      }
+    },
+    {
+      "id": "string_abc",
+      "submitted": {
+        "policy_generation": "abc"
+      },
+      "stored_generation": 1,
+      "expected": {
+        "allowed": false,
+        "code": "VALIDATION_ERROR",
+        "http_status": 400
+      }
+    },
+    {
+      "id": "boolean",
+      "submitted": {
+        "policy_generation": true
+      },
+      "stored_generation": 1,
+      "expected": {
+        "allowed": false,
+        "code": "VALIDATION_ERROR",
+        "http_status": 400
+      }
+    },
+    {
+      "id": "fraction",
+      "submitted": {
+        "policy_generation": 1.5
+      },
+      "stored_generation": 1,
+      "expected": {
+        "allowed": false,
+        "code": "VALIDATION_ERROR",
+        "http_status": 400
+      }
+    },
+    {
+      "id": "overflow",
+      "submitted": {
+        "policy_generation": 9007199254740992
+      },
+      "stored_generation": 1,
+      "expected": {
+        "allowed": false,
+        "code": "VALIDATION_ERROR",
+        "http_status": 400
+      }
+    }
+  ]
+}

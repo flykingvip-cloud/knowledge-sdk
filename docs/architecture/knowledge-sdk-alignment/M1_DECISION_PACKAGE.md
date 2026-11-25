@@ -25,3 +25,60 @@ Any future metadata_snapshot is non-security business data only. Historical ACL/
 ## Evidence / boundary
 
 m1-freeze-manifest.json pins exact protected refs and original archive hashes. validate_m1_manifest.py checks identities/fields/status/ref/source integrity; its success is not signing authority. Current code/DDL stays schema5; independent acceptance and all M1 joint decisions remain pending.
+
+## Wave1.5b source-confirmed candidate slice (t61u) — pending joint signoff
+
+Original06–10 are now archived byte-for-byte. Original00–05 remain untouched and
+match the new ZIP. New ZIP10 supersedes the earlier standalone10 for this delivery;
+SOURCE10_STANDALONE_T59_ORIGINAL.md preserves the earlier13414-byte original.
+WAVE1P5B_SOURCE_PROVENANCE.json records both hashes and archive provenance.
+Owner-provided06 reports Wave1 acceptance and rollback-scope disposition;
+owner-provided10 reports original Wave1.5 acceptance with ordinary-RRF waiver.
+These are SOURCE/OWNER-PROVIDED independent conclusions, not this author's audit.
+No performance rerun. Original M1 decisions D1–D7 and signatures remain pending.
+
+### Minimum integration slice — exact source08 §3 assertions, future draft ONLY
+
+Scope: isolated non-production enterprise tenant with explicit human membership,
+one authorized Agent, one primary space and a small document. No inferred personal
+tenant, production shadow, dual-write or fallback to a weaker source. Exclude purge,
+IngestionJob, cross-space refs, service principals and automatic historic migration.
+Machine mirror: contracts/minimum-slice-checklist.json. No v2 runtime is implemented.
+
+| ID | Exact source08 §3 assertion | Review state |
+|---|---|---|
+| A01 | 无权用户+绑定 Agent 拒绝 | pending_joint_signoff |
+| A02 | 有权用户+未绑定 Agent 拒绝 | pending_joint_signoff |
+| A03 | 缺失/歧义身份或租户拒绝 | pending_joint_signoff |
+| A04 | 跨租户拒绝 | pending_joint_signoff |
+| A05 | 成员/Profile/Principal 撤权拒绝 | pending_joint_signoff |
+| A06 | SDK 不可用时绝不回退至更宽松数据源 | pending_joint_signoff |
+| A07 | 证据哈希与版本保真 | pending_joint_signoff |
+| A08 | 历史映射缺失显式失败 | pending_joint_signoff |
+| A09 | 受控草稿不冒充当前发布版 | pending_joint_signoff |
+| A10 | 写重试不重复生成版本 | pending_joint_signoff |
+
+Two source08 strengthening requirements (still draft, not runtime promises):
+1. POST /v2/spaces and POST /v2/assets ONLY: optional Idempotency-Key scoped by
+   (tenant_id, endpoint, idempotency_key) and payload hash, current authority always
+   checked. Same key+payload returns the first result, no duplicate space/version;
+   changed payload returns409IDEMPOTENCY_CONFLICT. No unkeyed automatic write retry.
+2. Evidence preserves version, bare excerpt hash and full authorized coordinates;
+   tampering fails, missing historical mapping fails explicitly, never guesses.
+   Five-field write/rollback result: created_version, current_version, seven-state
+   lifecycle_state, activated, rollback_scope='content_and_filename_only'.
+   activated iff pointers match AND state==='published'; L2 drafts/approved states
+   are NOT active. Current ACL/rights/security metadata never resurrect.
+
+Source09 supersedes08's older 'not draft' wording. Source10/t61 corrects the
+standalone10 /v2/documents typo to existing /v2/assets, not an alias or new route.
+NFC then exactly29 Python whitespace codepoints is confirmed by source08 and t61;
+FEFF is preserved. Seven hash and four signed literals are source-pinned offline
+algorithm vectors, not current authentication or v2 runtime evidence. Identity
+scenarios are contract_scenario_fixture, not implementation/production proof.
+
+Asset-integrity success means verified DRAFT inputs and WELL_FORMED_PENDING only:
+freeze_authorized:false, no signatures, no Wave2/M3 authorization. Six pending
+cross-team topics in source07/08 (personal tenancy, detach ownership, service
+principal, API/minimum slice, production cutover, nonsecurity snapshots) remain
+unresolved even where grouped differently by the seven-item engineering package.

@@ -1,0 +1,157 @@
+{
+  "evidence_kind": "v1_loopback_test_only",
+  "wire_protocol": "v1_loopback_test_only",
+  "runtime_captured": true,
+  "captured_at_asia_shanghai": "2026-11-25T17:47:54.559591+08:00",
+  "engine": "sqlite",
+  "authentication": "real HMAC; random ephemeral secret never persisted; signatures redacted",
+  "capture_format": "Sanitized structured actual urllib request and HTTP response; not a byte-for-byte packet capture",
+  "limitations": "Only implemented v1.409 is a KB identity conflict, not future Idempotency-Key.400 is actual TamperedExcerptError, not v2 422.",
+  "rows": [
+    {
+      "case": "authorized",
+      "evidence_kind": "v1_loopback_test_only",
+      "wire_protocol": "v1_loopback_test_only",
+      "runtime_captured": true,
+      "request": {
+        "method": "POST",
+        "target": "/v1/documents/get",
+        "headers": {
+          "Content-length": "35",
+          "Host": "127.0.0.1:57437",
+          "User-agent": "Python-urllib/3.13",
+          "X-kb-actor": "eyJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6IiIsImNsZWFyYW5jZV90YWdzIjpbXSwiZGVwYXJ0bWVudF9pZHMiOltdLCJtYW5hZ2VkX2RlcGFydG1lbnRfaWRzIjpbXSwib3JnX2lkIjoiZml4dHVyZS10ZW5hbnQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOiIxIiwicHVibGljX2tiX2FkbWluIjpmYWxzZSwicm9sZXMiOltdLCJ1c2VyX2lkIjoiZml4dHVyZS1vd25lciJ9",
+          "X-kb-timestamp": "1795600074",
+          "X-kb-nonce": "5b17535bfae8d57c5fb7a96c90060ac4",
+          "X-kb-purpose": "read",
+          "X-kb-signature": "[REDACTED_EPHEMERAL_TEST_SIGNATURE]",
+          "Content-type": "application/json"
+        },
+        "body_utf8": "{\"params\":{\"doc_id\":\"fixture-doc\"}}"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "date": "Wed, 25 Nov 2026 09:47:54 GMT",
+          "server": "uvicorn",
+          "content-length": "298",
+          "content-type": "application/json",
+          "cache-control": "no-store",
+          "pragma": "no-cache",
+          "Connection": "close"
+        },
+        "reason": "OK",
+        "body_utf8": "{\"__type__\":\"Document\",\"doc_id\":\"fixture-doc\",\"org_id\":\"fixture-tenant\",\"kb_id\":\"fixture-space\",\"owner_id\":\"fixture-owner\",\"title\":\"document.txt\",\"visibility\":\"private\",\"current_version\":1,\"archived\":false,\"metadata\":{},\"lifecycle_state\":\"published\",\"valid_from\":null,\"valid_to\":null,\"rights\":null}"
+      }
+    },
+    {
+      "case": "private_space_denial",
+      "evidence_kind": "v1_loopback_test_only",
+      "wire_protocol": "v1_loopback_test_only",
+      "runtime_captured": true,
+      "request": {
+        "method": "POST",
+        "target": "/v1/documents/get",
+        "headers": {
+          "Content-length": "35",
+          "Host": "127.0.0.1:57437",
+          "User-agent": "Python-urllib/3.13",
+          "X-kb-actor": "eyJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6IiIsImNsZWFyYW5jZV90YWdzIjpbXSwiZGVwYXJ0bWVudF9pZHMiOltdLCJtYW5hZ2VkX2RlcGFydG1lbnRfaWRzIjpbXSwib3JnX2lkIjoiZml4dHVyZS10ZW5hbnQiLCJvcmdfcm9sZXMiOltdLCJwb2xpY3lfZ2VuZXJhdGlvbiI6IjEiLCJwdWJsaWNfa2JfYWRtaW4iOmZhbHNlLCJyb2xlcyI6W10sInVzZXJfaWQiOiJmaXh0dXJlLW91dHNpZGVyIn0=",
+          "X-kb-timestamp": "1795600074",
+          "X-kb-nonce": "ae3bb47fb9bb220357ee7f0add2dc353",
+          "X-kb-purpose": "read",
+          "X-kb-signature": "[REDACTED_EPHEMERAL_TEST_SIGNATURE]",
+          "Content-type": "application/json"
+        },
+        "body_utf8": "{\"params\":{\"doc_id\":\"fixture-doc\"}}"
+      },
+      "response": {
+        "status": 403,
+        "headers": {
+          "date": "Wed, 25 Nov 2026 09:47:54 GMT",
+          "server": "uvicorn",
+          "content-length": "67",
+          "content-type": "application/json",
+          "cache-control": "no-store",
+          "pragma": "no-cache",
+          "Connection": "close"
+        },
+        "reason": "Forbidden",
+        "body_utf8": "{\"error\":\"PermissionDeniedError\",\"message\":\"space_boundary_denied\"}"
+      }
+    },
+    {
+      "case": "existing_identity_conflict_NOT_v2_idempotency",
+      "evidence_kind": "v1_loopback_test_only",
+      "wire_protocol": "v1_loopback_test_only",
+      "runtime_captured": true,
+      "request": {
+        "method": "POST",
+        "target": "/v1/kbs",
+        "headers": {
+          "Content-length": "63",
+          "Host": "127.0.0.1:57437",
+          "User-agent": "Python-urllib/3.13",
+          "X-kb-actor": "eyJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6IiIsImNsZWFyYW5jZV90YWdzIjpbXSwiZGVwYXJ0bWVudF9pZHMiOltdLCJtYW5hZ2VkX2RlcGFydG1lbnRfaWRzIjpbXSwib3JnX2lkIjoiZml4dHVyZS10ZW5hbnQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOiIxIiwicHVibGljX2tiX2FkbWluIjpmYWxzZSwicm9sZXMiOltdLCJ1c2VyX2lkIjoiZml4dHVyZS1vd25lciJ9",
+          "X-kb-timestamp": "1795600074",
+          "X-kb-nonce": "cff9f63116468ef5526a96ae7e200bee",
+          "X-kb-purpose": "read",
+          "X-kb-signature": "[REDACTED_EPHEMERAL_TEST_SIGNATURE]",
+          "Content-type": "application/json"
+        },
+        "body_utf8": "{\"params\":{\"name\":\"Fixture duplicate\",\"kb_id\":\"fixture-space\"}}"
+      },
+      "response": {
+        "status": 409,
+        "headers": {
+          "date": "Wed, 25 Nov 2026 09:47:54 GMT",
+          "server": "uvicorn",
+          "content-length": "64",
+          "content-type": "application/json",
+          "cache-control": "no-store",
+          "pragma": "no-cache",
+          "Connection": "close"
+        },
+        "reason": "Conflict",
+        "body_utf8": "{\"error\":\"ConflictError\",\"message\":\"KB identity already exists\"}"
+      }
+    },
+    {
+      "case": "tampered_excerpt_real_v1_mapping_NOT_v2_422",
+      "evidence_kind": "v1_loopback_test_only",
+      "wire_protocol": "v1_loopback_test_only",
+      "runtime_captured": true,
+      "request": {
+        "method": "POST",
+        "target": "/v1/references/verify",
+        "headers": {
+          "Content-length": "297",
+          "Host": "127.0.0.1:57437",
+          "User-agent": "Python-urllib/3.13",
+          "X-kb-actor": "eyJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6IiIsImNsZWFyYW5jZV90YWdzIjpbXSwiZGVwYXJ0bWVudF9pZHMiOltdLCJtYW5hZ2VkX2RlcGFydG1lbnRfaWRzIjpbXSwib3JnX2lkIjoiZml4dHVyZS10ZW5hbnQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOiIxIiwicHVibGljX2tiX2FkbWluIjpmYWxzZSwicm9sZXMiOltdLCJ1c2VyX2lkIjoiZml4dHVyZS1vd25lciJ9",
+          "X-kb-timestamp": "1795600074",
+          "X-kb-nonce": "b5050736bd7420a57e17039e86c44aa9",
+          "X-kb-purpose": "read",
+          "X-kb-signature": "[REDACTED_EPHEMERAL_TEST_SIGNATURE]",
+          "Content-type": "application/json"
+        },
+        "body_utf8": "{\"params\":{\"ref\":{\"__type__\":\"KnowledgeRef\",\"org_id\":\"fixture-tenant\",\"doc_id\":\"fixture-doc\",\"version\":1,\"source_uri\":\"kb://org/fixture-tenant/doc/fixture-doc@1\",\"chunk_ids\":[],\"excerpt\":\"TAMPERED\",\"excerpt_hash\":\"b0189f52aadff106fb5eb5f4dd975718f4e55745274a186c5a9e1e4199162f2a\",\"anchor_id\":\"\"}}}"
+      },
+      "response": {
+        "status": 400,
+        "headers": {
+          "date": "Wed, 25 Nov 2026 09:47:54 GMT",
+          "server": "uvicorn",
+          "content-length": "68",
+          "content-type": "application/json",
+          "cache-control": "no-store",
+          "pragma": "no-cache",
+          "Connection": "close"
+        },
+        "reason": "Bad Request",
+        "body_utf8": "{\"error\":\"TamperedExcerptError\",\"message\":\"Excerpt digest mismatch\"}"
+      }
+    }
+  ],
+  "owned_loopback_stopped": true
+}

@@ -73,3 +73,32 @@ When a legacy section fragment is supplied, its once-decoded segments must match
 section_path exactly. A fragment-less whole-document legacy URI may still carry
 explicit retained metadata; no anchor is inferred from it. Extra record/coordinate
 fields fail closed instead of leaking undeclared data into the typed DTO.
+
+## Wave1.5b source-confirmed draft checks
+
+Original06–10 and both original10 revisions are provenance-pinned, not rewritten.
+Run bare `python3 docs/architecture/knowledge-sdk-alignment/contracts/validate_assets.py`
+and `python3 docs/architecture/knowledge-sdk-alignment/validate_m1_manifest.py` from
+the checkout, with no PYTHONPATH required (also works with -S and foreign CWD).
+DRAFT_ASSET_SELFCHECK_PASSED / WELL_FORMED_PENDING do NOT authorize M1 freeze.
+
+The5 new fixture families are proposed identity/generation/activation scenarios
+and offline algorithm vectors. None is v2 runtime capture. Seven source hash pairs
+and four source HMACs are cross-recomputed in Python and Node. Test pseudo-key
+TEST_ONLY_DO_NOT_USE_IN_PROD_* and historical timestamp are public offline inputs,
+never live credentials or online authentication/replay proof. Every v2 example
+has runtime_captured:false. Any real v1 loopback capture is separately marked
+v1_loopback_test_only and uses an undisclosed ephemeral local key.
+
+Normalization is NFC then Python's explicit29 whitespace codepoints, preserving
+FEFF; no ECMAScript whitespace-regex substitution. Draft generation is positive
+safe integer1..9007199254740991, never changes runtime v1 generation0 handling.
+Minimal writes are POST /v2/spaces and POST /v2/assets; /v2/documents is NOT an alias.
+Only activated=(created_version===current_version && lifecycle_state==='published').
+No historical ACL/rights/security metadata restoration, no new v1 response fields.
+
+OpenAPI custom runtime flag is x-implementation-status.runtime_v2_implemented:false
+plus existing x-runtime-implemented:false; bare custom root keys are not OpenAPI3.1.
+Contract asset hashes cover all contract root files, every fixture JSON, the M1
+package and validator itself. No manifest self-hash; no signing authority follows
+from hashes. See the delta handoff for the exact coverage and final-SHA resolver.

@@ -26,7 +26,8 @@
         "keyword_rank": 1,
         "vector_rank": 2,
         "fusion_method": "rrf_k60"
-      }
+      },
+      "hash_algorithm": "sha256"
     }
   ]
 }

@@ -6,8 +6,16 @@
     "description": "SDK-side review assets only; no v2 routes implemented. M1 joint freeze and Team B review PENDING. JSON syntax is valid YAML 1.2. Never trust unsigned client tenant/actor headers; gateway cryptographically binds both contexts. All nine contracts remain proposals."
   },
   "x-contract-status": "draft-pending-m1-freeze",
+  "x-evidence-boundaries": {
+    "runtime_captured": false,
+    "fixture_metadata": "fixture-evidence-boundaries.json",
+    "actual_v1_wire_is_separate": true
+  },
   "x-authority": "OIDC-verified or gateway-signature-verified identity and canonical tenant mapping; client headers are not authority",
   "x-runtime-implemented": false,
+  "x-implementation-status": {
+    "runtime_v2_implemented": false
+  },
   "security": [
     {
       "TrustedGateway": []
@@ -80,6 +88,9 @@
           },
           {
             "$ref": "#/components/parameters/TenantId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
           }
         ],
         "security": [
@@ -104,6 +115,56 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Idempotency key conflicts with prior request in the same authorized scope; no resource existence disclosure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "const": "IDEMPOTENCY_CONFLICT"
+                        },
+                        "message": {
+                          "type": "string",
+                          "maxLength": 32000
+                        },
+                        "retryable": {
+                          "type": "boolean"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "maxLength": 32000
+                        },
+                        "details": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "$ref": "#/components/schemas/JsonValue"
+                          }
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "retryable",
+                        "request_id",
+                        "details"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -621,6 +682,9 @@
           },
           {
             "$ref": "#/components/parameters/TenantId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
           }
         ],
         "security": [
@@ -634,7 +698,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DocumentVersion"
+                  "$ref": "#/components/schemas/DocumentWriteResponse"
                 }
               }
             }
@@ -645,6 +709,56 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Idempotency key conflicts with prior request in the same authorized scope; no resource existence disclosure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "const": "IDEMPOTENCY_CONFLICT"
+                        },
+                        "message": {
+                          "type": "string",
+                          "maxLength": 32000
+                        },
+                        "retryable": {
+                          "type": "boolean"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "maxLength": 32000
+                        },
+                        "details": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "$ref": "#/components/schemas/JsonValue"
+                          }
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "retryable",
+                        "request_id",
+                        "details"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -1113,7 +1227,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DocumentVersion"
+                  "$ref": "#/components/schemas/DocumentWriteResponse"
                 }
               }
             }
@@ -1646,6 +1760,17 @@
           "minLength": 1
         },
         "description": "Trusted verified gateway correlation/mapping only; never accepts arbitrary client identity or tenant authority."
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "description": "DRAFT future v2 only. Optional retry identity scoped to trusted (tenant_id, endpoint, idempotency_key), checked against the payload digest and current actor authority. A key reused for different content returns 409 IDEMPOTENCY_CONFLICT; no v1/runtime implementation."
       }
     },
     "securitySchemes": {
@@ -1789,8 +1914,7 @@
                 "maxItems": 1000
               },
               "policy_generation": {
-                "type": "integer",
-                "minimum": 0
+                "$ref": "#/components/schemas/PolicyGeneration"
               },
               "session_id": {
                 "type": "string",
@@ -2155,12 +2279,10 @@
             "maxLength": 32000
           },
           "raw_hash": {
-            "type": "string",
-            "maxLength": 32000
+            "$ref": "#/components/schemas/Sha256Hex"
           },
           "semantic_hash": {
-            "type": "string",
-            "maxLength": 32000
+            "$ref": "#/components/schemas/Sha256Hex"
           },
           "lifecycle_state": {
             "type": "string",
@@ -2210,6 +2332,10 @@
             "type": "string",
             "maxLength": 32000,
             "format": "date-time"
+          },
+          "hash_algorithm": {
+            "type": "string",
+            "const": "sha256"
           }
         },
         "required": [
@@ -2227,7 +2353,8 @@
           "source_issue_id",
           "rollback_from_version",
           "created_at",
-          "published_at"
+          "published_at",
+          "hash_algorithm"
         ],
         "additionalProperties": false
       },
@@ -2283,8 +2410,7 @@
             "maxLength": 32000
           },
           "excerpt_hash": {
-            "type": "string",
-            "maxLength": 32000
+            "$ref": "#/components/schemas/Sha256Hex"
           },
           "canonical_uri": {
             "$ref": "#/components/schemas/CanonicalKbUri"
@@ -2336,6 +2462,10 @@
               "revoked",
               "unresolvable"
             ]
+          },
+          "hash_algorithm": {
+            "type": "string",
+            "const": "sha256"
           }
         },
         "required": [
@@ -2354,7 +2484,8 @@
           "canonical_uri",
           "locator",
           "masking_summary",
-          "verification_status"
+          "verification_status",
+          "hash_algorithm"
         ],
         "additionalProperties": false
       },
@@ -2592,8 +2723,7 @@
                       "maxLength": 32000
                     },
                     "excerpt_hash": {
-                      "type": "string",
-                      "maxLength": 32000
+                      "$ref": "#/components/schemas/Sha256Hex"
                     },
                     "source_uri": {
                       "type": "string",
@@ -2628,6 +2758,10 @@
                         "fusion_method"
                       ],
                       "additionalProperties": false
+                    },
+                    "hash_algorithm": {
+                      "type": "string",
+                      "const": "sha256"
                     }
                   },
                   "required": [
@@ -2646,7 +2780,8 @@
                     "source_uri",
                     "truncated",
                     "masking_summary",
-                    "score_breakdown"
+                    "score_breakdown",
+                    "hash_algorithm"
                   ],
                   "additionalProperties": false
                 },
@@ -2827,8 +2962,7 @@
                       "maxLength": 32000
                     },
                     "content_hash": {
-                      "type": "string",
-                      "maxLength": 32000
+                      "$ref": "#/components/schemas/Sha256Hex"
                     },
                     "asset_type": {
                       "type": "string",
@@ -2840,12 +2974,17 @@
                         "structured_record",
                         "code_artifact"
                       ]
+                    },
+                    "hash_algorithm": {
+                      "type": "string",
+                      "const": "sha256"
                     }
                   },
                   "required": [
                     "external_id",
                     "content_hash",
-                    "asset_type"
+                    "asset_type",
+                    "hash_algorithm"
                   ],
                   "additionalProperties": false
                 },
@@ -2975,6 +3114,19 @@
           "error"
         ],
         "additionalProperties": false
+      },
+      "Sha256Hex": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$",
+        "minLength": 64,
+        "maxLength": 64,
+        "description": "Bare lowercase SHA-256 hex; algorithm is a separate hash_algorithm field."
+      },
+      "PolicyGeneration": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991,
+        "description": "DRAFT v2 only: safe positive integer; no boolean/string/null coercion. Existing v1 generation-zero semantics unchanged."
       },
       "SearchRequest": {
         "type": "object",
@@ -3207,8 +3359,7 @@
                   "maxLength": 32000
                 },
                 "excerpt_hash": {
-                  "type": "string",
-                  "maxLength": 32000
+                  "$ref": "#/components/schemas/Sha256Hex"
                 },
                 "source_uri": {
                   "type": "string",
@@ -3243,6 +3394,10 @@
                     "fusion_method"
                   ],
                   "additionalProperties": false
+                },
+                "hash_algorithm": {
+                  "type": "string",
+                  "const": "sha256"
                 }
               },
               "required": [
@@ -3261,7 +3416,8 @@
                 "source_uri",
                 "truncated",
                 "masking_summary",
-                "score_breakdown"
+                "score_breakdown",
+                "hash_algorithm"
               ],
               "additionalProperties": false
             },
@@ -3379,6 +3535,50 @@
         },
         "required": [],
         "additionalProperties": false
+      },
+      "WriteActivationResult": {
+        "type": "object",
+        "properties": {
+          "created_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "current_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "lifecycle_state": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "in_review",
+              "approved",
+              "published",
+              "rejected",
+              "superseded",
+              "revoked"
+            ]
+          },
+          "activated": {
+            "type": "boolean"
+          },
+          "rollback_scope": {
+            "type": "string",
+            "const": "content_and_filename_only"
+          }
+        },
+        "required": [
+          "created_version",
+          "current_version",
+          "lifecycle_state",
+          "activated",
+          "rollback_scope"
+        ],
+        "additionalProperties": false,
+        "x-activation-formula": "created_version === current_version && lifecycle_state === published",
+        "description": "DRAFT v2 only, not added v1 return fields. activated iff created_version === current_version AND lifecycle_state === published; checked by the reference validators. Content+filename only, CURRENT metadata/security retained; L2 draft is not activated."
       },
       "VersionPair": {
         "type": "object",
@@ -3680,6 +3880,858 @@
         "required": [
           "evidence",
           "mapping"
+        ],
+        "additionalProperties": false
+      },
+      "DocumentWriteResponse": {
+        "type": "object",
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "maxLength": 32000
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "version_id": {
+            "type": "string",
+            "maxLength": 32000
+          },
+          "version_label": {
+            "type": "string",
+            "maxLength": 32000
+          },
+          "filename": {
+            "type": "string",
+            "maxLength": 32000
+          },
+          "raw_hash": {
+            "$ref": "#/components/schemas/Sha256Hex"
+          },
+          "semantic_hash": {
+            "$ref": "#/components/schemas/Sha256Hex"
+          },
+          "lifecycle_state": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "in_review",
+              "approved",
+              "published",
+              "rejected",
+              "superseded",
+              "revoked"
+            ]
+          },
+          "author_id": {
+            "type": "string",
+            "maxLength": 32000
+          },
+          "reviewer_id": {
+            "type": "string",
+            "maxLength": 32000
+          },
+          "publisher_id": {
+            "type": "string",
+            "maxLength": 32000
+          },
+          "source_issue_id": {
+            "type": "string",
+            "maxLength": 32000
+          },
+          "rollback_from_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "maxLength": 32000,
+            "format": "date-time"
+          },
+          "published_at": {
+            "type": "string",
+            "maxLength": 32000,
+            "format": "date-time"
+          },
+          "hash_algorithm": {
+            "type": "string",
+            "const": "sha256"
+          },
+          "created_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "current_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "activated": {
+            "type": "boolean"
+          },
+          "rollback_scope": {
+            "type": "string",
+            "const": "content_and_filename_only"
+          }
+        },
+        "required": [
+          "doc_id",
+          "version",
+          "version_id",
+          "version_label",
+          "filename",
+          "raw_hash",
+          "semantic_hash",
+          "lifecycle_state",
+          "author_id",
+          "reviewer_id",
+          "publisher_id",
+          "source_issue_id",
+          "rollback_from_version",
+          "created_at",
+          "published_at",
+          "hash_algorithm",
+          "created_version",
+          "current_version",
+          "activated",
+          "rollback_scope"
+        ],
+        "additionalProperties": false,
+        "x-activation-formula": "created_version === current_version && lifecycle_state === published",
+        "description": "DRAFT additive version result: retains every prior DocumentVersion field plus the activation/scope fields. No runtime v1 response change."
+      },
+      "HashVectorFixture": {
+        "type": "object",
+        "properties": {
+          "contract_status": {
+            "type": "string",
+            "const": "draft-pending-m1-freeze"
+          },
+          "runtime_captured": {
+            "type": "boolean",
+            "const": false
+          },
+          "evidence_kind": {
+            "type": "string",
+            "const": "offline_algorithm_vector_only"
+          },
+          "source_documents": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32000
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "cases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32000
+                },
+                "raw": {
+                  "type": "string"
+                },
+                "normalized": {
+                  "type": "string"
+                },
+                "hash_algorithm": {
+                  "type": "string",
+                  "const": "sha256"
+                },
+                "raw_hash": {
+                  "$ref": "#/components/schemas/Sha256Hex"
+                },
+                "semantic_hash": {
+                  "$ref": "#/components/schemas/Sha256Hex"
+                }
+              },
+              "required": [
+                "id",
+                "raw",
+                "normalized",
+                "hash_algorithm",
+                "raw_hash",
+                "semantic_hash"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 7,
+            "maxItems": 7
+          }
+        },
+        "required": [
+          "contract_status",
+          "runtime_captured",
+          "evidence_kind",
+          "source_documents",
+          "cases"
+        ],
+        "additionalProperties": false
+      },
+      "SignedCanonicalizationFixture": {
+        "type": "object",
+        "properties": {
+          "contract_status": {
+            "type": "string",
+            "const": "draft-pending-m1-freeze"
+          },
+          "runtime_captured": {
+            "type": "boolean",
+            "const": false
+          },
+          "evidence_kind": {
+            "type": "string",
+            "const": "offline_algorithm_vector_only"
+          },
+          "source_documents": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32000
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "cases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32000
+                },
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "GET",
+                    "POST"
+                  ]
+                },
+                "signed_target": {
+                  "type": "string",
+                  "pattern": "^/v1/",
+                  "minLength": 1
+                },
+                "nonce": {
+                  "type": "string",
+                  "minLength": 16,
+                  "maxLength": 128
+                },
+                "agent_header_present": {
+                  "type": "boolean"
+                },
+                "purpose_header_present": {
+                  "type": "boolean"
+                },
+                "purpose": {
+                  "type": "string",
+                  "enum": [
+                    "read",
+                    "ground_internal_llm"
+                  ]
+                },
+                "body_utf8": {
+                  "type": "string"
+                },
+                "body_sha256": {
+                  "$ref": "#/components/schemas/Sha256Hex"
+                },
+                "canonical_lines_count": {
+                  "type": "integer",
+                  "enum": [
+                    6,
+                    8
+                  ]
+                },
+                "signature": {
+                  "$ref": "#/components/schemas/Sha256Hex"
+                }
+              },
+              "required": [
+                "id",
+                "method",
+                "signed_target",
+                "nonce",
+                "agent_header_present",
+                "purpose_header_present",
+                "body_utf8",
+                "body_sha256",
+                "canonical_lines_count",
+                "signature"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 4,
+            "maxItems": 4
+          },
+          "test_only_secret": {
+            "type": "string",
+            "pattern": "^TEST_ONLY_DO_NOT_USE_IN_PROD_",
+            "minLength": 32
+          },
+          "timestamp": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "actor_header": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32000
+          },
+          "agent_header": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32000
+          },
+          "draft_v2_examples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "evidence_kind": {
+                  "type": "string",
+                  "const": "draft_contract_example_only"
+                },
+                "runtime_captured": {
+                  "type": "boolean",
+                  "const": false
+                },
+                "reason": {
+                  "type": "string",
+                  "const": "v2_runtime_prohibited_before_m1_freeze"
+                },
+                "method": {
+                  "type": "string",
+                  "const": "POST"
+                },
+                "path": {
+                  "type": "string",
+                  "enum": [
+                    "/v2/spaces",
+                    "/v2/assets"
+                  ]
+                },
+                "status": {
+                  "type": "integer",
+                  "enum": [
+                    200,
+                    403,
+                    409,
+                    422
+                  ]
+                },
+                "body": {
+                  "$ref": "#/components/schemas/JsonValue"
+                }
+              },
+              "required": [
+                "evidence_kind",
+                "runtime_captured",
+                "reason",
+                "method",
+                "path",
+                "status",
+                "body"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 4,
+            "maxItems": 4
+          }
+        },
+        "required": [
+          "contract_status",
+          "runtime_captured",
+          "evidence_kind",
+          "source_documents",
+          "cases",
+          "test_only_secret",
+          "timestamp",
+          "actor_header",
+          "agent_header",
+          "draft_v2_examples"
+        ],
+        "additionalProperties": false
+      },
+      "PolicyGenerationFixture": {
+        "type": "object",
+        "properties": {
+          "contract_status": {
+            "type": "string",
+            "const": "draft-pending-m1-freeze"
+          },
+          "runtime_captured": {
+            "type": "boolean",
+            "const": false
+          },
+          "evidence_kind": {
+            "type": "string",
+            "const": "contract_scenario_fixture"
+          },
+          "source_documents": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32000
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "cases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32000
+                },
+                "submitted": {
+                  "type": "object",
+                  "properties": {
+                    "policy_generation": {
+                      "$ref": "#/components/schemas/JsonValue"
+                    }
+                  },
+                  "required": [],
+                  "additionalProperties": false
+                },
+                "stored_generation": {
+                  "$ref": "#/components/schemas/PolicyGeneration"
+                },
+                "expected": {
+                  "type": "object",
+                  "properties": {
+                    "allowed": {
+                      "type": "boolean"
+                    },
+                    "code": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/ErrorCode"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "http_status": {
+                      "type": "integer",
+                      "enum": [
+                        200,
+                        400,
+                        403
+                      ]
+                    }
+                  },
+                  "required": [
+                    "allowed",
+                    "code",
+                    "http_status"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id",
+                "submitted",
+                "stored_generation",
+                "expected"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 12,
+            "maxItems": 12
+          }
+        },
+        "required": [
+          "contract_status",
+          "runtime_captured",
+          "evidence_kind",
+          "source_documents",
+          "cases"
+        ],
+        "additionalProperties": false
+      },
+      "IdentityLifecycleFixture": {
+        "type": "object",
+        "properties": {
+          "contract_status": {
+            "type": "string",
+            "const": "draft-pending-m1-freeze"
+          },
+          "runtime_captured": {
+            "type": "boolean",
+            "const": false
+          },
+          "evidence_kind": {
+            "type": "string",
+            "const": "contract_scenario_fixture"
+          },
+          "source_documents": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32000
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "cases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32000
+                },
+                "existing": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "tenant_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32000
+                      },
+                      "issuer": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32000
+                      },
+                      "raw_sub": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32000
+                      },
+                      "user_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32000
+                      },
+                      "email": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32000
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "active",
+                          "disabled"
+                        ]
+                      },
+                      "policy_generation": {
+                        "$ref": "#/components/schemas/PolicyGeneration"
+                      }
+                    },
+                    "required": [
+                      "tenant_id",
+                      "issuer",
+                      "raw_sub",
+                      "user_id",
+                      "email",
+                      "status",
+                      "policy_generation"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "minItems": 1,
+                  "maxItems": 100
+                },
+                "incoming": {
+                  "type": "object",
+                  "properties": {
+                    "tenant_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 32000
+                    },
+                    "issuer": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 32000
+                    },
+                    "raw_sub": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 32000
+                    },
+                    "user_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 32000
+                    },
+                    "email": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 32000
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "active",
+                        "disabled"
+                      ]
+                    },
+                    "policy_generation": {
+                      "$ref": "#/components/schemas/PolicyGeneration"
+                    }
+                  },
+                  "required": [
+                    "tenant_id",
+                    "issuer",
+                    "raw_sub",
+                    "user_id",
+                    "email",
+                    "status",
+                    "policy_generation"
+                  ],
+                  "additionalProperties": false
+                },
+                "presented_generation": {
+                  "$ref": "#/components/schemas/PolicyGeneration"
+                },
+                "migration": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "identity.rebound"
+                        },
+                        "administrator_authorized": {
+                          "type": "boolean"
+                        },
+                        "from_issuer": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 32000
+                        },
+                        "from_raw_sub": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 32000
+                        },
+                        "to_issuer": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 32000
+                        },
+                        "to_raw_sub": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 32000
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "administrator_authorized",
+                        "from_issuer",
+                        "from_raw_sub",
+                        "to_issuer",
+                        "to_raw_sub"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "expected": {
+                  "type": "object",
+                  "properties": {
+                    "allowed": {
+                      "type": "boolean"
+                    },
+                    "code": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/ErrorCode"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "user_id": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 32000
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "allowed",
+                    "code",
+                    "user_id"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id",
+                "existing",
+                "incoming",
+                "presented_generation",
+                "migration",
+                "expected"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 7,
+            "maxItems": 7
+          }
+        },
+        "required": [
+          "contract_status",
+          "runtime_captured",
+          "evidence_kind",
+          "source_documents",
+          "cases"
+        ],
+        "additionalProperties": false
+      },
+      "RollbackActivationFixture": {
+        "type": "object",
+        "properties": {
+          "contract_status": {
+            "type": "string",
+            "const": "draft-pending-m1-freeze"
+          },
+          "runtime_captured": {
+            "type": "boolean",
+            "const": false
+          },
+          "evidence_kind": {
+            "type": "string",
+            "const": "contract_scenario_fixture"
+          },
+          "source_documents": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32000
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "cases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32000
+                },
+                "created_version": {
+                  "$ref": "#/components/schemas/PolicyGeneration"
+                },
+                "current_version": {
+                  "$ref": "#/components/schemas/PolicyGeneration"
+                },
+                "lifecycle_state": {
+                  "type": "string",
+                  "enum": [
+                    "published",
+                    "draft",
+                    "in_review",
+                    "approved",
+                    "rejected",
+                    "superseded",
+                    "revoked"
+                  ]
+                },
+                "activated": {
+                  "type": "boolean"
+                },
+                "rollback_scope": {
+                  "type": "string",
+                  "const": "content_and_filename_only"
+                }
+              },
+              "required": [
+                "id",
+                "created_version",
+                "current_version",
+                "lifecycle_state",
+                "activated",
+                "rollback_scope"
+              ],
+              "additionalProperties": false,
+              "x-activation-formula": "created_version === current_version && lifecycle_state === published"
+            },
+            "minItems": 8,
+            "maxItems": 8
+          }
+        },
+        "required": [
+          "contract_status",
+          "runtime_captured",
+          "evidence_kind",
+          "source_documents",
+          "cases"
+        ],
+        "additionalProperties": false
+      },
+      "MinimumSliceWriteEndpoint": {
+        "type": "string",
+        "enum": [
+          "POST /v2/spaces",
+          "POST /v2/assets"
+        ]
+      },
+      "DraftContractMetadata": {
+        "type": "object",
+        "properties": {
+          "contract_status": {
+            "type": "string",
+            "const": "draft-pending-m1-freeze"
+          },
+          "runtime_v2_implemented": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "contract_status",
+          "runtime_v2_implemented"
         ],
         "additionalProperties": false
       }

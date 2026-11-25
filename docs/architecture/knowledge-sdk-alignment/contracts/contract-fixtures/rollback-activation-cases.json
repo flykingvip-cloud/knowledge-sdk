@@ -1,0 +1,74 @@
+{
+  "contract_status": "draft-pending-m1-freeze",
+  "runtime_captured": false,
+  "evidence_kind": "contract_scenario_fixture",
+  "source_documents": [
+    "09_WAVE1P5_CONSOLIDATED_EXECUTION_DIRECTIVE.md#2.3"
+  ],
+  "cases": [
+    {
+      "id": "act_l1_published",
+      "created_version": 3,
+      "current_version": 3,
+      "lifecycle_state": "published",
+      "activated": true,
+      "rollback_scope": "content_and_filename_only"
+    },
+    {
+      "id": "neg_l2_draft",
+      "created_version": 3,
+      "current_version": 2,
+      "lifecycle_state": "draft",
+      "activated": false,
+      "rollback_scope": "content_and_filename_only"
+    },
+    {
+      "id": "neg_l2_in_review",
+      "created_version": 3,
+      "current_version": 2,
+      "lifecycle_state": "in_review",
+      "activated": false,
+      "rollback_scope": "content_and_filename_only"
+    },
+    {
+      "id": "neg_l2_approved_unpub",
+      "created_version": 3,
+      "current_version": 2,
+      "lifecycle_state": "approved",
+      "activated": false,
+      "rollback_scope": "content_and_filename_only"
+    },
+    {
+      "id": "neg_l2_rejected",
+      "created_version": 3,
+      "current_version": 2,
+      "lifecycle_state": "rejected",
+      "activated": false,
+      "rollback_scope": "content_and_filename_only"
+    },
+    {
+      "id": "neg_revoked_same_ver",
+      "created_version": 3,
+      "current_version": 3,
+      "lifecycle_state": "revoked",
+      "activated": false,
+      "rollback_scope": "content_and_filename_only"
+    },
+    {
+      "id": "neg_superseded",
+      "created_version": 2,
+      "current_version": 3,
+      "lifecycle_state": "superseded",
+      "activated": false,
+      "rollback_scope": "content_and_filename_only"
+    },
+    {
+      "id": "neg_pointer_mismatch",
+      "created_version": 3,
+      "current_version": 2,
+      "lifecycle_state": "published",
+      "activated": false,
+      "rollback_scope": "content_and_filename_only"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "contract_status": "draft-pending-m1-freeze",
+  "runtime_captured": false,
+  "source": "08_TEAM_A_DELTA_SIGNOFF_AND_MIN_SLICE.md#3",
+  "synchronous_writes": [
+    "POST /v2/spaces",
+    "POST /v2/assets"
+  ],
+  "assertions": [
+    {
+      "id": "A01",
+      "description": "无权用户+绑定 Agent 拒绝"
+    },
+    {
+      "id": "A02",
+      "description": "有权用户+未绑定 Agent 拒绝"
+    },
+    {
+      "id": "A03",
+      "description": "缺失/歧义身份或租户拒绝"
+    },
+    {
+      "id": "A04",
+      "description": "跨租户拒绝"
+    },
+    {
+      "id": "A05",
+      "description": "成员/Profile/Principal 撤权拒绝"
+    },
+    {
+      "id": "A06",
+      "description": "SDK 不可用时绝不回退至更宽松数据源"
+    },
+    {
+      "id": "A07",
+      "description": "证据哈希与版本保真"
+    },
+    {
+      "id": "A08",
+      "description": "历史映射缺失显式失败"
+    },
+    {
+      "id": "A09",
+      "description": "受控草稿不冒充当前发布版"
+    },
+    {
+      "id": "A10",
+      "description": "写重试不重复生成版本"
+    }
+  ],
+  "strengthening": [
+    "Idempotency-Key: same key+payload returns first result; changed payload gives409IDEMPOTENCY_CONFLICT; no unkeyed write retry",
+    "Version-locked evidence+bare excerpt hash+current authority; five-field result never renders L2 draft as published"
+  ],
+  "freeze_authorized": false
+}

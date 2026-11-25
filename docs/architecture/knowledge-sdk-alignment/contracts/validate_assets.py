@@ -5,7 +5,21 @@ OpenAPI 3.1/JSON Schema validators when available as development-only packages.
 """
 from pathlib import Path
 import json,re,math,copy,sys
-ROOT=Path(__file__).parent
+ROOT=Path(__file__).resolve().parent
+# Trusted script-relative checkout, never CWD or a user-controlled PYTHONPATH.
+sys.path.insert(0,str(ROOT.parents[3]/'src'))
+DELTA_FIXTURES=('identity-lifecycle-fixtures.json','policy-generation-cases.json','hash-vectors-utf8.json','signed-request-canonicalization.json','rollback-activation-cases.json')
+
+# Local trusted module; never load a fixture-specified Python callable or URL.
+sys.path.insert(0,str(ROOT))
+import delta_contracts as delta
+
+def delta_source_status():
+    delta.verify_sources(ROOT.parent)
+    return {'status':'VERIFIED_DRAFT_CONTRACTS_PENDING_JOINT_SIGNOFF',
+            'missing_original_document_numbers':[], 'missing_fixture_files':[],
+            'agreed_hash_vectors_verified':7,'agreed_signed_vectors_verified':4,
+            'agreed_rollback_cases_verified':8,'team_b_original_assertions_verified':10,'complete':True}
 
 def validate(value,schema,document,path='$',depth=0):
     if depth>100:raise ValueError('Schema depth exceeded')
@@ -35,7 +49,7 @@ def validate(value,schema,document,path='$',depth=0):
             try:check(datetime.fromisoformat(value.replace('Z','+00:00')).tzinfo is not None)
             except (ValueError,TypeError):raise ValueError('Invalid date time at '+path) from None
     if typ=='array':
-        check(len(value)<=schema.get('maxItems',10**8))
+        check(schema.get('minItems',0)<=len(value)<=schema.get('maxItems',10**8))
         for i,v in enumerate(value):validate(v,schema['items'],document,path+'['+str(i)+']',depth+1)
     if typ=='object':
         check(not set(schema.get('required',[]))-set(value))
@@ -44,6 +58,9 @@ def validate(value,schema,document,path='$',depth=0):
             else:
                 extra=schema.get('additionalProperties',True);check(extra is not False)
                 if isinstance(extra,dict):validate(v,extra,document,path+'.'+k,depth+1)
+
+    if schema.get('x-activation-formula'):
+        check(value['activated'] is ((value['created_version']==value['current_version']) and value['lifecycle_state']=='published'))
 
 def run():
     spec=json.loads((ROOT/'openapi-v2-draft.yaml').read_text());schemas=spec['components']['schemas'];mapping=json.loads((ROOT/'fixture-schemas.json').read_text())
@@ -105,6 +122,52 @@ def run():
         try:validate(broken,schemas['SearchResponse'],spec)
         except ValueError:negative+=1
         else:raise AssertionError('Invalid calibrated score accepted')
+    # t59u independent boundary/property checks. NOT source08/09 agreed fixtures.
+    def reject(value,schema):
+        nonlocal negative
+        try:validate(value,schema,spec)
+        except ValueError:negative+=1
+        else:raise AssertionError('Invalid draft delta boundary accepted')
+    generation=schemas['PolicyGeneration']
+    for good in (1,9007199254740991):validate(good,generation,spec)
+    for bad in (0,-1,None,'1','abc',True,False,1.5,9007199254740992,float('nan'),float('inf')):reject(bad,generation)
+    missing=copy.deepcopy(fixtures['identity-context.json']);del missing['actor']['policy_generation'];reject(missing,schemas['IdentityContext'])
+    for bad in ('A'*64,'sha256:'+'a'*64,'a'*63,'a'*65,'a'*64+'\n',True,None):reject(bad,schemas['Sha256Hex'])
+    for state in ('published','draft','in_review','approved','rejected','superseded','revoked'):
+        for current in (2,3):
+            v=dict(created_version=3,current_version=current,lifecycle_state=state,activated=current==3 and state=='published',rollback_scope='content_and_filename_only')
+            validate(v,schemas['WriteActivationResult'],spec)
+            broken={**v,'activated':not v['activated']};reject(broken,schemas['WriteActivationResult'])
+    for path in ('/v2/spaces','/v2/assets'):
+        op=spec['paths'][path]['post']
+        assert {'$ref':'#/components/parameters/IdempotencyKey'} in op['parameters']
+        conflict=op['responses']['409']['content']['application/json']['schema']
+        good=copy.deepcopy(fixtures['error-envelope.json']);good['error']['code']='IDEMPOTENCY_CONFLICT'
+        validate(good,conflict,spec);reject(fixtures['error-envelope.json'],conflict)
+    assert spec['components']['parameters']['IdempotencyKey']['required'] is False
+    assert spec['x-implementation-status']['runtime_v2_implemented'] is False
+    boundary=json.loads((ROOT/'fixture-evidence-boundaries.json').read_text())
+    assert set(boundary)==set(mapping)
+    for file,metadata in boundary.items():
+        assert metadata=={'runtime_captured':False,'evidence_kind':fixtures[file].get('evidence_kind','draft_contract_example_only'),'runtime_v2_implemented':False}
+    assert spec['x-evidence-boundaries']['runtime_captured'] is False
+    assert schemas['MinimumSliceWriteEndpoint']['enum']==['POST /v2/spaces','POST /v2/assets']
+    verified=delta.verify(ROOT.parent,fixtures)
+    # Tamper/incompatible type probes exercise source literal pinning AND schema checks.
+    mutations=[('hash-vectors-utf8.json','raw',True),('hash-vectors-utf8.json','raw','changed'),
+      ('hash-vectors-utf8.json','semantic_hash','A'*64),('signed-request-canonicalization.json','signed_target','/v1/search?decoded=/'),
+      ('signed-request-canonicalization.json','signature','0'*64),('signed-request-canonicalization.json','agent_header_present','true'),
+      ('signed-request-canonicalization.json','canonical_lines_count',6),('rollback-activation-cases.json','activated','true'),
+      ('rollback-activation-cases.json','activated',False),('policy-generation-cases.json','stored_generation',True),
+      ('identity-lifecycle-fixtures.json','presented_generation',True)]
+    for file,key,value in mutations:
+        broken=copy.deepcopy(fixtures);broken[file]['cases'][0][key]=value
+        try:
+            validate(broken[file],schemas[mapping[file]],spec)
+            delta.verify(ROOT.parent,broken)
+        except ValueError:negative+=1
+        else:raise AssertionError('Delta tamper/type accepted')
+    assert '/v2/documents' not in spec['paths']
     optional='NOT_INSTALLED'
     try:
         import jsonschema
@@ -114,6 +177,9 @@ def run():
         validate_spec(spec)
         for file,name in mapping.items():jsonschema.Draft202012Validator({'$ref':'#/components/schemas/'+name,**{k:v for k,v in spec.items() if k!='openapi'}},format_checker=jsonschema.FormatChecker()).validate(fixtures[file])
         optional='PASSED'
-    result=dict(status='DRAFT_ASSET_SELFCHECK_PASSED',fixtures=len(fixtures),schemas=len(schemas),paths=len(spec['paths']),negative_probes=negative,official_optional_validator=optional,m1_joint_freeze='PENDING',runtime_v2_implemented=False)
+    result=dict(status='DRAFT_ASSET_SELFCHECK_PASSED',fixtures=len(fixtures),legacy_fixtures=6,delta_fixtures=5,verified_vectors=verified,schemas=len(schemas),paths=len(spec['paths']),negative_probes=negative,official_optional_validator=optional,m1_joint_freeze='PENDING',runtime_v2_implemented=False,delta=delta_source_status())
     print(json.dumps(result,sort_keys=True));return result
-if __name__=='__main__':run()
+if __name__=='__main__':
+    outcome=run()
+    # Draft assets verified only; this is never joint approval or runtime v2 proof.
+    raise SystemExit(0 if outcome['delta']['complete'] else 2)

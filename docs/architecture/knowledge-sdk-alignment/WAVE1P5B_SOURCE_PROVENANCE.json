@@ -1,0 +1,220 @@
+{
+  "status": "SOURCE_GAP_RESOLVED_BY_OWNER_T61_BYTE_ORIGINALS",
+  "owner_archive": {
+    "path": "/workspace/align-wave1p5b-task-inputs/owner-t61-originals.zip",
+    "sha256": "d56268b4ebd533d23ee296544cd23bbe00ba1cec21e1bb54ea71572d3778e5e5",
+    "files": [
+      {
+        "path": "docs/architecture/knowledge-sdk-alignment/00_CURRENT_STATE_AUDIT.md",
+        "sha256": "1e81d14f58047a9c4fb26fbd3e92b01f0636142cb21221d1ec10f9a60908944c",
+        "bytes": 19785,
+        "matches_preserved_repo_original": true,
+        "action": "preserve_existing_00_05_no_overwrite"
+      },
+      {
+        "path": "docs/architecture/knowledge-sdk-alignment/01_OPENBOT_REQUIREMENTS_MAPPING.md",
+        "sha256": "f49981aba20434398abda986be87dd9c8f8d840c6c43828f55b638051d2dbfd7",
+        "bytes": 18752,
+        "matches_preserved_repo_original": true,
+        "action": "preserve_existing_00_05_no_overwrite"
+      },
+      {
+        "path": "docs/architecture/knowledge-sdk-alignment/02_DOMAIN_MODEL_ALIGNMENT.md",
+        "sha256": "ffe3c7a530f979f7ad93721116179bb1ce346ecbe6d3576cf6251e5d56c1968e",
+        "bytes": 16548,
+        "matches_preserved_repo_original": true,
+        "action": "preserve_existing_00_05_no_overwrite"
+      },
+      {
+        "path": "docs/architecture/knowledge-sdk-alignment/03_DOMAIN_CONTRACTS.md",
+        "sha256": "f91e79e9b5cfe8bd7b9fedc5e420fc85961e5079bc3b217e3ba686ee8519a825",
+        "bytes": 16244,
+        "matches_preserved_repo_original": true,
+        "action": "preserve_existing_00_05_no_overwrite"
+      },
+      {
+        "path": "docs/architecture/knowledge-sdk-alignment/04_TEAM_A_NEXT_STAGE_EXECUTION_PLAN.md",
+        "sha256": "05bc5296482b7c7218c7a4ecec6e93b7f7bb1c87fc61fe2cc34632ce692c4450",
+        "bytes": 18221,
+        "matches_preserved_repo_original": true,
+        "action": "preserve_existing_00_05_no_overwrite"
+      },
+      {
+        "path": "docs/architecture/knowledge-sdk-alignment/05_TEAM_A_EXECUTION_DIRECTIVE_WAVE1.md",
+        "sha256": "c8120808051d58f229e2e4d0138b5b7d3709ad874c99665663d01ef3609fd715",
+        "bytes": 14281,
+        "matches_preserved_repo_original": true,
+        "action": "preserve_existing_00_05_no_overwrite"
+      },
+      {
+        "path": "docs/architecture/knowledge-sdk-alignment/06_WAVE1_ACCEPTANCE_AND_NEXT_DIRECTIVE.md",
+        "sha256": "aa4adb3c73ef4488f24540f73f05f2f79567b635cea1ae39936709184c28d560",
+        "bytes": 12782,
+        "matches_preserved_repo_original": false,
+        "action": "archive_original"
+      },
+      {
+        "path": "docs/architecture/knowledge-sdk-alignment/07_TEAM_A_TO_TEAM_B_CONSENSUS_RESPONSE.md",
+        "sha256": "1cfe9b4b60522ed48871ce5272cfd2bfa8c35baaf7f6dc528de59731e696a70c",
+        "bytes": 24822,
+        "matches_preserved_repo_original": false,
+        "action": "archive_original"
+      },
+      {
+        "path": "docs/architecture/knowledge-sdk-alignment/08_TEAM_A_DELTA_SIGNOFF_AND_MIN_SLICE.md",
+        "sha256": "78efad1e4bc90c179edf46226475d4f3c1acfd4ba25b30390234c75cfb230096",
+        "bytes": 19616,
+        "matches_preserved_repo_original": false,
+        "action": "archive_original"
+      },
+      {
+        "path": "docs/architecture/knowledge-sdk-alignment/09_WAVE1P5_CONSOLIDATED_EXECUTION_DIRECTIVE.md",
+        "sha256": "0ed8076cf0fffda4dd794c9438cfd581e6a2c7c430a70fe4f03a3464cd4f3cac",
+        "bytes": 15294,
+        "matches_preserved_repo_original": false,
+        "action": "archive_original"
+      },
+      {
+        "path": "docs/architecture/knowledge-sdk-alignment/10_WAVE1P5_ACCEPTANCE_AND_DELTA_DIRECTIVE.md",
+        "sha256": "d7c3330c0c2c7ae9756fe23a2cab0de8b3c14bc192ea7eb2d4105d32e82a401d",
+        "bytes": 15421,
+        "matches_preserved_repo_original": false,
+        "action": "archive_original"
+      }
+    ]
+  },
+  "original_00_05_action": "All match preserved repo originals; no overwrite or modification",
+  "original10_versions": [
+    {
+      "source": "owner t59 standalone",
+      "repo_path": "SOURCE10_STANDALONE_T59_ORIGINAL.md",
+      "bytes": 13414,
+      "sha256": "3c01cfb0e8fb43f675116ffb0963273a6edcc58596b01685172d854ccf0afc2c",
+      "status": "preserved_superseded_original"
+    },
+    {
+      "source": "owner t61 supplied ZIP",
+      "repo_path": "10_WAVE1P5_ACCEPTANCE_AND_DELTA_DIRECTIVE.md",
+      "bytes": 15421,
+      "sha256": "d7c3330c0c2c7ae9756fe23a2cab0de8b3c14bc192ea7eb2d4105d32e82a401d",
+      "status": "current_original_corrects_v2_assets_and_evidence_boundaries"
+    }
+  ],
+  "historical_t60_inventory": [
+    {
+      "file": "0499e8ed01931429f689c4a2e0373aa67b11638a827a136a3cdfb7e20ffe1d3f.md",
+      "sha256": "22a4a3df56d6a5f8857396c03863e005bf5d21c0c054c0fad62e6cc3ca2be02d",
+      "bytes": 23378,
+      "staged_source": "/workspace/align-wave1p5b-task-inputs/original-attachments/0499e8ed01931429f689c4a2e0373aa67b11638a827a136a3cdfb7e20ffe1d3f.md",
+      "heading": "# Q2 第三阶段实施指令书（Q2-M3）：L2 双轨审批、纠偏闭环与 EvidencePack",
+      "classification": "historical_source_not_original_06_09",
+      "agreed_vector_markers_present": false
+    },
+    {
+      "file": "2862ba47be238c7199eada0bc656a9019c148e52a7e3c992fda69a929adeee2a.zip",
+      "sha256": "04f303b1b110ff50c4d1e346b65132788009ab0b0785982be0a5c8e2c16054da",
+      "bytes": 105183,
+      "staged_source": "/workspace/align-wave1p5b-task-inputs/original-attachments/2862ba47be238c7199eada0bc656a9019c148e52a7e3c992fda69a929adeee2a.zip",
+      "classification": "original_alignment_archive_00_05_only",
+      "members": [
+        {
+          "path": "docs/architecture/knowledge-sdk-alignment/00_CURRENT_STATE_AUDIT.md",
+          "sha256": "1e81d14f58047a9c4fb26fbd3e92b01f0636142cb21221d1ec10f9a60908944c"
+        },
+        {
+          "path": "docs/architecture/knowledge-sdk-alignment/01_OPENBOT_REQUIREMENTS_MAPPING.md",
+          "sha256": "f49981aba20434398abda986be87dd9c8f8d840c6c43828f55b638051d2dbfd7"
+        },
+        {
+          "path": "docs/architecture/knowledge-sdk-alignment/02_DOMAIN_MODEL_ALIGNMENT.md",
+          "sha256": "ffe3c7a530f979f7ad93721116179bb1ce346ecbe6d3576cf6251e5d56c1968e"
+        },
+        {
+          "path": "docs/architecture/knowledge-sdk-alignment/03_DOMAIN_CONTRACTS.md",
+          "sha256": "f91e79e9b5cfe8bd7b9fedc5e420fc85961e5079bc3b217e3ba686ee8519a825"
+        },
+        {
+          "path": "docs/architecture/knowledge-sdk-alignment/04_TEAM_A_NEXT_STAGE_EXECUTION_PLAN.md",
+          "sha256": "05bc5296482b7c7218c7a4ecec6e93b7f7bb1c87fc61fe2cc34632ce692c4450"
+        },
+        {
+          "path": "docs/architecture/knowledge-sdk-alignment/05_TEAM_A_EXECUTION_DIRECTIVE_WAVE1.md",
+          "sha256": "c8120808051d58f229e2e4d0138b5b7d3709ad874c99665663d01ef3609fd715"
+        }
+      ]
+    },
+    {
+      "file": "550b0df27a9f209e393d2419a148116e6f8514cb26844674d74c69459061959a.md",
+      "sha256": "3c01cfb0e8fb43f675116ffb0963273a6edcc58596b01685172d854ccf0afc2c",
+      "bytes": 13414,
+      "staged_source": "/workspace/align-wave1p5b-task-inputs/original-attachments/550b0df27a9f209e393d2419a148116e6f8514cb26844674d74c69459061959a.md",
+      "heading": "# Align-Wave1.5 独立验收结论、延迟豁免裁定与 Align-Wave1.5b 契约收口指令",
+      "classification": "supplied_original_10",
+      "agreed_vector_markers_present": true
+    },
+    {
+      "file": "809ce8f1f059171500f4a4c240b59560c5decd3cd5e8b8400662d023d997dfaa.md",
+      "sha256": "c8120808051d58f229e2e4d0138b5b7d3709ad874c99665663d01ef3609fd715",
+      "bytes": 14281,
+      "staged_source": "/workspace/align-wave1p5b-task-inputs/original-attachments/809ce8f1f059171500f4a4c240b59560c5decd3cd5e8b8400662d023d997dfaa.md",
+      "heading": "# 团队 A 执行指令书（对齐第一波次 · Align-Wave1）",
+      "classification": "historical_source_not_original_06_09",
+      "agreed_vector_markers_present": false
+    },
+    {
+      "file": "b3ce6d2b48bcf28b552959a14ac1ace914c10774dc5b4689f5e297712965a66f.md",
+      "sha256": "b3ce6d2b48bcf28b552959a14ac1ace914c10774dc5b4689f5e297712965a66f",
+      "bytes": 13412,
+      "staged_source": "/workspace/align-wave1p5b-task-inputs/original-attachments/b3ce6d2b48bcf28b552959a14ac1ace914c10774dc5b4689f5e297712965a66f.md",
+      "heading": "# PHASE4_HANDOFF_REPORT — Q1-M4 交接（以 t37u 唯一执行任务书为准）",
+      "classification": "historical_source_not_original_06_09",
+      "agreed_vector_markers_present": false
+    },
+    {
+      "file": "ba3bcbe48e6a45cb8e7da3fd7306c2005c43a55d63e3e70d797b582eebdfea04.md",
+      "sha256": "95e6aef82e87c3418589cda64a4cb1b33d8f2aea450fc0371b9a53775c7fa909",
+      "bytes": 21950,
+      "staged_source": "/workspace/align-wave1p5b-task-inputs/original-attachments/ba3bcbe48e6a45cb8e7da3fd7306c2005c43a55d63e3e70d797b582eebdfea04.md",
+      "heading": "# Q2 第四阶段实施指令书（Q2-M4）：企业身份网关、Connector 同步与 Q2 退出验收",
+      "classification": "historical_source_not_original_06_09",
+      "agreed_vector_markers_present": false
+    },
+    {
+      "file": "c09c0dbfd077fe9d09c279e51bcc14fecd4804c383f28c0a039a6e6aef7504ba.md",
+      "sha256": "1988a2c5cae36fb4471ec2fb669d97e87256f79ec929f13e880fae42ea0e0aef",
+      "bytes": 19081,
+      "staged_source": "/workspace/align-wave1p5b-task-inputs/original-attachments/c09c0dbfd077fe9d09c279e51bcc14fecd4804c383f28c0a039a6e6aef7504ba.md",
+      "heading": "# Q2 第二阶段实施指令书（Q2-M2）：PostgreSQL + pgvector 双引擎底座",
+      "classification": "historical_source_not_original_06_09",
+      "agreed_vector_markers_present": false
+    },
+    {
+      "file": "d1439accb727523335ea972e91899c7e0f84195733a90d0be246a1c16ac234b8.md",
+      "sha256": "9bb675f1b039aa0fe2dee2d131234e0e3e15aab076b62a400a52edff0973ec1b",
+      "bytes": 20502,
+      "staged_source": "/workspace/align-wave1p5b-task-inputs/original-attachments/d1439accb727523335ea972e91899c7e0f84195733a90d0be246a1c16ac234b8.md",
+      "heading": "# Q3 第一阶段实施指令书（Q3-M1）：基线收口、Schema v5 与 Agent Knowledge Runtime",
+      "classification": "historical_source_not_original_06_09",
+      "agreed_vector_markers_present": false
+    },
+    {
+      "file": "d1c9153392b72ef52225f0def07613cd7d37006f90a1440049a0755224f2c4b6.md",
+      "sha256": "037eaf1682a01b9ac490a455d78a5aead680f6331f2936cc7a4315b37980f1d9",
+      "bytes": 19687,
+      "staged_source": "/workspace/align-wave1p5b-task-inputs/original-attachments/d1c9153392b72ef52225f0def07613cd7d37006f90a1440049a0755224f2c4b6.md",
+      "heading": "# Q3 第二阶段实施指令书（Q3-M2）：可插拔 Reranker、分数独立校准与成对离线评测",
+      "classification": "historical_source_not_original_06_09",
+      "agreed_vector_markers_present": false
+    },
+    {
+      "file": "f614fb214efdecedbb13a46bf20e31bff62eaaa805df25382d74dd4131fa7575.md",
+      "sha256": "f614fb214efdecedbb13a46bf20e31bff62eaaa805df25382d74dd4131fa7575",
+      "bytes": 45565,
+      "staged_source": "/workspace/align-wave1p5b-task-inputs/original-attachments/f614fb214efdecedbb13a46bf20e31bff62eaaa805df25382d74dd4131fa7575.md",
+      "heading": "# 知识库产品战略与演进架构专家评审稿",
+      "classification": "historical_source_not_original_06_09",
+      "agreed_vector_markers_present": false
+    }
+  ],
+  "authority": "Owner t61u authorizes exact docs/contracts/tests work; source role/signoff statements are owner-provided, never executor independent audit or joint M1 approval"
+}

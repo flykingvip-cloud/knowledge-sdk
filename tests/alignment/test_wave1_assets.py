@@ -6,13 +6,15 @@ ASSETS=ROOT/'docs/architecture/knowledge-sdk-alignment/contracts'
 class DraftAssets(unittest.TestCase):
     def test_full_used_schema_security_and_negative_probes(self):
         spec=importlib.util.spec_from_file_location('wave_validator',ASSETS/'validate_assets.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
-        result=m.run();self.assertEqual(result['fixtures'],6);self.assertGreaterEqual(result['negative_probes'],30);self.assertFalse(result['runtime_v2_implemented'])
+        result=m.run();self.assertEqual(result['legacy_fixtures'],6);self.assertEqual(result['delta_fixtures'],5);self.assertEqual(result['fixtures'],11);self.assertGreaterEqual(result['negative_probes'],30);self.assertFalse(result['runtime_v2_implemented'])
     def test_dto_schema_fixture_generation_exact(self):
         with tempfile.TemporaryDirectory() as directory:
             base=Path(directory);assets=base/'contracts';(assets/'contract-fixtures').mkdir(parents=True)
+            shutil.copyfile(ASSETS/'delta_contracts.py',assets/'delta_contracts.py')
+            for source in ('08_TEAM_A_DELTA_SIGNOFF_AND_MIN_SLICE.md','09_WAVE1P5_CONSOLIDATED_EXECUTION_DIRECTIVE.md'):shutil.copyfile(ASSETS.parent/source,base/source)
             shutil.copyfile(ASSETS/'generate_assets.py',assets/'generate_assets.py');shutil.copyfile(ASSETS.parent/'03_DOMAIN_CONTRACTS.md',base/'03_DOMAIN_CONTRACTS.md')
             subprocess.run([sys.executable,'-S',str(assets/'generate_assets.py')],check=True,capture_output=True)
-            for file in ('openapi-v2-draft.yaml','openbot-adapter-dto.d.ts','fixture-schemas.json'):
+            for file in ('openapi-v2-draft.yaml','openbot-adapter-dto.d.ts','fixture-schemas.json','minimum-slice-checklist.json','fixture-evidence-boundaries.json'):
                 self.assertEqual((assets/file).read_bytes(),(ASSETS/file).read_bytes())
             for fixture in (ASSETS/'contract-fixtures').glob('*.json'):self.assertEqual(fixture.read_bytes(),(assets/'contract-fixtures'/fixture.name).read_bytes())
     def test_six_governance_original_hashes_unchanged(self):

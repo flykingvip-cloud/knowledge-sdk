@@ -1,0 +1,57 @@
+{
+  "identity-context.json": {
+    "runtime_captured": false,
+    "evidence_kind": "draft_contract_example_only",
+    "runtime_v2_implemented": false
+  },
+  "agent-intersection-deny.json": {
+    "runtime_captured": false,
+    "evidence_kind": "draft_contract_example_only",
+    "runtime_v2_implemented": false
+  },
+  "kb-lifecycle.json": {
+    "runtime_captured": false,
+    "evidence_kind": "draft_contract_example_only",
+    "runtime_v2_implemented": false
+  },
+  "dual-uri-evidence.json": {
+    "runtime_captured": false,
+    "evidence_kind": "draft_contract_example_only",
+    "runtime_v2_implemented": false
+  },
+  "calibrated-search-response.json": {
+    "runtime_captured": false,
+    "evidence_kind": "draft_contract_example_only",
+    "runtime_v2_implemented": false
+  },
+  "error-envelope.json": {
+    "runtime_captured": false,
+    "evidence_kind": "draft_contract_example_only",
+    "runtime_v2_implemented": false
+  },
+  "identity-lifecycle-fixtures.json": {
+    "runtime_captured": false,
+    "evidence_kind": "contract_scenario_fixture",
+    "runtime_v2_implemented": false
+  },
+  "policy-generation-cases.json": {
+    "runtime_captured": false,
+    "evidence_kind": "contract_scenario_fixture",
+    "runtime_v2_implemented": false
+  },
+  "hash-vectors-utf8.json": {
+    "runtime_captured": false,
+    "evidence_kind": "offline_algorithm_vector_only",
+    "runtime_v2_implemented": false
+  },
+  "signed-request-canonicalization.json": {
+    "runtime_captured": false,
+    "evidence_kind": "offline_algorithm_vector_only",
+    "runtime_v2_implemented": false
+  },
+  "rollback-activation-cases.json": {
+    "runtime_captured": false,
+    "evidence_kind": "contract_scenario_fixture",
+    "runtime_v2_implemented": false
+  }
+}

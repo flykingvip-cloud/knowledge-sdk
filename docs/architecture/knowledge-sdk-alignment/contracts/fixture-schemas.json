@@ -4,5 +4,10 @@
   "kb-lifecycle.json": "KBLifecycleFixture",
   "dual-uri-evidence.json": "DualUriEvidenceFixture",
   "calibrated-search-response.json": "SearchResponse",
-  "error-envelope.json": "ErrorEnvelope"
+  "error-envelope.json": "ErrorEnvelope",
+  "identity-lifecycle-fixtures.json": "IdentityLifecycleFixture",
+  "policy-generation-cases.json": "PolicyGenerationFixture",
+  "hash-vectors-utf8.json": "HashVectorFixture",
+  "signed-request-canonicalization.json": "SignedCanonicalizationFixture",
+  "rollback-activation-cases.json": "RollbackActivationFixture"
 }

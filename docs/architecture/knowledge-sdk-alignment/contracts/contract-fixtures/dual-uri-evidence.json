@@ -22,7 +22,8 @@
       "table_cell": null
     },
     "masking_summary": "",
-    "verification_status": "verified"
+    "verification_status": "verified",
+    "hash_algorithm": "sha256"
   },
   "mapping": {
     "coordinates": {

@@ -1,5 +1,5 @@
 /** DRAFT reference lookup only. Never grants tenant/content authority. No runtime dependencies. */
-import type {DualUriMapping, VersionCoordinate, CanonicalKbUri, LegacyKuUri} from './openbot-adapter-dto';
+import type {DualUriMapping, VersionCoordinate, CanonicalKbUri, LegacyKuUri, WriteActivationResult, PolicyGeneration} from './openbot-adapter-dto';
 const SEG='(?:[A-Za-z0-9._~-]|%[0-9A-Fa-f]{2})+';
 const KB=new RegExp('^kb://org/('+SEG+')/doc/('+SEG+')@([1-9][0-9]*)(?:#(anchor|chunk)=('+SEG+'))?$');
 const KU=new RegExp('^ku://kb/('+SEG+')/doc/('+SEG+')@('+SEG+')(?:#('+SEG+'(?:/'+SEG+')*))?$');
@@ -42,3 +42,43 @@ function select(uri:string,records:ReadonlyArray<DualUriMapping>,canonical:boole
 }
 export function toKu(uri:CanonicalKbUri,records:ReadonlyArray<DualUriMapping>):DualUriMapping {return select(uri,records,true);}
 export function toKb(uri:LegacyKuUri,records:ReadonlyArray<DualUriMapping>):DualUriMapping {return select(uri,records,false);}
+
+
+/** Python-compatible NFC followed by the explicit29 str.isspace() codepoints.
+ * Preserves FEFF; no ECMAScript whitespace regex. Source08/t61 resolves NFC.
+ */
+const PYTHON_SPACE = new Set<number>([
+  0x0009,0x000a,0x000b,0x000c,0x000d,0x001c,0x001d,0x001e,0x001f,0x0020,
+  0x0085,0x00a0,0x1680,0x2000,0x2001,0x2002,0x2003,0x2004,0x2005,0x2006,
+  0x2007,0x2008,0x2009,0x200a,0x2028,0x2029,0x202f,0x205f,0x3000
+]);
+export function normalizeTextPythonCompat(input:string):string {
+  if(typeof input!=='string')throw new TypeError('Expected text');
+  let result='',pending=false;
+  for(const ch of input.normalize('NFC')){
+    if(PYTHON_SPACE.has(ch.codePointAt(0)!)){pending=result.length>0;continue;}
+    if(pending)result+=' ';
+    result+=ch;pending=false;
+  }
+  return result;
+}
+/** Draft v2 contract only. Existing SDK/v1 generation-zero rules are unchanged. */
+export function isPolicyGeneration(value:unknown):value is PolicyGeneration {
+  return typeof value==='number' && Number.isSafeInteger(value) && value>=1;
+}
+export function isSha256Hex(value:unknown):value is string {
+  return typeof value==='string' && value.length===64 && /^[0-9a-f]{64}$/.test(value);
+}
+const LIFECYCLE = new Set(['published','draft','in_review','approved','rejected','superseded','revoked']);
+/** Cross-field reference validator, NOT authority or a runtime v1 response parser. */
+export function validateWriteActivationResult(value:unknown):WriteActivationResult {
+  if(typeof value!=='object'||value===null||Array.isArray(value))throw new TypeError('Invalid draft activation result');
+  const v=value as Record<string,unknown>;
+  if(Object.keys(v).sort().join(',')!=='activated,created_version,current_version,lifecycle_state,rollback_scope' ||
+     !isPolicyGeneration(v.created_version)||!isPolicyGeneration(v.current_version)||
+     typeof v.lifecycle_state!=='string'||!LIFECYCLE.has(v.lifecycle_state)||typeof v.activated!=='boolean'||
+     v.rollback_scope!=='content_and_filename_only'||
+     v.activated!==((v.created_version===v.current_version)&&(v.lifecycle_state==='published')))
+    throw new TypeError('Invalid draft activation result');
+  return Object.freeze({...v}) as WriteActivationResult;
+}

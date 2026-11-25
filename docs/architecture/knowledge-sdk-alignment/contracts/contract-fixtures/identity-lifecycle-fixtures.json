@@ -1,0 +1,227 @@
+{
+  "contract_status": "draft-pending-m1-freeze",
+  "runtime_captured": false,
+  "evidence_kind": "contract_scenario_fixture",
+  "source_documents": [
+    "08_TEAM_A_DELTA_SIGNOFF_AND_MIN_SLICE.md#remaining-technical-deltas-1"
+  ],
+  "cases": [
+    {
+      "id": "composite_key_cannot_reassign_user",
+      "existing": [
+        {
+          "tenant_id": "tenant-sandbox-01",
+          "issuer": "https://idp-a.example.invalid",
+          "raw_sub": "raw-sub-001",
+          "user_id": "stable-user-001",
+          "email": "fixture@example.invalid",
+          "status": "active",
+          "policy_generation": 1
+        }
+      ],
+      "incoming": {
+        "tenant_id": "tenant-sandbox-01",
+        "issuer": "https://idp-a.example.invalid",
+        "raw_sub": "raw-sub-001",
+        "user_id": "stable-user-002",
+        "email": "fixture@example.invalid",
+        "status": "active",
+        "policy_generation": 1
+      },
+      "presented_generation": 1,
+      "migration": null,
+      "expected": {
+        "allowed": false,
+        "code": "CONFLICT",
+        "user_id": null
+      }
+    },
+    {
+      "id": "same_sub_other_tenant_is_distinct",
+      "existing": [
+        {
+          "tenant_id": "tenant-sandbox-01",
+          "issuer": "https://idp-a.example.invalid",
+          "raw_sub": "raw-sub-001",
+          "user_id": "stable-user-001",
+          "email": "fixture@example.invalid",
+          "status": "active",
+          "policy_generation": 1
+        }
+      ],
+      "incoming": {
+        "tenant_id": "tenant-sandbox-02",
+        "issuer": "https://idp-a.example.invalid",
+        "raw_sub": "raw-sub-001",
+        "user_id": "stable-user-002",
+        "email": "fixture@example.invalid",
+        "status": "active",
+        "policy_generation": 1
+      },
+      "presented_generation": 1,
+      "migration": null,
+      "expected": {
+        "allowed": true,
+        "code": null,
+        "user_id": "stable-user-002"
+      }
+    },
+    {
+      "id": "cross_idp_same_email_new_user_not_merged",
+      "existing": [
+        {
+          "tenant_id": "tenant-sandbox-01",
+          "issuer": "https://idp-a.example.invalid",
+          "raw_sub": "raw-sub-001",
+          "user_id": "stable-user-001",
+          "email": "fixture@example.invalid",
+          "status": "active",
+          "policy_generation": 1
+        }
+      ],
+      "incoming": {
+        "tenant_id": "tenant-sandbox-01",
+        "issuer": "https://idp-b.example.invalid",
+        "raw_sub": "raw-sub-002",
+        "user_id": "stable-user-002",
+        "email": "fixture@example.invalid",
+        "status": "active",
+        "policy_generation": 1
+      },
+      "presented_generation": 1,
+      "migration": null,
+      "expected": {
+        "allowed": true,
+        "code": null,
+        "user_id": "stable-user-002"
+      }
+    },
+    {
+      "id": "cross_idp_same_user_without_rebound_denied",
+      "existing": [
+        {
+          "tenant_id": "tenant-sandbox-01",
+          "issuer": "https://idp-a.example.invalid",
+          "raw_sub": "raw-sub-001",
+          "user_id": "stable-user-001",
+          "email": "fixture@example.invalid",
+          "status": "active",
+          "policy_generation": 1
+        }
+      ],
+      "incoming": {
+        "tenant_id": "tenant-sandbox-01",
+        "issuer": "https://idp-b.example.invalid",
+        "raw_sub": "raw-sub-002",
+        "user_id": "stable-user-001",
+        "email": "fixture@example.invalid",
+        "status": "active",
+        "policy_generation": 1
+      },
+      "presented_generation": 1,
+      "migration": null,
+      "expected": {
+        "allowed": false,
+        "code": "PERMISSION_DENIED",
+        "user_id": null
+      }
+    },
+    {
+      "id": "explicit_identity_rebound",
+      "existing": [
+        {
+          "tenant_id": "tenant-sandbox-01",
+          "issuer": "https://idp-a.example.invalid",
+          "raw_sub": "raw-sub-001",
+          "user_id": "stable-user-001",
+          "email": "fixture@example.invalid",
+          "status": "active",
+          "policy_generation": 1
+        }
+      ],
+      "incoming": {
+        "tenant_id": "tenant-sandbox-01",
+        "issuer": "https://idp-b.example.invalid",
+        "raw_sub": "raw-sub-002",
+        "user_id": "stable-user-001",
+        "email": "fixture@example.invalid",
+        "status": "active",
+        "policy_generation": 2
+      },
+      "presented_generation": 2,
+      "migration": {
+        "type": "identity.rebound",
+        "administrator_authorized": true,
+        "from_issuer": "https://idp-a.example.invalid",
+        "from_raw_sub": "raw-sub-001",
+        "to_issuer": "https://idp-b.example.invalid",
+        "to_raw_sub": "raw-sub-002"
+      },
+      "expected": {
+        "allowed": true,
+        "code": null,
+        "user_id": "stable-user-001"
+      }
+    },
+    {
+      "id": "deactivated_existing_session_task",
+      "existing": [
+        {
+          "tenant_id": "tenant-sandbox-01",
+          "issuer": "https://idp-a.example.invalid",
+          "raw_sub": "raw-sub-001",
+          "user_id": "stable-user-001",
+          "email": "fixture@example.invalid",
+          "status": "active",
+          "policy_generation": 1
+        }
+      ],
+      "incoming": {
+        "tenant_id": "tenant-sandbox-01",
+        "issuer": "https://idp-a.example.invalid",
+        "raw_sub": "raw-sub-001",
+        "user_id": "stable-user-001",
+        "email": "fixture@example.invalid",
+        "status": "disabled",
+        "policy_generation": 2
+      },
+      "presented_generation": 1,
+      "migration": null,
+      "expected": {
+        "allowed": false,
+        "code": "IDENTITY_REVOKED",
+        "user_id": null
+      }
+    },
+    {
+      "id": "revoked_generation_existing_session_task",
+      "existing": [
+        {
+          "tenant_id": "tenant-sandbox-01",
+          "issuer": "https://idp-a.example.invalid",
+          "raw_sub": "raw-sub-001",
+          "user_id": "stable-user-001",
+          "email": "fixture@example.invalid",
+          "status": "active",
+          "policy_generation": 1
+        }
+      ],
+      "incoming": {
+        "tenant_id": "tenant-sandbox-01",
+        "issuer": "https://idp-a.example.invalid",
+        "raw_sub": "raw-sub-001",
+        "user_id": "stable-user-001",
+        "email": "fixture@example.invalid",
+        "status": "active",
+        "policy_generation": 2
+      },
+      "presented_generation": 1,
+      "migration": null,
+      "expected": {
+        "allowed": false,
+        "code": "POLICY_GENERATION_STALE",
+        "user_id": null
+      }
+    }
+  ]
+}
