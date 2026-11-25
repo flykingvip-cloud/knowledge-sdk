@@ -237,6 +237,10 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
     def close(self):
         with self.lock: self.db.close()
     def _execute(self,sql,args=()):
+        # Conservative invalidation, including rolled-back/reentrant direct SQL.
+        # No persisted state/DDL; only a successful in-flight identity memo uses it.
+        if 'identity_principals' in sql.lower() and not sql.lstrip().upper().startswith(('SELECT','EXPLAIN')):
+            self._principal_mutation_epoch=getattr(self,'_principal_mutation_epoch',0)+1
         with self.lock:
             try: return self.db.execute(sql,args).fetchall()
             except sqlite3.IntegrityError as exc: raise ConflictError("Storage constraint conflict") from exc

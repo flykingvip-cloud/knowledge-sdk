@@ -118,6 +118,10 @@ class PostgresStore(RuntimeStoreMixin):
         if rows[0][0]!=org:raise ConflictError('Resource identity conflict')
 
     def _execute(self,sql,args=()):
+        # Conservative invalidation, including rolled-back/reentrant direct SQL.
+        # No persisted state/DDL; only a successful in-flight identity memo uses it.
+        if 'identity_principals' in sql.lower() and not sql.lstrip().upper().startswith(('SELECT','EXPLAIN')):
+            self._principal_mutation_epoch=getattr(self,'_principal_mutation_epoch',0)+1
         with self.lock:
             try:
                 with self.db.cursor() as cur:

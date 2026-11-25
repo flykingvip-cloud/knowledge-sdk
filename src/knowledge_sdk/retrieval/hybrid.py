@@ -49,6 +49,8 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
     redaction_registry=redaction_registry if redaction_registry is not None else RedactionRegistry()
     evaluated=set();accepted={};candidates={};more=False;vector_scores={}
     source_cache={};chunk_cache={}  # strictly this call, under the client/store transaction
+    if mode!='keyword' and hasattr(policy_engine,'_before_ranking'):
+        policy_engine._before_ranking(actor)
     vector=embedder.embed([query])[0] if mode!='keyword' else None
     batches=tuple(dict.fromkeys((min(max(limit*4,40),500),min(max(limit*12,120),500),500)))
     for batch in batches:
@@ -119,6 +121,8 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
             except (NotFoundError,PermissionDeniedError): continue
         if len(accepted)>=target or len(evaluated)>=500 or not more:break
     hits=sorted(accepted.values(),key=lambda h:(-h.score,h.doc_id,h.version,h.chunk_id))[:target]
+    if (reranker is not None or calibrator is not None) and hasattr(policy_engine,'_before_ranking'):
+        policy_engine._before_ranking(actor)
     if reranker is not None:
         controlled=tuple(RerankCandidate(h.doc_id,h.version,h.chunk_id,h.title[:2000],h.excerpt[:32000],h.source_uri,float(h.score),i,bool(h.masking_summary)) for i,h in enumerate(hits,1))
         scores=apply_reranker(query,controlled,reranker)

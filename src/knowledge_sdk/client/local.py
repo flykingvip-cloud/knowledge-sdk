@@ -2,6 +2,7 @@ from __future__ import annotations
 import knowledge_sdk
 from datetime import datetime, timezone
 from functools import wraps
+from contextlib import contextmanager
 import threading
 import inspect
 import uuid
@@ -74,7 +75,7 @@ class _AuditedEngine:
     def __getattr__(self,name):return getattr(self.delegate,name)
     def evaluate(self, actor, agent, kb, document=None, acl=None, member_role=None,
                  action=PolicyAction.READ_CONTENT, purpose=Purpose.READ, context=None):
-        try:self.client._check_principal(actor)
+        try:self.client._check_retrieval_principal(actor,agent,purpose,context)
         except PermissionDeniedError:
             self.client._audit_operation(actor,'evaluate_policy',{},None,denied=True)
             raise
@@ -82,6 +83,10 @@ class _AuditedEngine:
         self.client._audit_operation(actor,'evaluate_policy',
                     {'agent':agent,'purpose':purpose,'doc_id':document.doc_id if document else '', 'policy_context':context},decision)
         return decision
+
+    def _before_ranking(self,actor):
+        # External rank/calibration boundaries always receive a fresh identity gate.
+        self.client._check_principal(actor)
 
 
 class LocalKnowledgeClient(CompatMixin,RuntimeMixin, GovernanceMixin, IssueMixin, PackMixin):
@@ -109,6 +114,28 @@ class LocalKnowledgeClient(CompatMixin,RuntimeMixin, GovernanceMixin, IssueMixin
     def _check_principal(self,actor):
         from ..permissions.identity import check_principal
         check_principal(self.store,actor,required=self.require_principal)
+
+    @contextmanager
+    def _retrieval_principal_snapshot(self,actor,agent,purpose,context):
+        """Successful identity validation only, scoped to one locked transaction.
+
+        Policy, redaction, resources, profiles/tasks and rank results are NOT cached.
+        Every request enters/finalizes with real reads; reentrant principal writes
+        invalidate the memo, and nested requests have independent lifetimes.
+        """
+        self._check_principal(actor)
+        previous=getattr(self,'_retrieval_identity',None)
+        self._retrieval_identity=(actor,agent,purpose,context,self.require_principal,
+                                  getattr(self.store,'_principal_mutation_epoch',0))
+        try:
+            yield
+            self._check_principal(actor)
+        finally:self._retrieval_identity=previous
+
+    def _check_retrieval_principal(self,actor,agent,purpose,context):
+        key=(actor,agent,purpose,context,self.require_principal,
+             getattr(self.store,'_principal_mutation_epoch',0))
+        if getattr(self,'_retrieval_identity',None)!=key:self._check_principal(actor)
 
     def _audit_operation(self, actor, action, values, result, denied=False):
         from ..audit.ledger import append
@@ -568,8 +595,7 @@ class LocalKnowledgeClient(CompatMixin,RuntimeMixin, GovernanceMixin, IssueMixin
     def search(self,actor,query,mode="keyword",limit=20,filters=None,scope=None,*,agent=None,purpose=Purpose.READ,policy_context=None,rerank=False,reranker_id=None,calibrator_id=None,min_calibrated_score=None,rerank_top_k=None,reranker=None,calibrator=None):
         from ..retrieval.strategies import resolve
         reranker,calibrator=resolve(rerank,reranker_id,calibrator_id,min_calibrated_score,rerank_top_k,reranker,calibrator,self.reranker_registry,self.calibrator_registry)
-        with self.store.runtime_transaction():
-            self._check_principal(actor)
+        with self.store.runtime_transaction(),self._retrieval_principal_snapshot(actor,agent,purpose,policy_context):
             ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context)
             if scope is not None: scope = self.validate_scope(actor, scope,**ctx)
             return run_search(self.store,actor,query,mode,limit,filters,self.vector_index,self.embedder,self.excerpt_policy,scope=scope,
