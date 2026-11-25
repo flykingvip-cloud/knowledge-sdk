@@ -14,6 +14,10 @@ def mount_connectors(app,client,connectors):
         connector,kb_id=entry
         if connector.org_id!=actor.org_id:raise NotFoundError('Connector not found')
         return connector,kb_id
+    @app.post('/v1/connectors/{connector_id}/plan')
+    async def plan(connector_id:str,request:Request):
+        connector,kb_id=configured(connector_id,request.state.actor)
+        return runner.plan_sync(request.state.actor,connector,org_id=request.state.actor.org_id,kb_id=kb_id,agent=request.state.agent,purpose=request.state.purpose)
     @app.post('/v1/connectors/{connector_id}/sync')
     async def sync(connector_id:str,request:Request):
         connector,kb_id=configured(connector_id,request.state.actor)

@@ -6,7 +6,7 @@ import hashlib
 from ..contracts.connectors import ConnectorSyncBatch,ConnectorSyncReport
 from ..contracts.identity import ConnectorSyncState
 from ..contracts.models import DocumentACL
-from ..contracts.policy import PolicyAction,ResourceRights
+from ..contracts.policy import PolicyAction,ResourceRights,Purpose
 from ..exceptions import PermissionDeniedError,ValidationError,NotFoundError,ConflictError
 from ..governance.workflow import now
 
@@ -19,6 +19,27 @@ class BaseConnector(ABC):
 
 class ConnectorSyncRunner:
     def __init__(self,client):self.client=client;self.store=client.store
+    def plan_sync(self,actor,connector,*,org_id,kb_id,webhook=None,batch=None,agent=None,purpose=Purpose.READ,policy_context=None):
+        from .planning import decisions,authorize
+        from .filesystem import ControlledFilesystemConnector
+        from .webhook_sync import WebhookSyncConnector
+        c=self.client;s=self.store
+        with c._lock,s.runtime_transaction():
+            c._check_principal(actor)
+            if actor.org_id!=org_id or connector.org_id!=org_id:raise PermissionDeniedError('connector_tenant_mismatch')
+            if not set(actor.org_roles)&{'admin','manage_org','connector_admin'}:raise PermissionDeniedError('connector_admin_required')
+            ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context)
+            authorize(c,actor,s.get_kb(kb_id),**ctx)
+            state=s.get_connector_sync_state(org_id,connector.connector_id);cursor=state.cursor if state else ''
+            if batch is not None and webhook is not None:raise ValidationError('Choose batch or webhook')
+            if batch is None:
+                if type(connector) is ControlledFilesystemConnector and webhook is None:
+                    batch=ControlledFilesystemConnector.sync_since(connector,cursor,org_id=org_id,kb_id=kb_id)
+                elif type(connector) is WebhookSyncConnector:
+                    batch=WebhookSyncConnector.batch_from_webhook(connector,*webhook,cursor=cursor,org_id=org_id,kb_id=kb_id) if webhook else ConnectorSyncBatch(next_cursor=cursor)
+                else:raise ValidationError('Planning custom connectors requires an explicit immutable batch; sync_since is never invoked')
+            return decisions(c,actor,connector,org_id,kb_id,batch,**ctx)
+
     def run_once(self,actor,connector,*,org_id,kb_id,webhook=None):
         c=self.client;s=self.store
         try:
@@ -27,12 +48,16 @@ class ConnectorSyncRunner:
             if not set(actor.org_roles)&{'admin','manage_org','connector_admin'}:raise PermissionDeniedError('connector_admin_required')
             decision=c.evaluate_policy(actor,kb_id=kb_id,action=PolicyAction.MANAGE_SPACE)
             if not decision.allowed:raise PermissionDeniedError(decision.reason_code)
-            with c._lock,s.transaction():
+            with c._lock,s.runtime_transaction():
+                c._check_principal(actor)
                 s.lock_connector(org_id,connector.connector_id)
                 state=s.get_connector_sync_state(org_id,connector.connector_id)
                 cursor=state.cursor if state else ''
                 batch=connector.batch_from_webhook(*webhook,cursor=cursor,org_id=org_id,kb_id=kb_id) if webhook else connector.sync_since(cursor,org_id=org_id,kb_id=kb_id)
                 if not isinstance(batch,ConnectorSyncBatch):raise ValidationError('Invalid connector result')
+                from .planning import decisions
+                from ..permissions.engine import DefaultPolicyEngine
+                if type(c.policy_engine.delegate) is DefaultPolicyEngine:decisions(c,actor,connector,org_id,kb_id,batch)
                 counts=[0,0,0];events=0;before=s.count_outbox_events(org_id)
                 def source(item,missing=False):
                     try:d=s.get_document(item.doc_id)

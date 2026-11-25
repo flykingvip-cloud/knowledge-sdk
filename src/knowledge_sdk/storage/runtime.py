@@ -133,3 +133,39 @@ class RuntimeStoreMixin:
             where+=' AND task_id IN (SELECT task_id FROM usage_events WHERE org_id=? AND doc_id=?)'
             args.extend((org_id,doc_id))
         return self._rt_read('task_contexts',org_id,where,args)
+
+    def list_kb_members(self,org_id,kb_id):
+        kb=self.get_kb(kb_id)
+        if kb.org_id!=org_id:raise NotFoundError('Resource not found')
+        condition=' AND org_id=?' if hasattr(self,'_pg') else ''
+        args=(kb_id,org_id) if condition else (kb_id,)
+        return [dict(user_id=r[0],role=r[1]) for r in self._rt_execute('SELECT user_id,role FROM kb_members WHERE kb_id=?'+condition+' ORDER BY user_id',args)]
+
+    def remove_kb_member(self,org_id,kb_id,user_id):
+        kb=self.get_kb(kb_id)
+        if kb.org_id!=org_id:raise NotFoundError('Resource not found')
+        condition=' AND org_id=?' if hasattr(self,'_pg') else ''
+        args=(kb_id,user_id,org_id) if condition else (kb_id,user_id)
+        self._rt_execute('DELETE FROM kb_members WHERE kb_id=? AND user_id=?'+condition,args)
+
+    def search_sources(self,org_id,doc_ids,user_id):
+        """Request-local authoritative metadata only; no policy result caching.
+
+        Caller holds runtime_transaction across selection, policy and delivery.
+        Explicit tenant join predicates complement FORCE RLS on PostgreSQL.
+        """
+        ids=tuple(dict.fromkeys(doc_ids))
+        if not ids:return {}
+        if len(ids)>500:raise ValidationError('Candidate metadata budget exceeded')
+        pg=hasattr(self,'_pg')
+        sql=('SELECT d.data,k.data,a.data,m.role FROM documents d JOIN knowledge_bases k ON k.kb_id=d.kb_id AND k.org_id=d.org_id '
+             'LEFT JOIN document_acls a ON a.doc_id=d.doc_id'+(' AND a.org_id=d.org_id' if pg else '')+
+             ' LEFT JOIN kb_members m ON m.kb_id=d.kb_id AND m.user_id=?'+(' AND m.org_id=d.org_id' if pg else '')+
+             ' WHERE d.org_id=? AND d.doc_id IN ('+','.join('?' for _ in ids)+')')
+        from ..contracts.models import DocumentACL
+        result={}
+        for row in self._rt_execute(sql,(user_id,org_id)+ids):
+            d=decode(json.loads(row[0]));kb=decode(json.loads(row[1]));acl=decode(json.loads(row[2])) if row[2] is not None else DocumentACL()
+            if d.org_id!=org_id or kb.org_id!=org_id or d.kb_id!=kb.kb_id:raise ConflictError('Search metadata integrity failure')
+            result[d.doc_id]=(d,kb,acl,row[3])
+        return result

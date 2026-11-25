@@ -13,6 +13,12 @@ from .local import LocalKnowledgeClient
 
 # Operation table is shared with the server so transport contracts cannot silently diverge.
 OPERATIONS={
+    "plan_sync":("POST","/v1/connectors/plan"),
+    "get_kb":("POST","/v1/kbs/get"),"update_kb":("POST","/v1/kbs/update"),
+    "list_kb_members":("POST","/v1/kbs/members/list"),"revoke_kb_member":("POST","/v1/kbs/members/revoke"),
+    "list_document_versions":("POST","/v1/documents/versions/list"),
+    "diff_document_versions":("POST","/v1/documents/versions/diff"),
+    "rollback_document":("POST","/v1/documents/versions/rollback"),
     'register_agent_profile':("POST",'/v1/runtime/profiles'),
     'update_agent_profile':("POST",'/v1/runtime/profiles/update'),
     'get_agent_profile':("POST",'/v1/runtime/profiles/get'),

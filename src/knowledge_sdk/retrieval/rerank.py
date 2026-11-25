@@ -91,15 +91,16 @@ class DeterministicLexicalReranker:
         from ..storage.sqlite_store import tokens
         q=tuple(dict.fromkeys(tokens(query))); wanted=set(q)
         phrase=' '.join(query.casefold().split())
-        result=[]
+        result=[];features={}  # bounded by this request's candidate count; never shared.
         for c in candidates:
-            title=tokens(c.title); body=tokens(c.excerpt); count=Counter(title+body)
+            if c.title not in features:features[c.title]=tokens(c.title)
+            title=features[c.title];body=tokens(c.excerpt);combined=title+body;count=Counter(combined)
             cover=len(wanted.intersection(count))/len(wanted) if wanted else 0.0
             title_cover=len(wanted.intersection(title))/len(wanted) if wanted else 0.0
             # Exact normalized phrase plus shortest ordered query-token window.
             joined=' '.join((c.title+' '+c.excerpt).casefold().split())
             proximity=1.0 if phrase and phrase in joined else 0.0
-            positions=[i for i,t in enumerate(title+body) if t in wanted]
+            positions=[i for i,t in enumerate(combined) if t in wanted]
             if positions and len(wanted)>1 and cover==1:
                 span=positions[-1]-positions[0]+1
                 proximity=max(proximity,min(1.0,len(wanted)/span)*.5)

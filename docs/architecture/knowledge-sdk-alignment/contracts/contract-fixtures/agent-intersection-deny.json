@@ -1,0 +1,42 @@
+{
+  "identity": {
+    "request_id": "req-fixture",
+    "tenant_id": "fixture-tenant",
+    "actor": {
+      "issuer": "https://idp.example.invalid",
+      "subject_id": "reader",
+      "actor_type": "human",
+      "roles": [
+        "member"
+      ],
+      "department_ids": [],
+      "ancestor_department_ids": [],
+      "org_roles": [],
+      "clearance_level": "confidential",
+      "clearance_tags": [],
+      "policy_generation": 12,
+      "session_id": "fixture-session"
+    },
+    "agent": {
+      "agent_id": "fixture-agent",
+      "profile_generation": 3,
+      "task_id": "fixture-task"
+    },
+    "purpose": "ground_internal_llm"
+  },
+  "kb_id": "fixture-space",
+  "user_is_member": false,
+  "agent_allowed_kb_ids": [
+    "fixture-space"
+  ],
+  "expected_allowed": false,
+  "error": {
+    "error": {
+      "code": "PERMISSION_DENIED",
+      "message": "Resource unavailable",
+      "retryable": false,
+      "request_id": "req-fixture",
+      "details": {}
+    }
+  }
+}

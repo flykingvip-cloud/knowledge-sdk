@@ -20,6 +20,7 @@ from ..contracts.models import (KnowledgeBase, Document, DocumentVersion, Docume
 from ..contracts.uri import build_uri, parse_uri_v2
 from ..contracts.anchors import ReanchorStatus, integer, identifier
 from ..contracts.reanchor import merge_anchors_for_version
+from .compat import CompatMixin
 from ..runtime.service import RuntimeMixin
 from ..governance.workflow import GovernanceMixin
 from ..governance.issues import IssueMixin
@@ -83,9 +84,9 @@ class _AuditedEngine:
         return decision
 
 
-class LocalKnowledgeClient(RuntimeMixin, GovernanceMixin, IssueMixin, PackMixin):
+class LocalKnowledgeClient(CompatMixin,RuntimeMixin, GovernanceMixin, IssueMixin, PackMixin):
     """Trusted in-process API. Caller supplies an authenticated Actor, not user input."""
-    def __init__(self,store=None,blob_store=None,parsers=None,chunker=None,vector_index=None,embedder=None,excerpt_policy=None,*,policy_engine:Optional[KnowledgePolicyEngine]=None,redaction_registry:Optional[RedactionRegistry]=None,policy_rules:Sequence[PolicyRule]=(),identity_resolver=None,allow_insecure_local_webhook=False,require_principal=False,reranker_registry=None,calibrator_registry=None):
+    def __init__(self,store=None,blob_store=None,parsers=None,chunker=None,vector_index=None,embedder=None,excerpt_policy=None,*,policy_engine:Optional[KnowledgePolicyEngine]=None,redaction_registry:Optional[RedactionRegistry]=None,policy_rules:Sequence[PolicyRule]=(),identity_resolver=None,allow_insecure_local_webhook=False,require_principal=False,reranker_registry=None,calibrator_registry=None,connector_registry=None):
         self.policy_engine = policy_engine if policy_engine is not None else DefaultPolicyEngine(policy_rules)
         self.redaction_registry = redaction_registry if redaction_registry is not None else RedactionRegistry()
         self.store=store if store is not None else SQLiteStore()
@@ -95,6 +96,7 @@ class LocalKnowledgeClient(RuntimeMixin, GovernanceMixin, IssueMixin, PackMixin)
         self._lock=threading.RLock()
         from ..retrieval.strategies import registries
         self.reranker_registry,self.calibrator_registry=registries(reranker_registry,calibrator_registry)
+        self.connector_registry=dict(connector_registry or {})
         self._audit_frames=[]
         self.require_principal=require_principal
         self.identity_resolver=identity_resolver
@@ -489,12 +491,19 @@ class LocalKnowledgeClient(RuntimeMixin, GovernanceMixin, IssueMixin, PackMixin)
         if not controlled:self._sync_vector(doc_id)
         return self._ingested_response(actor,v,**ctx)
     @serialized
-    def list_documents(self,actor,kb_id=None,include_archived=False,*,agent=None,purpose=Purpose.READ,policy_context=None):
-        ctx=dict(agent=agent,purpose=purpose,policy_context=replace(policy_context or PolicyContext(),include_archived=True) if include_archived else policy_context)
-        if kb_id: self._kb(actor,kb_id,**ctx)
+    def list_documents(self,actor,kb_id=None,include_archived=False,*,archived_only=False,agent=None,purpose=Purpose.READ,policy_context=None):
+        if type(archived_only) is not bool:raise ValidationError('Invalid archived_only')
+        ctx=dict(agent=agent,purpose=purpose,policy_context=replace(policy_context or PolicyContext(),include_archived=True) if include_archived or archived_only else policy_context)
+        if kb_id:
+            if archived_only:self._compat_kb(actor,kb_id,**ctx)
+            else:self._kb(actor,kb_id,**ctx)
         result=[]
         for d in self.store.list_documents(actor.org_id):
             if kb_id and d.kb_id!=kb_id: continue
+            if archived_only:
+                if not d.archived:continue
+                decision=self.evaluate_policy(actor,d.doc_id,action=PolicyAction.MANAGE_SPACE,**ctx)
+                if not decision.allowed:continue
             try: result.append(self._delivered_source(actor,d.doc_id,**ctx)[0])
             except PermissionDeniedError: pass
         return result
@@ -559,10 +568,12 @@ class LocalKnowledgeClient(RuntimeMixin, GovernanceMixin, IssueMixin, PackMixin)
     def search(self,actor,query,mode="keyword",limit=20,filters=None,scope=None,*,agent=None,purpose=Purpose.READ,policy_context=None,rerank=False,reranker_id=None,calibrator_id=None,min_calibrated_score=None,rerank_top_k=None,reranker=None,calibrator=None):
         from ..retrieval.strategies import resolve
         reranker,calibrator=resolve(rerank,reranker_id,calibrator_id,min_calibrated_score,rerank_top_k,reranker,calibrator,self.reranker_registry,self.calibrator_registry)
-        ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context)
-        if scope is not None: scope = self.validate_scope(actor, scope,**ctx)
-        return run_search(self.store,actor,query,mode,limit,filters,self.vector_index,self.embedder,self.excerpt_policy,scope=scope,
-                          policy_engine=self.policy_engine,redaction_registry=self.redaction_registry,reranker=reranker,calibrator=calibrator,min_calibrated_score=min_calibrated_score,rerank_top_k=rerank_top_k,**ctx)
+        with self.store.runtime_transaction():
+            self._check_principal(actor)
+            ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context)
+            if scope is not None: scope = self.validate_scope(actor, scope,**ctx)
+            return run_search(self.store,actor,query,mode,limit,filters,self.vector_index,self.embedder,self.excerpt_policy,scope=scope,
+                              policy_engine=self.policy_engine,redaction_registry=self.redaction_registry,reranker=reranker,calibrator=calibrator,min_calibrated_score=min_calibrated_score,rerank_top_k=rerank_top_k,**ctx)
     @serialized
     def retrieve(self,actor,doc_id,version=None,chunk_ids=None,offset=0,limit=8000,*,agent=None,purpose=Purpose.READ,policy_context=None):
         d,v,chunks,decision,summary=self._delivered_source(actor,doc_id,version,agent=agent,purpose=purpose,policy_context=policy_context)

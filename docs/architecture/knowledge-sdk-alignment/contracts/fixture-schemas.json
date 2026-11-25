@@ -1,0 +1,8 @@
+{
+  "identity-context.json": "IdentityContext",
+  "agent-intersection-deny.json": "AgentIntersectionDenyFixture",
+  "kb-lifecycle.json": "KBLifecycleFixture",
+  "dual-uri-evidence.json": "DualUriEvidenceFixture",
+  "calibrated-search-response.json": "SearchResponse",
+  "error-envelope.json": "ErrorEnvelope"
+}

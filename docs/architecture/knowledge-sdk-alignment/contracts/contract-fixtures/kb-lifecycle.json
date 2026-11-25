@@ -1,0 +1,66 @@
+{
+  "space": {
+    "kb_id": "fixture-space",
+    "tenant_id": "fixture-tenant",
+    "name": "Fixture space",
+    "description": "",
+    "space_type": "department",
+    "visibility": "team",
+    "governance_tier": "l2_controlled",
+    "owner_user_id": "owner",
+    "owner_department_id": "department",
+    "tags": [],
+    "status": "active",
+    "metadata": {},
+    "created_at": "2026-11-24T00:00:00Z",
+    "updated_at": "2026-11-24T00:00:00Z"
+  },
+  "archived_asset": {
+    "doc_id": "fixture-doc",
+    "tenant_id": "fixture-tenant",
+    "kb_id": "fixture-space",
+    "owner_id": "owner",
+    "title": "Fixture",
+    "asset_type": "document",
+    "source_kind": "upload",
+    "source_ref": "upload://fixture",
+    "visibility": "team",
+    "current_version": 3,
+    "current_version_id": "ver-fixture",
+    "lifecycle_state": "published",
+    "archived": true,
+    "archived_at": "2026-11-24T00:00:00Z",
+    "tags": [],
+    "metadata": {},
+    "domain_metadata": {
+      "schema_ref": null,
+      "payload": {}
+    },
+    "valid_from": null,
+    "valid_to": null
+  },
+  "restored_asset": {
+    "doc_id": "fixture-doc",
+    "tenant_id": "fixture-tenant",
+    "kb_id": "fixture-space",
+    "owner_id": "owner",
+    "title": "Fixture",
+    "asset_type": "document",
+    "source_kind": "upload",
+    "source_ref": "upload://fixture",
+    "visibility": "team",
+    "current_version": 3,
+    "current_version_id": "ver-fixture",
+    "lifecycle_state": "published",
+    "archived": false,
+    "archived_at": null,
+    "tags": [],
+    "metadata": {},
+    "domain_metadata": {
+      "schema_ref": null,
+      "payload": {}
+    },
+    "valid_from": null,
+    "valid_to": null
+  }
+}

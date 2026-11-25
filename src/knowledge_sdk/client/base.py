@@ -24,7 +24,7 @@ class KnowledgeClient(Protocol):
     def ingest(self, actor, kb_id, content, filename='document.txt', title=None, visibility=None, doc_id=None, metadata=None, acl=None, *, rights=None, lifecycle_state=None, valid_from=None, valid_to=None, agent=None, purpose=Purpose.READ, policy_context=None):
         ...
 
-    def list_documents(self, actor, kb_id=None, include_archived=False, *, agent=None, purpose=Purpose.READ, policy_context=None):
+    def list_documents(self, actor, kb_id=None, include_archived=False, *, archived_only=False, agent=None, purpose=Purpose.READ, policy_context=None):
         ...
 
     def get_document(self, actor, doc_id, version=None, *, agent=None, purpose=Purpose.READ, policy_context=None):

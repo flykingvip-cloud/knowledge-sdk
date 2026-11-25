@@ -1,5 +1,7 @@
 name: tests
 on: [push, pull_request]
+permissions:
+  contents: read
 env:
   PYTHONPATH: src
 jobs:
@@ -14,12 +16,31 @@ jobs:
             os: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
       - run: PYTHONPATH=src python -S -W error::ResourceWarning -m unittest discover -s tests -t . -v
       - run: PYTHONPATH=src python -S -W error::ResourceWarning -m tests.benchmark.runner --json
   http-and-package:
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: sdk_align
+        ports:
+          - 5432/tcp
+        options: >-
+          --health-cmd "pg_isready -U postgres -d sdk_align"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      KNOWLEDGE_SDK_TEST_PG_DSN: host=127.0.0.1 port=${{ job.services.postgres.ports[5432] }} dbname=sdk_align user=sdk_align
+      PYTHONPATH: src:.
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -30,9 +51,42 @@ jobs:
             os: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install -e '.[http,dev,mcp]'
+      - run: python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest
+      - name: Provision isolated non-superuser pgvector test role
+        run: |
+          python - <<'PYCODE'
+          import os, psycopg
+          dsn=os.environ['KNOWLEDGE_SDK_TEST_PG_DSN'].replace('user=sdk_align','user=postgres')
+          with psycopg.connect(dsn,autocommit=True) as c:
+              c.execute('CREATE EXTENSION IF NOT EXISTS vector')
+              c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')
+              c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')
+          PYCODE
       - run: python -W error::ResourceWarning -m unittest discover -s tests -t . -v
       - run: python -m build
+      - run: python -W error::ResourceWarning -m pytest -q
+      - name: Unmodified dual-engine and legacy golden modes
+        run: |
+          python -m tests.benchmark.runner --json
+          python -m tests.benchmark.runner --legacy75 --json
+          python -m tests.benchmark.runner --legacy100 --json
+          python -m tests.benchmark.runner --engine postgres --json
+          python -m tests.benchmark.runner --engine postgres --legacy75 --json
+          python -m tests.benchmark.runner --engine postgres --legacy100 --json
+      - run: python docs/architecture/knowledge-sdk-alignment/contracts/validate_assets.py
+      - run: python docs/acceptance/v2.1-q3-phase2/verify_package.py dist/*.whl
+      - name: TypeScript draft DTO typecheck
+        run: npm exec --yes --package=typescript@5.9.3 -- tsc --strict --noEmit --skipLibCheck false docs/architecture/knowledge-sdk-alignment/contracts/openbot-adapter-dto.d.ts
+      - name: Isolated non-publishing Docker build and live runtime probe
+        if: matrix.python == '3.12'
+        run: python docs/acceptance/v2.1-align-wave1/docker_probe.py --require --output align-wave1-ci-evidence
+      - uses: actions/upload-artifact@v4
+        if: always() && matrix.python == '3.12'
+        with:
+          name: align-wave1-image-test
+          path: align-wave1-ci-evidence/

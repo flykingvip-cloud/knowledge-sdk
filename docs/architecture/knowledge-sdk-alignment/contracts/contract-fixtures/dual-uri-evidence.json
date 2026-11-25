@@ -1,0 +1,41 @@
+{
+  "evidence": {
+    "evidence_id": "ev-fixture",
+    "tenant_id": "fixture-tenant",
+    "kb_id": "fixture-space",
+    "doc_id": "fixture-doc",
+    "version": 3,
+    "version_id": "ver-fixture",
+    "chunk_id": "chunk-fixture",
+    "anchor_id": "anchor-fixture",
+    "title": "Fixture",
+    "section_path": [
+      "Section"
+    ],
+    "excerpt": "Authorized redacted excerpt",
+    "excerpt_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "canonical_uri": "kb://org/fixture-tenant/doc/fixture-doc@3#anchor=anchor-fixture",
+    "locator": {
+      "page": 4,
+      "char_start": 1820,
+      "char_end": 1956,
+      "table_cell": null
+    },
+    "masking_summary": "",
+    "verification_status": "verified"
+  },
+  "mapping": {
+    "coordinates": {
+      "tenant_id": "fixture-tenant",
+      "kb_id": "fixture-space",
+      "doc_id": "fixture-doc",
+      "version": 3,
+      "version_id": "ver-fixture"
+    },
+    "canonical_uri": "kb://org/fixture-tenant/doc/fixture-doc@3#anchor=anchor-fixture",
+    "legacy_ku_uri": "ku://kb/fixture-space/doc/fixture-doc@ver-fixture#Section",
+    "section_path": [
+      "Section"
+    ]
+  }
+}

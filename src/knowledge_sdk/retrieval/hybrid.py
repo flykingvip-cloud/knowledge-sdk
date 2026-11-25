@@ -48,6 +48,7 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
     policy_engine=policy_engine if policy_engine is not None else DefaultPolicyEngine()
     redaction_registry=redaction_registry if redaction_registry is not None else RedactionRegistry()
     evaluated=set();accepted={};candidates={};more=False;vector_scores={}
+    source_cache={};chunk_cache={}  # strictly this call, under the client/store transaction
     vector=embedder.embed([query])[0] if mode!='keyword' else None
     batches=tuple(dict.fromkeys((min(max(limit*4,40),500),min(max(limit*12,120),500),500)))
     for batch in batches:
@@ -79,23 +80,34 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
             if key in accepted:
                 from dataclasses import replace
                 accepted[key]=replace(accepted[key],score=score)
-        for (doc_id,version,cid),score in sorted(candidates.items(),key=lambda p:(-p[1],p[0])):
+        ordered=sorted(candidates.items(),key=lambda p:(-p[1],p[0]))
+        loader=getattr(store,'search_sources',None)
+        if enhanced and callable(loader):
+            bounded=[k[0] for k,_ in ordered if k not in evaluated][:max(0,500-len(evaluated))]
+            source_cache.update(loader(actor.org_id,bounded,actor.user_id))
+        for (doc_id,version,cid),score in ordered:
             key=(doc_id,version,cid)
             if key in evaluated:continue
             if len(evaluated)>=500:break
             evaluated.add(key)
             try:
                 # Never trust vector payload text, org, ACL, version or archive flags.
-                d=store.get_document(doc_id); kb=store.get_kb(d.kb_id)
+                if enhanced and callable(loader):
+                    if doc_id not in source_cache:continue
+                    d,kb,acl,member_role=source_cache[doc_id]
+                else:
+                    d=store.get_document(doc_id);kb=store.get_kb(d.kb_id)
+                    acl=store.get_acl(doc_id);member_role=store.member_role(kb.kb_id,actor.user_id)
                 if scope is not None and not scope.contains(d,kb): continue
                 if additional_scope is not None and not additional_scope.contains(d,kb): continue
                 if d.current_version!=version: continue
                 if kb.governance_tier=='l2_controlled' and (d.lifecycle_state!='published' or store.get_version(doc_id,version).lifecycle_state!='published'):continue
-                decision=policy_engine.evaluate(actor,agent,kb,d,store.get_acl(doc_id),store.member_role(kb.kb_id,actor.user_id),PolicyAction.SEARCH_INDEX,purpose,policy_context)
+                decision=policy_engine.evaluate(actor,agent,kb,d,acl,member_role,PolicyAction.SEARCH_INDEX,purpose,policy_context)
                 if not decision.allowed: continue
                 if any(filters.get(k) is not None and filters[k]!=getattr(d,k) for k in ("kb_id","doc_id")): continue
                 if not set(filters.get("tags",[])).issubset(d.metadata.get("tags",[])): continue
-                chunk=next((c for c in store.get_chunks(doc_id,version) if c.chunk_id==cid),None)
+                if (doc_id,version) not in chunk_cache:chunk_cache[(doc_id,version)]={c.chunk_id:c for c in store.get_chunks(doc_id,version)}
+                chunk=chunk_cache[(doc_id,version)].get(cid)
                 if chunk is None: continue
                 text=chunk.text; title=d.title; notice=d.metadata.get("partial_notice",""); summary=d.metadata.get("masking_summary","")
                 if decision.effect == DecisionEffect.ALLOW_WITH_REDACTION:

@@ -772,5 +772,5 @@ class PostgresStore(RuntimeStoreMixin):
         return self._execute('SELECT COUNT(*) FROM outbox_events WHERE org_id=%s',(org_id,))[0][0]
 
 # Every v5 payload surface is tenant-scoped, including inherited methods.
-for _name in ('upsert_agent_profile', 'get_agent_profile', 'list_agent_profiles', 'put_task_context', 'get_task_context', 'list_task_contexts', 'update_task_context_status', 'put_context_snapshot', 'get_context_snapshot', 'list_context_snapshots', 'mark_context_snapshots_revoked', 'put_task_revocation', 'list_task_revocations', 'find_active_tasks_referencing'):
+for _name in ('search_sources','list_kb_members','remove_kb_member','upsert_agent_profile', 'get_agent_profile', 'list_agent_profiles', 'put_task_context', 'get_task_context', 'list_task_contexts', 'update_task_context_status', 'put_context_snapshot', 'get_context_snapshot', 'list_context_snapshots', 'mark_context_snapshots_revoked', 'put_task_revocation', 'list_task_revocations', 'find_active_tasks_referencing'):
     setattr(PostgresStore,_name,tenant_method(getattr(RuntimeStoreMixin,_name)))

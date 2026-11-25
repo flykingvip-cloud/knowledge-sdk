@@ -1,0 +1,13 @@
+{
+  "tests/benchmark/golden_cases_v2.jsonl": "8503fd7962f23f97ca96d30476ba1c976db239ef5ca56bc0a552c8cb5a5232e1",
+  "tests/benchmark/g6.py": "c12cb690dae8e97545211068d30f162ee13bf375b0953ebcb75238ad2a56f412",
+  "tests/benchmark/golden_cases_v3_enterprise.jsonl": "82a95b745c23ddf21ce71265380b76a43def01914824c9d50d14111344ce9d7b",
+  "tests/benchmark/golden_cases_v1.jsonl": "1b7c5ace8249495477457431e7b64f047868757ce28985ede56c483771b13fea",
+  "tests/benchmark/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "tests/benchmark/runner.py": "9d5ba1a710b1092b40a78482a987e19f11b359149538e84b388cb4b26f931757",
+  "tests/benchmark/golden_cases_v4_runtime.jsonl": "41a90a9ccb1bca52048aad37e12948f02c32a6dfcfdee40206a5954d52e42167",
+  "tests/benchmark/run.py": "b64a9bbb01bb3bf3791a74adf39677be4377e33859671487cf80d148a5e20d64",
+  "tests/benchmark/g7_g8.py": "0ebdbcf6a2389702706ce1e6b51c1c4051875b5a11b17fbc17297b65d813356e",
+  "tests/benchmark/test_golden_benchmark.py": "ed00861e683d0afe950c614cf99c595624cdb483fa00846d80f3f4ee6f26a1c4",
+  "tests/benchmark/g9.py": "e26c4eeb5600b199da963bd02848a0085d59936c77890944d7e90c7fc3120093"
+}

@@ -79,7 +79,7 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
         if enable_ui and public_ui_path(path, ui_prefix):
             # Only static/config/demo routes live here. All business APIs remain signed.
             return await call_next(request)
-        if path in ("/v1/health",): return await call_next(request)
+        if path in ("/v1/health","/v1/ready"): return await call_next(request)
         if path in ("/docs","/openapi.json","/redoc"):
             # Schema has no runtime data. Deployments may disable these at the gateway.
             return await call_next(request)
@@ -171,6 +171,7 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
             response=JSONResponse({'authenticated':False});response.delete_cookie('kb_session',path='/');return response
     from .scim import mount_scim
     mount_scim(app,client)
+    if connectors is not None:client.connector_registry=dict(connectors)
     if connectors:
         from ..connectors.http import mount_connectors
         mount_connectors(app,client,connectors)
@@ -185,6 +186,8 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
                 return JSONResponse(status_code=403,content={'message':'Origin denied'},headers={'Cache-Control':'no-store'})
             result=protocol.handle(await request.body(),request.state.mcp_context)
             return Response(status_code=204,headers={'Cache-Control':'no-store'}) if result is None else JSONResponse(content=result,headers={'Cache-Control':'no-store'})
+    from .operations import mount_operations
+    mount_operations(app,client)
     @app.get("/v1/health")
     async def health(): return client.health()
     def endpoint(operation):

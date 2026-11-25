@@ -1,0 +1,32 @@
+{
+  "mode": "hybrid",
+  "reranker_id": "deterministic_lexical_v1",
+  "calibrator_id": "default_channel_calibrator_v1",
+  "calibration_applied": true,
+  "candidate_budget_exhausted": false,
+  "filtered_below_threshold": 2,
+  "hits": [
+    {
+      "doc_id": "fixture-doc",
+      "kb_id": "fixture-space",
+      "version": 3,
+      "version_id": "ver-fixture",
+      "chunk_id": "chunk-fixture",
+      "title": "Fixture",
+      "score": 0.84,
+      "raw_score": 0.0312,
+      "rerank_score": 0.84,
+      "calibrated_score": 0.86,
+      "excerpt": "Authorized redacted excerpt",
+      "excerpt_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "source_uri": "kb://org/fixture-tenant/doc/fixture-doc@3#chunk=chunk-fixture",
+      "truncated": false,
+      "masking_summary": "",
+      "score_breakdown": {
+        "keyword_rank": 1,
+        "vector_rank": 2,
+        "fusion_method": "rrf_k60"
+      }
+    }
+  ]
+}

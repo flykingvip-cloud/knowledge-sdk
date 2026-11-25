@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "Resource unavailable",
+    "retryable": false,
+    "request_id": "req-fixture",
+    "details": {}
+  }
+}
