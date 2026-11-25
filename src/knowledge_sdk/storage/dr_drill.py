@@ -69,6 +69,10 @@ def seed(store):
     from ..retrieval.adapters.hash_embedder import HashEmbedder
     c=LocalKnowledgeClient(store,vector_index=PgVectorIndex(store=store),embedder=HashEmbedder())
     for org in ('alpha','beta'):
+        from ..contracts.identity import IdentityPrincipal,ConnectorSyncState
+        store.upsert_principal(IdentityPrincipal(org,'directory-user',policy_generation=3,active=False))
+        store.put_connector_sync_state(ConnectorSyncState(org,'dr-connector','cursor-v4'))
+        store.put_scim_group(org,'dr-group',{'members':['directory-user']})
         a=Actor('owner',org,org_roles=('admin',));u=Actor('reader',org)
         c.create_kb(a,'dr-fixture',visibility='enterprise',kb_id=org+'-kb')
         doc=org+'-doc';c.ingest(a,org+'-kb','# H\n\nalpha evidence',filename='fixture.md',doc_id=doc)
@@ -86,6 +90,10 @@ def check_restored(store):
     from ..audit.ledger import verify_audit_chain
     c=LocalKnowledgeClient(store);result={}
     for org in ('alpha','beta'):
+        assert store.get_principal(org,'directory-user').policy_generation==3
+        assert not store.get_principal(org,'directory-user').active
+        assert store.get_connector_sync_state(org,'dr-connector').cursor=='cursor-v4'
+        assert store.get_scim_group(org,'dr-group')['members']==['directory-user']
         report=verify_audit_chain(store,org)
         if not report.valid:raise ValidationError('Restored audit chain failed')
         doc=org+'-doc';u=Actor('reader',org);a=Actor('owner',org,org_roles=('admin',))
@@ -116,11 +124,11 @@ def run(source_dsn,restore_dsn,*,dump_tool='pg_dump',restore_tool='pg_restore'):
         seed(s)
         before=fingerprint(s.db)
         # Transactional migration-interruption rollback, not a destructive
-        # schema downgrade: committed v3 business history must never be dropped.
+        # schema downgrade: committed v4 business history must never be dropped.
         try:
             with s.transaction():
                 s._execute('CREATE TABLE migration_rollback_probe(id INTEGER)')
-                s._execute("DELETE FROM schema_migrations WHERE version=3")
+                s._execute("DELETE FROM schema_migrations WHERE version=4")
                 raise RuntimeError('simulated migration interruption')
         except RuntimeError:pass
         assert s._execute("SELECT to_regclass('migration_rollback_probe')")[0][0] is None

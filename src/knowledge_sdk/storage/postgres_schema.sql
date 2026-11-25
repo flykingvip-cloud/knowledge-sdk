@@ -139,3 +139,13 @@ CREATE INDEX IF NOT EXISTS idx_chunks_search ON chunks USING GIN(search_vector);
 CREATE TABLE IF NOT EXISTS resource_directory(kind TEXT NOT NULL,id TEXT NOT NULL,tenant TEXT NOT NULL,PRIMARY KEY(kind,id));
 CREATE TABLE IF NOT EXISTS replay_nonces(org_id TEXT NOT NULL,nonce TEXT NOT NULL,expires_at DOUBLE PRECISION NOT NULL,PRIMARY KEY(org_id,nonce));
 CREATE INDEX IF NOT EXISTS idx_replay_expiry ON replay_nonces(expires_at);
+
+CREATE TABLE IF NOT EXISTS identity_principals (
+ org_id TEXT NOT NULL,user_id TEXT NOT NULL,external_id TEXT NOT NULL DEFAULT '',username TEXT NOT NULL DEFAULT '',
+ active INTEGER NOT NULL DEFAULT 1,policy_generation INTEGER NOT NULL DEFAULT 1,
+ roles_json TEXT NOT NULL DEFAULT '[]',department_ids_json TEXT NOT NULL DEFAULT '[]',org_roles_json TEXT NOT NULL DEFAULT '[]',
+ clearance_level TEXT NOT NULL DEFAULT '',clearance_tags_json TEXT NOT NULL DEFAULT '[]',updated_at TEXT NOT NULL,data TEXT NOT NULL,
+ PRIMARY KEY(org_id,user_id));
+CREATE INDEX IF NOT EXISTS idx_principals_org_ext ON identity_principals(org_id,external_id);
+CREATE TABLE IF NOT EXISTS scim_groups(org_id TEXT NOT NULL,group_id TEXT NOT NULL,data TEXT NOT NULL,PRIMARY KEY(org_id,group_id));
+CREATE TABLE IF NOT EXISTS scim_group_members(org_id TEXT NOT NULL,group_id TEXT NOT NULL,user_id TEXT NOT NULL,PRIMARY KEY(org_id,group_id,user_id));

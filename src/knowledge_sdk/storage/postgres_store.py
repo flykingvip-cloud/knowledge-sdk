@@ -691,3 +691,73 @@ class PostgresStore:
     @tenant_method
     def mark_evidence_pack_impacted(self,org_id,pack_id):
         self._execute("UPDATE evidence_packs SET status='impacted' WHERE org_id=%s AND pack_id=%s",(org_id,pack_id))
+
+    @tenant_method
+    def upsert_principal(self,principal):
+        from dataclasses import asdict
+        from ..contracts.identity import IdentityPrincipal
+        if not isinstance(principal,IdentityPrincipal):raise ValidationError('Invalid principal')
+        p=principal
+        values=(p.org_id,p.user_id,p.external_id,p.username,int(p.active),p.policy_generation,json.dumps(p.roles),json.dumps(p.department_ids),json.dumps(p.org_roles),p.clearance_level,json.dumps(p.clearance_tags),p.updated_at,json.dumps(asdict(p)))
+        self._execute("INSERT INTO identity_principals VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT(org_id,user_id) DO UPDATE SET external_id=excluded.external_id,username=excluded.username,active=excluded.active,policy_generation=excluded.policy_generation,roles_json=excluded.roles_json,department_ids_json=excluded.department_ids_json,org_roles_json=excluded.org_roles_json,clearance_level=excluded.clearance_level,clearance_tags_json=excluded.clearance_tags_json,updated_at=excluded.updated_at,data=excluded.data",values)
+        return p
+
+    @tenant_method
+    def get_principal(self,org_id,user_id):
+        from ..contracts.identity import IdentityPrincipal
+        rows=self._execute('SELECT data FROM identity_principals WHERE org_id=%s AND user_id=%s',(org_id,user_id))
+        return IdentityPrincipal(**json.loads(rows[0][0])) if rows else None
+
+    @tenant_method
+    def list_principals(self,org_id):
+        from ..contracts.identity import IdentityPrincipal
+        return [IdentityPrincipal(**json.loads(r[0])) for r in self._execute('SELECT data FROM identity_principals WHERE org_id=%s ORDER BY user_id',(org_id,))]
+
+    @tenant_method
+    def bump_policy_generation(self,org_id,user_id,*,active=None):
+        from dataclasses import replace
+        with self.transaction():
+            self.lock_identity(org_id,user_id)
+            p=self.get_principal(org_id,user_id)
+            if p is None:raise NotFoundError('Principal not found')
+            return self.upsert_principal(replace(p,policy_generation=p.policy_generation+1,active=p.active if active is None else active))
+
+    @tenant_method
+    def lock_identity(self,org_id,user_id):
+        self._execute("SELECT pg_advisory_xact_lock(hashtextextended(%s,0))",('principal:'+org_id+':'+user_id,))
+
+    @tenant_method
+    def get_connector_sync_state(self,org_id,connector_id):
+        from ..contracts.identity import ConnectorSyncState
+        rows=self._execute('SELECT cursor,updated_at FROM connector_sync_state WHERE org_id=%s AND connector_id=%s',(org_id,connector_id))
+        return ConnectorSyncState(org_id,connector_id,*rows[0]) if rows else None
+
+    @tenant_method
+    def put_connector_sync_state(self,state):
+        from dataclasses import asdict
+        self._execute('INSERT INTO connector_sync_state(connector_id,org_id,cursor,updated_at,data) VALUES(%s,%s,%s,%s,%s) ON CONFLICT(org_id,connector_id) DO UPDATE SET cursor=excluded.cursor,updated_at=excluded.updated_at,data=excluded.data',(state.connector_id,state.org_id,state.cursor,state.updated_at,json.dumps(asdict(state))))
+
+    @tenant_method
+    def list_connector_sync_states(self,org_id):
+        return [self.get_connector_sync_state(org_id,r[0]) for r in self._execute('SELECT connector_id FROM connector_sync_state WHERE org_id=%s ORDER BY connector_id',(org_id,))]
+
+    @tenant_method
+    def lock_connector(self,org_id,connector_id):
+        self._execute("SELECT pg_advisory_xact_lock(hashtextextended(%s,0))",('connector:'+org_id+':'+connector_id,))
+
+    @tenant_method
+    def get_scim_group(self,org_id,group_id):
+        rows=self._execute('SELECT data FROM scim_groups WHERE org_id=%s AND group_id=%s',(org_id,group_id))
+        if not rows:raise NotFoundError('Group not found')
+        return json.loads(rows[0][0])
+
+    @tenant_method
+    def list_scim_groups(self,org_id):
+        return [json.loads(r[0]) for r in self._execute('SELECT data FROM scim_groups WHERE org_id=%s ORDER BY group_id',(org_id,))]
+
+    @tenant_method
+    def put_scim_group(self,org_id,group_id,data):
+        self._execute('INSERT INTO scim_groups VALUES(%s,%s,%s) ON CONFLICT(org_id,group_id) DO UPDATE SET data=excluded.data',(org_id,group_id,json.dumps(data)))
+        self._execute('DELETE FROM scim_group_members WHERE org_id=%s AND group_id=%s',(org_id,group_id))
+        for user_id in data.get('members',[]):
+            self._execute('INSERT INTO scim_group_members VALUES(%s,%s,%s)',(org_id,group_id,user_id))

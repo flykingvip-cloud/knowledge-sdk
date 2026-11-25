@@ -26,7 +26,7 @@ class SQLiteStore:
         try:
             self.db.execute("PRAGMA foreign_keys=ON");self.db.execute("PRAGMA busy_timeout=5000")
             schema=self.db.execute("PRAGMA user_version").fetchone()[0]
-            if schema not in (0,1,2,3):raise ConflictError("Unsupported database schema version")
+            if schema not in (0,1,2,3,4):raise ConflictError("Unsupported database schema version")
             if schema<2:
                 with self.transaction():
                     for statement in self._BASE_SCHEMA.split(';'):
@@ -43,6 +43,11 @@ class SQLiteStore:
                     for statement in self._V3_SCHEMA.split(';'):
                         if statement.strip():self.db.execute(statement)
                     self.db.execute("PRAGMA user_version=3")
+            if schema<4:
+                with self.transaction():
+                    for statement in self._V4_SCHEMA.split(';'):
+                        if statement.strip():self.db.execute(statement)
+                    self.db.execute("PRAGMA user_version=4")
             if self.db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='review_decisions'").fetchone():
                 self.db.execute("CREATE TRIGGER IF NOT EXISTS review_no_update BEFORE UPDATE ON review_decisions BEGIN SELECT RAISE(ABORT,'Append-only reviews'); END")
                 self.db.execute("CREATE TRIGGER IF NOT EXISTS review_no_delete BEFORE DELETE ON review_decisions BEGIN SELECT RAISE(ABORT,'Append-only reviews'); END")
@@ -633,3 +638,64 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
 
     def mark_evidence_pack_impacted(self,org_id,pack_id):
         self._execute("UPDATE evidence_packs SET status='impacted' WHERE org_id=? AND pack_id=?",(org_id,pack_id))
+
+    _V4_SCHEMA="\nCREATE TABLE IF NOT EXISTS identity_principals (\n org_id TEXT NOT NULL,user_id TEXT NOT NULL,external_id TEXT NOT NULL DEFAULT '',username TEXT NOT NULL DEFAULT '',\n active INTEGER NOT NULL DEFAULT 1,policy_generation INTEGER NOT NULL DEFAULT 1,\n roles_json TEXT NOT NULL DEFAULT '[]',department_ids_json TEXT NOT NULL DEFAULT '[]',org_roles_json TEXT NOT NULL DEFAULT '[]',\n clearance_level TEXT NOT NULL DEFAULT '',clearance_tags_json TEXT NOT NULL DEFAULT '[]',updated_at TEXT NOT NULL,data TEXT NOT NULL,\n PRIMARY KEY(org_id,user_id));\nCREATE INDEX IF NOT EXISTS idx_principals_org_ext ON identity_principals(org_id,external_id);\nCREATE TABLE IF NOT EXISTS scim_groups(org_id TEXT NOT NULL,group_id TEXT NOT NULL,data TEXT NOT NULL,PRIMARY KEY(org_id,group_id));\nCREATE TABLE IF NOT EXISTS scim_group_members(org_id TEXT NOT NULL,group_id TEXT NOT NULL,user_id TEXT NOT NULL,PRIMARY KEY(org_id,group_id,user_id));\n"
+
+    def upsert_principal(self,principal):
+        from dataclasses import asdict
+        from ..contracts.identity import IdentityPrincipal
+        if not isinstance(principal,IdentityPrincipal):raise ValidationError('Invalid principal')
+        p=principal
+        values=(p.org_id,p.user_id,p.external_id,p.username,int(p.active),p.policy_generation,json.dumps(p.roles),json.dumps(p.department_ids),json.dumps(p.org_roles),p.clearance_level,json.dumps(p.clearance_tags),p.updated_at,json.dumps(asdict(p)))
+        self._execute("INSERT INTO identity_principals VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(org_id,user_id) DO UPDATE SET external_id=excluded.external_id,username=excluded.username,active=excluded.active,policy_generation=excluded.policy_generation,roles_json=excluded.roles_json,department_ids_json=excluded.department_ids_json,org_roles_json=excluded.org_roles_json,clearance_level=excluded.clearance_level,clearance_tags_json=excluded.clearance_tags_json,updated_at=excluded.updated_at,data=excluded.data",values)
+        return p
+
+    def get_principal(self,org_id,user_id):
+        from ..contracts.identity import IdentityPrincipal
+        rows=self._execute('SELECT data FROM identity_principals WHERE org_id=? AND user_id=?',(org_id,user_id))
+        return IdentityPrincipal(**json.loads(rows[0][0])) if rows else None
+
+    def list_principals(self,org_id):
+        from ..contracts.identity import IdentityPrincipal
+        return [IdentityPrincipal(**json.loads(r[0])) for r in self._execute('SELECT data FROM identity_principals WHERE org_id=? ORDER BY user_id',(org_id,))]
+
+    def bump_policy_generation(self,org_id,user_id,*,active=None):
+        from dataclasses import replace
+        with self.transaction():
+            self.lock_identity(org_id,user_id)
+            p=self.get_principal(org_id,user_id)
+            if p is None:raise NotFoundError('Principal not found')
+            return self.upsert_principal(replace(p,policy_generation=p.policy_generation+1,active=p.active if active is None else active))
+
+    def lock_identity(self,org_id,user_id):
+        # SQLite's write transaction serializes readers modifying a principal.
+        self._execute('SELECT user_id FROM identity_principals WHERE org_id=? AND user_id=?',(org_id,user_id))
+
+    def get_connector_sync_state(self,org_id,connector_id):
+        from ..contracts.identity import ConnectorSyncState
+        rows=self._execute('SELECT cursor,updated_at FROM connector_sync_state WHERE org_id=? AND connector_id=?',(org_id,connector_id))
+        return ConnectorSyncState(org_id,connector_id,*rows[0]) if rows else None
+
+    def put_connector_sync_state(self,state):
+        from dataclasses import asdict
+        self._execute('INSERT INTO connector_sync_state(connector_id,org_id,cursor,updated_at,data) VALUES(?,?,?,?,?) ON CONFLICT(org_id,connector_id) DO UPDATE SET cursor=excluded.cursor,updated_at=excluded.updated_at,data=excluded.data',(state.connector_id,state.org_id,state.cursor,state.updated_at,json.dumps(asdict(state))))
+
+    def list_connector_sync_states(self,org_id):
+        return [self.get_connector_sync_state(org_id,r[0]) for r in self._execute('SELECT connector_id FROM connector_sync_state WHERE org_id=? ORDER BY connector_id',(org_id,))]
+
+    def lock_connector(self,org_id,connector_id):
+        self._execute('SELECT connector_id FROM connector_sync_state WHERE org_id=? AND connector_id=?',(org_id,connector_id))
+
+    def get_scim_group(self,org_id,group_id):
+        rows=self._execute('SELECT data FROM scim_groups WHERE org_id=? AND group_id=?',(org_id,group_id))
+        if not rows:raise NotFoundError('Group not found')
+        return json.loads(rows[0][0])
+
+    def list_scim_groups(self,org_id):
+        return [json.loads(r[0]) for r in self._execute('SELECT data FROM scim_groups WHERE org_id=? ORDER BY group_id',(org_id,))]
+
+    def put_scim_group(self,org_id,group_id,data):
+        self._execute('INSERT INTO scim_groups VALUES(?,?,?) ON CONFLICT(org_id,group_id) DO UPDATE SET data=excluded.data',(org_id,group_id,json.dumps(data)))
+        self._execute('DELETE FROM scim_group_members WHERE org_id=? AND group_id=?',(org_id,group_id))
+        for user_id in data.get('members',[]):
+            self._execute('INSERT INTO scim_group_members VALUES(?,?,?)',(org_id,group_id,user_id))

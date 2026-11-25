@@ -37,7 +37,7 @@ def apply(conn, enable_rls=True, pgvector=False):
                     conn.execute('ALTER TABLE '+table+' FORCE ROW LEVEL SECURITY')
                     conn.execute('DROP POLICY IF EXISTS tenant_isolation ON '+table)
                     conn.execute("CREATE POLICY tenant_isolation ON "+table+" USING (org_id = current_setting('app.current_org_id',true)) WITH CHECK (org_id = current_setting('app.current_org_id',true))")
-            conn.execute("INSERT INTO schema_migrations VALUES(3,'schema-v3',CURRENT_TIMESTAMP::text) ON CONFLICT DO NOTHING")
+            conn.execute("INSERT INTO schema_migrations VALUES(4,'schema-v4',CURRENT_TIMESTAMP::text) ON CONFLICT DO NOTHING")
     except Exception:
         raise ValidationError('PostgreSQL migration failed (details withheld)') from None
 
@@ -61,7 +61,7 @@ def main():
     try:
         if a.apply:apply(conn, not a.no_rls, a.pgvector)
         result=status(conn);print(json.dumps(result, sort_keys=True))
-        if a.check and (result['version']!=3 or result['missing_tables']):raise SystemExit(1)
+        if a.check and (result['version']!=4 or result['missing_tables']):raise SystemExit(1)
     finally:conn.close()
 
 if __name__=='__main__':main()
