@@ -84,6 +84,13 @@ class SQLiteSandbox(FixtureCases,unittest.TestCase):pass
 @unittest.skipUnless(os.environ.get('KNOWLEDGE_SDK_SANDBOX_TEST_DSN'),'Owned non-superuser fixture database not configured')
 class PostgresSandbox(FixtureCases,unittest.TestCase):mode='postgres'
 class Preparation(unittest.TestCase):
+    def test_both_complete_compose_assets_are_nonroot_readonly_and_fixture_only(self):
+        for mode in ('sqlite','postgres'):
+            config=json.loads((SCRIPTS/('compose.'+mode+'.yaml')).read_text())
+            self.assertTrue(config['networks']['default']['internal'])
+            for name in ('seed','sandbox'):
+                service=config['services'][name];self.assertTrue(service['read_only']);self.assertEqual(service['user'],'${SANDBOX_UID:?}:${SANDBOX_GID:?}');self.assertEqual(service['cap_drop'],['ALL']);self.assertIn('no-new-privileges:true',service['security_opt'])
+            self.assertNotIn('ports',config['services'].get('fixture-postgres',{}))
     def test_refuses_existing_and_unsafe_port_without_mutation(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d)/'new'
