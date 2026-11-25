@@ -25,7 +25,7 @@ jobs:
       - run: PYTHONPATH=src python -S -W error::ResourceWarning -m unittest discover -s tests -t . -v
       - run: PYTHONPATH=src python -S -W error::ResourceWarning -m tests.benchmark.runner --json
   http-and-package:
-    timeout-minutes: 30
+    timeout-minutes: 60
     services:
       postgres:
         image: pgvector/pgvector:pg17
