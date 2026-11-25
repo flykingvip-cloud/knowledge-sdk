@@ -34,7 +34,8 @@ def merge_profiles(values):
 
 
 class DefaultPolicyEngine:
-    def __init__(self, rules=()):
+    def __init__(self, rules=(), *, principal_store=None, require_principal=False):
+        self.principal_store=principal_store;self.require_principal=require_principal
         if not isinstance(rules, (list, tuple)) or any(not isinstance(r, PolicyRule) for r in rules):
             raise ValidationError('Expected policy rules')
         if len({(r.org_id,r.rule_id) for r in rules}) != len(rules):
@@ -67,6 +68,14 @@ class DefaultPolicyEngine:
         def decision(reason, effect=DecisionEffect.DENY, rules=(), profile=''):
             # Deliberately no title, body, resource id, or existence detail.
             return PolicyDecision(effect, reason, generation, tuple(r.rule_id for r in rules), profile)
+        if self.principal_store is not None:
+            from .identity import check_principal
+            from ..exceptions import PermissionDeniedError
+            try:check_principal(self.principal_store,actor,required=self.require_principal)
+            except PermissionDeniedError:
+                from ..audit.ledger import append
+                append(self.principal_store,actor,'evaluate_policy',effect=DecisionEffect.DENY,reason='principal_session_stale')
+                return decision('principal_session_stale')
         # 1. Tenant boundary is never overridable by a rule or owner/admin grant.
         if actor.org_id != kb.org_id or document is not None and document.org_id != actor.org_id or agent is not None and agent.org_id != actor.org_id:
             return decision('tenant_mismatch')

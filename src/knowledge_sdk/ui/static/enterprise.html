@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Knowledge enterprise workbench</title><link rel="stylesheet" href="/ui/assets/workbench.css"></head>
+<body><main class="main"><h1>Knowledge enterprise workbench</h1><p>Verified OIDC session · read-only evidence workspace</p>
+<form id="session-form"><label>OIDC bearer <input id="bearer" type="password" autocomplete="off"></label><button type="submit">Sign in</button><label>Or import a bearer token file <input id="token-file" type="file" accept="text/plain,.jwt"></label></form>
+<p id="status" role="status">Sign in through the configured issuer to begin.</p><button id="refresh" type="button">Refresh authorized spaces</button><button id="logout" type="button">Sign out</button>
+<section><h2>Authorized spaces</h2><ul id="spaces"></ul></section>
+<section><h2>Documents</h2><button id="documents-button" type="button">Load authorized documents</button><pre id="documents"></pre></section>
+<section><h2>Evidence search</h2><form id="search-form"><input id="query" value="alpha" aria-label="Search query"><button type="submit">Search evidence</button></form><pre id="search-results"></pre></section>
+<section><h2>Citation verification</h2><form id="citation-form"><input id="citation" aria-label="Source URI"><button type="submit">Verify citation</button></form><pre id="citation-result"></pre></section>
+<section><h2>Evidence pack</h2><form id="pack-form"><input id="pack-id" aria-label="Pack ID"><button type="submit">Read pack</button></form><pre id="pack-result"></pre></section>
+<section><h2>Impact alerts</h2><button id="alerts-button" type="button">Load alerts</button><pre id="alerts"></pre></section>
+</main><script type="module" src="/ui/assets/enterprise.js"></script></body></html>

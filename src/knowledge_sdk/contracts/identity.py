@@ -1,3 +1,4 @@
+from __future__ import annotations
 """Immutable, tenant-bound authoritative identity and synchronization state."""
 from dataclasses import dataclass, asdict
 from typing import Tuple
@@ -22,6 +23,7 @@ class IdentityPrincipal:
             v=getattr(self,n)
             if not isinstance(v,str) or not v or any(ord(c)<32 for c in v):raise ValidationError('Invalid principal identity')
         if type(self.active) is not bool or type(self.policy_generation) is not int or self.policy_generation<1:raise ValidationError('Invalid principal generation')
+        if any(not isinstance(getattr(self,n),str) for n in ('external_id','username','updated_at')):raise ValidationError('Invalid principal attributes')
         if not isinstance(self.clearance_level,str):raise ValidationError('Invalid clearance')
         for n in ('roles','department_ids','org_roles','clearance_tags'):
             v=getattr(self,n)

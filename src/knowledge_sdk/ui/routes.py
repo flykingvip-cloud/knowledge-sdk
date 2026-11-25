@@ -62,7 +62,8 @@ def mount_workbench(app, client, auth_secret, enable_demo_switcher, ui_prefix="/
         if root:
             normalize_ui_prefix(root)  # configured ASGI root only; never forwarded headers
         prefix = root + ui_prefix
-        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        enterprise=getattr(app.state,'auth_mode','hmac') in ('oidc','dual')
+        html = (STATIC / ("enterprise.html" if enterprise else "index.html")).read_text(encoding="utf-8")
         html = html.replace('href="/ui', 'href="' + prefix).replace('src="/ui', 'src="' + prefix)
         if not enable_demo_switcher:
             # Disable simulation on the initial response too (before JS/config).
@@ -80,7 +81,7 @@ def mount_workbench(app, client, auth_secret, enable_demo_switcher, ui_prefix="/
         signature_base = raw[:-len(suffix)] if raw.endswith(suffix) else ""
         return {"demo_enabled": bool(enable_demo_switcher), "operations": OPERATIONS,
                 "vector_available": getattr(client, "vector_index", None) is not None,
-                "auth": "hmac-gateway", "version": knowledge_sdk.__version__,
+                "auth": "oidc-session" if getattr(app.state,"auth_mode","hmac") in ("oidc","dual") else "hmac-gateway", "version": knowledge_sdk.__version__,
                 "ui_base": root + ui_prefix, "api_base": root, "signature_base": signature_base}
 
     if enable_demo_switcher:

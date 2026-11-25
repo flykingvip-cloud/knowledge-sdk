@@ -52,7 +52,9 @@ def serialized(method):
             frame={'action':method.__name__,'values':values,'recorded':False}
             self._audit_frames.append(frame)
             try:
-                try:result=method(self,*args,**kwargs)
+                try:
+                    if actor is not None:self._check_principal(actor)
+                    result=method(self,*args,**kwargs)
                 except PermissionDeniedError:
                     if actor is not None:self._audit_operation(actor,method.__name__,values,None,denied=True)
                     raise
@@ -70,6 +72,7 @@ class _AuditedEngine:
     def __getattr__(self,name):return getattr(self.delegate,name)
     def evaluate(self, actor, agent, kb, document=None, acl=None, member_role=None,
                  action=PolicyAction.READ_CONTENT, purpose=Purpose.READ, context=None):
+        self.client._check_principal(actor)
         decision=self.delegate.evaluate(actor,agent,kb,document,acl,member_role,action,purpose,context)
         self.client._audit_operation(actor,'evaluate_policy',
                     {'agent':agent,'purpose':purpose,'doc_id':document.doc_id if document else '', 'policy_context':context},decision)
@@ -78,7 +81,7 @@ class _AuditedEngine:
 
 class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
     """Trusted in-process API. Caller supplies an authenticated Actor, not user input."""
-    def __init__(self,store=None,blob_store=None,parsers=None,chunker=None,vector_index=None,embedder=None,excerpt_policy=None,*,policy_engine:Optional[KnowledgePolicyEngine]=None,redaction_registry:Optional[RedactionRegistry]=None,policy_rules:Sequence[PolicyRule]=(),identity_resolver=None,allow_insecure_local_webhook=False):
+    def __init__(self,store=None,blob_store=None,parsers=None,chunker=None,vector_index=None,embedder=None,excerpt_policy=None,*,policy_engine:Optional[KnowledgePolicyEngine]=None,redaction_registry:Optional[RedactionRegistry]=None,policy_rules:Sequence[PolicyRule]=(),identity_resolver=None,allow_insecure_local_webhook=False,require_principal=False):
         self.policy_engine = policy_engine if policy_engine is not None else DefaultPolicyEngine(policy_rules)
         self.redaction_registry = redaction_registry if redaction_registry is not None else RedactionRegistry()
         self.store=store if store is not None else SQLiteStore()
@@ -87,12 +90,17 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
         self.vector_index=vector_index; self.embedder=embedder; self.excerpt_policy=excerpt_policy or ExcerptPolicy()
         self._lock=threading.RLock()
         self._audit_frames=[]
+        self.require_principal=require_principal
         self.identity_resolver=identity_resolver
         self.allow_insecure_local_webhook=allow_insecure_local_webhook
     @property
     def policy_engine(self): return self._policy_engine
     @policy_engine.setter
     def policy_engine(self, value): self._policy_engine=_AuditedEngine(self,value)
+
+    def _check_principal(self,actor):
+        from ..permissions.identity import check_principal
+        check_principal(self.store,actor,required=self.require_principal)
 
     def _audit_operation(self, actor, action, values, result, denied=False):
         from ..audit.ledger import append

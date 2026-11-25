@@ -10,6 +10,7 @@ requires-python = ">=3.9"
 license = "MIT"
 dependencies = []
 [project.optional-dependencies]
+oidc = ["cryptography>=42,<47"]
 postgres = ["psycopg[binary]>=3.1,<4"]
 mcp = ["fastapi>=0.100,<1", "uvicorn>=0.23,<1"]
 http = ["fastapi>=0.100,<1", "uvicorn>=0.23,<1"]

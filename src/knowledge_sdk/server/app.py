@@ -11,11 +11,14 @@ from ..exceptions import KnowledgeSDKError, PermissionDeniedError, NotFoundError
 from ..client.http_client import OPERATIONS
 from .auth import verify_headers, InMemoryReplayStore, extension_claims, _validate_secrets, _decode_object
 
-def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=None,*,enable_ui=True,enable_demo_switcher=False,replay_store=None,fallback_secrets=(),ui_prefix="/ui",enable_mcp=False,default_mcp_purpose=Purpose.GROUND_INTERNAL_LLM,dsn=None,pg_rls=True,pgvector_dims=None):
-    if not dev_insecure and (not auth_secret or len(auth_secret)<32): raise ValidationError("Auth secret must contain at least 32 characters")
+def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=None,*,enable_ui=True,enable_demo_switcher=False,replay_store=None,fallback_secrets=(),ui_prefix="/ui",enable_mcp=False,default_mcp_purpose=Purpose.GROUND_INTERNAL_LLM,dsn=None,pg_rls=True,pgvector_dims=None,auth_mode="hmac",oidc_authenticator=None,scim_tokens=None,connectors=None,session_cookie_secure=True):
+    if auth_mode not in ('hmac','oidc','dual'):raise ValidationError('Invalid auth_mode')
+    if auth_mode in ('oidc','dual') and (dev_insecure or enable_demo_switcher):raise ValidationError('OIDC forbids insecure/demo identity')
+    if auth_mode in ('oidc','dual') and oidc_authenticator is None:raise ValidationError('OIDC authenticator required')
+    if auth_mode in ('hmac','dual') and not dev_insecure and (not auth_secret or len(auth_secret)<32): raise ValidationError("Auth secret must contain at least 32 characters")
     if enable_demo_switcher and (dev_insecure or not auth_secret or len(auth_secret)<32):
         raise ValidationError("Demo switcher requires HMAC authentication, not dev_insecure")
-    if not dev_insecure: _validate_secrets(auth_secret, fallback_secrets)
+    if auth_mode in ('hmac','dual') and not dev_insecure: _validate_secrets(auth_secret, fallback_secrets)
     if type(enable_mcp) is not bool:raise ValidationError('Invalid MCP enable flag')
     default_mcp_purpose=Purpose(default_mcp_purpose)
     if enable_mcp and dev_insecure:raise ValidationError('MCP requires signed authentication')
@@ -32,7 +35,8 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
                 replay_store=PostgresReplayStore(dsn,enable_rls=pg_rls);owned_replay=True
         except BaseException:client.store.close();raise
     if client is None:raise ValidationError('Client or DSN required')
-    replay_store = replay_store if replay_store is not None else InMemoryReplayStore()
+    replay_store = replay_store if replay_store is not None else (oidc_authenticator.replay_store if auth_mode in ('oidc','dual') else InMemoryReplayStore())
+    if auth_mode in ('oidc','dual'):oidc_authenticator.replay_store=replay_store
     from contextlib import asynccontextmanager
     @asynccontextmanager
     async def lifespan(app):
@@ -43,6 +47,12 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
     app=FastAPI(lifespan=lifespan,title="knowledge-sdk",version=knowledge_sdk.__version__)
     app.state.knowledge_client=client
     app.state.replay_store=replay_store
+    app.state.auth_mode=auth_mode
+    import secrets,time,threading,hmac
+    sessions={};session_lock=threading.Lock()
+    scim_tokens=dict(scim_tokens or {})
+    if any(not isinstance(k,str) or len(k)<32 or not hasattr(v,'org_id') for k,v in scim_tokens.items()):raise ValidationError('Invalid tenant SCIM token configuration')
+
     @app.exception_handler(KnowledgeSDKError)
     async def sdk_error(request,exc):
         status=403 if isinstance(exc,PermissionDeniedError) else 404 if isinstance(exc,NotFoundError) else 409 if isinstance(exc,ConflictError) else 400
@@ -79,27 +89,91 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
         raw_path=request.scope.get("raw_path",request.url.path.encode("utf-8")).decode("ascii")
         target=raw_path+("?"+request.url.query if request.url.query else "")
         try:
-            if path=='/v1/mcp':
+            bearer=request.headers.get('authorization','')
+            if bearer and request.headers.get('x-kb-signature'):raise ValidationError('Ambiguous authentication')
+            scim_actor=None
+            if path.startswith('/scim/v2/') and bearer.startswith('Bearer '):
+                for configured,identity in scim_tokens.items():
+                    if hmac.compare_digest(bearer[7:],configured):scim_actor=identity
+            if scim_actor is not None:
+                request.state.actor=scim_actor;request.state.agent=None;request.state.purpose=Purpose.READ
+                client._check_principal(scim_actor)
+            elif auth_mode in ('oidc','dual') and (bearer or request.cookies.get('kb_session')):
+                if bearer:
+                    if not bearer.startswith('Bearer '):raise ValidationError('Invalid bearer')
+                    actor,claims=oidc_authenticator.authenticate_with_claims(bearer[7:])
+                    request.state.oidc_exp=claims['exp']
+                else:
+                    if path=='/v1/auth/session':raise ValidationError('Bearer required')
+                    with session_lock:
+                        entry=sessions.get(request.cookies.get('kb_session'))
+                    if entry is None or entry[1]<=time.time():raise ValidationError('Session expired')
+                    actor=entry[0]
+                    if request.method not in ('GET','HEAD','OPTIONS') and request.headers.get('origin')!=request.url.scheme+'://'+request.url.netloc:raise ValidationError('Session origin denied')
+                request.state.actor=actor
+                client._check_principal(actor)
+                request.state.actor=actor;request.state.agent=None;request.state.purpose=Purpose.READ
+                if path=='/v1/mcp':
+                    from ..mcp.gateway import GatewayContext
+                    request.state.mcp_context=GatewayContext(actor,purpose=default_mcp_purpose)
+                return await call_next(request)
+            elif auth_mode=='oidc':raise ValidationError('OIDC required')
+            elif path=='/v1/mcp':
                 from ..mcp.gateway import GatewayAuthenticator
                 gateway=GatewayAuthenticator(auth_secret,replay_store=replay_store,fallback_secrets=fallback_secrets,bound_purpose=default_mcp_purpose)
                 request.state.mcp_context,status=gateway.authorize_http(request.headers,request.method,target,body)
                 if status!=200:raise ValidationError('Invalid request authentication')
+                request.state.actor=request.state.mcp_context.actor
+                client._check_principal(request.state.mcp_context.actor)
                 response=await call_next(request);response.headers['Cache-Control']='no-store';return response
             # Strict identity parsing is a preflight, before verify_headers can
             # atomically consume a nonce. Signature/tenant validation still
             # happens in verify_headers before any state is trusted.
+            if scim_actor is not None:return await call_next(request)
             encoded_agent=request.headers.get("x-kb-agent")
             typed_agent=AgentIdentity.from_dict(_decode_object(encoded_agent,8192)) if encoded_agent is not None else None
             request.state.actor=verify_headers(request.headers,auth_secret,request.method,target,body,dev_insecure=dev_insecure,replay_store=replay_store,fallback_secrets=fallback_secrets)
+            client._check_principal(request.state.actor)
             agent, purpose = extension_claims(request.headers, request.state.actor)
             request.state.agent = typed_agent
             request.state.purpose = Purpose(purpose)
-        except (ValidationError,ValueError,TypeError,UnicodeError):
+        except (ValidationError,PermissionDeniedError,ValueError,TypeError,UnicodeError):
+            actor=getattr(request.state,'actor',None)
+            if actor is not None:client._audit_operation(actor,'authenticate',{},None,denied=True)
             return JSONResponse(status_code=401,content={"error":"PermissionDeniedError","message":"Invalid request authentication"},headers={"Cache-Control":"no-store"})
         response=await call_next(request)
         if path.startswith(('/v1/audit/','/v1/impact/','/v1/governance/','/v1/packs')) or path in ('/v1/events/drain','/v1/outbox/drain'):
             response.headers['Cache-Control']='no-store'
         return response
+    @app.middleware('http')
+    async def never_cache(request,call_next):
+        response=await call_next(request)
+        response.headers['Cache-Control']='no-store'
+        response.headers['Pragma']='no-cache'
+        return response
+    if auth_mode in ('oidc','dual'):
+        @app.post('/v1/auth/session')
+        async def session(request:Request):
+            expiry=getattr(request.state,'oidc_exp',None)
+            if expiry is None:raise PermissionDeniedError('OIDC bearer required')
+            cookie=secrets.token_urlsafe(32)
+            with session_lock:
+                for key in list(sessions):
+                    if sessions[key][1]<=time.time():sessions.pop(key,None)
+                if len(sessions)>=10000:raise ValidationError('Session capacity exceeded')
+                sessions[cookie]=(request.state.actor,expiry)
+            response=JSONResponse({'authenticated':True,'expires_at':expiry})
+            response.set_cookie('kb_session',cookie,httponly=True,secure=session_cookie_secure,samesite='strict',path='/',max_age=max(1,int(expiry-time.time())))
+            return response
+        @app.post('/v1/auth/logout')
+        async def logout(request:Request):
+            with session_lock:sessions.pop(request.cookies.get('kb_session'),None)
+            response=JSONResponse({'authenticated':False});response.delete_cookie('kb_session',path='/');return response
+    from .scim import mount_scim
+    mount_scim(app,client)
+    if connectors:
+        from ..connectors.http import mount_connectors
+        mount_connectors(app,client,connectors)
     if enable_mcp:
         from ..mcp.protocol import MCPProtocol
         from fastapi.responses import Response

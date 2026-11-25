@@ -19,6 +19,7 @@ def operation(fn):
         actor=values['actor']
         with self._lock:
             try:
+                self._check_principal(actor)
                 with self.store.transaction():
                     result=fn(self,*args,**kwargs)
                     if fn.__name__ in ('get_release_manifest','submit_for_review','approve_release','reject_release','record_dissent','publish_release','resolve_evidence_issue'):

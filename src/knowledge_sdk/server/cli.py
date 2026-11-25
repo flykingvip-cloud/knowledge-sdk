@@ -18,7 +18,17 @@ def main():
     parser.add_argument('--dsn',default=os.environ.get('KNOWLEDGE_SDK_DSN'),help='Optional PostgreSQL connection; prefer environment for credentials')
     parser.add_argument('--pg-rls',action=argparse.BooleanOptionalAction,default=True)
     parser.add_argument('--pgvector-dims',type=int)
+    parser.add_argument('--auth-mode',choices=('hmac','oidc','dual'),default='hmac')
+    parser.add_argument('--oidc-issuer',default=os.environ.get('KNOWLEDGE_OIDC_ISSUER'))
+    parser.add_argument('--oidc-audience',default=os.environ.get('KNOWLEDGE_OIDC_AUDIENCE'))
+    parser.add_argument('--jwks-uri',default=os.environ.get('KNOWLEDGE_OIDC_JWKS_URI'))
     args=parser.parse_args()
+    oidc=None
+    if args.auth_mode in ('oidc','dual'):
+        if args.dev_insecure or args.demo_seed:parser.error('OIDC forbids insecure/demo modes')
+        if not all((args.oidc_issuer,args.oidc_audience,args.jwks_uri)):parser.error('OIDC requires issuer, audience and HTTPS JWKS URI')
+        from .oidc import OIDCAuthenticator,JWKSProvider
+        oidc=OIDCAuthenticator(args.oidc_issuer,args.oidc_audience,JWKSProvider(args.jwks_uri))
     if args.dsn and args.demo_seed:parser.error('Demo seed cannot use PostgreSQL')
     if args.dsn and args.replay_db:parser.error('PostgreSQL uses shared replay storage')
     if args.demo_seed and args.host not in ("127.0.0.1", "localhost", "::1"): parser.error("Demo must bind loopback")
@@ -34,7 +44,7 @@ def main():
                    dev_insecure=args.dev_insecure,enable_ui=not args.no_ui,enable_demo_switcher=args.demo_seed,
                    replay_store=SQLiteReplayStore(args.replay_db) if args.replay_db else None,
                    fallback_secrets=tuple(v.strip() for v in os.environ.get("KNOWLEDGE_AUTH_FALLBACK_SECRETS", "").split(",") if v.strip()),
-                   ui_prefix=args.ui_prefix,dsn=args.dsn,pg_rls=args.pg_rls,pgvector_dims=args.pgvector_dims)
+                   auth_mode=args.auth_mode,oidc_authenticator=oidc,ui_prefix=args.ui_prefix,dsn=args.dsn,pg_rls=args.pg_rls,pgvector_dims=args.pgvector_dims)
     try: uvicorn.run(app,host=args.host,port=args.port,proxy_headers=False)
     finally:
         if client is not None:client.store.close()

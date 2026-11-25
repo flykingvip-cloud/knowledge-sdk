@@ -67,6 +67,10 @@ class EvidenceTools:
     def __init__(self,client):self.client=client
     def call(self,name,arguments,context):
         if not isinstance(context,GatewayContext):raise ValidationError('Verified gateway context required')
+        try:self.client._check_principal(context.actor)
+        except PermissionDeniedError:
+            self.client._audit_operation(context.actor,'mcp.'+name,{},None,denied=True)
+            raise
         if name not in _SCHEMAS or not isinstance(arguments,dict):raise ValidationError('Invalid tool arguments')
         props,required=_SCHEMAS[name]
         if set(arguments)-set(props) or any(k not in arguments for k in required):raise ValidationError('Invalid tool arguments')
