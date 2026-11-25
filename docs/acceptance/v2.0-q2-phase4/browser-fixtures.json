@@ -1,0 +1,46 @@
+{
+  "status": "L4_PENDING",
+  "timezone": "Asia/Shanghai",
+  "source_commit": "3f3674fb2e56fe165cc870ab2df9ff0d3299a678",
+  "credentials": "No credentials or JWTs in this inventory. Use private local token files, never URLs/screenshots/logs.",
+  "postgres": {
+    "pid": 1198914,
+    "port": 55474,
+    "stop_command": "/usr/lib/postgresql/17/bin/pg_ctl -D /workspace/knowledge-sdk-q2m4-pg -m fast stop"
+  },
+  "nginx": {
+    "master_pid": 1207307,
+    "worker_pid": 1207308,
+    "ports": [
+      18474,
+      18475
+    ],
+    "stop_command": "kill -QUIT 1207307"
+  },
+  "backends": [
+    {
+      "engine": "sqlite",
+      "pid": 1224980,
+      "port": 19474,
+      "url": "http://127.0.0.1:18474/kb-prod/ui",
+      "token_file": "/workspace/knowledge-sdk-q2m4-artifacts/l4-sqlite.jwt",
+      "stop_command": "kill -TERM 1224980"
+    },
+    {
+      "engine": "postgres",
+      "pid": 1224985,
+      "port": 19475,
+      "url": "http://127.0.0.1:18475/kb-prod/ui",
+      "token_file": "/workspace/knowledge-sdk-q2m4-artifacts/l4-postgres.jwt",
+      "stop_command": "kill -TERM 1224985"
+    }
+  ],
+  "stop_order": [
+    "backends",
+    "nginx",
+    "postgres"
+  ],
+  "token_expiry": "approximately 2026-11-25 14:49 Asia/Shanghai, one-use jti; executor has not consumed browser tokens",
+  "browser_interaction": "NONE performed by executor; parent computerUse required",
+  "last_http_only_health_check": "2026-11-25T08:53:41.782104+08:00"
+}

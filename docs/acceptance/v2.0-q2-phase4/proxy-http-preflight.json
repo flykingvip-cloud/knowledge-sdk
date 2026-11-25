@@ -1,0 +1,77 @@
+{
+  "source_commit": "3f3674f",
+  "checked_at": "2026-11-25T08:49:51.253494+08:00",
+  "timezone": "Asia/Shanghai",
+  "observations": [
+    {
+      "engine": "sqlite",
+      "path": "/v1/health",
+      "status": 200,
+      "cache_control": "no-store",
+      "browser_evidence": false
+    },
+    {
+      "engine": "sqlite",
+      "path": "/ui",
+      "status": 200,
+      "cache_control": "no-store",
+      "browser_evidence": false
+    },
+    {
+      "engine": "sqlite",
+      "path": "/ui/config",
+      "status": 200,
+      "cache_control": "no-store",
+      "browser_evidence": false
+    },
+    {
+      "engine": "sqlite",
+      "path": "/ui/assets/enterprise.js",
+      "status": 200,
+      "cache_control": "no-store",
+      "browser_evidence": false
+    },
+    {
+      "engine": "sqlite",
+      "path": "/ui/demo/sign",
+      "status": 404,
+      "cache_control": "no-store",
+      "browser_evidence": false
+    },
+    {
+      "engine": "postgres",
+      "path": "/v1/health",
+      "status": 200,
+      "cache_control": "no-store",
+      "browser_evidence": false
+    },
+    {
+      "engine": "postgres",
+      "path": "/ui",
+      "status": 200,
+      "cache_control": "no-store",
+      "browser_evidence": false
+    },
+    {
+      "engine": "postgres",
+      "path": "/ui/config",
+      "status": 200,
+      "cache_control": "no-store",
+      "browser_evidence": false
+    },
+    {
+      "engine": "postgres",
+      "path": "/ui/assets/enterprise.js",
+      "status": 200,
+      "cache_control": "no-store",
+      "browser_evidence": false
+    },
+    {
+      "engine": "postgres",
+      "path": "/ui/demo/sign",
+      "status": 404,
+      "cache_control": "no-store",
+      "browser_evidence": false
+    }
+  ]
+}

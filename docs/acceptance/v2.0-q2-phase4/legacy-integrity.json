@@ -1,0 +1,27 @@
+{
+  "baseline": "adc3228602207771dc7041763f5832ffb862fa9b",
+  "files": {
+    "tests/benchmark/golden_cases_v1.jsonl": {
+      "baseline_sha256": "1b7c5ace8249495477457431e7b64f047868757ce28985ede56c483771b13fea",
+      "current_sha256": "1b7c5ace8249495477457431e7b64f047868757ce28985ede56c483771b13fea",
+      "byte_identical": true
+    },
+    "tests/benchmark/golden_cases_v2.jsonl": {
+      "baseline_sha256": "8503fd7962f23f97ca96d30476ba1c976db239ef5ca56bc0a552c8cb5a5232e1",
+      "current_sha256": "8503fd7962f23f97ca96d30476ba1c976db239ef5ca56bc0a552c8cb5a5232e1",
+      "byte_identical": true
+    },
+    "tests/benchmark/g6.py": {
+      "baseline_sha256": "c12cb690dae8e97545211068d30f162ee13bf375b0953ebcb75238ad2a56f412",
+      "current_sha256": "c12cb690dae8e97545211068d30f162ee13bf375b0953ebcb75238ad2a56f412",
+      "byte_identical": true
+    }
+  },
+  "legacy_runner_assertions": {
+    "byte_identical_original_prefix": true,
+    "bytes": 34415,
+    "sha256": "f5982656819bfd1907d9e80669b3085781c75d7163d7bfc38ed7ac5f0e5b2063",
+    "boundary": "Every original scenario function and assertion, registry, loader and original run_suite before def main; new wrapper appended afterwards"
+  },
+  "legacy_gate_test_assertions_unchanged": true
+}

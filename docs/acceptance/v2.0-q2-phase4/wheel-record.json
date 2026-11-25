@@ -1,0 +1,9 @@
+{
+  "wheel": "knowledge_sdk-1.2.0-py3-none-any.whl",
+  "sha256": "f270917183ac4734e133fea22d846c316f97d03cb1cbd17a56e71f115dd45285",
+  "record_hashes_verified": 105,
+  "enterprise_modules_and_assets": true,
+  "packaged_source_assets_byte_match_checkout": true,
+  "packaged_source_assets_verified": 100,
+  "source_commit": "3f3674fb2e56fe165cc870ab2df9ff0d3299a678"
+}

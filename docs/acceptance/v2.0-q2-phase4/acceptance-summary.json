@@ -1,0 +1,48 @@
+{
+  "source_commit": "3f3674fb2e56fe165cc870ab2df9ff0d3299a678",
+  "recorded_at": "2026-11-25T08:53:21.364032+08:00",
+  "timezone": "Asia/Shanghai",
+  "l1": {
+    "passed": 548,
+    "skipped": 222,
+    "failed": 0,
+    "resource_warnings": 0
+  },
+  "l2_unittest": {
+    "passed": 767,
+    "skipped": 3,
+    "failed": 0
+  },
+  "l2_pytest": {
+    "passed": 767,
+    "skipped": 3,
+    "failed": 0,
+    "subtests_passed_separately": 215,
+    "warnings": {
+      "StarletteDeprecationWarning": 1
+    }
+  },
+  "l3": {
+    "sqlite_http_assertions": 52,
+    "postgres_http_assertions": 52,
+    "rls": true,
+    "four_connection_generations": true,
+    "dr_v4": true
+  },
+  "golden": {
+    "sqlite": {
+      "complete": 100,
+      "legacy": 75
+    },
+    "postgres": {
+      "complete": 100,
+      "legacy": 75
+    },
+    "acl_violations": 0,
+    "implicit_model_calls": 0
+  },
+  "l4": "PENDING",
+  "l5_m4": "PENDING_INDEPENDENT",
+  "enterprise_approval": "PENDING_EXTERNAL",
+  "tests_commit": "3ffcb419683af282e44c03ca1554250a9884d790"
+}
