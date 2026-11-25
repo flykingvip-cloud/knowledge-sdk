@@ -55,6 +55,8 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
 
     @app.exception_handler(KnowledgeSDKError)
     async def sdk_error(request,exc):
+        request.state.operation_error=type(exc).__name__
+        request.state.revocation_denied=isinstance(exc,PermissionDeniedError) and any(code in str(exc).lower() for code in ("revok", "revocation"))
         status=403 if isinstance(exc,PermissionDeniedError) else 404 if isinstance(exc,NotFoundError) else 409 if isinstance(exc,ConflictError) else 400
         return JSONResponse(status_code=status,content={"error":type(exc).__name__,"message":str(exc)})
     @app.middleware("http")

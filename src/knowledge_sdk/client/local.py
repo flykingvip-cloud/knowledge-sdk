@@ -54,17 +54,25 @@ def serialized(method):
             actor=values.get('actor')
             frame={'action':method.__name__,'values':values,'recorded':False}
             self._audit_frames.append(frame)
+            import time
+            started=time.monotonic(); telemetry_status=500; telemetry_error='OPERATION_FAILED'
             try:
                 try:
                     if actor is not None:self._check_principal(actor)
                     result=method(self,*args,**kwargs)
                 except PermissionDeniedError:
+                    telemetry_status=403; telemetry_error='PERMISSION_DENIED'
                     if actor is not None:self._audit_operation(actor,method.__name__,values,None,denied=True)
                     raise
                 if audited and actor is not None and not frame['recorded']:
                     self._audit_operation(actor,method.__name__,values,result)
+                telemetry_status=200; telemetry_error=None
                 return result
-            finally:self._audit_frames.pop()
+            finally:
+                self._audit_frames.pop()
+                if method.__name__ in ('ingest','search','retrieve'):
+                    from ..audit.telemetry import emit_operation
+                    emit_operation(method.__name__,getattr(actor,'org_id',None),telemetry_status,(time.monotonic()-started)*1000,telemetry_error)
 
     return wrapped
 
@@ -438,7 +446,8 @@ class LocalKnowledgeClient(CompatMixin,RuntimeMixin, GovernanceMixin, IssueMixin
         if acl is not None:
             self._kb(actor,kb_id,admin=True,**ctx)
             if not isinstance(acl,DocumentACL): raise ValidationError("Expected DocumentACL")
-        raw=content.encode("utf-8") if isinstance(content,str) else content
+        try: raw=content.encode("utf-8") if isinstance(content,str) else content
+        except UnicodeEncodeError as exc: raise ValidationError("INVALID_UTF8_TEXT") from exc
         if len(raw)>32*1024*1024: raise ValidationError("Document exceeds 32 MiB limit")
         layout=self.parsers.parse_layout(raw,filename);text=layout.full_text
         if not text.strip(): raise ValidationError("Empty document")
