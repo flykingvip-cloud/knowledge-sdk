@@ -160,7 +160,8 @@ class PostgresStore(RuntimeStoreMixin):
             rows = self._execute('SELECT org_id FROM knowledge_bases WHERE kb_id=%s AND org_id=%s', (kb.kb_id,) + (self._tenant,))
             if rows and rows[0][0] != kb.org_id:
                 raise ConflictError('Knowledge base identity conflict')
-            self._execute('INSERT INTO knowledge_bases VALUES(%s,%s,%s) ON CONFLICT(kb_id) DO UPDATE SET data=excluded.data', (kb.kb_id, kb.org_id, self._dump(kb)))
+            from .v2_metadata import preserve_dump
+            self._execute('INSERT INTO knowledge_bases VALUES(%s,%s,%s) ON CONFLICT(kb_id) DO UPDATE SET data=excluded.data', (kb.kb_id, kb.org_id, preserve_dump(self,kb)))
             for row in self._execute('SELECT doc_id FROM documents WHERE kb_id=%s AND org_id=%s', (kb.kb_id,) + (self._tenant,)):
                 self._sync_document(row[0])
 
@@ -206,7 +207,12 @@ class PostgresStore(RuntimeStoreMixin):
 
     @tenant_method
     def put_version(self, v, chunks):
-        self._execute('INSERT INTO document_versions VALUES(%s,%s,%s,%s)', (self._tenant, v.doc_id, v.version, self._dump(v)))
+        from .migration_v6 import schema_version
+        if schema_version(self)==6:
+            import uuid
+            self._execute('INSERT INTO document_versions(org_id,doc_id,version,data,version_id) VALUES(%s,%s,%s,%s,%s)', (self._tenant,v.doc_id,v.version,self._dump(v),uuid.uuid4().hex))
+        else:
+            self._execute('INSERT INTO document_versions(org_id,doc_id,version,data) VALUES(%s,%s,%s,%s)', (self._tenant,v.doc_id,v.version,self._dump(v)))
         for c in chunks:
             if (c.doc_id,c.version)!=(v.doc_id,v.version):raise ConflictError('Chunk identity mismatch')
             self._execute('INSERT INTO chunks(org_id,doc_id,version,chunk_id,data) VALUES(%s,%s,%s,%s,%s)', (self._tenant, c.doc_id, c.version, c.chunk_id, self._dump(c)))

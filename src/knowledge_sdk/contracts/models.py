@@ -357,6 +357,7 @@ def decode(value):
     if isinstance(value, dict):
         value = dict(value); kind = value.pop("__type__", None)
         if kind=="__mapping__": return {k:decode(v) for k,v in value["items"]}
+        if kind=='KnowledgeBase':value.pop('_v2_space',None)
         data = {k: decode(v) for k,v in value.items()}
         try: return _MODELS[kind](**data) if kind in _MODELS else data
         except TypeError as exc: raise ValidationError("Invalid contract fields") from exc

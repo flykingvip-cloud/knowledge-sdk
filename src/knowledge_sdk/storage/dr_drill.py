@@ -119,7 +119,8 @@ def check_restored(store):
     return result
 
 
-def run(source_dsn,restore_dsn,*,dump_tool='pg_dump',restore_tool='pg_restore'):
+def run(source_dsn,restore_dsn,*,dump_tool='pg_dump',restore_tool='pg_restore',schema_version=5):
+    if schema_version not in (5,6):raise ValidationError("Unsupported drill schema")
     pg=driver()
     source=pg.conninfo.conninfo_to_dict(source_dsn);dest=pg.conninfo.conninfo_to_dict(restore_dsn)
     if source==dest or not all(d.get('dbname','').startswith('sdk_dr_') for d in (source,dest)):
@@ -130,6 +131,15 @@ def run(source_dsn,restore_dsn,*,dump_tool='pg_dump',restore_tool='pg_restore'):
     s=PostgresStore(source_dsn);target=None
     try:
         seed(s)
+        if schema_version==6:
+            from .migration_v6 import upgrade_v6
+            from .persistent_contracts import PersistentIdempotencyStore,PersistentIngestionJobStore
+            upgrade_v6(s,owned_nonproduction=True)
+            for org in ('alpha','beta'):
+                idem=PersistentIdempotencyStore(s,org,ttl_seconds=86400)
+                _,record=idem.begin(org,'POST','/v2/assets','dr-key',{})
+                idem.complete(record,{'created_version':2,'current_version':2})
+                PersistentIngestionJobStore(s,org).submit(org,'dr-job',{})
         before=fingerprint(s.db)
         # Reconstruct the v4->v5 DDL path inside a transaction, inject a
         # migration failure, and verify rollback restores every v5 business row.
@@ -162,6 +172,15 @@ def run(source_dsn,restore_dsn,*,dump_tool='pg_dump',restore_tool='pg_restore'):
         after=fingerprint(target.db)
         if after!=before:raise ValidationError('Backup/restore fingerprint differs')
         restored=check_restored(target)
+        if schema_version==6:
+            from .migration_v6 import require_v6,version_id
+            from ..contracts.idempotency import IdempotencyDecision
+            require_v6(target)
+            for org in ('alpha','beta'):
+                decision,record=PersistentIdempotencyStore(target,org).begin(org,'POST','/v2/assets','dr-key',{})
+                if decision!=IdempotencyDecision.REPLAY_EXACT or record.result!={'created_version':2,'current_version':2}:raise ValidationError('Restored idempotency snapshot differs')
+                job=PersistentIngestionJobStore(target,org).submit(org,'dr-job',{})
+                if job.status.value!='queued' or not version_id(target,org,org+'-doc',1):raise ValidationError('Restored v6 job/version mapping differs')
         return {'passed':True,'migration_interruption_rollback':True,'idempotent_reapply':True,
                 'all_table_fingerprints_equal':True,'fingerprints':before,'restored_contracts':restored,
                 'boundary':'Disposable databases only; table-owner backup operation, no production topology/failover claim'}
@@ -176,9 +195,10 @@ def main():
     p.add_argument('--restore-dsn',default=os.environ.get('KNOWLEDGE_SDK_DR_RESTORE_DSN'))
     p.add_argument('--confirm-disposable',action='store_true',required=True)
     p.add_argument('--json-output')
+    p.add_argument('--schema-version',type=int,choices=(5,6),default=5)
     a=p.parse_args()
     if not a.source_dsn or not a.restore_dsn:p.error('Two disposable DSNs required')
-    result=run(a.source_dsn,a.restore_dsn)
+    result=run(a.source_dsn,a.restore_dsn,schema_version=a.schema_version)
     data=json.dumps(result,sort_keys=True,indent=2)
     if a.json_output:Path(a.json_output).write_text(data+'\n')
     print(data)

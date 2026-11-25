@@ -28,7 +28,7 @@ class SQLiteStore(RuntimeStoreMixin):
         try:
             self.db.execute("PRAGMA foreign_keys=ON");self.db.execute("PRAGMA busy_timeout=5000")
             schema=self.db.execute("PRAGMA user_version").fetchone()[0]
-            if schema not in (0,1,2,3,4,5):raise ConflictError("Unsupported database schema version")
+            if schema not in (0,1,2,3,4,5,6):raise ConflictError("Unsupported database schema version")
             if schema<2:
                 with self.transaction():
                     for statement in self._BASE_SCHEMA.split(';'):
@@ -58,6 +58,10 @@ class SQLiteStore(RuntimeStoreMixin):
             if self.db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='review_decisions'").fetchone():
                 self.db.execute("CREATE TRIGGER IF NOT EXISTS review_no_update BEFORE UPDATE ON review_decisions BEGIN SELECT RAISE(ABORT,'Append-only reviews'); END")
                 self.db.execute("CREATE TRIGGER IF NOT EXISTS review_no_delete BEFORE DELETE ON review_decisions BEGIN SELECT RAISE(ABORT,'Append-only reviews'); END")
+            if schema==6:
+                from .migration_v6 import validate_v6
+                try:validate_v6(self)
+                except ConflictError:raise ConflictError("Unsupported database schema version") from None
             self.db.execute("PRAGMA journal_mode=WAL")
         except BaseException:
             self.db.close();raise
@@ -254,7 +258,8 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
         with self._write_scope():
             rows=self._execute('SELECT org_id FROM knowledge_bases WHERE kb_id=?',(kb.kb_id,))
             if rows and rows[0][0]!=kb.org_id:raise ConflictError('Knowledge base identity conflict')
-            self._execute("INSERT INTO knowledge_bases VALUES(?,?,?) ON CONFLICT(kb_id) DO UPDATE SET data=excluded.data",(kb.kb_id,kb.org_id,self._dump(kb)))
+            from .v2_metadata import preserve_dump
+            self._execute("INSERT INTO knowledge_bases VALUES(?,?,?) ON CONFLICT(kb_id) DO UPDATE SET data=excluded.data",(kb.kb_id,kb.org_id,preserve_dump(self,kb)))
             for row in self._execute('SELECT doc_id FROM documents WHERE kb_id=?',(kb.kb_id,)):self._sync_document(row[0])
     def get_kb(self,kb_id): return self._get("SELECT data FROM knowledge_bases WHERE kb_id=?",(kb_id,))
     def list_kbs(self,org_id): return [decode(json.loads(r[0])) for r in self._execute("SELECT data FROM knowledge_bases WHERE org_id=? ORDER BY kb_id",(org_id,))]
@@ -285,7 +290,12 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
                 v=replace(v,lifecycle_state=d.lifecycle_state if version==d.current_version else 'published',author_id='legacy_unknown')
         return v
     def put_version(self,v,chunks):
-        self._execute("INSERT INTO document_versions VALUES(?,?,?)",(v.doc_id,v.version,self._dump(v)))
+        from .migration_v6 import schema_version
+        if schema_version(self)==6:
+            import uuid
+            self._execute("INSERT INTO document_versions(doc_id,version,data,version_id) VALUES(?,?,?,?)",(v.doc_id,v.version,self._dump(v),uuid.uuid4().hex))
+        else:
+            self._execute("INSERT INTO document_versions(doc_id,version,data) VALUES(?,?,?)",(v.doc_id,v.version,self._dump(v)))
         for c in chunks: self._execute("INSERT INTO chunks VALUES(?,?,?,?)",(c.doc_id,c.version,c.chunk_id,self._dump(c)))
     def get_chunks(self,doc_id,version):
         chunks=[decode(json.loads(r[0])) for r in self._execute("SELECT data FROM chunks WHERE doc_id=? AND version=?",(doc_id,version))]
