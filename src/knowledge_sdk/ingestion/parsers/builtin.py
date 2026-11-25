@@ -8,6 +8,8 @@ from html.parser import HTMLParser as BaseHTMLParser
 from ...exceptions import ValidationError
 class TextParser:
     def parse(self, data):
+        if not isinstance(data, bytes): raise ValidationError("INVALID_PARSER_INPUT")
+        if len(data) > 32*1024*1024: raise ValidationError("DOCUMENT_TOO_LARGE")
         try: return data.decode("utf-8-sig")
         except UnicodeDecodeError as exc: raise ValidationError("Expected UTF-8 text") from exc
 class MarkdownParser(TextParser):
@@ -99,14 +101,21 @@ def excel_col(number):
     return result
 
 
+def _csv_rows(data):
+    try:
+        return list(csv.reader(io.StringIO(TextParser().parse(data), newline=""), strict=True))
+    except csv.Error as exc:
+        raise ValidationError("INVALID_OR_OVERSIZED_CSV") from exc
+
+
 class CSVParser:
     def parse(self,data):
-        return "\n".join(" | ".join(row) for row in csv.reader(io.StringIO(TextParser().parse(data))))
+        return "\n".join(" | ".join(row) for row in _csv_rows(data))
     def parse_layout(self,data,filename=""):
         from pathlib import Path
         from .layout import ParsedSpan,LayoutParseResult
         from ...contracts.anchors import SelectorKind,TableCellSelector
-        rows=list(csv.reader(io.StringIO(TextParser().parse(data))))
+        rows=_csv_rows(data)
         parts=[" | ".join(row) for row in rows];text="\n".join(parts)
         headers=None;unit_index=None;spans=[];offset=0;data_row=0
         for row,body in zip(rows,parts):

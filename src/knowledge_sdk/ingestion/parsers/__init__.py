@@ -10,12 +10,14 @@ class ParserRegistry:
     def register(self, extensions, parser):
         for ext in extensions: self.parsers[ext.lower().lstrip(".")] = parser
     def parse(self, data, filename):
+        if not isinstance(data, bytes) or len(data) > 32*1024*1024: raise ValidationError("INVALID_OR_OVERSIZED_PARSER_INPUT")
         ext = Path(filename).suffix.lower().lstrip(".")
         if ext not in self.parsers: raise ValidationError("Unsupported format: " + ext)
         parser=self.parsers[ext]
         return parser.parse(data) if callable(getattr(parser,"parse",None)) else self.parse_layout(data,filename).full_text
     def parse_layout(self,data,filename=""):
         if not isinstance(data,bytes) or not isinstance(filename,str): raise ValidationError("Invalid parser input")
+        if len(data) > 32*1024*1024: raise ValidationError("DOCUMENT_TOO_LARGE")
         ext=Path(filename).suffix.lower().lstrip(".")
         if ext not in self.parsers:raise ValidationError("Unsupported format: "+ext)
         parser=self.parsers[ext]
