@@ -1,0 +1,444 @@
+{
+  "wave1": {
+    "engine": "postgres",
+    "wire_assertion_groups": 114,
+    "permission_rows": [
+      {
+        "case": "authorized",
+        "transport": "python",
+        "allowed": true
+      },
+      {
+        "case": "authorized",
+        "transport": "http",
+        "allowed": true
+      },
+      {
+        "case": "authorized",
+        "transport": "mcp",
+        "tool": "search_evidence",
+        "allowed": true
+      },
+      {
+        "case": "authorized",
+        "transport": "mcp",
+        "tool": "verify_citation",
+        "allowed": true
+      },
+      {
+        "case": "authorized",
+        "transport": "mcp",
+        "tool": "get_evidence_pack",
+        "allowed": true
+      },
+      {
+        "case": "authorized",
+        "transport": "mcp",
+        "tool": "report_evidence_issue",
+        "allowed": true
+      },
+      {
+        "case": "explicit_deny_admin_owner",
+        "transport": "python",
+        "allowed": false
+      },
+      {
+        "case": "explicit_deny_admin_owner",
+        "transport": "http",
+        "allowed": false
+      },
+      {
+        "case": "explicit_deny_admin_owner",
+        "transport": "mcp",
+        "tool": "search_evidence",
+        "allowed": false
+      },
+      {
+        "case": "explicit_deny_admin_owner",
+        "transport": "mcp",
+        "tool": "verify_citation",
+        "allowed": false
+      },
+      {
+        "case": "explicit_deny_admin_owner",
+        "transport": "mcp",
+        "tool": "get_evidence_pack",
+        "allowed": false
+      },
+      {
+        "case": "explicit_deny_admin_owner",
+        "transport": "mcp",
+        "tool": "report_evidence_issue",
+        "allowed": false
+      },
+      {
+        "case": "explicit_deny_reader",
+        "transport": "python",
+        "allowed": false
+      },
+      {
+        "case": "explicit_deny_reader",
+        "transport": "http",
+        "allowed": false
+      },
+      {
+        "case": "explicit_deny_reader",
+        "transport": "mcp",
+        "tool": "search_evidence",
+        "allowed": false
+      },
+      {
+        "case": "explicit_deny_reader",
+        "transport": "mcp",
+        "tool": "verify_citation",
+        "allowed": false
+      },
+      {
+        "case": "explicit_deny_reader",
+        "transport": "mcp",
+        "tool": "get_evidence_pack",
+        "allowed": false
+      },
+      {
+        "case": "explicit_deny_reader",
+        "transport": "mcp",
+        "tool": "report_evidence_issue",
+        "allowed": false
+      },
+      {
+        "case": "cross_tenant",
+        "transport": "python",
+        "allowed": false
+      },
+      {
+        "case": "cross_tenant",
+        "transport": "http",
+        "allowed": false
+      },
+      {
+        "case": "cross_tenant",
+        "transport": "mcp",
+        "tool": "search_evidence",
+        "allowed": false
+      },
+      {
+        "case": "cross_tenant",
+        "transport": "mcp",
+        "tool": "verify_citation",
+        "allowed": false
+      },
+      {
+        "case": "cross_tenant",
+        "transport": "mcp",
+        "tool": "get_evidence_pack",
+        "allowed": false
+      },
+      {
+        "case": "cross_tenant",
+        "transport": "mcp",
+        "tool": "report_evidence_issue",
+        "allowed": false
+      },
+      {
+        "case": "agent_does_not_grant_membership",
+        "transport": "python",
+        "allowed": false
+      },
+      {
+        "case": "agent_does_not_grant_membership",
+        "transport": "http",
+        "allowed": false
+      },
+      {
+        "case": "agent_does_not_grant_membership",
+        "transport": "mcp",
+        "tool": "search_evidence",
+        "allowed": false
+      },
+      {
+        "case": "agent_does_not_grant_membership",
+        "transport": "mcp",
+        "tool": "verify_citation",
+        "allowed": false
+      },
+      {
+        "case": "agent_does_not_grant_membership",
+        "transport": "mcp",
+        "tool": "get_evidence_pack",
+        "allowed": false
+      },
+      {
+        "case": "agent_does_not_grant_membership",
+        "transport": "mcp",
+        "tool": "report_evidence_issue",
+        "allowed": false
+      },
+      {
+        "case": "stale_generation",
+        "transport": "python",
+        "allowed": false
+      },
+      {
+        "case": "stale_generation",
+        "transport": "http",
+        "allowed": false
+      },
+      {
+        "case": "stale_generation",
+        "transport": "mcp",
+        "tool": "search_evidence",
+        "allowed": false
+      },
+      {
+        "case": "stale_generation",
+        "transport": "mcp",
+        "tool": "verify_citation",
+        "allowed": false
+      },
+      {
+        "case": "stale_generation",
+        "transport": "mcp",
+        "tool": "get_evidence_pack",
+        "allowed": false
+      },
+      {
+        "case": "stale_generation",
+        "transport": "mcp",
+        "tool": "report_evidence_issue",
+        "allowed": false
+      },
+      {
+        "case": "inactive_scim",
+        "transport": "python",
+        "allowed": false
+      },
+      {
+        "case": "inactive_scim",
+        "transport": "http",
+        "allowed": false
+      },
+      {
+        "case": "inactive_scim",
+        "transport": "mcp",
+        "tool": "search_evidence",
+        "allowed": false
+      },
+      {
+        "case": "inactive_scim",
+        "transport": "mcp",
+        "tool": "verify_citation",
+        "allowed": false
+      },
+      {
+        "case": "inactive_scim",
+        "transport": "mcp",
+        "tool": "get_evidence_pack",
+        "allowed": false
+      },
+      {
+        "case": "inactive_scim",
+        "transport": "mcp",
+        "tool": "report_evidence_issue",
+        "allowed": false
+      },
+      {
+        "case": "redaction_failclosed",
+        "transport": "python",
+        "allowed": false
+      },
+      {
+        "case": "redaction_failclosed",
+        "transport": "http",
+        "allowed": false
+      },
+      {
+        "case": "redaction_failclosed",
+        "transport": "mcp",
+        "tool": "search_evidence",
+        "allowed": false
+      },
+      {
+        "case": "redaction_failclosed",
+        "transport": "mcp",
+        "tool": "verify_citation",
+        "allowed": false
+      },
+      {
+        "case": "redaction_failclosed",
+        "transport": "mcp",
+        "tool": "get_evidence_pack",
+        "allowed": false
+      },
+      {
+        "case": "redaction_failclosed",
+        "transport": "mcp",
+        "tool": "report_evidence_issue",
+        "allowed": false
+      },
+      {
+        "case": "redacted_delivery",
+        "transport": "python",
+        "allowed": true
+      },
+      {
+        "case": "redacted_delivery",
+        "transport": "http",
+        "allowed": true
+      },
+      {
+        "case": "redacted_delivery",
+        "transport": "mcp",
+        "tool": "search_evidence",
+        "allowed": true
+      },
+      {
+        "case": "redacted_delivery",
+        "transport": "mcp",
+        "tool": "verify_citation",
+        "allowed": true
+      },
+      {
+        "case": "redacted_delivery",
+        "transport": "mcp",
+        "tool": "get_evidence_pack",
+        "allowed": true
+      },
+      {
+        "case": "redacted_delivery",
+        "transport": "mcp",
+        "tool": "report_evidence_issue",
+        "allowed": true
+      },
+      {
+        "case": "member_revoked",
+        "transport": "python",
+        "allowed": false
+      },
+      {
+        "case": "member_revoked",
+        "transport": "http",
+        "allowed": false
+      },
+      {
+        "case": "member_revoked",
+        "transport": "mcp",
+        "tool": "search_evidence",
+        "allowed": false
+      },
+      {
+        "case": "member_revoked",
+        "transport": "mcp",
+        "tool": "verify_citation",
+        "allowed": false
+      },
+      {
+        "case": "member_revoked",
+        "transport": "mcp",
+        "tool": "get_evidence_pack",
+        "allowed": false
+      },
+      {
+        "case": "member_revoked",
+        "transport": "mcp",
+        "tool": "report_evidence_issue",
+        "allowed": false
+      }
+    ],
+    "case_count": 10,
+    "protocols": [
+      "python",
+      "http",
+      "mcp-four-tools"
+    ],
+    "member_revoke_before_dispatch": true,
+    "no_denied_rank_inputs": true,
+    "ready_real_closed_connection_503": true,
+    "metrics_fixed_no_labels": true,
+    "non_superuser_rls": true
+  },
+  "q3_m2_nine_runtime_variants": {
+    "engine": "postgres",
+    "passed": true,
+    "assertion_groups": 80,
+    "revocation_variants": [
+      "doc_revoked",
+      "archive",
+      "acl",
+      "anchor_drift",
+      "anchor_orphan",
+      "profile_generation",
+      "profile_disabled",
+      "principal_generation",
+      "principal_disabled"
+    ],
+    "ranker_calls_measured": 21,
+    "before_dispatch_flush": true,
+    "rls": {
+      "agent_profiles": {
+        "foreign_rows": 0,
+        "enable_force_rls": true
+      },
+      "task_contexts": {
+        "foreign_rows": 0,
+        "enable_force_rls": true
+      },
+      "context_snapshots": {
+        "foreign_rows": 0,
+        "enable_force_rls": true
+      },
+      "task_revocations": {
+        "foreign_rows": 0,
+        "enable_force_rls": true
+      }
+    },
+    "transport": "real loopback signed HTTP, real MCP + task snapshot, no ASGI-only stub",
+    "vector": "pgvector"
+  },
+  "q3_m1_hmac_oidc_six_families": {
+    "engine": "postgres",
+    "passed": true,
+    "http_assertion_groups": 109,
+    "revocation_variants": [
+      "doc_revoked",
+      "archive",
+      "acl",
+      "anchor_drift",
+      "anchor_orphan",
+      "profile_generation",
+      "profile_disabled",
+      "principal_generation",
+      "principal_disabled"
+    ],
+    "six_families": true,
+    "hmac_oidc": true,
+    "before_dispatch_flush": true,
+    "rls": {
+      "agent_profiles": {
+        "foreign_rows": 0,
+        "force_rls": true
+      },
+      "task_contexts": {
+        "foreign_rows": 0,
+        "force_rls": true
+      },
+      "context_snapshots": {
+        "foreign_rows": 0,
+        "force_rls": true
+      },
+      "task_revocations": {
+        "foreign_rows": 0,
+        "force_rls": true
+      }
+    },
+    "browser": "NOT_RUN_NO_UI_CHANGES"
+  },
+  "provider_instrumentation": {
+    "boundaries": [
+      "OpenAICompatibleEmbedder.embed",
+      "QdrantIndex._request"
+    ],
+    "observed_attempts": 0,
+    "note": "Loopback HMAC/OIDC HTTP is actual wire traffic, not blocked or counted as model/provider use; deterministic fixture embeddings are explicit offline stand-ins."
+  },
+  "ui": "NO_UI_CHANGES; no browser run claimed"
+}

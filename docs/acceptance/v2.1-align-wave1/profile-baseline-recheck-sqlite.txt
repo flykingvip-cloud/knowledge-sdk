@@ -1,0 +1,51 @@
+         4268411 function calls (4152164 primitive calls) in 1.395 seconds
+
+   Ordered by: cumulative time
+   List reduced from 375 to 45 due to restriction <45>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    1.423    1.423 /workspace/knowledge-sdk/docs/acceptance/v2.1-align-wave1/perf_snapshot.py:55(run)
+        1    0.002    0.002    1.423    1.423 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/retrieval/eval.py:186(evaluate)
+  523/333    0.003    0.000    1.392    0.004 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/client/local.py:48(wrapped)
+       48    0.001    0.000    1.101    0.023 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/client/local.py:558(search)
+       48    0.019    0.000    1.098    0.023 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/retrieval/hybrid.py:30(search)
+     1342    0.004    0.000    0.501    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/client/local.py:74(evaluate)
+     1580    0.008    0.000    0.476    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/client/local.py:111(_audit_operation)
+     1580    0.008    0.000    0.465    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/audit/ledger.py:16(append)
+     1580    0.020    0.000    0.389    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/storage/sqlite_store.py:419(append_audit_event)
+     7544    0.135    0.000    0.250    0.000 {built-in method builtins.sum}
+       51    0.005    0.000    0.249    0.005 /workspace/knowledge-sdk-align-wave1-baseline/tests/retrieval/q3_m2_fixture.py:19(search_for_org)
+     4714    0.007    0.000    0.155    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/storage/sqlite_store.py:243(_get)
+       24    0.000    0.000    0.148    0.006 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/retrieval/rerank.py:60(apply_reranker)
+       23    0.001    0.000    0.147    0.006 /workspace/knowledge-sdk/docs/acceptance/v2.1-align-wave1/perf_snapshot.py:51(observe)
+     5720    0.006    0.000    0.146    0.000 /usr/lib/python3.13/dataclasses.py:1580(replace)
+       23    0.008    0.000    0.139    0.006 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/retrieval/rerank.py:90(score)
+     5720    0.031    0.000    0.138    0.000 /usr/lib/python3.13/dataclasses.py:1599(_replace)
+      285    0.001    0.000    0.134    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/client/local.py:292(evaluate_policy)
+     4740    0.040    0.000    0.132    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/contracts/audit.py:35(__post_init__)
+       95    0.001    0.000    0.119    0.001 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/client/local.py:720(consume)
+      190    0.001    0.000    0.118    0.001 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/client/local.py:303(_delivered_source)
+82820/6564    0.068    0.000    0.118    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/contracts/models.py:355(decode)
+     2006    0.025    0.000    0.118    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/storage/sqlite_store.py:10(tokens)
+     3160    0.023    0.000    0.105    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/contracts/policy.py:106(to_dict)
+     1342    0.019    0.000    0.082    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/permissions/engine.py:56(evaluate)
+     1580    0.005    0.000    0.081    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/contracts/audit.py:61(audit_hash)
+   725353    0.074    0.000    0.075    0.000 {built-in method builtins.isinstance}
+    13052    0.015    0.000    0.074    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/storage/sqlite_store.py:239(_execute)
+       95    0.001    0.000    0.069    0.001 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/contracts/receipts.py:24(consume)
+       95    0.001    0.000    0.068    0.001 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/client/local.py:696(reference)
+     1580    0.002    0.000    0.061    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/storage/sqlite_store.py:247(_dump)
+     1110    0.004    0.000    0.060    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/contracts/uri.py:30(build_uri)
+     1722    0.001    0.000    0.058    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/storage/sqlite_store.py:261(get_document)
+   747099    0.057    0.000    0.057    0.000 /workspace/knowledge-sdk-align-wave1-baseline/tests/retrieval/q3_m2_fixture.py:25(<genexpr>)
+    60040    0.031    0.000    0.056    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/contracts/policy.py:107(convert)
+41745/2438    0.038    0.000    0.053    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/contracts/models.py:344(encode)
+     1460    0.001    0.000    0.053    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/storage/sqlite_store.py:289(get_acl)
+    47737    0.019    0.000    0.052    0.000 /usr/lib/python3.13/re/__init__.py:169(fullmatch)
+    41049    0.014    0.000    0.052    0.000 /usr/lib/python3.13/re/__init__.py:270(findall)
+   747099    0.051    0.000    0.051    0.000 /workspace/knowledge-sdk-align-wave1-baseline/tests/retrieval/q3_m2_fixture.py:24(<genexpr>)
+     1532    0.001    0.000    0.047    0.000 /workspace/knowledge-sdk-align-wave1-baseline/src/knowledge_sdk/storage/sqlite_store.py:255(get_kb)
+    13056    0.047    0.000    0.047    0.000 {method 'execute' of 'sqlite3.Connection' objects}
+     6566    0.006    0.000    0.047    0.000 /usr/lib/python3.13/json/__init__.py:299(loads)
+     5280    0.008    0.000    0.046    0.000 /usr/lib/python3.13/json/__init__.py:183(dumps)
+    12050    0.012    0.000    0.046    0.000 {built-in method builtins.any}

@@ -1,0 +1,90 @@
+{
+  "sqlite": {
+    "before_source_sha": "d1532951b08c8ef950dc604aa3427ceb9eab5d75",
+    "after_source_sha": "c1f2a17bfc3ed24880b1d1b443bbf6eafb93d656",
+    "same_physical_snapshot": true,
+    "identical_dataset_corpus_index_config_protected_pool": true,
+    "protected_pool_sha256": "2e0fe1c6aefb08f88d53da5fa3652791c9182a422c8a9e42c4dccc770f40e936",
+    "protected_pool_calls": 161,
+    "arms": {
+      "baseline": {
+        "p50_ms": {
+          "before": 1.872875502158422,
+          "after": 1.9159575022058561,
+          "percent_reduction": -2.300313074616207
+        },
+        "p95_ms": {
+          "before": 2.295943697390612,
+          "after": 2.444713749719085,
+          "percent_reduction": -6.479690791091838
+        },
+        "mean_ms": {
+          "before": 1.6539679083507508,
+          "after": 1.766331749119369,
+          "percent_reduction": -6.793592560127817
+        }
+      },
+      "candidate": {
+        "p50_ms": {
+          "before": 17.84029699774692,
+          "after": 16.968758500297554,
+          "percent_reduction": 4.885224150469202
+        },
+        "p95_ms": {
+          "before": 19.124636096239556,
+          "after": 18.717766500776634,
+          "percent_reduction": 2.1274632019948556
+        },
+        "mean_ms": {
+          "before": 13.202583474533943,
+          "after": 12.756564332933825,
+          "percent_reduction": 3.37827170311349
+        }
+      }
+    }
+  },
+  "postgres": {
+    "before_source_sha": "d1532951b08c8ef950dc604aa3427ceb9eab5d75",
+    "after_source_sha": "c1f2a17bfc3ed24880b1d1b443bbf6eafb93d656",
+    "same_physical_snapshot": true,
+    "identical_dataset_corpus_index_config_protected_pool": true,
+    "protected_pool_sha256": "d17f0e956e1641e0614399fb9e572dbabee816f297dc3002aafe59f74052830a",
+    "protected_pool_calls": 161,
+    "arms": {
+      "baseline": {
+        "p50_ms": {
+          "before": 9.627837993321009,
+          "after": 10.105899498739745,
+          "percent_reduction": -4.9654087007942564
+        },
+        "p95_ms": {
+          "before": 13.872762850223808,
+          "after": 15.189044554426799,
+          "percent_reduction": -9.488244832079399
+        },
+        "mean_ms": {
+          "before": 9.59321869086125,
+          "after": 10.080040899507972,
+          "percent_reduction": -5.074649336520209
+        }
+      },
+      "candidate": {
+        "p50_ms": {
+          "before": 146.31992499926127,
+          "after": 80.20985450275475,
+          "percent_reduction": 45.18186466869792
+        },
+        "p95_ms": {
+          "before": 168.56406054575928,
+          "after": 95.12281414936295,
+          "percent_reduction": 43.56874541264363
+        },
+        "mean_ms": {
+          "before": 110.53719161706492,
+          "after": 62.15821309124294,
+          "percent_reduction": 43.76715005879808
+        }
+      }
+    }
+  }
+}

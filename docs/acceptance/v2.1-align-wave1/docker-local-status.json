@@ -1,0 +1,5 @@
+{
+  "status": "BUILD_NOT_RUN",
+  "reason": "Docker CLI absent; no Podman/BuildKit/daemon socket available on the local box",
+  "scope": "Local box only; CI receipt is separate"
+}

@@ -1,0 +1,317 @@
+{
+  "run_id": 45555859161,
+  "url": "https://github.com/flykingvip-cloud/knowledge-sdk/actions/runs/45555859161",
+  "source_sha": "97ea9c81de95d544bda68867ed85cedc9dcf5194",
+  "observed_at": "2026-11-25T13:59:17.906398+08:00",
+  "status_at_archive": "NOT_YET_FOUR_JOB_VERIFIED; final receipt must supersede this if pending",
+  "jobs": [
+    {
+      "id": 139007606304,
+      "name": "http-and-package (3.9, ubuntu-22.04)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/flykingvip-cloud/knowledge-sdk/actions/runs/45555859161/job/139007606304",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Initialize containers",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -W error::ResourceWarning -m unittest discover -s tests -t . -v",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -m build",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -W error::ResourceWarning -m pytest -q",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Unmodified dual-engine and legacy golden modes",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python docs/architecture/knowledge-sdk-alignment/contracts/validate_assets.py",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python docs/acceptance/v2.1-q3-phase2/verify_package.py dist/*.whl",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "TypeScript draft DTO typecheck",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Isolated non-publishing Docker build and live runtime probe",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stop containers",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 139007606651,
+      "name": "core (3.12, ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/flykingvip-cloud/knowledge-sdk/actions/runs/45555859161/job/139007606651",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run PYTHONPATH=src python -S -W error::ResourceWarning -m unittest discover -s tests -t . -v",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run PYTHONPATH=src python -S -W error::ResourceWarning -m tests.benchmark.runner --json",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 139007606719,
+      "name": "core (3.9, ubuntu-22.04)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/flykingvip-cloud/knowledge-sdk/actions/runs/45555859161/job/139007606719",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run PYTHONPATH=src python -S -W error::ResourceWarning -m unittest discover -s tests -t . -v",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run PYTHONPATH=src python -S -W error::ResourceWarning -m tests.benchmark.runner --json",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 139007606918,
+      "name": "http-and-package (3.12, ubuntu-24.04)",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/flykingvip-cloud/knowledge-sdk/actions/runs/45555859161/job/139007606918",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Initialize containers",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -W error::ResourceWarning -m unittest discover -s tests -t . -v",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -m build",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python -W error::ResourceWarning -m pytest -q",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Unmodified dual-engine and legacy golden modes",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "name": "Run python docs/architecture/knowledge-sdk-alignment/contracts/validate_assets.py",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Run python docs/acceptance/v2.1-q3-phase2/verify_package.py dist/*.whl",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "TypeScript draft DTO typecheck",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Isolated non-publishing Docker build and live runtime probe",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Stop containers",
+          "status": "pending",
+          "conclusion": null
+        }
+      ]
+    }
+  ],
+  "historical_failed_preflight": {
+    "run_id": 45555739209,
+    "source_sha": "77493a48dce513e84b4f75f22a765009720d3c4a",
+    "jobs_started": 0,
+    "reason": "Unsupported job.services expression in job-level env; corrected in97ea9c8, no tests removed"
+  },
+  "bounded_timeout_change": "30 minutes for complete dual-engine suite on slower hosted runners; no assertions/work reduced"
+}

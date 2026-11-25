@@ -1,0 +1,10 @@
+{
+  "at": "2026-11-25T13:59:45.811855+08:00",
+  "owned_socket_only_pg_cluster_stopped": true,
+  "owned_port": 55477,
+  "existing_services_modified": false,
+  "temporary_detached_baseline_worktree_removed": true,
+  "fixture_data_retained_offline_for_reproducibility": "/workspace/knowledge-sdk-align-wave1-pg/data",
+  "live_owned_processes_remaining": false,
+  "reports_touched": false
+}

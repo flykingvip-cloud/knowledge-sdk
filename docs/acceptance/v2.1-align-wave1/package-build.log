@@ -1,0 +1,599 @@
+[93mWARNING[0m Both NO_COLOR and FORCE_COLOR environment variables are set, disabling color
+* Getting build dependencies for sdist...
+running egg_info
+writing src/knowledge_sdk.egg-info/PKG-INFO
+writing dependency_links to src/knowledge_sdk.egg-info/dependency_links.txt
+writing entry points to src/knowledge_sdk.egg-info/entry_points.txt
+writing requirements to src/knowledge_sdk.egg-info/requires.txt
+writing top-level names to src/knowledge_sdk.egg-info/top_level.txt
+reading manifest file 'src/knowledge_sdk.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'src/knowledge_sdk.egg-info/SOURCES.txt'
+* Building sdist...
+running sdist
+running egg_info
+writing src/knowledge_sdk.egg-info/PKG-INFO
+writing dependency_links to src/knowledge_sdk.egg-info/dependency_links.txt
+writing entry points to src/knowledge_sdk.egg-info/entry_points.txt
+writing requirements to src/knowledge_sdk.egg-info/requires.txt
+writing top-level names to src/knowledge_sdk.egg-info/top_level.txt
+reading manifest file 'src/knowledge_sdk.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'src/knowledge_sdk.egg-info/SOURCES.txt'
+running check
+creating knowledge_sdk-1.2.0
+creating knowledge_sdk-1.2.0/src/knowledge_sdk
+creating knowledge_sdk-1.2.0/src/knowledge_sdk.egg-info
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/audit
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/client
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/connectors
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/events
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/governance
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/impact
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion/chunkers
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion/parsers
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/mcp
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/packs
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/permissions
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval/adapters
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/runtime
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/server
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/storage
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/ui
+creating knowledge_sdk-1.2.0/src/knowledge_sdk/ui/static
+creating knowledge_sdk-1.2.0/tests
+copying files to knowledge_sdk-1.2.0...
+copying LICENSE -> knowledge_sdk-1.2.0
+copying README.md -> knowledge_sdk-1.2.0
+copying pyproject.toml -> knowledge_sdk-1.2.0
+copying src/knowledge_sdk/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk
+copying src/knowledge_sdk/exceptions.py -> knowledge_sdk-1.2.0/src/knowledge_sdk
+copying src/knowledge_sdk.egg-info/PKG-INFO -> knowledge_sdk-1.2.0/src/knowledge_sdk.egg-info
+copying src/knowledge_sdk.egg-info/SOURCES.txt -> knowledge_sdk-1.2.0/src/knowledge_sdk.egg-info
+copying src/knowledge_sdk.egg-info/dependency_links.txt -> knowledge_sdk-1.2.0/src/knowledge_sdk.egg-info
+copying src/knowledge_sdk.egg-info/entry_points.txt -> knowledge_sdk-1.2.0/src/knowledge_sdk.egg-info
+copying src/knowledge_sdk.egg-info/requires.txt -> knowledge_sdk-1.2.0/src/knowledge_sdk.egg-info
+copying src/knowledge_sdk.egg-info/top_level.txt -> knowledge_sdk-1.2.0/src/knowledge_sdk.egg-info
+copying src/knowledge_sdk/audit/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/audit
+copying src/knowledge_sdk/audit/ledger.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/audit
+copying src/knowledge_sdk/client/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/client
+copying src/knowledge_sdk/client/anchors.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/client
+copying src/knowledge_sdk/client/base.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/client
+copying src/knowledge_sdk/client/compat.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/client
+copying src/knowledge_sdk/client/http_client.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/client
+copying src/knowledge_sdk/client/local.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/client
+copying src/knowledge_sdk/connectors/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/connectors
+copying src/knowledge_sdk/connectors/base.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/connectors
+copying src/knowledge_sdk/connectors/filesystem.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/connectors
+copying src/knowledge_sdk/connectors/http.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/connectors
+copying src/knowledge_sdk/connectors/planning.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/connectors
+copying src/knowledge_sdk/connectors/webhook_sync.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/connectors
+copying src/knowledge_sdk/contracts/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/anchors.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/audit.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/connectors.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/events.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/governance.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/identity.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/impact.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/issues.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/models.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/packs.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/policy.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/reanchor.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/receipts.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/runtime.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/uri.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/contracts
+copying src/knowledge_sdk/events/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/events
+copying src/knowledge_sdk/events/outbox.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/events
+copying src/knowledge_sdk/governance/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/governance
+copying src/knowledge_sdk/governance/cli.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/governance
+copying src/knowledge_sdk/governance/issues.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/governance
+copying src/knowledge_sdk/governance/workflow.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/governance
+copying src/knowledge_sdk/impact/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/impact
+copying src/knowledge_sdk/impact/radar.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/impact
+copying src/knowledge_sdk/impact/webhook.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/impact
+copying src/knowledge_sdk/ingestion/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion
+copying src/knowledge_sdk/ingestion/fingerprint.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion
+copying src/knowledge_sdk/ingestion/chunkers/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion/chunkers
+copying src/knowledge_sdk/ingestion/chunkers/delta.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion/chunkers
+copying src/knowledge_sdk/ingestion/chunkers/fixed.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion/chunkers
+copying src/knowledge_sdk/ingestion/chunkers/hierarchical.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion/chunkers
+copying src/knowledge_sdk/ingestion/parsers/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion/parsers
+copying src/knowledge_sdk/ingestion/parsers/builtin.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion/parsers
+copying src/knowledge_sdk/ingestion/parsers/layout.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion/parsers
+copying src/knowledge_sdk/ingestion/parsers/office.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ingestion/parsers
+copying src/knowledge_sdk/mcp/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/mcp
+copying src/knowledge_sdk/mcp/__main__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/mcp
+copying src/knowledge_sdk/mcp/gateway.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/mcp
+copying src/knowledge_sdk/mcp/protocol.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/mcp
+copying src/knowledge_sdk/mcp/server.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/mcp
+copying src/knowledge_sdk/mcp/tools.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/mcp
+copying src/knowledge_sdk/packs/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/packs
+copying src/knowledge_sdk/packs/export.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/packs
+copying src/knowledge_sdk/packs/service.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/packs
+copying src/knowledge_sdk/permissions/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/permissions
+copying src/knowledge_sdk/permissions/departments.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/permissions
+copying src/knowledge_sdk/permissions/engine.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/permissions
+copying src/knowledge_sdk/permissions/identity.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/permissions
+copying src/knowledge_sdk/permissions/policy.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/permissions
+copying src/knowledge_sdk/permissions/redaction.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/permissions
+copying src/knowledge_sdk/retrieval/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/answers.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/base.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/calibration.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/eval.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/excerpt.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/hybrid.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/rerank.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/strategies.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/adapters/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval/adapters
+copying src/knowledge_sdk/retrieval/adapters/hash_embedder.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval/adapters
+copying src/knowledge_sdk/retrieval/adapters/openai_embedder.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval/adapters
+copying src/knowledge_sdk/retrieval/adapters/pgvector_index.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval/adapters
+copying src/knowledge_sdk/retrieval/adapters/qdrant.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval/adapters
+copying src/knowledge_sdk/retrieval/adapters/reranker.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/retrieval/adapters
+copying src/knowledge_sdk/runtime/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/runtime
+copying src/knowledge_sdk/runtime/service.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/runtime
+copying src/knowledge_sdk/server/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/server
+copying src/knowledge_sdk/server/__main__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/server
+copying src/knowledge_sdk/server/app.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/server
+copying src/knowledge_sdk/server/auth.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/server
+copying src/knowledge_sdk/server/cli.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/server
+copying src/knowledge_sdk/server/container.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/server
+copying src/knowledge_sdk/server/oidc.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/server
+copying src/knowledge_sdk/server/operations.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/server
+copying src/knowledge_sdk/server/postgres.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/server
+copying src/knowledge_sdk/server/replay_pg.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/server
+copying src/knowledge_sdk/server/scim.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/server
+copying src/knowledge_sdk/storage/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/base.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/dr_drill.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/local_blob.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/migrations.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/pg_support.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/postgres_schema.sql -> knowledge_sdk-1.2.0/src/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/postgres_store.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/runtime.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/sqlite_store.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/storage
+copying src/knowledge_sdk/ui/__init__.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ui
+copying src/knowledge_sdk/ui/demo.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ui
+copying src/knowledge_sdk/ui/routes.py -> knowledge_sdk-1.2.0/src/knowledge_sdk/ui
+copying src/knowledge_sdk/ui/static/enterprise.html -> knowledge_sdk-1.2.0/src/knowledge_sdk/ui/static
+copying src/knowledge_sdk/ui/static/enterprise.js -> knowledge_sdk-1.2.0/src/knowledge_sdk/ui/static
+copying src/knowledge_sdk/ui/static/i18n.js -> knowledge_sdk-1.2.0/src/knowledge_sdk/ui/static
+copying src/knowledge_sdk/ui/static/index.html -> knowledge_sdk-1.2.0/src/knowledge_sdk/ui/static
+copying src/knowledge_sdk/ui/static/workbench.css -> knowledge_sdk-1.2.0/src/knowledge_sdk/ui/static
+copying src/knowledge_sdk/ui/static/workbench.js -> knowledge_sdk-1.2.0/src/knowledge_sdk/ui/static
+copying tests/test_dual_engine_parity.py -> knowledge_sdk-1.2.0/tests
+copying tests/test_ui_i18n.py -> knowledge_sdk-1.2.0/tests
+copying tests/test_ui_layout.py -> knowledge_sdk-1.2.0/tests
+copying tests/test_ui_workbench.py -> knowledge_sdk-1.2.0/tests
+Writing knowledge_sdk-1.2.0/setup.cfg
+Creating tar archive
+removing 'knowledge_sdk-1.2.0' (and everything under it)
+* Building wheel from sdist
+* Getting build dependencies for wheel...
+running egg_info
+writing src/knowledge_sdk.egg-info/PKG-INFO
+writing dependency_links to src/knowledge_sdk.egg-info/dependency_links.txt
+writing entry points to src/knowledge_sdk.egg-info/entry_points.txt
+writing requirements to src/knowledge_sdk.egg-info/requires.txt
+writing top-level names to src/knowledge_sdk.egg-info/top_level.txt
+reading manifest file 'src/knowledge_sdk.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'src/knowledge_sdk.egg-info/SOURCES.txt'
+* Building wheel...
+running bdist_wheel
+running build
+running build_py
+creating build/lib/knowledge_sdk
+copying src/knowledge_sdk/__init__.py -> build/lib/knowledge_sdk
+copying src/knowledge_sdk/exceptions.py -> build/lib/knowledge_sdk
+creating build/lib/knowledge_sdk/ui
+copying src/knowledge_sdk/ui/routes.py -> build/lib/knowledge_sdk/ui
+copying src/knowledge_sdk/ui/__init__.py -> build/lib/knowledge_sdk/ui
+copying src/knowledge_sdk/ui/demo.py -> build/lib/knowledge_sdk/ui
+creating build/lib/knowledge_sdk/client
+copying src/knowledge_sdk/client/__init__.py -> build/lib/knowledge_sdk/client
+copying src/knowledge_sdk/client/local.py -> build/lib/knowledge_sdk/client
+copying src/knowledge_sdk/client/base.py -> build/lib/knowledge_sdk/client
+copying src/knowledge_sdk/client/http_client.py -> build/lib/knowledge_sdk/client
+copying src/knowledge_sdk/client/anchors.py -> build/lib/knowledge_sdk/client
+copying src/knowledge_sdk/client/compat.py -> build/lib/knowledge_sdk/client
+creating build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/policy.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/__init__.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/models.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/receipts.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/issues.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/impact.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/identity.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/audit.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/anchors.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/reanchor.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/governance.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/packs.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/runtime.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/events.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/connectors.py -> build/lib/knowledge_sdk/contracts
+copying src/knowledge_sdk/contracts/uri.py -> build/lib/knowledge_sdk/contracts
+creating build/lib/knowledge_sdk/runtime
+copying src/knowledge_sdk/runtime/__init__.py -> build/lib/knowledge_sdk/runtime
+copying src/knowledge_sdk/runtime/service.py -> build/lib/knowledge_sdk/runtime
+creating build/lib/knowledge_sdk/governance
+copying src/knowledge_sdk/governance/__init__.py -> build/lib/knowledge_sdk/governance
+copying src/knowledge_sdk/governance/issues.py -> build/lib/knowledge_sdk/governance
+copying src/knowledge_sdk/governance/workflow.py -> build/lib/knowledge_sdk/governance
+copying src/knowledge_sdk/governance/cli.py -> build/lib/knowledge_sdk/governance
+creating build/lib/knowledge_sdk/server
+copying src/knowledge_sdk/server/__init__.py -> build/lib/knowledge_sdk/server
+copying src/knowledge_sdk/server/scim.py -> build/lib/knowledge_sdk/server
+copying src/knowledge_sdk/server/replay_pg.py -> build/lib/knowledge_sdk/server
+copying src/knowledge_sdk/server/oidc.py -> build/lib/knowledge_sdk/server
+copying src/knowledge_sdk/server/postgres.py -> build/lib/knowledge_sdk/server
+copying src/knowledge_sdk/server/auth.py -> build/lib/knowledge_sdk/server
+copying src/knowledge_sdk/server/operations.py -> build/lib/knowledge_sdk/server
+copying src/knowledge_sdk/server/container.py -> build/lib/knowledge_sdk/server
+copying src/knowledge_sdk/server/__main__.py -> build/lib/knowledge_sdk/server
+copying src/knowledge_sdk/server/app.py -> build/lib/knowledge_sdk/server
+copying src/knowledge_sdk/server/cli.py -> build/lib/knowledge_sdk/server
+creating build/lib/knowledge_sdk/events
+copying src/knowledge_sdk/events/__init__.py -> build/lib/knowledge_sdk/events
+copying src/knowledge_sdk/events/outbox.py -> build/lib/knowledge_sdk/events
+creating build/lib/knowledge_sdk/audit
+copying src/knowledge_sdk/audit/__init__.py -> build/lib/knowledge_sdk/audit
+copying src/knowledge_sdk/audit/ledger.py -> build/lib/knowledge_sdk/audit
+creating build/lib/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/__init__.py -> build/lib/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/local_blob.py -> build/lib/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/base.py -> build/lib/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/migrations.py -> build/lib/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/sqlite_store.py -> build/lib/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/pg_support.py -> build/lib/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/runtime.py -> build/lib/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/dr_drill.py -> build/lib/knowledge_sdk/storage
+copying src/knowledge_sdk/storage/postgres_store.py -> build/lib/knowledge_sdk/storage
+creating build/lib/knowledge_sdk/permissions
+copying src/knowledge_sdk/permissions/departments.py -> build/lib/knowledge_sdk/permissions
+copying src/knowledge_sdk/permissions/policy.py -> build/lib/knowledge_sdk/permissions
+copying src/knowledge_sdk/permissions/__init__.py -> build/lib/knowledge_sdk/permissions
+copying src/knowledge_sdk/permissions/identity.py -> build/lib/knowledge_sdk/permissions
+copying src/knowledge_sdk/permissions/redaction.py -> build/lib/knowledge_sdk/permissions
+copying src/knowledge_sdk/permissions/engine.py -> build/lib/knowledge_sdk/permissions
+creating build/lib/knowledge_sdk/packs
+copying src/knowledge_sdk/packs/__init__.py -> build/lib/knowledge_sdk/packs
+copying src/knowledge_sdk/packs/service.py -> build/lib/knowledge_sdk/packs
+copying src/knowledge_sdk/packs/export.py -> build/lib/knowledge_sdk/packs
+creating build/lib/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/strategies.py -> build/lib/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/__init__.py -> build/lib/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/hybrid.py -> build/lib/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/eval.py -> build/lib/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/calibration.py -> build/lib/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/base.py -> build/lib/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/excerpt.py -> build/lib/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/rerank.py -> build/lib/knowledge_sdk/retrieval
+copying src/knowledge_sdk/retrieval/answers.py -> build/lib/knowledge_sdk/retrieval
+creating build/lib/knowledge_sdk/mcp
+copying src/knowledge_sdk/mcp/__init__.py -> build/lib/knowledge_sdk/mcp
+copying src/knowledge_sdk/mcp/tools.py -> build/lib/knowledge_sdk/mcp
+copying src/knowledge_sdk/mcp/server.py -> build/lib/knowledge_sdk/mcp
+copying src/knowledge_sdk/mcp/__main__.py -> build/lib/knowledge_sdk/mcp
+copying src/knowledge_sdk/mcp/gateway.py -> build/lib/knowledge_sdk/mcp
+copying src/knowledge_sdk/mcp/protocol.py -> build/lib/knowledge_sdk/mcp
+creating build/lib/knowledge_sdk/impact
+copying src/knowledge_sdk/impact/webhook.py -> build/lib/knowledge_sdk/impact
+copying src/knowledge_sdk/impact/radar.py -> build/lib/knowledge_sdk/impact
+copying src/knowledge_sdk/impact/__init__.py -> build/lib/knowledge_sdk/impact
+creating build/lib/knowledge_sdk/ingestion
+copying src/knowledge_sdk/ingestion/__init__.py -> build/lib/knowledge_sdk/ingestion
+copying src/knowledge_sdk/ingestion/fingerprint.py -> build/lib/knowledge_sdk/ingestion
+creating build/lib/knowledge_sdk/connectors
+copying src/knowledge_sdk/connectors/__init__.py -> build/lib/knowledge_sdk/connectors
+copying src/knowledge_sdk/connectors/base.py -> build/lib/knowledge_sdk/connectors
+copying src/knowledge_sdk/connectors/http.py -> build/lib/knowledge_sdk/connectors
+copying src/knowledge_sdk/connectors/webhook_sync.py -> build/lib/knowledge_sdk/connectors
+copying src/knowledge_sdk/connectors/filesystem.py -> build/lib/knowledge_sdk/connectors
+copying src/knowledge_sdk/connectors/planning.py -> build/lib/knowledge_sdk/connectors
+creating build/lib/knowledge_sdk/retrieval/adapters
+copying src/knowledge_sdk/retrieval/adapters/__init__.py -> build/lib/knowledge_sdk/retrieval/adapters
+copying src/knowledge_sdk/retrieval/adapters/reranker.py -> build/lib/knowledge_sdk/retrieval/adapters
+copying src/knowledge_sdk/retrieval/adapters/pgvector_index.py -> build/lib/knowledge_sdk/retrieval/adapters
+copying src/knowledge_sdk/retrieval/adapters/hash_embedder.py -> build/lib/knowledge_sdk/retrieval/adapters
+copying src/knowledge_sdk/retrieval/adapters/openai_embedder.py -> build/lib/knowledge_sdk/retrieval/adapters
+copying src/knowledge_sdk/retrieval/adapters/qdrant.py -> build/lib/knowledge_sdk/retrieval/adapters
+creating build/lib/knowledge_sdk/ingestion/chunkers
+copying src/knowledge_sdk/ingestion/chunkers/fixed.py -> build/lib/knowledge_sdk/ingestion/chunkers
+copying src/knowledge_sdk/ingestion/chunkers/__init__.py -> build/lib/knowledge_sdk/ingestion/chunkers
+copying src/knowledge_sdk/ingestion/chunkers/delta.py -> build/lib/knowledge_sdk/ingestion/chunkers
+copying src/knowledge_sdk/ingestion/chunkers/hierarchical.py -> build/lib/knowledge_sdk/ingestion/chunkers
+creating build/lib/knowledge_sdk/ingestion/parsers
+copying src/knowledge_sdk/ingestion/parsers/__init__.py -> build/lib/knowledge_sdk/ingestion/parsers
+copying src/knowledge_sdk/ingestion/parsers/builtin.py -> build/lib/knowledge_sdk/ingestion/parsers
+copying src/knowledge_sdk/ingestion/parsers/layout.py -> build/lib/knowledge_sdk/ingestion/parsers
+copying src/knowledge_sdk/ingestion/parsers/office.py -> build/lib/knowledge_sdk/ingestion/parsers
+running egg_info
+writing src/knowledge_sdk.egg-info/PKG-INFO
+writing dependency_links to src/knowledge_sdk.egg-info/dependency_links.txt
+writing entry points to src/knowledge_sdk.egg-info/entry_points.txt
+writing requirements to src/knowledge_sdk.egg-info/requires.txt
+writing top-level names to src/knowledge_sdk.egg-info/top_level.txt
+reading manifest file 'src/knowledge_sdk.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'src/knowledge_sdk.egg-info/SOURCES.txt'
+creating build/lib/knowledge_sdk/ui/static
+copying src/knowledge_sdk/ui/static/enterprise.html -> build/lib/knowledge_sdk/ui/static
+copying src/knowledge_sdk/ui/static/index.html -> build/lib/knowledge_sdk/ui/static
+copying src/knowledge_sdk/ui/static/workbench.css -> build/lib/knowledge_sdk/ui/static
+copying src/knowledge_sdk/ui/static/workbench.js -> build/lib/knowledge_sdk/ui/static
+copying src/knowledge_sdk/ui/static/enterprise.js -> build/lib/knowledge_sdk/ui/static
+copying src/knowledge_sdk/ui/static/i18n.js -> build/lib/knowledge_sdk/ui/static
+copying src/knowledge_sdk/storage/postgres_schema.sql -> build/lib/knowledge_sdk/storage
+installing to build/bdist.linux-x86_64/wheel
+running install
+running install_lib
+creating build/bdist.linux-x86_64/wheel
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/ui
+copying build/lib/knowledge_sdk/ui/routes.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ui
+copying build/lib/knowledge_sdk/ui/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ui
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/ui/static
+copying build/lib/knowledge_sdk/ui/static/enterprise.html -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ui/static
+copying build/lib/knowledge_sdk/ui/static/index.html -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ui/static
+copying build/lib/knowledge_sdk/ui/static/workbench.js -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ui/static
+copying build/lib/knowledge_sdk/ui/static/workbench.css -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ui/static
+copying build/lib/knowledge_sdk/ui/static/enterprise.js -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ui/static
+copying build/lib/knowledge_sdk/ui/static/i18n.js -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ui/static
+copying build/lib/knowledge_sdk/ui/demo.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ui
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/client
+copying build/lib/knowledge_sdk/client/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/client
+copying build/lib/knowledge_sdk/client/local.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/client
+copying build/lib/knowledge_sdk/client/base.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/client
+copying build/lib/knowledge_sdk/client/http_client.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/client
+copying build/lib/knowledge_sdk/client/anchors.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/client
+copying build/lib/knowledge_sdk/client/compat.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/client
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/policy.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/models.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/receipts.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/issues.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/impact.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/identity.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/audit.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/anchors.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/reanchor.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/governance.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/packs.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/runtime.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/events.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/connectors.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+copying build/lib/knowledge_sdk/contracts/uri.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/contracts
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/runtime
+copying build/lib/knowledge_sdk/runtime/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/runtime
+copying build/lib/knowledge_sdk/runtime/service.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/runtime
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/governance
+copying build/lib/knowledge_sdk/governance/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/governance
+copying build/lib/knowledge_sdk/governance/issues.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/governance
+copying build/lib/knowledge_sdk/governance/workflow.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/governance
+copying build/lib/knowledge_sdk/governance/cli.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/governance
+copying build/lib/knowledge_sdk/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk
+copying build/lib/knowledge_sdk/exceptions.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/server
+copying build/lib/knowledge_sdk/server/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/server
+copying build/lib/knowledge_sdk/server/scim.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/server
+copying build/lib/knowledge_sdk/server/replay_pg.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/server
+copying build/lib/knowledge_sdk/server/oidc.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/server
+copying build/lib/knowledge_sdk/server/postgres.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/server
+copying build/lib/knowledge_sdk/server/auth.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/server
+copying build/lib/knowledge_sdk/server/operations.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/server
+copying build/lib/knowledge_sdk/server/container.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/server
+copying build/lib/knowledge_sdk/server/__main__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/server
+copying build/lib/knowledge_sdk/server/app.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/server
+copying build/lib/knowledge_sdk/server/cli.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/server
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/events
+copying build/lib/knowledge_sdk/events/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/events
+copying build/lib/knowledge_sdk/events/outbox.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/events
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/audit
+copying build/lib/knowledge_sdk/audit/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/audit
+copying build/lib/knowledge_sdk/audit/ledger.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/audit
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/storage
+copying build/lib/knowledge_sdk/storage/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/storage
+copying build/lib/knowledge_sdk/storage/postgres_schema.sql -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/storage
+copying build/lib/knowledge_sdk/storage/local_blob.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/storage
+copying build/lib/knowledge_sdk/storage/base.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/storage
+copying build/lib/knowledge_sdk/storage/migrations.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/storage
+copying build/lib/knowledge_sdk/storage/sqlite_store.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/storage
+copying build/lib/knowledge_sdk/storage/pg_support.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/storage
+copying build/lib/knowledge_sdk/storage/runtime.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/storage
+copying build/lib/knowledge_sdk/storage/dr_drill.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/storage
+copying build/lib/knowledge_sdk/storage/postgres_store.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/storage
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/permissions
+copying build/lib/knowledge_sdk/permissions/departments.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/permissions
+copying build/lib/knowledge_sdk/permissions/policy.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/permissions
+copying build/lib/knowledge_sdk/permissions/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/permissions
+copying build/lib/knowledge_sdk/permissions/identity.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/permissions
+copying build/lib/knowledge_sdk/permissions/redaction.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/permissions
+copying build/lib/knowledge_sdk/permissions/engine.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/permissions
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/packs
+copying build/lib/knowledge_sdk/packs/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/packs
+copying build/lib/knowledge_sdk/packs/service.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/packs
+copying build/lib/knowledge_sdk/packs/export.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/packs
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/retrieval
+copying build/lib/knowledge_sdk/retrieval/strategies.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval
+copying build/lib/knowledge_sdk/retrieval/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval
+copying build/lib/knowledge_sdk/retrieval/hybrid.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval
+copying build/lib/knowledge_sdk/retrieval/eval.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval
+copying build/lib/knowledge_sdk/retrieval/calibration.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval
+copying build/lib/knowledge_sdk/retrieval/base.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/retrieval/adapters
+copying build/lib/knowledge_sdk/retrieval/adapters/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval/adapters
+copying build/lib/knowledge_sdk/retrieval/adapters/reranker.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval/adapters
+copying build/lib/knowledge_sdk/retrieval/adapters/pgvector_index.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval/adapters
+copying build/lib/knowledge_sdk/retrieval/adapters/hash_embedder.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval/adapters
+copying build/lib/knowledge_sdk/retrieval/adapters/openai_embedder.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval/adapters
+copying build/lib/knowledge_sdk/retrieval/adapters/qdrant.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval/adapters
+copying build/lib/knowledge_sdk/retrieval/excerpt.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval
+copying build/lib/knowledge_sdk/retrieval/rerank.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval
+copying build/lib/knowledge_sdk/retrieval/answers.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/retrieval
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/mcp
+copying build/lib/knowledge_sdk/mcp/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/mcp
+copying build/lib/knowledge_sdk/mcp/tools.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/mcp
+copying build/lib/knowledge_sdk/mcp/server.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/mcp
+copying build/lib/knowledge_sdk/mcp/__main__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/mcp
+copying build/lib/knowledge_sdk/mcp/gateway.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/mcp
+copying build/lib/knowledge_sdk/mcp/protocol.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/mcp
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/impact
+copying build/lib/knowledge_sdk/impact/webhook.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/impact
+copying build/lib/knowledge_sdk/impact/radar.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/impact
+copying build/lib/knowledge_sdk/impact/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/impact
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/ingestion
+copying build/lib/knowledge_sdk/ingestion/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ingestion
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/ingestion/chunkers
+copying build/lib/knowledge_sdk/ingestion/chunkers/fixed.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ingestion/chunkers
+copying build/lib/knowledge_sdk/ingestion/chunkers/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ingestion/chunkers
+copying build/lib/knowledge_sdk/ingestion/chunkers/delta.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ingestion/chunkers
+copying build/lib/knowledge_sdk/ingestion/chunkers/hierarchical.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ingestion/chunkers
+copying build/lib/knowledge_sdk/ingestion/fingerprint.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ingestion
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/ingestion/parsers
+copying build/lib/knowledge_sdk/ingestion/parsers/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ingestion/parsers
+copying build/lib/knowledge_sdk/ingestion/parsers/builtin.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ingestion/parsers
+copying build/lib/knowledge_sdk/ingestion/parsers/layout.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ingestion/parsers
+copying build/lib/knowledge_sdk/ingestion/parsers/office.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/ingestion/parsers
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk/connectors
+copying build/lib/knowledge_sdk/connectors/__init__.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/connectors
+copying build/lib/knowledge_sdk/connectors/base.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/connectors
+copying build/lib/knowledge_sdk/connectors/http.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/connectors
+copying build/lib/knowledge_sdk/connectors/webhook_sync.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/connectors
+copying build/lib/knowledge_sdk/connectors/filesystem.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/connectors
+copying build/lib/knowledge_sdk/connectors/planning.py -> build/bdist.linux-x86_64/wheel/./knowledge_sdk/connectors
+running install_egg_info
+Copying src/knowledge_sdk.egg-info to build/bdist.linux-x86_64/wheel/./knowledge_sdk-1.2.0-py3.13.egg-info
+running install_scripts
+creating build/bdist.linux-x86_64/wheel/knowledge_sdk-1.2.0.dist-info/WHEEL
+creating '/workspace/knowledge-sdk-align-wave1-artifacts/packages/.tmp-c6s062p4/knowledge_sdk-1.2.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+adding 'knowledge_sdk/__init__.py'
+adding 'knowledge_sdk/exceptions.py'
+adding 'knowledge_sdk/audit/__init__.py'
+adding 'knowledge_sdk/audit/ledger.py'
+adding 'knowledge_sdk/client/__init__.py'
+adding 'knowledge_sdk/client/anchors.py'
+adding 'knowledge_sdk/client/base.py'
+adding 'knowledge_sdk/client/compat.py'
+adding 'knowledge_sdk/client/http_client.py'
+adding 'knowledge_sdk/client/local.py'
+adding 'knowledge_sdk/connectors/__init__.py'
+adding 'knowledge_sdk/connectors/base.py'
+adding 'knowledge_sdk/connectors/filesystem.py'
+adding 'knowledge_sdk/connectors/http.py'
+adding 'knowledge_sdk/connectors/planning.py'
+adding 'knowledge_sdk/connectors/webhook_sync.py'
+adding 'knowledge_sdk/contracts/__init__.py'
+adding 'knowledge_sdk/contracts/anchors.py'
+adding 'knowledge_sdk/contracts/audit.py'
+adding 'knowledge_sdk/contracts/connectors.py'
+adding 'knowledge_sdk/contracts/events.py'
+adding 'knowledge_sdk/contracts/governance.py'
+adding 'knowledge_sdk/contracts/identity.py'
+adding 'knowledge_sdk/contracts/impact.py'
+adding 'knowledge_sdk/contracts/issues.py'
+adding 'knowledge_sdk/contracts/models.py'
+adding 'knowledge_sdk/contracts/packs.py'
+adding 'knowledge_sdk/contracts/policy.py'
+adding 'knowledge_sdk/contracts/reanchor.py'
+adding 'knowledge_sdk/contracts/receipts.py'
+adding 'knowledge_sdk/contracts/runtime.py'
+adding 'knowledge_sdk/contracts/uri.py'
+adding 'knowledge_sdk/events/__init__.py'
+adding 'knowledge_sdk/events/outbox.py'
+adding 'knowledge_sdk/governance/__init__.py'
+adding 'knowledge_sdk/governance/cli.py'
+adding 'knowledge_sdk/governance/issues.py'
+adding 'knowledge_sdk/governance/workflow.py'
+adding 'knowledge_sdk/impact/__init__.py'
+adding 'knowledge_sdk/impact/radar.py'
+adding 'knowledge_sdk/impact/webhook.py'
+adding 'knowledge_sdk/ingestion/__init__.py'
+adding 'knowledge_sdk/ingestion/fingerprint.py'
+adding 'knowledge_sdk/ingestion/chunkers/__init__.py'
+adding 'knowledge_sdk/ingestion/chunkers/delta.py'
+adding 'knowledge_sdk/ingestion/chunkers/fixed.py'
+adding 'knowledge_sdk/ingestion/chunkers/hierarchical.py'
+adding 'knowledge_sdk/ingestion/parsers/__init__.py'
+adding 'knowledge_sdk/ingestion/parsers/builtin.py'
+adding 'knowledge_sdk/ingestion/parsers/layout.py'
+adding 'knowledge_sdk/ingestion/parsers/office.py'
+adding 'knowledge_sdk/mcp/__init__.py'
+adding 'knowledge_sdk/mcp/__main__.py'
+adding 'knowledge_sdk/mcp/gateway.py'
+adding 'knowledge_sdk/mcp/protocol.py'
+adding 'knowledge_sdk/mcp/server.py'
+adding 'knowledge_sdk/mcp/tools.py'
+adding 'knowledge_sdk/packs/__init__.py'
+adding 'knowledge_sdk/packs/export.py'
+adding 'knowledge_sdk/packs/service.py'
+adding 'knowledge_sdk/permissions/__init__.py'
+adding 'knowledge_sdk/permissions/departments.py'
+adding 'knowledge_sdk/permissions/engine.py'
+adding 'knowledge_sdk/permissions/identity.py'
+adding 'knowledge_sdk/permissions/policy.py'
+adding 'knowledge_sdk/permissions/redaction.py'
+adding 'knowledge_sdk/retrieval/__init__.py'
+adding 'knowledge_sdk/retrieval/answers.py'
+adding 'knowledge_sdk/retrieval/base.py'
+adding 'knowledge_sdk/retrieval/calibration.py'
+adding 'knowledge_sdk/retrieval/eval.py'
+adding 'knowledge_sdk/retrieval/excerpt.py'
+adding 'knowledge_sdk/retrieval/hybrid.py'
+adding 'knowledge_sdk/retrieval/rerank.py'
+adding 'knowledge_sdk/retrieval/strategies.py'
+adding 'knowledge_sdk/retrieval/adapters/__init__.py'
+adding 'knowledge_sdk/retrieval/adapters/hash_embedder.py'
+adding 'knowledge_sdk/retrieval/adapters/openai_embedder.py'
+adding 'knowledge_sdk/retrieval/adapters/pgvector_index.py'
+adding 'knowledge_sdk/retrieval/adapters/qdrant.py'
+adding 'knowledge_sdk/retrieval/adapters/reranker.py'
+adding 'knowledge_sdk/runtime/__init__.py'
+adding 'knowledge_sdk/runtime/service.py'
+adding 'knowledge_sdk/server/__init__.py'
+adding 'knowledge_sdk/server/__main__.py'
+adding 'knowledge_sdk/server/app.py'
+adding 'knowledge_sdk/server/auth.py'
+adding 'knowledge_sdk/server/cli.py'
+adding 'knowledge_sdk/server/container.py'
+adding 'knowledge_sdk/server/oidc.py'
+adding 'knowledge_sdk/server/operations.py'
+adding 'knowledge_sdk/server/postgres.py'
+adding 'knowledge_sdk/server/replay_pg.py'
+adding 'knowledge_sdk/server/scim.py'
+adding 'knowledge_sdk/storage/__init__.py'
+adding 'knowledge_sdk/storage/base.py'
+adding 'knowledge_sdk/storage/dr_drill.py'
+adding 'knowledge_sdk/storage/local_blob.py'
+adding 'knowledge_sdk/storage/migrations.py'
+adding 'knowledge_sdk/storage/pg_support.py'
+adding 'knowledge_sdk/storage/postgres_schema.sql'
+adding 'knowledge_sdk/storage/postgres_store.py'
+adding 'knowledge_sdk/storage/runtime.py'
+adding 'knowledge_sdk/storage/sqlite_store.py'
+adding 'knowledge_sdk/ui/__init__.py'
+adding 'knowledge_sdk/ui/demo.py'
+adding 'knowledge_sdk/ui/routes.py'
+adding 'knowledge_sdk/ui/static/enterprise.html'
+adding 'knowledge_sdk/ui/static/enterprise.js'
+adding 'knowledge_sdk/ui/static/i18n.js'
+adding 'knowledge_sdk/ui/static/index.html'
+adding 'knowledge_sdk/ui/static/workbench.css'
+adding 'knowledge_sdk/ui/static/workbench.js'
+adding 'knowledge_sdk-1.2.0.dist-info/licenses/LICENSE'
+adding 'knowledge_sdk-1.2.0.dist-info/METADATA'
+adding 'knowledge_sdk-1.2.0.dist-info/WHEEL'
+adding 'knowledge_sdk-1.2.0.dist-info/entry_points.txt'
+adding 'knowledge_sdk-1.2.0.dist-info/top_level.txt'
+adding 'knowledge_sdk-1.2.0.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+Successfully built knowledge_sdk-1.2.0.tar.gz and knowledge_sdk-1.2.0-py3-none-any.whl

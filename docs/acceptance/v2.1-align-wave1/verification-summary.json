@@ -1,0 +1,138 @@
+{
+  "recorded_at": "2026-11-25T13:58:37.506034+08:00",
+  "baseline_sha": "d1532951b08c8ef950dc604aa3427ceb9eab5d75",
+  "measured_source_sha": "c1f2a17bfc3ed24880b1d1b443bbf6eafb93d656",
+  "runtime_src_tree": "4455a4d8e74160b9b26f6736e4119d2b79c1076b",
+  "stdlib": {
+    "collected": 942,
+    "passed": 642,
+    "skipped_optional_dependencies": 300,
+    "failures": 0,
+    "ResourceWarnings": 0,
+    "source": "c1f2a17"
+  },
+  "full_unittest": {
+    "collected": 942,
+    "passed": 939,
+    "skipped_online_qdrant": 3,
+    "failures": 0,
+    "ResourceWarnings": 0,
+    "source_at_launch": "77493a48dce513e84b4f75f22a765009720d3c4a",
+    "source_runtime_unchanged_since": "a8497cd",
+    "subsequent_stronger_readonly_assertions": "readonly-physical-proof.log and final CI"
+  },
+  "pytest": {
+    "passed": 939,
+    "skipped_online_qdrant": 3,
+    "failed": 0,
+    "passed_subtests": 252,
+    "non_resource_warnings": 1,
+    "warning": "StarletteDeprecationWarning from optional FastAPI TestClient httpx; not a ResourceWarning"
+  },
+  "new_unittest_methods": 48,
+  "existing_unittest_methods": 894,
+  "golden_files_byte_identical": true,
+  "schema_version": 5,
+  "schema_DDL_changes": false,
+  "core_dependencies": [],
+  "package_version": "1.2.0",
+  "historical_tag_package_drift_unchanged": true,
+  "package_wheel_sha256": "b4a26d30008e90a16c672f0de25ce22746e79fa9eeca8d756daecafb88dc2738",
+  "draft": {
+    "fixtures": 6,
+    "m1_joint_freeze": "PENDING",
+    "negative_probes": 37,
+    "official_optional_validator": "PASSED",
+    "paths": 23,
+    "runtime_v2_implemented": false,
+    "schemas": 28,
+    "status": "DRAFT_ASSET_SELFCHECK_PASSED"
+  },
+  "typescript": {
+    "tool": "TypeScript 5.9.3",
+    "strict": true,
+    "noEmit": true,
+    "exit_code": 0
+  },
+  "docker_local": {
+    "status": "BUILD_NOT_RUN",
+    "reason": "Docker CLI absent; no Podman/BuildKit/daemon socket available on the local box",
+    "scope": "Local box only; CI receipt is separate"
+  },
+  "docker_CI": "Actual hosted run result and final exact-SHA four-job receipt are authoritative; see external final receipt and run logs, never infer success from static syntax.",
+  "remaining_gates": [
+    "Affected historical arbitrary Document.metadata restoration: unavailable in schema v5; owner/architect disposition required",
+    "Independent Wave1 review",
+    "M1 joint freeze and Team B draft review",
+    "Historical Q3-M2 independent review pending"
+  ],
+  "complete": false,
+  "golden_modes": {
+    "sqlite-default": {
+      "case_count": 115,
+      "passed": 115,
+      "failed": 0,
+      "implicit_model_calls": 0,
+      "security_assertion_failures": 0,
+      "executed_at": "2026-11-25T13:50:58.910102+08:00"
+    },
+    "sqlite-legacy75": {
+      "case_count": 75,
+      "passed": 75,
+      "failed": 0,
+      "implicit_model_calls": 0,
+      "security_assertion_failures": 0,
+      "executed_at": "2026-11-25T13:51:04.007511+08:00"
+    },
+    "sqlite-legacy100": {
+      "case_count": 100,
+      "passed": 100,
+      "failed": 0,
+      "implicit_model_calls": 0,
+      "security_assertion_failures": 0,
+      "executed_at": "2026-11-25T13:51:09.314973+08:00"
+    },
+    "postgres-default": {
+      "case_count": 115,
+      "passed": 115,
+      "failed": 0,
+      "implicit_model_calls": 0,
+      "security_assertion_failures": 0,
+      "executed_at": "2026-11-25T13:52:31.065948+08:00"
+    },
+    "postgres-legacy75": {
+      "case_count": 75,
+      "passed": 75,
+      "failed": 0,
+      "implicit_model_calls": 0,
+      "security_assertion_failures": 0,
+      "executed_at": "2026-11-25T13:53:51.672077+08:00"
+    },
+    "postgres-legacy100": {
+      "case_count": 100,
+      "passed": 100,
+      "failed": 0,
+      "implicit_model_calls": 0,
+      "security_assertion_failures": 0,
+      "executed_at": "2026-11-25T13:55:15.958638+08:00"
+    }
+  },
+  "wire": {
+    "sqlite": {
+      "wave1_groups": 111,
+      "q3_m2_groups": 80,
+      "q3_m1_groups": 109,
+      "provider_attempts": 0,
+      "same_identity_actual_wire": true,
+      "non_superuser_RLS": false
+    },
+    "postgres": {
+      "wave1_groups": 114,
+      "q3_m2_groups": 80,
+      "q3_m1_groups": 109,
+      "provider_attempts": 0,
+      "same_identity_actual_wire": true,
+      "non_superuser_RLS": true
+    }
+  }
+}
