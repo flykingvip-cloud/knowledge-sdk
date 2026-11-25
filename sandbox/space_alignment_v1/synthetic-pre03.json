@@ -1,0 +1,31 @@
+{
+  "format": "candidate-pre03-v1",
+  "sanitized": true,
+  "provenance": "SYNTHETIC_EXAMPLE",
+  "rows": [
+    {
+      "legacy_kb_id": "syn_legacy_a",
+      "tenant_id": "syn_org",
+      "proposed_space_id": "syn_team",
+      "proposed_kb_id": "syn_kb",
+      "alias_token": "syn_Alias",
+      "name_token": "syn_Name"
+    },
+    {
+      "legacy_kb_id": "syn_legacy_b",
+      "tenant_id": "syn_org",
+      "proposed_space_id": "syn_team",
+      "proposed_kb_id": "syn_kb",
+      "alias_token": "syn_alias",
+      "name_token": "syn_name"
+    },
+    {
+      "legacy_kb_id": "syn_orphan",
+      "tenant_id": null,
+      "proposed_space_id": null,
+      "proposed_kb_id": null,
+      "alias_token": null,
+      "name_token": "syn_orphan"
+    }
+  ]
+}
