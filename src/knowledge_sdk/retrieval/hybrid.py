@@ -27,9 +27,15 @@ def scope_constraints(filters,scope=None,additional_scope=None):
     return {key:None if value is None else sorted(value) for key,value in result.items()}
 
 
-def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=None,embedder=None,policy=None,keyword_weight=0.5,scope=None,additional_scope=None,*,policy_engine=None,redaction_registry=None,agent=None,purpose=Purpose.READ,policy_context=None):
+def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=None,embedder=None,policy=None,keyword_weight=0.5,scope=None,additional_scope=None,*,policy_engine=None,redaction_registry=None,agent=None,purpose=Purpose.READ,policy_context=None,reranker=None,calibrator=None,min_calibrated_score=None,rerank_top_k=None):
+    from .calibration import validate_threshold
+    from .rerank import RerankCandidate, apply_reranker
+    from dataclasses import replace
+    validate_threshold(min_calibrated_score)
+    enhanced=reranker is not None or calibrator is not None
     if mode not in ("keyword","vector","hybrid"): raise ValidationError("Unknown search mode")
-    if not isinstance(query,str) or not 0<len(query)<=10000 or not 1<=limit<=100: raise ValidationError("Invalid search query/limit")
+    if not isinstance(query,str) or not 0<len(query)<=10000 or type(limit) is not int or not 1<=limit<=100: raise ValidationError("Invalid search query/limit")
+    target=max(limit,rerank_top_k if rerank_top_k is not None else min(500,max(40,limit*4))) if enhanced else limit
     if mode!="keyword" and (vector_index is None or embedder is None): raise ValidationError("Vector mode requires index and embedder")
     filters=filters if filters is not None else {}
     if not isinstance(filters,dict): raise ValidationError("Search filters must be an object")
@@ -93,9 +99,22 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
                     text,summary=mask(text); title=mask(title)[0]; notice=mask(notice)[0]
                 excerpt=make_excerpt(text,policy,d.visibility=="enterprise",query=query,partial_notice=notice,masking_summary=summary)
                 accepted[key]=SearchHit(doc_id,version,cid,title,score,source_uri=build_uri(d.org_id,doc_id,version,cid),**excerpt)
-                if len(accepted)>=limit: break
+                if len(accepted)>=target: break
             except (NotFoundError,PermissionDeniedError): continue
-        if len(accepted)>=limit or len(evaluated)>=500 or not more:break
-    hits=sorted(accepted.values(),key=lambda h:(-h.score,h.doc_id,h.version,h.chunk_id))[:limit]
+        if len(accepted)>=target or len(evaluated)>=500 or not more:break
+    hits=sorted(accepted.values(),key=lambda h:(-h.score,h.doc_id,h.version,h.chunk_id))[:target]
+    if reranker is not None:
+        controlled=tuple(RerankCandidate(h.doc_id,h.version,h.chunk_id,h.title[:2000],h.excerpt[:32000],h.source_uri,float(h.score),i,bool(h.masking_summary)) for i,h in enumerate(hits,1))
+        scores=apply_reranker(query,controlled,reranker)
+        hits=[replace(h,raw_score=h.score,rerank_score=value,score=value,reranker_id=reranker.reranker_id) for h,value in zip(hits,scores)]
+    elif enhanced:
+        hits=[replace(h,raw_score=h.score) for h in hits]
+    if calibrator is not None:
+        hits=[replace(h,calibrated_score=calibrator.calibrate('rerank' if reranker is not None else mode,h.score)) for h in hits]
+    filtered=0
+    if min_calibrated_score is not None:
+        filtered=sum(h.calibrated_score<min_calibrated_score for h in hits)
+        hits=[h for h in hits if h.calibrated_score>=min_calibrated_score]
+    hits=sorted(hits,key=lambda h:(-h.score,h.doc_id,h.version,h.chunk_id))[:limit]
     exhausted=len(hits)<limit and len(evaluated)>=500 and (more or bool(set(candidates)-evaluated))
-    return SearchResponse(hits,mode,candidate_budget_exhausted=exhausted)
+    return SearchResponse(hits,mode,candidate_budget_exhausted=exhausted,reranker_id=reranker.reranker_id if reranker else '',calibration_applied=calibrator is not None,calibrator_id=calibrator.calibrator_id if calibrator else '',filtered_by_threshold_count=filtered,filtered_below_threshold=filtered)

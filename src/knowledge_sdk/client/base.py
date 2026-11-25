@@ -48,7 +48,7 @@ class KnowledgeClient(Protocol):
     def set_document_acl(self, actor, doc_id, acl, *, agent=None, purpose=Purpose.READ, policy_context=None):
         ...
 
-    def search(self, actor, query, mode='keyword', limit=20, filters=None, scope=None, *, agent=None, purpose=Purpose.READ, policy_context=None):
+    def search(self, actor, query, mode='keyword', limit=20, filters=None, scope=None, *, agent=None, purpose=Purpose.READ, policy_context=None, rerank=False, reranker_id=None, calibrator_id=None, min_calibrated_score=None, rerank_top_k=None, reranker=None, calibrator=None):
         ...
 
     def retrieve(self, actor, doc_id, version=None, chunk_ids=None, offset=0, limit=8000, *, agent=None, purpose=Purpose.READ, policy_context=None):

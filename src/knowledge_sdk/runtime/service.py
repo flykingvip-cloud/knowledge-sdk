@@ -162,10 +162,13 @@ class RuntimeMixin:
                               agent=agent,purpose=task.purpose,policy_context=context)
 
     @operation
-    def create_context_snapshot(self,actor,task_id,entries_or_query):
+    def create_context_snapshot(self,actor,task_id,entries_or_query,*,rerank=False,reranker_id=None,calibrator_id=None,min_calibrated_score=None,rerank_top_k=None,reranker=None,calibrator=None):
         task,profile=self._runtime_validate(actor,task_id)
+        from ..retrieval.strategies import resolve
+        resolved=resolve(rerank,reranker_id,calibrator_id,min_calibrated_score,rerank_top_k,reranker,calibrator,self.reranker_registry,self.calibrator_registry)
+        if not isinstance(entries_or_query,str) and any(v is not None for v in resolved):raise ValidationError('Ranking requires a query')
         if isinstance(entries_or_query,str):
-            response=self.search(actor,entries_or_query,'keyword',max(1,min(task.budget.max_items,100)),agent=self._runtime_identity(profile),purpose=task.purpose,scope=task.scope)
+            response=self.search(actor,entries_or_query,'keyword',max(1,min(task.budget.max_items,100)),agent=self._runtime_identity(profile),purpose=task.purpose,scope=task.scope,reranker=resolved[0],calibrator=resolved[1],min_calibrated_score=min_calibrated_score,rerank_top_k=rerank_top_k)
             entries=[{'doc_id':h.doc_id,'version':h.version} for h in response.hits]
         elif isinstance(entries_or_query,(list,tuple)):entries=entries_or_query
         else:raise ValidationError('Expected query or entries')
@@ -258,7 +261,7 @@ class RuntimeMixin:
                 if document is not None:allowed=allowed and task.scope.contains(document,kb)
                 if not allowed:return replace(decision,effect=DecisionEffect.DENY,reason_code='runtime_scope_denied')
                 return decision
-        view=LocalKnowledgeClient(self.store,policy_engine=Engine(),redaction_registry=self.redaction_registry,vector_index=self.vector_index,embedder=self.embedder,require_principal=self.require_principal)
+        view=LocalKnowledgeClient(self.store,policy_engine=Engine(),redaction_registry=self.redaction_registry,vector_index=self.vector_index,embedder=self.embedder,require_principal=self.require_principal,reranker_registry=self.reranker_registry,calibrator_registry=self.calibrator_registry)
         view._lock=self._lock
         runtime_agent=self._runtime_identity(profile)
         if context.agent is not None:

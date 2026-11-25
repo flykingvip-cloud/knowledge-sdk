@@ -196,6 +196,7 @@ def create_app(client=None,auth_secret=None,dev_insecure=False,answer_generator=
                     if not isinstance(envelope,dict): raise ValidationError("Expected request object")
                     params=decode(envelope.get("params",{}))
                 if not isinstance(params,dict) or set(params) & {"actor","self","agent","purpose","policy_context"}: raise ValidationError("Invalid parameters")
+                if operation in ('search','create_context_snapshot') and set(params)&{'reranker','calibrator','reranker_registry','calibrator_registry'}:raise ValidationError('HTTP strategies must use registered names')
                 if operation=='export_evidence_pack' and params.get('output_path') is not None:raise ValidationError('Remote output_path is forbidden')
                 if operation=="ingest" and "content_b64" in params:
                     params["content"]=base64.b64decode(params.pop("content_b64"),validate=True)

@@ -85,7 +85,7 @@ class _AuditedEngine:
 
 class LocalKnowledgeClient(RuntimeMixin, GovernanceMixin, IssueMixin, PackMixin):
     """Trusted in-process API. Caller supplies an authenticated Actor, not user input."""
-    def __init__(self,store=None,blob_store=None,parsers=None,chunker=None,vector_index=None,embedder=None,excerpt_policy=None,*,policy_engine:Optional[KnowledgePolicyEngine]=None,redaction_registry:Optional[RedactionRegistry]=None,policy_rules:Sequence[PolicyRule]=(),identity_resolver=None,allow_insecure_local_webhook=False,require_principal=False):
+    def __init__(self,store=None,blob_store=None,parsers=None,chunker=None,vector_index=None,embedder=None,excerpt_policy=None,*,policy_engine:Optional[KnowledgePolicyEngine]=None,redaction_registry:Optional[RedactionRegistry]=None,policy_rules:Sequence[PolicyRule]=(),identity_resolver=None,allow_insecure_local_webhook=False,require_principal=False,reranker_registry=None,calibrator_registry=None):
         self.policy_engine = policy_engine if policy_engine is not None else DefaultPolicyEngine(policy_rules)
         self.redaction_registry = redaction_registry if redaction_registry is not None else RedactionRegistry()
         self.store=store if store is not None else SQLiteStore()
@@ -93,6 +93,8 @@ class LocalKnowledgeClient(RuntimeMixin, GovernanceMixin, IssueMixin, PackMixin)
         if (vector_index is None)!=(embedder is None): raise ValidationError("Provide both vector_index and embedder")
         self.vector_index=vector_index; self.embedder=embedder; self.excerpt_policy=excerpt_policy or ExcerptPolicy()
         self._lock=threading.RLock()
+        from ..retrieval.strategies import registries
+        self.reranker_registry,self.calibrator_registry=registries(reranker_registry,calibrator_registry)
         self._audit_frames=[]
         self.require_principal=require_principal
         self.identity_resolver=identity_resolver
@@ -554,11 +556,13 @@ class LocalKnowledgeClient(RuntimeMixin, GovernanceMixin, IssueMixin, PackMixin)
             self.store.set_acl(doc_id,acl)
             self._emit_event(actor,'acl.updated',doc_id,d.current_version)
     @serialized
-    def search(self,actor,query,mode="keyword",limit=20,filters=None,scope=None,*,agent=None,purpose=Purpose.READ,policy_context=None):
+    def search(self,actor,query,mode="keyword",limit=20,filters=None,scope=None,*,agent=None,purpose=Purpose.READ,policy_context=None,rerank=False,reranker_id=None,calibrator_id=None,min_calibrated_score=None,rerank_top_k=None,reranker=None,calibrator=None):
+        from ..retrieval.strategies import resolve
+        reranker,calibrator=resolve(rerank,reranker_id,calibrator_id,min_calibrated_score,rerank_top_k,reranker,calibrator,self.reranker_registry,self.calibrator_registry)
         ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context)
         if scope is not None: scope = self.validate_scope(actor, scope,**ctx)
         return run_search(self.store,actor,query,mode,limit,filters,self.vector_index,self.embedder,self.excerpt_policy,scope=scope,
-                          policy_engine=self.policy_engine,redaction_registry=self.redaction_registry,**ctx)
+                          policy_engine=self.policy_engine,redaction_registry=self.redaction_registry,reranker=reranker,calibrator=calibrator,min_calibrated_score=min_calibrated_score,rerank_top_k=rerank_top_k,**ctx)
     @serialized
     def retrieve(self,actor,doc_id,version=None,chunk_ids=None,offset=0,limit=8000,*,agent=None,purpose=Purpose.READ,policy_context=None):
         d,v,chunks,decision,summary=self._delivered_source(actor,doc_id,version,agent=agent,purpose=purpose,policy_context=policy_context)

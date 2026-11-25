@@ -200,12 +200,21 @@ class SearchHit:
     partial_notice: str = ""
     masking_summary: str = ""
     highlights: List[List[int]] = field(default_factory=list)
+    raw_score: Optional[float] = None
+    rerank_score: Optional[float] = None
+    calibrated_score: Optional[float] = None
+    reranker_id: str = ""
 
 @dataclass
 class SearchResponse:
     hits: List[SearchHit] = field(default_factory=list)
     mode: str = "keyword"
     candidate_budget_exhausted: bool = False
+    reranker_id: str = ""
+    calibrator_id: str = ""
+    calibration_applied: bool = False
+    filtered_by_threshold_count: int = 0
+    filtered_below_threshold: int = 0
 
     def __post_init__(self):
         if type(self.candidate_budget_exhausted) is not bool: raise ValidationError("Invalid candidate budget flag")

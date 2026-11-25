@@ -41,3 +41,6 @@ from .contracts.connectors import ConnectorDocument, ConnectorACLUpdate, Tombsto
 from .connectors import BaseConnector, ConnectorSyncRunner, ControlledFilesystemConnector, WebhookSyncConnector
 
 from .contracts.runtime import ContextBudget, AgentProfile, TaskContext, SnapshotItem, ContextSnapshot, MidTaskRevocation
+
+from .retrieval.rerank import RerankCandidate, Reranker, DeterministicLexicalReranker, apply_reranker
+from .retrieval.calibration import CalibrationChannelConfig, ScoreCalibrationConfig, ScoreCalibrator

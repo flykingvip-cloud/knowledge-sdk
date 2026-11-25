@@ -82,6 +82,9 @@ class HttpKnowledgeClient:
             if params.get("generator") is not None:
                 raise exceptions.ValidationError("HTTP generators are configured server-side, never serialized")
             params.pop("generator", None)
+        if name in ('search','create_context_snapshot'):
+            for key in ('reranker','calibrator'):
+                if params.pop(key,None) is not None:raise exceptions.ValidationError('HTTP strategies must use registered names')
         params=encode(params)
         if name=="ingest" and isinstance(params.get("content"),bytes):
             params["content_b64"]=base64.b64encode(params.pop("content")).decode()

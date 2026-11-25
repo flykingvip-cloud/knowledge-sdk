@@ -26,6 +26,8 @@ _SCHEMAS={
     'description':_TEXT(4000),'conflicting_uri':_TEXT(2048)},['source_uri','issue_type','description'])}
 
 
+_SCHEMAS['search_evidence'][0].update({'rerank':{'type':'boolean'},'reranker_id':_TEXT(256),'calibrator_id':_TEXT(256),'min_calibrated_score':{'type':'number','minimum':0,'maximum':1},'rerank_top_k':{'type':'integer','minimum':1,'maximum':500}})
+
 for _tool in ('search_evidence','verify_citation','get_evidence_pack'):
     _SCHEMAS[_tool][0].update({'task_id':_TEXT(256),'snapshot_id':_TEXT(256)})
 
@@ -37,13 +39,16 @@ def tool_definitions():
 
 def _validate(value,schema):
     kind=schema['type']
-    valid=(isinstance(value,str) if kind=='string' else type(value) is int if kind=='integer' else type(value) is bool if kind=='boolean' else isinstance(value,list))
+    valid=(isinstance(value,str) if kind=='string' else type(value) is int if kind=='integer' else type(value) is bool if kind=='boolean' else type(value) in (int,float) if kind=='number' else isinstance(value,list))
     if not valid:raise ValidationError('Invalid tool arguments')
     if kind=='string':
         if not schema.get('minLength',0)<=len(value)<=schema.get('maxLength',100000):raise ValidationError('Invalid tool arguments')
         if 'pattern' in schema:
             import re
             if not re.fullmatch(schema['pattern'],value):raise ValidationError('Invalid tool arguments')
+    if kind=='number':
+        from ..retrieval.rerank import finite
+        if not schema['minimum']<=finite(value)<=schema['maximum']:raise ValidationError('Invalid tool arguments')
     if kind=='integer' and not schema['minimum']<=value<=schema['maximum']:raise ValidationError('Invalid tool arguments')
     if 'enum' in schema and value not in schema['enum']:raise ValidationError('Invalid tool arguments')
     if kind=='array':
@@ -135,14 +140,14 @@ class EvidenceTools:
         return {'source_uri':ref.source_uri,'doc_id':d.doc_id,'version':v.version,'title':d.title,'excerpt':ref.excerpt,
                 'excerpt_hash':ref.excerpt_hash,'truncated':view['truncated'],'remaining_chars':view['remaining_chars'],
                 'masking_summary':view['masking_summary'],'anchor':anchor,'receipt':receipt},ref,decision,d
-    def _search_evidence(self,context,query,mode='keyword',limit=5,kb_ids=None,doc_ids=None,task_id=''):
+    def _search_evidence(self,context,query,mode='keyword',limit=5,kb_ids=None,doc_ids=None,task_id='',rerank=False,reranker_id=None,calibrator_id=None,min_calibrated_score=None,rerank_top_k=None):
         # Absence is unrestricted; explicitly empty selectors are an error, not all.
         if kb_ids is not None and not kb_ids or doc_ids is not None and not doc_ids or kb_ids is not None and doc_ids is not None:
             raise ValidationError('Selectors must be nonempty and mutually exclusive')
         if mode!='keyword' and self.client.vector_index is None:
             raise ValidationError('Vector backend is not configured')
         scope=KnowledgeScope('spaces',kb_ids=tuple(kb_ids)) if kb_ids is not None else KnowledgeScope('documents',doc_ids=tuple(doc_ids)) if doc_ids is not None else KnowledgeScope()
-        response=self.client.search(context.actor,query,mode,limit,scope=scope,**self._ctx(context,task_id))
+        response=self.client.search(context.actor,query,mode,limit,scope=scope,rerank=rerank,reranker_id=reranker_id,calibrator_id=calibrator_id,min_calibrated_score=min_calibrated_score,rerank_top_k=rerank_top_k,**self._ctx(context,task_id))
         hits=[]
         for hit in response.hits:
             try:
