@@ -57,6 +57,7 @@ def wait_ready(url,process):
 
 async def exercise(context,page,engine,port,token_file):
     from urllib.parse import urlsplit
+    from playwright.async_api import expect
     base='http://127.0.0.1:'+str(port)
     log={'engine':engine,'capture_started_before_navigation':stamp(),'console':[],'page_errors':[],'requestfailed':[],'responses':[],'api_bodies':[],'direct_browser_requests':[],'assertions':[]}
     responses=[]
@@ -70,26 +71,26 @@ async def exercise(context,page,engine,port,token_file):
         assert await page.locator('#identity-form').count()==0 and await page.locator('#preset').count()==0
         assert 'demo switcher' not in (await page.locator('body').inner_text()).lower();checked('production UI has no demo identity controls')
         await page.locator('#token-file').set_input_files(str(token_file))
-        await page.wait_for_function("document.querySelector('#status').textContent.startsWith('Authenticated.')")
+        await expect(page.locator('#status')).to_have_text(re.compile(r'^Authenticated\.'))
         # spaces() finishes before login finally clears inputs; explicitly await both.
-        await page.wait_for_function("document.querySelector('#bearer').value==='' && document.querySelector('#token-file').value===''")
+        await expect(page.locator('#bearer')).to_have_value('');await expect(page.locator('#token-file')).to_have_value('')
         spaces=await page.locator('#spaces li').all_text_contents()
         assert len(spaces)==2 and any('controlled' in x for x in spaces) and any('sources' in x for x in spaces);checked('authenticated two authorized spaces and cleared auth inputs')
         await page.locator('#documents-button').click()
-        await page.wait_for_function("document.querySelector('#documents').textContent.includes('doc-published')")
+        await expect(page.locator('#documents')).to_contain_text('doc-published')
         docs=clean_body(json.loads(await page.locator('#documents').inner_text()));assert isinstance(docs,list) and any(x.get('doc_id')=='doc-published' for x in docs)
         assert all(x.get('lifecycle_state')=='published' for x in docs);checked('authorized published document semantics')
         await page.locator('#query').fill('alpha');await page.get_by_role('button',name='Search evidence',exact=True).click()
-        await page.wait_for_function("document.querySelector('#search-results').textContent.includes('APPROVED_PUBLIC_MARKER')")
+        await expect(page.locator('#search-results')).to_contain_text('APPROVED_PUBLIC_MARKER')
         search=clean_body(json.loads(await page.locator('#search-results').inner_text()));assert 'doc-published' in json.dumps(search);checked('published search evidence')
         await page.locator('#citation').fill('kb://org/m4-browser/doc/doc-published@1');await page.get_by_role('button',name='Verify citation',exact=True).click()
-        await page.wait_for_function("document.querySelector('#citation-result').textContent.length>0")
+        await expect(page.locator('#citation-result')).not_to_be_empty()
         citation=clean_body(json.loads(await page.locator('#citation-result').inner_text()))['result']['structuredContent']
         assert citation['valid'] is True and citation['current_status']=='valid';checked('citation verified valid and current')
         await page.locator('#pack-id').fill('browser-pack');await page.get_by_role('button',name='Read pack',exact=True).click()
-        await page.wait_for_function("document.querySelector('#pack-result').textContent.includes('browser-pack')")
+        await expect(page.locator('#pack-result')).to_contain_text('browser-pack')
         pack=clean_body(json.loads(await page.locator('#pack-result').inner_text()));assert pack['status']=='sealed' and re.fullmatch('[0-9a-f]{64}',pack['pack_sha256']);checked('sealed pack and SHA256 digest')
-        await page.locator('#alerts-button').click();await page.wait_for_function("document.querySelector('#alerts').textContent.includes('access_revoked')")
+        await page.locator('#alerts-button').click();await expect(page.locator('#alerts')).to_contain_text('access_revoked')
         alerts=clean_body(json.loads(await page.locator('#alerts').inner_text()));assert all(x in json.dumps(alerts) for x in ('access_revoked','doc-impact','impacted-pack'));checked('revocation impact alert identifiers')
         dom=await page.locator('body').inner_text();clean_body(dom);save(engine+'-dom.txt',dom)
         await page.screenshot(path=str(OUT/(engine+'-browser.png')),full_page=True)
@@ -113,7 +114,7 @@ async def exercise(context,page,engine,port,token_file):
         async with page.expect_response('**/v1/auth/logout') as event:
             await page.locator('#logout').click()
         logout=await event.value;assert logout.status==200 and (await logout.json())['authenticated'] is False
-        await page.wait_for_function("document.querySelector('#status').textContent==='Signed out'")
+        await expect(page.locator('#status')).to_have_text('Signed out')
         await page.wait_for_load_state('networkidle')
         assert not await context.cookies(),'Logout must clear session cookie'
         for selector in ('#spaces','#documents','#search-results','#citation-result','#pack-result','#alerts'):assert await page.locator(selector).inner_text()==''
