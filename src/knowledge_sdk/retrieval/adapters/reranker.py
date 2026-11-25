@@ -1,4 +1,5 @@
 """Explicit local-only injection boundary; SDK never loads a model or URL."""
+from __future__ import annotations
 from dataclasses import dataclass
 from ..rerank import identifier
 from ...exceptions import ValidationError

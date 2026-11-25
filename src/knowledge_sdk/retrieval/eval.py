@@ -88,6 +88,9 @@ class PairwiseEvalReport:
     """Canonical JSON seals a deep immutable checked report; to_dict returns a copy."""
     report_json: str
     def __post_init__(self):
+        try:self._validate()
+        except (TypeError,KeyError,AttributeError,ValueError,OverflowError):raise ValidationError('Invalid eval report') from None
+    def _validate(self):
         try:r=json.loads(self.report_json,parse_constant=lambda _: (_ for _ in ()).throw(ValueError()))
         except (ValueError,TypeError):raise ValidationError('Invalid eval report') from None
         required={'baseline','candidate','pairwise_deltas','family_breakdown','case_results','gate_passed','configuration','dataset_sha256','corpus_sha256','index_sha256','snapshot_consistent','instrumentation','split_counts','scope'}
@@ -98,8 +101,17 @@ class PairwiseEvalReport:
             m=r[arm]
             for k in ('recall_at_k','ndcg_at_k','mrr','citation_precision','refusal_accuracy','false_refusal_rate','acl_violation_rate'):
                 if not 0<=finite(m.get(k),'metric')<=1:raise ValidationError('Invalid bounded metric')
-            for k in ('acl_violations','forbidden_hits','implicit_model_calls','returned_hits','positive_cases','case_count','valid_authorized_citations','p50_latency_ms','p95_latency_ms'):
-                if finite(m.get(k),'metric')<0:raise ValidationError('Invalid metric count/latency')
+            for k in ('acl_violations','forbidden_hits','implicit_model_calls','returned_hits','positive_cases','case_count','valid_authorized_citations'):
+                if type(m.get(k)) is not int or m[k]<0:raise ValidationError('Invalid metric count')
+            for k in ('p50_latency_ms','p95_latency_ms'):
+                if finite(m.get(k),'latency')<0:raise ValidationError('Invalid metric latency')
+            if m['positive_cases']>m['case_count'] or m['valid_authorized_citations']>m['returned_hits'] or m['forbidden_hits']>m['acl_violations']:raise ValidationError('Inconsistent metric denominators')
+        if not isinstance(r['case_results'],list) or not isinstance(r['family_breakdown'],dict):raise ValidationError('Invalid report breakdown')
+        if r['baseline']['case_count']!=len(r['case_results']) or r['candidate']['case_count']!=len(r['case_results']):raise ValidationError('Inconsistent report case count')
+        for key in ('ndcg_delta','mrr_delta'):finite(r['pairwise_deltas'].get(key),'delta')
+        for key in ('wins','ties','losses'):
+            if type(r['pairwise_deltas'].get(key)) is not int or r['pairwise_deltas'][key]<0:raise ValidationError('Invalid pair count')
+        if sum(r['pairwise_deltas'][k] for k in ('wins','ties','losses'))!=len(r['case_results']):raise ValidationError('Inconsistent pair count')
         if r['gate_passed']!=_gate(r['baseline'],r['candidate'],r['pairwise_deltas'],r['snapshot_consistent']):raise ValidationError('Inconsistent eval gate')
         object.__setattr__(self,'report_json',canonical(r))
     def to_dict(self):return json.loads(self.report_json)
@@ -121,9 +133,10 @@ class OfflineBoundaryMonitor:
         raise ValidationError('Offline evaluation forbids model/network calls')
     def __enter__(self):
         for target in ('urllib.request.urlopen','socket.create_connection',
-                       'knowledge_sdk.retrieval.adapters.qdrant.urlopen',
+                       'knowledge_sdk.retrieval.adapters.qdrant.QdrantIndex._request',
                        'knowledge_sdk.retrieval.adapters.openai_embedder.OpenAICompatibleEmbedder.embed'):
-            self.stack.enter_context(patch(target,self._blocked));self.boundaries.append(target)
+            try:self.stack.enter_context(patch(target,self._blocked));self.boundaries.append(target)
+            except BaseException:self.stack.close();raise
         return self
     def __exit__(self,*args):return self.stack.__exit__(*args)
 
@@ -171,6 +184,7 @@ class PairwiseRetrievalEvaluator:
         return digest(result)
 
     def evaluate(self,cases,*,index_sha256):
+        if not isinstance(index_sha256,str) or len(index_sha256)!=64 or any(c not in '0123456789abcdef' for c in index_sha256):raise ValidationError('Invalid index fingerprint')
         cases=tuple(cases)
         if not cases or any(not isinstance(c,RetrievalEvalCase) for c in cases):raise ValidationError('Checked eval cases required')
         if len({c.case_id for c in cases})!=len(cases):raise ValidationError('Duplicate eval case')

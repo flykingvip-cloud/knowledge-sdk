@@ -71,7 +71,7 @@ class ScoreCalibrationConfig:
         if not isinstance(self.channels,(tuple,list)):raise ValidationError('Invalid channel configs')
         channels=tuple(CalibrationChannelConfig.from_dict(v) if isinstance(v,dict) else v for v in self.channels)
         if not channels:
-            channels=tuple(CalibrationChannelConfig(c,max_raw=1.0 if c=='rerank' else 1/61) for c in CHANNELS)
+            channels=tuple(CalibrationChannelConfig(c,min_raw=-1.0 if c=='vector' else 0.0,max_raw=1.0 if c in ('rerank','vector') else 1/61) for c in CHANNELS)
         if any(not isinstance(c,CalibrationChannelConfig) for c in channels) or sorted(c.channel for c in channels)!=sorted(CHANNELS):
             raise ValidationError('Each channel needs exactly one independent config')
         object.__setattr__(self,'channels',channels)

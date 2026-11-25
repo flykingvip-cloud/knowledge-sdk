@@ -1,4 +1,5 @@
 """Known named strategies only on transport; object injection is local/trusted."""
+from __future__ import annotations
 from types import MappingProxyType
 from .rerank import DeterministicLexicalReranker, identifier
 from .calibration import ScoreCalibrator, validate_threshold

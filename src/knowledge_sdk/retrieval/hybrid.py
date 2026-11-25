@@ -45,7 +45,7 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
     # Prefix batches plus one identity-only lookahead; never evaluate key 501.
     policy_engine=policy_engine if policy_engine is not None else DefaultPolicyEngine()
     redaction_registry=redaction_registry if redaction_registry is not None else RedactionRegistry()
-    evaluated=set();accepted={};candidates={};more=False
+    evaluated=set();accepted={};candidates={};more=False;vector_scores={}
     vector=embedder.embed([query])[0] if mode!='keyword' else None
     batches=tuple(dict.fromkeys((min(max(limit*4,40),500),min(max(limit*12,120),500),500)))
     for batch in batches:
@@ -69,7 +69,9 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
             rows=vector_index.search_for_org(actor.org_id,vector,batch+1) if hasattr(vector_index,'search_for_org') else vector_index.search(vector,batch+1)
             more=more or len(rows)>batch
             for rank,hit in enumerate(rows[:batch],1):
-                try:add((hit.doc_id,hit.version,hit.chunk_id),(1 if mode=='vector' else 1-keyword_weight)/(60+rank))
+                try:
+                    add((hit.doc_id,hit.version,hit.chunk_id),(1 if mode=='vector' else 1-keyword_weight)/(60+rank))
+                    if mode=='vector' and calibrator is not None and reranker is None:vector_scores[(hit.doc_id,hit.version,hit.chunk_id)]=hit.score
                 except AttributeError:continue
         for key,score in candidates.items():
             if key in accepted:
@@ -108,9 +110,9 @@ def search(store,actor,query,mode="keyword",limit=20,filters=None,vector_index=N
         scores=apply_reranker(query,controlled,reranker)
         hits=[replace(h,raw_score=h.score,rerank_score=value,score=value,reranker_id=reranker.reranker_id) for h,value in zip(hits,scores)]
     elif enhanced:
-        hits=[replace(h,raw_score=h.score) for h in hits]
+        hits=[replace(h,raw_score=vector_scores.get((h.doc_id,h.version,h.chunk_id),h.score) if mode=='vector' else h.score) for h in hits]
     if calibrator is not None:
-        hits=[replace(h,calibrated_score=calibrator.calibrate('rerank' if reranker is not None else mode,h.score)) for h in hits]
+        hits=[replace(h,calibrated_score=calibrator.calibrate('rerank' if reranker is not None else mode,h.score if reranker is not None else h.raw_score)) for h in hits]
     filtered=0
     if min_calibrated_score is not None:
         filtered=sum(h.calibrated_score<min_calibrated_score for h in hits)

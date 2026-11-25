@@ -169,7 +169,7 @@ class EvidenceTools:
             except (PermissionDeniedError,NotFoundError,ConflictError,TamperedExcerptError):continue
         return {'status':'ok' if hits else 'no_authorized_evidence','purpose_applied':context.purpose.value,
                 'policy_generation':context.actor.policy_generation,'mode_applied':mode,'hits':hits,
-                'candidate_budget_exhausted':response.candidate_budget_exhausted,'refusal_notice':'' if hits else 'No authorized evidence; do not invent an answer.'}
+                'candidate_budget_exhausted':response.candidate_budget_exhausted,'reranker_id':response.reranker_id,'calibrator_id':response.calibrator_id,'filtered_by_threshold_count':response.filtered_by_threshold_count,'refusal_notice':'' if hits else 'No authorized evidence; do not invent an answer.'}
     def _verify_citation(self,context,source_uri,excerpt_hash=None,check_latest_version=True):
         item,ref,decision,d=self._unit(context,source_uri,allow_unavailable=True)
         if self.client.evaluate_policy(context.actor,ref.doc_id,**self._ctx(context))!=decision:raise PermissionDeniedError('access_denied')
