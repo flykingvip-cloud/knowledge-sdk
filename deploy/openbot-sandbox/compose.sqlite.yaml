@@ -70,12 +70,23 @@
         "seed": {
           "condition": "service_completed_successfully"
         }
-      }
+      },
+      "networks": [
+        "default",
+        "loopback-adapter"
+      ]
     }
   },
   "networks": {
     "default": {
       "internal": true,
+      "labels": {
+        "knowledge-sdk-fixture": "SDK22_ALIGN_WAVE1P5"
+      }
+    },
+    "loopback-adapter": {
+      "driver": "bridge",
+      "internal": false,
       "labels": {
         "knowledge-sdk-fixture": "SDK22_ALIGN_WAVE1P5"
       }

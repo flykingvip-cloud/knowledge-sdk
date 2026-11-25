@@ -66,7 +66,12 @@ ownership privileges because the current v5 store bootstrap performs idempotent
 owner-level setup. This is NOT a DML-only runtime-role claim. No production role
 is widened. All business tables have ENABLE/FORCE RLS, so even ownership does
 not bypass tenant filtering. Tests use the non-superuser runtime, never DBA.
-Private internal Docker network only, PG publishes NO host port, auth trust is
+PG stays on the private internal fixture network and publishes NO host port.
+The app also joins a fresh UUID-project bridge frontend so Docker can return
+traffic for its127.0.0.1-only published adapter port; internal-only attachment
+prevented host readiness on the actual CI runner. This frontend is NOT an
+egress-denial firewall. No external provider/endpoint is configured or called.
+PG auth trust is
 restricted to this disposable fixture network. It is NOT a production template.
 Explicit migration/runtime separation beyond this bootstrap limitation requires
 future design, not an insecure pretend least-privilege claim.

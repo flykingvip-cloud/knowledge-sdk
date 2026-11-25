@@ -30,7 +30,10 @@ def run(output,required=False):
                 try:
                     cmd(compose+['config','--quiet'],env=env)
                     cmd(compose+['up','--detach'],env=env,timeout=180)
-                    assert wait('http://127.0.0.1:'+str(port),attempts=150),'Actual fixture readiness failed'
+                    if not wait('http://127.0.0.1:'+str(port),attempts=150):
+                        diagnostic=cmd(compose+['exec','-T','sandbox','python','-c',"import json;from urllib.request import urlopen;print(json.load(urlopen('http://127.0.0.1:8088/v1/ready',timeout=3)))"],env=env,check=False)
+                        print(json.dumps({'mode':mode,'host_readiness':False,'container_loopback_ready':diagnostic.returncode==0}))
+                        raise AssertionError('Actual host-published fixture readiness failed')
                     wire=cmd(compose+['exec','-T','sandbox','python','/opt/sandbox/probe_openbot_sandbox.py','--url','http://127.0.0.1:8088'],env=env);result=json.loads(wire.stdout)
                     assert result['status']=='REAL_SIGNED_SANDBOX_WIRE_PASSED'
                     container=cmd(compose+['ps','--quiet','sandbox'],env=env).stdout.strip()
