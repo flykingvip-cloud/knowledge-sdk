@@ -119,7 +119,7 @@ def probe():
             with closing(__import__('sqlite3').connect(db)) as conn:
                 assert before=={t:conn.execute('SELECT * FROM '+t).fetchall() for t in tables}
                 assert conn.execute('SELECT count(*) FROM evidence_issues').fetchone()[0]==2
-                assert conn.execute('PRAGMA user_version').fetchone()[0]==3
+                assert conn.execute('PRAGMA user_version').fetchone()[0]==4
             print('Actual /v1/mcp initialize/list/all4 tools; masked anchor receipts/hash tamper/subset pack; 36 identity injections blocked; unsigned/crossworker replay401; external default rights denied; concurrent tenant isolation; typed /v1/issues/list; formal tables unchanged',flush=True)
             print('L3 actual JSON-RPC HTTP + stdio probe PASS; external model/embedding/Qdrant calls=0',flush=True)
         finally:

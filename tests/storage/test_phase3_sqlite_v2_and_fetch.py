@@ -35,7 +35,7 @@ class MigrationTests(unittest.TestCase):
             path=Path(directory)/'v1.db';legacy_database(path)
             with closing(sqlite3.connect(str(path))) as db:before=db.execute('SELECT doc_id,data FROM documents ORDER BY doc_id').fetchall()
             with closing(SQLiteStore(path)) as store:
-                self.assertEqual(store.db.execute('pragma user_version').fetchone()[0],3)
+                self.assertEqual(store.db.execute('pragma user_version').fetchone()[0],4)
                 self.assertEqual(store._execute('SELECT doc_id,data FROM documents ORDER BY doc_id'),before)
                 for doc in store.list_documents('o'):
                     row=store._execute('SELECT space_type,governance_tier,access_level,lifecycle_state,archived,revoked,valid_from,valid_to FROM documents WHERE doc_id=?',(doc.doc_id,))[0]
@@ -53,13 +53,13 @@ class MigrationTests(unittest.TestCase):
                 self.assertEqual(len(db.execute('pragma table_info(documents)').fetchall()),4)
                 self.assertEqual(db.execute("SELECT name FROM sqlite_master WHERE name='evidence_anchors'").fetchall(),[])
                 self.assertEqual(db.execute('SELECT count(*) FROM documents').fetchone()[0],6)
-            with closing(SQLiteStore(path)) as store:self.assertEqual(store.db.execute('pragma user_version').fetchone()[0],3)
+            with closing(SQLiteStore(path)) as store:self.assertEqual(store.db.execute('pragma user_version').fetchone()[0],4)
     def test_unknown_schema_refused_and_connection_closed(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'future.db'
-            with closing(sqlite3.connect(str(path))) as db:db.execute('pragma user_version=4')
+            with closing(sqlite3.connect(str(path))) as db:db.execute('pragma user_version=5')
             with self.assertRaisesRegex(ConflictError,'^Unsupported database schema version$'):SQLiteStore(path)
-            with closing(sqlite3.connect(str(path))) as db:self.assertEqual(db.execute('pragma user_version').fetchone()[0],4)
+            with closing(sqlite3.connect(str(path))) as db:self.assertEqual(db.execute('pragma user_version').fetchone()[0],5)
     def test_write_paths_keep_all_derived_columns_current(self):
         c=LocalKnowledgeClient();self.addCleanup(c.store.close);a=Actor('owner','o');k=c.create_kb(a,'space','enterprise');v=c.ingest(a,k.kb_id,'indexable content')
         c.store.set_acl(v.doc_id,DocumentACL(access_level='personal_only'))

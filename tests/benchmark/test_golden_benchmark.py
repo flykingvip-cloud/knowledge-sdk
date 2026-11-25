@@ -4,7 +4,7 @@ from .runner import run_suite
 
 class GoldenGate(unittest.TestCase):
     def test_exact75_offline_cases_no_skips_hard_gate(self):
-        result=run_suite()
+        result=run_suite(str(__import__('pathlib').Path(__file__).with_name('golden_cases_v2.jsonl')))
         self.assertEqual(result['case_count'],75)
         self.assertEqual(result['skipped'],0)
         self.assertTrue(result['gate_passed'],[r for r in result['results'] if r['status']!='passed'])

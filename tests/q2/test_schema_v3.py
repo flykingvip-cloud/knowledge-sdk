@@ -57,7 +57,7 @@ class SchemaV3Tests(unittest.TestCase):
                 self.assertTrue(before['evidence_issues'])
             for _ in range(2):
                 with closing(SQLiteStore(path)) as store:
-                    self.assertEqual(store.db.execute('PRAGMA user_version').fetchone()[0], 3)
+                    self.assertEqual(store.db.execute('PRAGMA user_version').fetchone()[0], 4)
                     self.assertEqual(snapshot(store.db), before)
                     for table in TABLES:
                         self.assertEqual(store.db.execute('SELECT COUNT(*) FROM '+table).fetchone()[0], 0)
@@ -82,5 +82,5 @@ class SchemaV3Tests(unittest.TestCase):
                     db.execute('PRAGMA user_version=%d' % version)
                     before = db.execute('SELECT doc_id,data FROM documents').fetchall()
                 with closing(SQLiteStore(path)) as store:
-                    self.assertEqual(store.db.execute('PRAGMA user_version').fetchone()[0], 3)
+                    self.assertEqual(store.db.execute('PRAGMA user_version').fetchone()[0], 4)
                     self.assertEqual(store.db.execute('SELECT doc_id,data FROM documents').fetchall(), before)

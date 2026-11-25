@@ -112,7 +112,7 @@ class LivePostgres(unittest.TestCase):
             self.assertEqual(self.s.get_kb('kb').name,'outer')
         before=encode(self.s.get_kb('kb'))
         apply(self.s.db);apply(self.s.db)
-        self.assertEqual(encode(self.s.get_kb('kb')),before);self.assertEqual(status(self.s.db)['version'],3)
+        self.assertEqual(encode(self.s.get_kb('kb')),before);self.assertEqual(status(self.s.db)['version'],4)
         with self.assertRaises(RuntimeError):
             with self.s.transaction():
                 self.c.ingest(self.a,'kb','phantom',doc_id='ghost');raise RuntimeError('rollback outer')

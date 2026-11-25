@@ -507,7 +507,7 @@ class PolicyIntegrationTests(unittest.TestCase):
             store.db.execute('INSERT INTO documents(doc_id,org_id,kb_id,data) VALUES (?,?,?,?)',('old-d','org','old-k',json.dumps(d)))
             store.close();store=SQLiteStore(path)
             try:
-                self.assertEqual(store.db.execute('PRAGMA user_version').fetchone()[0],3)
+                self.assertEqual(store.db.execute('PRAGMA user_version').fetchone()[0],4)
                 self.assertEqual([r[0] for r in store.db.execute("SELECT name FROM sqlite_master WHERE type='table'")],tables)
                 self.assertEqual(store.get_document('old-d').lifecycle_state,'published')
                 self.assertEqual(store.get_kb('old-k').governance_tier,'l1_agile')

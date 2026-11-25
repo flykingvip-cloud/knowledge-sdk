@@ -477,16 +477,42 @@ def run_suite(path=None,verbose=False,engine='sqlite'):
       'offline_recall_at_requested_k':{'eligible_cases':len(recalls),'mean':sum(recalls)/len(recalls) if recalls else None,'values':recalls},'results':results}
 
 
+# Retain the entire original 75-case registry, loader, assertions and suite.
+# New groups use a separate registry and do not weaken any legacy hard gate.
+run_legacy_suite=run_suite
+
+def run_suite(path=None,verbose=False,engine='sqlite'):
+    if path is not None:return run_legacy_suite(path,verbose,engine)
+    from .g7_g8 import SCENARIOS as enterprise
+    result=run_legacy_suite(None,verbose,engine)
+    cases=[json.loads(line) for line in Path(__file__).with_name('golden_cases_v3_enterprise.jsonl').read_text().splitlines() if line.strip()]
+    if len(cases)!=25 or {c['scenario'] for c in cases}!=set(enterprise) or {g:sum(c['group']==g for c in cases) for g in ('G7','G8')}!={'G7':15,'G8':10}:raise ValueError('Enterprise cardinality gate failed')
+    for case in cases:
+        observation=Observation(case['expected']);fixture=Fixture(case,engine);error=None
+        try:enterprise[case['scenario']](fixture,observation)
+        except Exception as exc:error=type(exc).__name__+': '+str(exc)
+        finally:fixture.close()
+        row={'case_id':case['case_id'],'group':case['group'],'scenario':case['scenario'],'status':'passed' if error is None else 'failed','error':error,**{k:v for k,v in observation.__dict__.items() if not k.startswith('_')}}
+        result['results'].append(row)
+        if verbose:print(case['case_id'],row['status'],row['scenario'],error or '',flush=True)
+    extra=result['results'][75:]
+    for group in ('G7','G8'):result['groups'][group]={'total':sum(r['group']==group for r in extra),'passed':sum(r['group']==group and r['status']=='passed' for r in extra)}
+    result['case_count']=100;result['passed']+=sum(r['status']=='passed' for r in extra);result['failed']=100-result['passed']
+    for field,key in (('security_assertion_failures','safety_failures'),('positive_control_failures','positive_failures'),('implicit_model_calls','model_calls')):result[field]+=sum(r[key] for r in extra)
+    result['gate_passed']=result['gate_passed'] and result['passed']==100 and result['security_assertion_failures']==0 and result['implicit_model_calls']==0
+    return result
+
+
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--json',action='store_true');parser.add_argument('--cases');parser.add_argument('--json-output');parser.add_argument('--report');parser.add_argument('--engine',choices=('sqlite','postgres'),default='sqlite');args=parser.parse_args()
-    result=run_suite(args.cases,not args.json,args.engine);result['engine']=args.engine
+    parser=argparse.ArgumentParser();parser.add_argument('--json',action='store_true');parser.add_argument('--cases');parser.add_argument('--legacy75',action='store_true');parser.add_argument('--json-output');parser.add_argument('--report');parser.add_argument('--engine',choices=('sqlite','postgres'),default='sqlite');args=parser.parse_args()
+    result=run_suite(str(Path(__file__).with_name('golden_cases_v2.jsonl')) if args.legacy75 else args.cases,not args.json,args.engine);result['engine']=args.engine
     result['executed_at']=datetime.now(timezone(timedelta(hours=8))).isoformat();result['timezone']='Asia/Shanghai'
     if args.json_output:Path(args.json_output).write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
     if args.report:
-        lines=['# Q2-M2 golden benchmark ('+args.engine+')','',result['executed_at']+' Asia/Shanghai','',f"Cases: {result['passed']}/{result['case_count']} passed; 0 skipped; gate_passed={result['gate_passed']}",'', '| Group | Passed / Total |','|---|---|']
+        lines=['# Q2-M4 golden benchmark ('+args.engine+')','',result['executed_at']+' Asia/Shanghai','',f"Cases: {result['passed']}/{result['case_count']} passed; 0 skipped; gate_passed={result['gate_passed']}",'', '| Group | Passed / Total |','|---|---|']
         lines.extend('| '+g+' | '+str(v['passed'])+' / '+str(v['total'])+' |' for g,v in result['groups'].items())
         lines.extend(['','```json',json.dumps({k:v for k,v in result.items() if k!='results'},indent=2),'```','',
-         'These are 75 distinct executable offline scenarios (the original 60 are unchanged), not 60 unittest methods or added subtests. No skips are allowed.',
+         f"These are {result['case_count']} distinct executable scenarios. Original 75 assertions are unchanged; no skips are allowed.",
          'ACL denominator: 20 G1 security scenarios; refusal denominator: 10 G2 no-evidence scenarios with real generator spies; anchor denominator: 10 G4 fixture scenarios.',
          'MCP injection denominator: actual runtime rejected argument/purpose attempts (not tool schema declarations). Positive controls and safety assertions are tracked separately.',
          'implicit_model_calls is the measured generator-spy invocation count in G1 missing-hook ask and G2; no remote model or embedding service is configured. PostgreSQL mode uses real local PG/pgvector fixtures; deterministic adversarial vector stubs are retained. Positive answer control uses the local extractive generator.',
