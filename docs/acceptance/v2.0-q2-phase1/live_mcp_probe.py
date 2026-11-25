@@ -14,6 +14,11 @@ ADMIN=Actor('admin','wire',org_roles=('admin',));USER=Actor('reader','wire');AGE
 def seed(db):
     c=LocalKnowledgeClient(SQLiteStore(db))
     try:
+        # Q3 fixture preparation only: the legacy free-form label now names a real owned task.
+        from dataclasses import replace
+        c.register_agent_profile(ADMIN,AGENT.agent_id,allowed_purposes=tuple(Purpose))
+        task=c.create_task_context(USER,AGENT.agent_id)
+        c.store.put_task_context(replace(task,task_id='wire-task'))
         c.create_kb(ADMIN,'Wire',visibility='enterprise',kb_id='wire-kb')
         c.ingest(ADMIN,'wire-kb','alpha secret evidence','wire.md',doc_id='wire-doc',rights=ResourceRights(redaction_profile='mask'))
         c.ingest(ADMIN,'wire-kb','stdio fixture evidence','stdio.md',doc_id='stdio-doc')
@@ -119,7 +124,7 @@ def probe():
             with closing(__import__('sqlite3').connect(db)) as conn:
                 assert before=={t:conn.execute('SELECT * FROM '+t).fetchall() for t in tables}
                 assert conn.execute('SELECT count(*) FROM evidence_issues').fetchone()[0]==2
-                assert conn.execute('PRAGMA user_version').fetchone()[0]==4
+                assert conn.execute('PRAGMA user_version').fetchone()[0]==5
             print('Actual /v1/mcp initialize/list/all4 tools; masked anchor receipts/hash tamper/subset pack; 36 identity injections blocked; unsigned/crossworker replay401; external default rights denied; concurrent tenant isolation; typed /v1/issues/list; formal tables unchanged',flush=True)
             print('L3 actual JSON-RPC HTTP + stdio probe PASS; external model/embedding/Qdrant calls=0',flush=True)
         finally:
