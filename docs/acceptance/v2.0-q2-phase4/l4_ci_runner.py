@@ -111,23 +111,41 @@ async def exercise(context,page,engine,port,token_file):
             if query=='alpha':assert 'APPROVED_PUBLIC_MARKER' in json.dumps(body)
             log['api_bodies'].append({'source':'browser context.request','path':'/kb-prod/v1/search','query_kind':'published' if query=='alpha' else 'denied fixture query','json':body})
         checked('independent browser JSON response body positive and denied-query isolation')
+        # Independently inspect every relevant content API via this browser's
+        # APIRequestContext. Do not depend on Chromium retaining page Response
+        # bodies after an app intentionally leaves a fetch body unconsumed.
+        for path,method,payload in (
+            ('/v1/kbs','GET',None),('/v1/documents','GET',None),
+            ('/v1/packs/get','POST',{'params':{'pack_id':'browser-pack'}}),
+            ('/v1/impact/alerts','POST',{'params':{}}),
+            ('/v1/mcp','POST',{'jsonrpc':'2.0','id':2,'method':'tools/call','params':{'name':'verify_citation','arguments':{'source_uri':'kb://org/m4-browser/doc/doc-published@1'}}}),
+        ):
+            r=await context.request.fetch(base+'/kb-prod'+path,method=method,data=payload,headers={'Origin':base})
+            assert r.status==200 and 'no-store' in r.headers.get('cache-control','')
+            body=clean_body(await r.json())
+            if path=='/v1/kbs':assert {x['kb_id'] for x in body}=={'controlled','sources'}
+            if path=='/v1/documents':assert any(x['doc_id']=='doc-published' for x in body) and all(x['lifecycle_state']=='published' for x in body)
+            if path=='/v1/packs/get':assert body['status']=='sealed' and re.fullmatch('[0-9a-f]{64}',body['pack_sha256'])
+            if path=='/v1/mcp':assert body['result']['structuredContent']['valid'] is True and body['result']['structuredContent']['current_status']=='valid'
+            if path=='/v1/impact/alerts':assert all(x in json.dumps(body) for x in ('access_revoked','doc-impact','impacted-pack'))
+            log['api_bodies'].append({'source':'browser context.request','path':'/kb-prod'+path,'status':r.status,'cache_control':r.headers.get('cache-control'),'json':body})
+        checked('all relevant content API JSON independently inspected with semantics and no forbidden plaintext')
         async with page.expect_response('**/v1/auth/logout') as event:
             await page.locator('#logout').click()
-        logout=await event.value;assert logout.status==200 and (await logout.json())['authenticated'] is False
+        logout=await event.value;assert logout.status==200 and 'no-store' in logout.headers.get('cache-control','')
         await expect(page.locator('#status')).to_have_text('Signed out')
         await page.wait_for_load_state('networkidle')
         assert not await context.cookies(),'Logout must clear session cookie'
         for selector in ('#spaces','#documents','#search-results','#citation-result','#pack-result','#alerts'):assert await page.locator(selector).inner_text()==''
         denied=await context.request.get(base+'/kb-prod/v1/kbs');assert denied.status in (401,403)
         log['direct_browser_requests'].append({'method':'GET','path':'/kb-prod/v1/kbs','phase':'after logout','status':denied.status,'expected_http_negative':True});checked('genuine logout clears UI cookie and authorization')
-        # Bodies from every rendered page JSON response are independently read.
+        # Record every page response; independent browser-owned JSON bodies above
+        # cover every relevant content API. Never discard page error events.
         for r in responses:
-            path=urlsplit(r.url).path;headers=await r.all_headers();assert 'no-store' in headers.get('cache-control','')
+            path=urlsplit(r.url).path;headers=r.headers;assert 'no-store' in headers.get('cache-control','')
             log['responses'].append({'path':path,'status':r.status,'cache_control':headers.get('cache-control')});assert r.status==200
-            if 'application/json' in headers.get('content-type',''):
-                log['api_bodies'].append({'source':'page response body','path':path,'json':clean_body(await r.json())})
         required={'/kb-prod/v1/kbs','/kb-prod/v1/documents','/kb-prod/v1/search','/kb-prod/v1/mcp','/kb-prod/v1/packs/get','/kb-prod/v1/impact/alerts','/kb-prod/v1/auth/session','/kb-prod/v1/auth/logout','/kb-prod/ui/assets/enterprise.js'}
-        assert required<={r['path'] for r in log['responses']};checked('all required same-origin responses200 no-store and all JSON bodies inspected')
+        assert required<={r['path'] for r in log['responses']};checked('all required same-origin page responses200 no-store; content JSON independently inspected via browser request context')
         log['logout_settled_at']=stamp();save(engine+'-signed-out-dom.txt',await page.locator('body').inner_text())
     finally:
         # No listener removal/gaps; final assertions happen after context close.
