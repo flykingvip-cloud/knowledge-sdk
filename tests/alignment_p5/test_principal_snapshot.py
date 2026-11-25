@@ -43,10 +43,21 @@ class PrincipalCases:
             with self.assertRaises(PermissionDeniedError):self.c.search(self.a,'shared',reranker=Ranker())
         self.assertFalse(invoked);self.assertIsNone(self.c._retrieval_identity)
     def test_reentrant_reranker_mutation_cannot_return_pre_revocation_result(self):
-        c=self.c;p=self.p
+        c=self.c;p=self.p;case=self
+        from knowledge_sdk.mcp.gateway import GatewayContext
+        c.register_agent_profile(self.a,'fixture-task-profile')
+        task=c.create_task_context(self.a,'fixture-task-profile',purpose=Purpose.READ)
         class Ranker:
             reranker_id='fixture-reentrant'
-            def score(inner,query,candidates):c.store.upsert_principal(replace(p,policy_generation=2));return tuple(0.0 for _ in candidates)
+            def score(inner,query,candidates):
+                # The SAME user reenters while the outer identity memo is live.
+                # Runtime task ownership/purpose validation must never reuse it.
+                wrong_org=replace(case.a,org_id='other-org')
+                for who,purpose in ((case.a,Purpose.GROUND_INTERNAL_LLM),(wrong_org,Purpose.READ)):
+                    with case.assertRaises(PermissionDeniedError):c._runtime_mcp(who,task.task_id,None,'search_evidence',{'query':'shared'},GatewayContext(who,purpose=purpose))
+                nested=c._runtime_mcp(case.a,task.task_id,None,'search_evidence',{'query':'shared','limit':1},GatewayContext(case.a,purpose=Purpose.READ))
+                case.assertEqual(len(nested['hits']),1)
+                c.store.upsert_principal(replace(p,policy_generation=2));return tuple(0.0 for _ in candidates)
         with self.assertRaises(PermissionDeniedError):c.search(self.a,'shared',reranker=Ranker())
         self.assertIsNone(c._retrieval_identity)
     def test_actor_purpose_and_policy_stay_separate_and_deny_is_not_cached(self):
