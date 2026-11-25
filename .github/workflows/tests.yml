@@ -32,7 +32,7 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: sdk_align
         ports:
-          - 5432/tcp
+          - '127.0.0.1::5432'
         options: >-
           --health-cmd "pg_isready -U postgres -d sdk_align"
           --health-interval 5s
@@ -82,7 +82,7 @@ jobs:
           python -m tests.benchmark.runner --engine postgres --legacy75 --json
           python -m tests.benchmark.runner --engine postgres --legacy100 --json
       - run: python docs/architecture/knowledge-sdk-alignment/contracts/validate_assets.py
-      - run: python docs/acceptance/v2.1-q3-phase2/verify_package.py dist/*.whl
+      - run: python docs/acceptance/v2.1-align-wave1/verify_package.py dist/*.whl
       - name: TypeScript draft DTO typecheck
         run: npm exec --yes --package=typescript@5.9.3 -- tsc --strict --noEmit --skipLibCheck false docs/architecture/knowledge-sdk-alignment/contracts/openbot-adapter-dto.d.ts
       - name: Isolated non-publishing Docker build and live runtime probe

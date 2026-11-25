@@ -118,7 +118,17 @@ class CompatCases:
         with tempfile.TemporaryDirectory() as root:
             p=Path(root)/'a.txt';p.write_text('connector first')
             connector=ControlledFilesystemConnector('fs',root,org_id='o');runner=ConnectorSyncRunner(self.c)
-            before=self.c.store.count_outbox_events('o');audit=len(self.c.store.list_audit_events('o',limit=1000));plan=runner.plan_sync(self.a,connector,org_id='o',kb_id='k')
+            before=self.c.store.count_outbox_events('o');audit=len(self.c.store.list_audit_events('o',limit=1000))
+            if self.engine=='postgres':
+                # The actual server rejects ANY attempted business/audit write.
+                with self.c.store.transaction():
+                    self.c.store._execute('SET TRANSACTION READ ONLY')
+                    plan=runner.plan_sync(self.a,connector,org_id='o',kb_id='k')
+            else:
+                changes=self.c.store.db.total_changes
+                plan=runner.plan_sync(self.a,connector,org_id='o',kb_id='k')
+                # Unlike row counts, total_changes also detects write-then-rollback.
+                self.assertEqual(self.c.store.db.total_changes,changes)
             self.assertEqual(len(plan['to_upsert']),1);self.assertEqual(self.c.store.count_outbox_events('o'),before);self.assertEqual(len(self.c.store.list_audit_events('o',limit=1000)),audit);self.assertIsNone(self.c.store.get_connector_sync_state('o','fs'))
             report=runner.run_once(self.a,connector,org_id='o',kb_id='k');self.assertEqual(report.applied_upserts,1);self.assertEqual(runner.plan_sync(self.a,connector,org_id='o',kb_id='k')['to_upsert'],[])
             p.unlink();plan=runner.plan_sync(self.a,connector,org_id='o',kb_id='k');self.assertEqual(len(plan['to_tombstone']),1)
