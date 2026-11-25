@@ -761,3 +761,7 @@ class PostgresStore:
         self._execute('DELETE FROM scim_group_members WHERE org_id=%s AND group_id=%s',(org_id,group_id))
         for user_id in data.get('members',[]):
             self._execute('INSERT INTO scim_group_members VALUES(%s,%s,%s)',(org_id,group_id,user_id))
+
+    @tenant_method
+    def count_outbox_events(self,org_id):
+        return self._execute('SELECT COUNT(*) FROM outbox_events WHERE org_id=%s',(org_id,))[0][0]

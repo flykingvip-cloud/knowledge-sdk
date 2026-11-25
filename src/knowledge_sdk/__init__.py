@@ -35,3 +35,7 @@ from .contracts.impact import UsageEvent, ImpactAlert, ImpactReason
 
 from .contracts.governance import ReviewDecision, ReleaseManifest, IssueResolution
 from .contracts.packs import PackItem, EvidencePack, PackVerificationReport, ExportResult
+
+from .contracts.identity import IdentityPrincipal, ConnectorSyncState
+from .contracts.connectors import ConnectorDocument, ConnectorACLUpdate, TombstoneRecord, ConnectorSyncBatch, ConnectorSyncReport
+from .connectors import BaseConnector, ConnectorSyncRunner, ControlledFilesystemConnector, WebhookSyncConnector
