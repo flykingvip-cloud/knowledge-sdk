@@ -1,0 +1,21 @@
+{
+  "passed": false,
+  "source_sha": "e025ff559bc0aab59f500cb1863f84c711991bf8",
+  "started_at": "2026-11-25T09:31:57.622682+08:00",
+  "postgres": {
+    "application_role_superuser": false,
+    "application_role_bypassrls": false,
+    "pgvector_version": "0.8.7"
+  },
+  "failure": {
+    "type": "TimeoutError",
+    "message": ""
+  },
+  "cleanup": {
+    "other_client_connections": 0,
+    "remaining_test_schemas": 0,
+    "removed_disposable_schemas": 1
+  },
+  "owned_processes_stopped": true,
+  "finished_at": "2026-11-25T09:34:59.837896+08:00"
+}

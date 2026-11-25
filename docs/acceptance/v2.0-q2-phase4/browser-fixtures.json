@@ -41,7 +41,8 @@
     "postgres"
   ],
   "token_expiry": "Historical one-use synthetic tokens consumed by parent; fixture stopped and sessions invalidated; do not reuse.",
-  "browser_interaction": "Parent sanctioned browser_run_code + browser_take_screenshot verified interaction; headless and specified unmeasured assertions OPEN",
+  "browser_interaction": "Historical box managed-browser partial run; superseded by independent hosted headless L4 run45526947873. Box services remain stopped.",
   "last_http_only_health_check": "2026-11-25T08:53:41.782104+08:00",
-  "shutdown_evidence": "infrastructure-shutdown.json"
+  "shutdown_evidence": "infrastructure-shutdown.json",
+  "ci_evidence": "l4-ci-run/summary.json"
 }

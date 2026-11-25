@@ -1,0 +1,90 @@
+{
+  "tested_source_sha": "1186b066e984c29fa347bdd946fdc63ecb50e950",
+  "verified_original_artifact_sha256": "sha256:02ff6ab56ff999f1e0104fa0d1dd45f67e14adf84db70603b1426df3d0e51d32",
+  "files": {
+    "nginx-process.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "postgres-browser.png": {
+      "bytes": 343218,
+      "sha256": "9c04bea91d6c7450c009f0aa3b565eba4071b42260ab1e0c4744cc84705f456d"
+    },
+    "enterprise-regressions.log": {
+      "bytes": 7175,
+      "sha256": "99a1ece106dc1fe67058b00319d384de47ba7d5a85bf2e39dcdaf2b0df093e42"
+    },
+    "nginx-config.txt": {
+      "bytes": 698,
+      "sha256": "bf314534de57eb835d5b3bc2821ca81ab59488a61e2144a814b259587c1eecd7"
+    },
+    "sqlite-browser.png": {
+      "bytes": 343480,
+      "sha256": "be362f76ad602f94f639b315307000d5a7469d9681593c39a5d0a0b64f7ef870"
+    },
+    "nginx-error.log": {
+      "bytes": 148,
+      "sha256": "66354e8cb377e7603efc3ec385f8191f224ce9b0401ad17c125f60a0dfde75a8"
+    },
+    "postgres-backend.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "postgres-signed-out-dom.txt": {
+      "bytes": 358,
+      "sha256": "2de256a38294f7cbebd728e329e14771403b6911c5575a760990a51fa195ebca"
+    },
+    "workflow-run.json": {
+      "bytes": 14907,
+      "sha256": "0ea55dec741a4a965a668022560f2882ce48cfb257a879e8bb82aa682315f8cb"
+    },
+    "sqlite-backend.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "postgres-dom.txt": {
+      "bytes": 6575,
+      "sha256": "3aabecaf6998c79acc1a048ab1d13702a956fb11de96de8f9b178f3bca3051a9"
+    },
+    "artifact-metadata.json": {
+      "bytes": 978,
+      "sha256": "8dcaa69e66580d94213978a2f8c2371f181b0290659838656366bd80f4370744"
+    },
+    "workflow-jobs.json": {
+      "bytes": 4638,
+      "sha256": "bbcefa0aa0e38b81ba8e85c0a60273d5180fc36e579cf69ba959c12919a7e8ed"
+    },
+    "sqlite-browser-log.json": {
+      "bytes": 15731,
+      "sha256": "a84b1ed15879a97d5584acd9231ab0a7bf2fc30a9873a6f504041d37f58377a0"
+    },
+    "independent-contexts.json": {
+      "bytes": 435,
+      "sha256": "137800b07e09b5f8649003e52e9a6731e3b198cfc757f13609949be0b9d980de"
+    },
+    "postgres-browser-log.json": {
+      "bytes": 15733,
+      "sha256": "480952fe2cedc27afde636b5caf1a2fc051b4e65fa8aa993de10105f390cb098"
+    },
+    "sqlite-dom.txt": {
+      "bytes": 6575,
+      "sha256": "68e194281eedaa0e9913f1f1414f786c4becd25e4c9314dcf995566f55175b75"
+    },
+    "sqlite-signed-out-dom.txt": {
+      "bytes": 358,
+      "sha256": "2de256a38294f7cbebd728e329e14771403b6911c5575a760990a51fa195ebca"
+    },
+    "summary.json": {
+      "bytes": 1652,
+      "sha256": "969134b98298f5114d3ddc2cefd27b3c6caef1bc21286bb067b7027574ac676d"
+    },
+    "job.log": {
+      "bytes": 78179,
+      "sha256": "9c5740fdcfb5d7bdbf03af07e2502eb40b3e763d73e12efcfd821970617aba1e"
+    },
+    "headless-runtime.json": {
+      "bytes": 2760,
+      "sha256": "1e6dc7fc7b7482756e6939e78980d0cd8b779ae9bd2233b6ce143c0472936298"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+pid /home/runner/work/_temp/q2-m4-l4-private-gziojme8/nginx.pid;
+error_log /home/runner/work/knowledge-sdk/knowledge-sdk/l4-ci-evidence/nginx-error.log;
+events {}
+http { access_log off; include /etc/nginx/mime.types;
+server { listen 127.0.0.1:18474; location /kb-prod/ { proxy_pass http://127.0.0.1:19474/; proxy_set_header Host $http_host; } location = /ui/demo/sign { proxy_pass http://127.0.0.1:19474/ui/demo/sign; proxy_set_header Host $http_host; } }
+server { listen 127.0.0.1:18475; location /kb-prod/ { proxy_pass http://127.0.0.1:19475/; proxy_set_header Host $http_host; } location = /ui/demo/sign { proxy_pass http://127.0.0.1:19475/ui/demo/sign; proxy_set_header Host $http_host; } }
+}
+

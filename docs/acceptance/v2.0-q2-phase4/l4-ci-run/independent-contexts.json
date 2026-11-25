@@ -1,0 +1,16 @@
+[
+  {
+    "engine": "sqlite",
+    "browser_context_id": "61C663CFBB1361A10E679E7528CA5C88",
+    "target_id": "A4CAEA76577786899354E27ABF9CBA6D",
+    "fresh_cookies_count": 0,
+    "fresh_storage_origins_count": 0
+  },
+  {
+    "engine": "postgres",
+    "browser_context_id": "C7E85880E7AB39470221AE3AD2F0661E",
+    "target_id": "3B5781329E2034FE2ACF07742D483AE5",
+    "fresh_cookies_count": 0,
+    "fresh_storage_origins_count": 0
+  }
+]

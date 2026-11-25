@@ -1,0 +1,51 @@
+test_core_enterprise_imports_without_site_packages (tests.q2.test_q2_m4_enterprise.GatewayConfiguration.test_core_enterprise_imports_without_site_packages) ... ok
+test_startup_rejects_oidc_demo_and_insecure (tests.q2.test_q2_m4_enterprise.GatewayConfiguration.test_startup_rejects_oidc_demo_and_insecure) ... ok
+test_v0_v1_v2_v3_data_bytes_and_v4_reopen (tests.q2.test_q2_m4_enterprise.MigrationV4.test_v0_v1_v2_v3_data_bytes_and_v4_reopen) ... ok
+test_claim_types_and_missing_required_fields (tests.q2.test_q2_m4_enterprise.OIDCSecurity.test_claim_types_and_missing_required_fields) ... ok
+test_duplicate_json_and_oversized_tokens (tests.q2.test_q2_m4_enterprise.OIDCSecurity.test_duplicate_json_and_oversized_tokens) ... ok
+test_jwks_kid_ttl_cooldown_and_failed_refresh (tests.q2.test_q2_m4_enterprise.OIDCSecurity.test_jwks_kid_ttl_cooldown_and_failed_refresh) ... ok
+test_jwks_ssrf_metadata_private_and_redirect_forbidden (tests.q2.test_q2_m4_enterprise.OIDCSecurity.test_jwks_ssrf_metadata_private_and_redirect_forbidden) ... ok
+test_real_rs256_es256_and_confusion (tests.q2.test_q2_m4_enterprise.OIDCSecurity.test_real_rs256_es256_and_confusion) ... ok
+test_replay_atomic_jti (tests.q2.test_q2_m4_enterprise.OIDCSecurity.test_replay_atomic_jti) ... ok
+test_signature_algorithms_and_public_key_confusion (tests.q2.test_q2_m4_enterprise.OIDCSecurity.test_signature_algorithms_and_public_key_confusion) ... ok
+test_connector_batch_failure_rolls_back_document_audit_cursor (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_connector_batch_failure_rolls_back_document_audit_cursor) ... ok
+test_connector_contracts_deeply_immutable (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_connector_contracts_deeply_immutable) ... ok
+test_cursor_crud_isolation_and_reopen (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_cursor_crud_isolation_and_reopen) ... ok
+test_filesystem_content_acl_idempotence_and_tombstone_impact (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_filesystem_content_acl_idempotence_and_tombstone_impact) ... ok
+test_filesystem_symlinks_traversal_fifo_fail_closed (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_filesystem_symlinks_traversal_fifo_fail_closed) ... ok
+test_generation_deactivate_all_local_actor_methods (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_generation_deactivate_all_local_actor_methods) ... ok
+test_generations_concurrent_increment (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_generations_concurrent_increment) ... ok
+test_no_client_generation_or_tenant_override (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_no_client_generation_or_tenant_override) ... ok
+test_pack_sql_digest_cross_check_both_directions (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_pack_sql_digest_cross_check_both_directions) ... ok
+test_principal_directory_required_and_direct_policy_engine (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_principal_directory_required_and_direct_policy_engine) ... ok
+test_rls_new_directory_tables (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_rls_new_directory_tables) ... ok
+test_role_department_clearance_changes_bump_noop_does_not (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_role_department_clearance_changes_bump_noop_does_not) ... ok
+test_scim_group_member_linkage_atomic_generation (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_scim_group_member_linkage_atomic_generation) ... ok
+test_scim_nonadmin_cross_tenant_and_delete (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_scim_nonadmin_cross_tenant_and_delete) ... ok
+test_scim_principal_audit_outbox_transaction_rollback (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_scim_principal_audit_outbox_transaction_rollback) ... ok
+test_webhook_replay_timestamp_body_digest_and_tenant (tests.q2.test_q2_m4_enterprise.PostgresEnterprise.test_webhook_replay_timestamp_body_digest_and_tenant) ... ok
+test_four_independent_connections_atomic_generation (tests.q2.test_q2_m4_enterprise.PostgresM4Concurrency.test_four_independent_connections_atomic_generation) ... ok
+test_real_v3_migration_preserves_all_existing_payload_bytes (tests.q2.test_q2_m4_enterprise.PostgresM4Concurrency.test_real_v3_migration_preserves_all_existing_payload_bytes) ... ok
+test_connector_batch_failure_rolls_back_document_audit_cursor (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_connector_batch_failure_rolls_back_document_audit_cursor) ... ok
+test_connector_contracts_deeply_immutable (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_connector_contracts_deeply_immutable) ... ok
+test_cursor_crud_isolation_and_reopen (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_cursor_crud_isolation_and_reopen) ... ok
+test_filesystem_content_acl_idempotence_and_tombstone_impact (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_filesystem_content_acl_idempotence_and_tombstone_impact) ... ok
+test_filesystem_symlinks_traversal_fifo_fail_closed (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_filesystem_symlinks_traversal_fifo_fail_closed) ... ok
+test_generation_deactivate_all_local_actor_methods (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_generation_deactivate_all_local_actor_methods) ... ok
+test_generations_concurrent_increment (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_generations_concurrent_increment) ... ok
+test_no_client_generation_or_tenant_override (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_no_client_generation_or_tenant_override) ... ok
+test_pack_sql_digest_cross_check_both_directions (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_pack_sql_digest_cross_check_both_directions) ... ok
+test_principal_directory_required_and_direct_policy_engine (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_principal_directory_required_and_direct_policy_engine) ... ok
+test_rls_new_directory_tables (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_rls_new_directory_tables) ... ok
+test_role_department_clearance_changes_bump_noop_does_not (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_role_department_clearance_changes_bump_noop_does_not) ... ok
+test_scim_group_member_linkage_atomic_generation (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_scim_group_member_linkage_atomic_generation) ... ok
+test_scim_nonadmin_cross_tenant_and_delete (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_scim_nonadmin_cross_tenant_and_delete) ... ok
+test_scim_principal_audit_outbox_transaction_rollback (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_scim_principal_audit_outbox_transaction_rollback) ... ok
+test_webhook_replay_timestamp_body_digest_and_tenant (tests.q2.test_q2_m4_enterprise.SQLiteEnterprise.test_webhook_replay_timestamp_body_digest_and_tenant) ... ok
+test_v4_failed_ddl_rolls_back_and_old_payload_survives (tests.q2.test_q2_m4_enterprise.SQLiteMigrationAtomicity.test_v4_failed_ddl_rolls_back_and_old_payload_survives) ... ok
+test_real_oidc_hmac_scim_connectors_and_jwks (tests.server.test_q2_m4_http.EnterpriseWireTests.test_real_oidc_hmac_scim_connectors_and_jwks) ... ok
+
+----------------------------------------------------------------------
+Ran 46 tests in 7.600s
+
+OK

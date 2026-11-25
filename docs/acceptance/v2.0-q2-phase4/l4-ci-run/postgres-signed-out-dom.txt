@@ -1,0 +1,22 @@
+Knowledge enterprise workbench
+
+Verified OIDC session · read-only evidence workspace
+
+OIDC bearer
+Sign in
+Or import a bearer token file
+
+Signed out
+
+Refresh authorized spacesSign out
+Authorized spaces
+Documents
+Load authorized documents
+Evidence search
+Search evidence
+Citation verification
+Verify citation
+Evidence pack
+Read pack
+Impact alerts
+Load alerts

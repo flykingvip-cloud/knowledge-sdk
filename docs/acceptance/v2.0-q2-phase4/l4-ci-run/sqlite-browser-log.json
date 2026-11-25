@@ -1,0 +1,486 @@
+{
+  "engine": "sqlite",
+  "capture_started_before_navigation": "2026-11-25T09:37:46.714931+08:00",
+  "console": [],
+  "page_errors": [],
+  "requestfailed": [],
+  "responses": [
+    {
+      "path": "/kb-prod/ui",
+      "status": 200,
+      "cache_control": "no-store"
+    },
+    {
+      "path": "/kb-prod/ui/assets/workbench.css",
+      "status": 200,
+      "cache_control": "no-store"
+    },
+    {
+      "path": "/kb-prod/ui/assets/enterprise.js",
+      "status": 200,
+      "cache_control": "no-store"
+    },
+    {
+      "path": "/kb-prod/ui/config",
+      "status": 200,
+      "cache_control": "no-store"
+    },
+    {
+      "path": "/kb-prod/v1/auth/session",
+      "status": 200,
+      "cache_control": "no-store"
+    },
+    {
+      "path": "/kb-prod/v1/kbs",
+      "status": 200,
+      "cache_control": "no-store"
+    },
+    {
+      "path": "/kb-prod/v1/documents",
+      "status": 200,
+      "cache_control": "no-store"
+    },
+    {
+      "path": "/kb-prod/v1/search",
+      "status": 200,
+      "cache_control": "no-store"
+    },
+    {
+      "path": "/kb-prod/v1/mcp",
+      "status": 200,
+      "cache_control": "no-store"
+    },
+    {
+      "path": "/kb-prod/v1/packs/get",
+      "status": 200,
+      "cache_control": "no-store"
+    },
+    {
+      "path": "/kb-prod/v1/impact/alerts",
+      "status": 200,
+      "cache_control": "no-store"
+    },
+    {
+      "path": "/kb-prod/v1/auth/logout",
+      "status": 200,
+      "cache_control": "no-store"
+    }
+  ],
+  "api_bodies": [
+    {
+      "source": "browser context.request",
+      "path": "/kb-prod/v1/search",
+      "query_kind": "published",
+      "json": {
+        "__type__": "SearchResponse",
+        "hits": [
+          {
+            "__type__": "SearchHit",
+            "doc_id": "doc-published",
+            "version": 1,
+            "chunk_id": "11f5d5287c40b8e7f9dcc71e43807e50",
+            "title": "document.txt",
+            "score": 0.01639344262295082,
+            "excerpt": "alpha APPROVED_PUBLIC_MARKER verified evidence",
+            "excerpt_hash": "ac202d573a3ce917f6c0eb7877cd209635ffac224901b16f390fe5aec60ed9d6",
+            "source_uri": "kb://org/m4-browser/doc/doc-published@1#chunk=11f5d5287c40b8e7f9dcc71e43807e50",
+            "truncated": false,
+            "remaining_chars": 0,
+            "partial_notice": "",
+            "masking_summary": "",
+            "highlights": [
+              [
+                0,
+                5
+              ]
+            ]
+          }
+        ],
+        "mode": "keyword",
+        "candidate_budget_exhausted": false
+      }
+    },
+    {
+      "source": "browser context.request",
+      "path": "/kb-prod/v1/search",
+      "query_kind": "denied fixture query",
+      "json": {
+        "__type__": "SearchResponse",
+        "hits": [
+          {
+            "__type__": "SearchHit",
+            "doc_id": "doc-published",
+            "version": 1,
+            "chunk_id": "11f5d5287c40b8e7f9dcc71e43807e50",
+            "title": "document.txt",
+            "score": 0.01639344262295082,
+            "excerpt": "alpha APPROVED_PUBLIC_MARKER verified evidence",
+            "excerpt_hash": "ac202d573a3ce917f6c0eb7877cd209635ffac224901b16f390fe5aec60ed9d6",
+            "source_uri": "kb://org/m4-browser/doc/doc-published@1#chunk=11f5d5287c40b8e7f9dcc71e43807e50",
+            "truncated": false,
+            "remaining_chars": 0,
+            "partial_notice": "",
+            "masking_summary": "",
+            "highlights": [
+              [
+                22,
+                28
+              ]
+            ]
+          }
+        ],
+        "mode": "keyword",
+        "candidate_budget_exhausted": false
+      }
+    },
+    {
+      "source": "browser context.request",
+      "path": "/kb-prod/v1/search",
+      "query_kind": "denied fixture query",
+      "json": {
+        "__type__": "SearchResponse",
+        "hits": [
+          {
+            "__type__": "SearchHit",
+            "doc_id": "doc-published",
+            "version": 1,
+            "chunk_id": "11f5d5287c40b8e7f9dcc71e43807e50",
+            "title": "document.txt",
+            "score": 0.01639344262295082,
+            "excerpt": "alpha APPROVED_PUBLIC_MARKER verified evidence",
+            "excerpt_hash": "ac202d573a3ce917f6c0eb7877cd209635ffac224901b16f390fe5aec60ed9d6",
+            "source_uri": "kb://org/m4-browser/doc/doc-published@1#chunk=11f5d5287c40b8e7f9dcc71e43807e50",
+            "truncated": false,
+            "remaining_chars": 0,
+            "partial_notice": "",
+            "masking_summary": "",
+            "highlights": [
+              [
+                22,
+                28
+              ]
+            ]
+          }
+        ],
+        "mode": "keyword",
+        "candidate_budget_exhausted": false
+      }
+    },
+    {
+      "source": "browser context.request",
+      "path": "/kb-prod/v1/kbs",
+      "status": 200,
+      "cache_control": "no-store",
+      "json": [
+        {
+          "__type__": "KnowledgeBase",
+          "kb_id": "controlled",
+          "org_id": "m4-browser",
+          "name": "Controlled enterprise evidence",
+          "owner_id": "author",
+          "visibility": "enterprise",
+          "space_type": "enterprise_public",
+          "owner_department_id": "",
+          "owner_user_id": "",
+          "legacy_permissions": false,
+          "governance_tier": "l2_controlled"
+        },
+        {
+          "__type__": "KnowledgeBase",
+          "kb_id": "sources",
+          "org_id": "m4-browser",
+          "name": "Connector sources",
+          "owner_id": "author",
+          "visibility": "enterprise",
+          "space_type": "enterprise_public",
+          "owner_department_id": "",
+          "owner_user_id": "",
+          "legacy_permissions": false,
+          "governance_tier": "l1_agile"
+        }
+      ]
+    },
+    {
+      "source": "browser context.request",
+      "path": "/kb-prod/v1/documents",
+      "status": 200,
+      "cache_control": "no-store",
+      "json": [
+        {
+          "__type__": "Document",
+          "doc_id": "doc-published",
+          "org_id": "m4-browser",
+          "kb_id": "controlled",
+          "owner_id": "author",
+          "title": "document.txt",
+          "visibility": "enterprise",
+          "current_version": 1,
+          "archived": false,
+          "metadata": {},
+          "lifecycle_state": "published",
+          "valid_from": null,
+          "valid_to": null,
+          "rights": {
+            "__type__": "ResourceRights",
+            "allowed_purposes": [
+              "read",
+              "ground_internal_llm",
+              "export"
+            ],
+            "allow_external_llm": false,
+            "allow_export": true,
+            "allow_eval_and_train": false,
+            "redaction_profile": "",
+            "license_id": "",
+            "license_terms_version": "",
+            "retention_until": null,
+            "revoked": false,
+            "revocation_reason": ""
+          }
+        }
+      ]
+    },
+    {
+      "source": "browser context.request",
+      "path": "/kb-prod/v1/packs/get",
+      "status": 200,
+      "cache_control": "no-store",
+      "json": {
+        "__type__": "EvidencePack",
+        "pack_id": "browser-pack",
+        "org_id": "m4-browser",
+        "title": "Approved source pack",
+        "topic": "",
+        "created_by": "reader",
+        "status": "sealed",
+        "purpose_bound": "export",
+        "effective_decision": {},
+        "items": [
+          {
+            "__type__": "PackItem",
+            "source_uri": "kb://org/m4-browser/doc/doc-published@1",
+            "doc_id": "doc-published",
+            "version": 1,
+            "anchor_id": "",
+            "stance": "supporting",
+            "condition_note": "",
+            "excerpt": "alpha APPROVED_PUBLIC_MARKER verified evidence",
+            "excerpt_hash": "ac202d573a3ce917f6c0eb7877cd209635ffac224901b16f390fe5aec60ed9d6",
+            "masking_summary": "",
+            "receipt_id": "de20b4a6-0925-47a4-b9da-c796d17737ff"
+          }
+        ],
+        "dissent_notes": [],
+        "pack_sha256": "ed8f27d03af43775b894c5f32eca8eb4c45a43486621bf7a50995bf1380f13f8",
+        "created_at": "2026-11-25T01:37:43.428824+00:00"
+      }
+    },
+    {
+      "source": "browser context.request",
+      "path": "/kb-prod/v1/impact/alerts",
+      "status": 200,
+      "cache_control": "no-store",
+      "json": [
+        {
+          "__type__": "ImpactAlert",
+          "alert_id": "c7a92575-7ee5-52bc-a1fe-f3fe4326fa58",
+          "org_id": "m4-browser",
+          "source_event_id": "0525eb36-6dc1-4bab-a0a4-7a5a2b5afa9d",
+          "doc_id": "doc-impact",
+          "source_version": 1,
+          "target_type": "evidence_pack",
+          "target_id": "impacted-pack",
+          "impact_reason": "access_revoked",
+          "status": "open",
+          "created_at": "2026-11-25T01:37:43.435283+00:00",
+          "summary": "{\"doc_id\":\"doc-impact\",\"impact_reason\":\"access_revoked\",\"target_id\":\"impacted-pack\",\"target_type\":\"evidence_pack\",\"version\":1}"
+        },
+        {
+          "__type__": "ImpactAlert",
+          "alert_id": "2a449f7b-20c9-545e-9aa8-e41ff7e42fcb",
+          "org_id": "m4-browser",
+          "source_event_id": "152f3b63-511e-4bfb-b287-dec1493ca28a",
+          "doc_id": "doc-impact",
+          "source_version": 1,
+          "target_type": "usage_event",
+          "target_id": "b520d5b7-547c-42f6-b4bb-09c5d0da4e5a",
+          "impact_reason": "access_revoked",
+          "status": "open",
+          "created_at": "2026-11-25T01:37:43.436115+00:00",
+          "summary": "{\"doc_id\":\"doc-impact\",\"impact_reason\":\"access_revoked\",\"target_id\":\"b520d5b7-547c-42f6-b4bb-09c5d0da4e5a\",\"target_type\":\"usage_event\",\"version\":1}"
+        },
+        {
+          "__type__": "ImpactAlert",
+          "alert_id": "c719f0a2-9f34-50bb-a5e4-181f79e745f8",
+          "org_id": "m4-browser",
+          "source_event_id": "152f3b63-511e-4bfb-b287-dec1493ca28a",
+          "doc_id": "doc-impact",
+          "source_version": 1,
+          "target_type": "consumer_binding",
+          "target_id": "33f92308-b364-573a-b450-150bf3c90685",
+          "impact_reason": "access_revoked",
+          "status": "open",
+          "created_at": "2026-11-25T01:37:43.436209+00:00",
+          "summary": "{\"doc_id\":\"doc-impact\",\"impact_reason\":\"access_revoked\",\"target_id\":\"33f92308-b364-573a-b450-150bf3c90685\",\"target_type\":\"consumer_binding\",\"version\":1}"
+        },
+        {
+          "__type__": "ImpactAlert",
+          "alert_id": "2118e7a4-e833-56be-b4ca-9a39117a96de",
+          "org_id": "m4-browser",
+          "source_event_id": "152f3b63-511e-4bfb-b287-dec1493ca28a",
+          "doc_id": "doc-impact",
+          "source_version": 1,
+          "target_type": "evidence_pack",
+          "target_id": "impacted-pack",
+          "impact_reason": "access_revoked",
+          "status": "open",
+          "created_at": "2026-11-25T01:37:43.436656+00:00",
+          "summary": "{\"doc_id\":\"doc-impact\",\"impact_reason\":\"access_revoked\",\"target_id\":\"impacted-pack\",\"target_type\":\"evidence_pack\",\"version\":1}"
+        }
+      ]
+    },
+    {
+      "source": "browser context.request",
+      "path": "/kb-prod/v1/mcp",
+      "status": 200,
+      "cache_control": "no-store",
+      "json": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"status\": \"ok\", \"valid\": true, \"current_status\": \"valid\", \"latest_version\": 1, \"reanchor_status\": null, \"receipt\": {\"status\": \"consumed\", \"source_uri\": \"kb://org/m4-browser/doc/doc-published@1\", \"evidence_kind\": \"excerpt\", \"chunk_ids\": [], \"reason_code\": \"verified\", \"excerpt_hash\": \"ac202d573a3ce917f6c0eb7877cd209635ffac224901b16f390fe5aec60ed9d6\", \"consumer_type\": \"\", \"consumer_id\": \"\", \"used_by_stage\": \"\"}}"
+            }
+          ],
+          "structuredContent": {
+            "status": "ok",
+            "valid": true,
+            "current_status": "valid",
+            "latest_version": 1,
+            "reanchor_status": null,
+            "receipt": {
+              "status": "consumed",
+              "source_uri": "kb://org/m4-browser/doc/doc-published@1",
+              "evidence_kind": "excerpt",
+              "chunk_ids": [],
+              "reason_code": "verified",
+              "excerpt_hash": "ac202d573a3ce917f6c0eb7877cd209635ffac224901b16f390fe5aec60ed9d6",
+              "consumer_type": "",
+              "consumer_id": "",
+              "used_by_stage": ""
+            }
+          },
+          "isError": false
+        }
+      }
+    }
+  ],
+  "direct_browser_requests": [
+    {
+      "method": "GET",
+      "path": "/ui/demo/sign",
+      "status": 404,
+      "cache_control": "no-store",
+      "body": "{\"message\":\"Not found\"}",
+      "expected_http_negative": true
+    },
+    {
+      "method": "POST",
+      "path": "/ui/demo/sign",
+      "status": 404,
+      "cache_control": "no-store",
+      "body": "{\"message\":\"Not found\"}",
+      "expected_http_negative": true
+    },
+    {
+      "method": "GET",
+      "path": "/kb-prod/ui/demo/sign",
+      "status": 404,
+      "cache_control": "no-store",
+      "body": "{\"message\":\"Not found\"}",
+      "expected_http_negative": true
+    },
+    {
+      "method": "POST",
+      "path": "/kb-prod/ui/demo/sign",
+      "status": 404,
+      "cache_control": "no-store",
+      "body": "{\"message\":\"Not found\"}",
+      "expected_http_negative": true
+    },
+    {
+      "method": "GET",
+      "path": "/kb-prod/v1/kbs",
+      "phase": "after logout",
+      "status": 401,
+      "expected_http_negative": true
+    }
+  ],
+  "assertions": [
+    {
+      "name": "production UI has no demo identity controls",
+      "passed": true,
+      "at": "2026-11-25T09:37:47.279210+08:00"
+    },
+    {
+      "name": "authenticated two authorized spaces and cleared auth inputs",
+      "passed": true,
+      "at": "2026-11-25T09:37:47.415345+08:00"
+    },
+    {
+      "name": "authorized published document semantics",
+      "passed": true,
+      "at": "2026-11-25T09:37:47.548355+08:00"
+    },
+    {
+      "name": "published search evidence",
+      "passed": true,
+      "at": "2026-11-25T09:37:47.697289+08:00"
+    },
+    {
+      "name": "citation verified valid and current",
+      "passed": true,
+      "at": "2026-11-25T09:37:47.848164+08:00"
+    },
+    {
+      "name": "sealed pack and SHA256 digest",
+      "passed": true,
+      "at": "2026-11-25T09:37:47.994365+08:00"
+    },
+    {
+      "name": "revocation impact alert identifiers",
+      "passed": true,
+      "at": "2026-11-25T09:37:48.112601+08:00"
+    },
+    {
+      "name": "both browser signer paths GET POST fail closed no-store",
+      "passed": true,
+      "at": "2026-11-25T09:37:48.306987+08:00"
+    },
+    {
+      "name": "independent browser JSON response body positive and denied-query isolation",
+      "passed": true,
+      "at": "2026-11-25T09:37:48.325993+08:00"
+    },
+    {
+      "name": "all relevant content API JSON independently inspected with semantics and no forbidden plaintext",
+      "passed": true,
+      "at": "2026-11-25T09:37:48.363303+08:00"
+    },
+    {
+      "name": "genuine logout clears UI cookie and authorization",
+      "passed": true,
+      "at": "2026-11-25T09:37:48.424115+08:00"
+    },
+    {
+      "name": "all required same-origin page responses200 no-store; content JSON independently inspected via browser request context",
+      "passed": true,
+      "at": "2026-11-25T09:37:48.424391+08:00"
+    }
+  ],
+  "logout_settled_at": "2026-11-25T09:37:48.424398+08:00",
+  "capture_finished_after_logout_and_context_close": "2026-11-25T09:37:48.433465+08:00",
+  "passed": true
+}

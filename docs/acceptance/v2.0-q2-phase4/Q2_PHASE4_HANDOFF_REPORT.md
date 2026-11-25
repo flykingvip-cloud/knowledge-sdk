@@ -1,4 +1,4 @@
-# Q2-M4 handoff — implementation delivered; browser verified, full L4 / external gates OPEN
+# Q2-M4 handoff — core delivered, L4 hard requirements PASS; Q2 exit HOLD
 
 2026-11-25, Asia/Shanghai (UTC+8).
 
@@ -15,12 +15,16 @@
 - The taskbook's M3 architect acceptance conclusion is **owner-supplied**, not an
   independent architect audit performed by this executor. Its supplied B05
   closure is recorded in ENTERPRISE_READINESS_PACKAGE.md. Current M4 L5 and
-  enterprise production-admission review remain pending.
+  enterprise production-admission review remain pending. The parent reports
+  independent M4 core acceptance before this L4 closeout; this is supplied context,
+  not an architect review performed by the implementation executor.
 - Runtime implementation commit: `3f3674f`; tests `3ffcb41`; initial evidence
-  `c259561`. No runtime source changed during final browser integration. Normal
+  `c259561`; scoped browser evidence `84f796c`; successful hosted L4 tested source
+  `1186b066e984c29fa347bdd946fdc63ecb50e950`. No product runtime source changed during either browser integration; final
+  evidence-only SHA is NOT the source SHA tested by CI. Normal
   publication of the feature branch is authorized; exact post-commit local and
   remote SHA verification is recorded in the executor final response and
-  `/workspace/knowledge-sdk-q2m4-artifacts/publication-receipt.json`, avoiding a
+  `/workspace/knowledge-sdk-q2m4-artifacts/l4-ci-publication-receipt.json`, avoiding a
   self-referential commit hash in this report.
 
 ## 2. Implementation
@@ -65,7 +69,7 @@
 | Adversarial contracts | **46 focused tests**, including real dual-engine coverage, actual RSA/ECDSA, independent PG connections, migration rollback, RLS, atomic connector/SCIM failure | security-adversarial.log |
 | Concurrency / performance | 4 independent connections, 40 distinct generation increments; 4 workers, 80 outbox events, **0 duplicate claims**, no deadlock. Small local keyword microbenchmark only | performance.json |
 | DR v4 | Real pg_dump/pg_restore, all-table row/hash fingerprints equal; directory/group/cursor restored; interrupted migration rollback + repeat apply pass | dr-v4.json |
-| L4 | **BROWSER INTERACTION VERIFIED; full L4 PARTIAL/OPEN**. Both engines passed scoped auth/content/citation/pack/alerts/DOM assertions; captured phases 0 console/page/request errors. Headless and browser signer/body assertions unmeasured | l4-browser.md, supplied observations/screenshots |
+| L4 | **PASS four hard requirements**. Independent hosted Chromium headless runtime audit; two fresh context IDs; browser signer404 and content JSON inspection; continuous pre-navigation→logout/context-close zero console/page/requestfailed | l4-browser.md, l4-ci-run/ |
 | L5 / enterprise | **PENDING_INDEPENDENT / PENDING_EXTERNAL** | ENTERPRISE_READINESS_PACKAGE.md |
 
 The three full-dependency skips are explicitly live Qdrant/real embedding tests;
@@ -75,30 +79,44 @@ Python 3.9 validation is AST compatibility, not an actual Python 3.9 runtime run
 Wheel verification is RECORD/content hashing and smoke testing, not external
 artifact-signing/provenance certification.
 
-## 4. Actual browser integration and infrastructure shutdown
+## 4. Actual independent hosted headless L4 — PASS
 
-Parent sanctioned computerUse ran browser_run_code + browser_take_screenshot on
-both nginx-backed engines, 2026-11-25 beginning08:54:37, PG authentication
-08:55:58 and subsequent captures, Asia/Shanghai.
-Full measured results/caveats and screenshot hashes: l4-browser.md and
-l4-evidence-manifest.json. Authentication used the legitimate app session boundary,
-not demo bypass. Sanitized images and supplied observation summaries are committed.
+Run https://github.com/flykingvip-cloud/knowledge-sdk/actions/runs/45526947873
+completed SUCCESS, including all job steps and service teardown. Tested SOURCE:
+1186b066e984c29fa347bdd946fdc63ecb50e950. Final docs-only commit was not tested.
+GitHub-hosted Ubuntu24.04/Python3.12; Playwright1.56.0, actual HeadlessChrome
+141.0.7390.37 --headless runtime metadata/process args; two distinct fresh browser
+context IDs/empty starting storage. SQLite and real PG16+pgvector0.8.7, non-superuser
+NOSUPERUSER/NOBYPASSRLS, real nginx prefix and production-mode test-key OIDC auth.
 
-Headless runtime is UNVERIFIED; fresh contexts unavailable (SQLite signed out
-before PG). Browser direct signer status and independent API response-body leakage
-remain UNMEASURED. The first SQLite navigation/signout wrapper had capture gaps;
-signout wrapper waited for wrong text although UI showed Signed out. Zero error
-counts apply only to captured phases. No full L4 pass is claimed. The reproducible
-headless recipe remains NONEXECUTED by this executor. Separate HTTP-only signer
-GET/POST404/no-store and prior authenticated JSON leakage assertions are L3 only.
+2026-11-25 Asia/Shanghai: SQLite capture09:37:46.714–09:37:48.433;
+PG09:37:48.434–09:37:50.297. Each passed12 grouped assertions, eight independently
+inspected browser-context content JSON bodies, four direct signer404 responses
+(GET/POST on both paths), genuine UI logout and subsequent401. All12 page
+responses per engine were200/no-store. All console messages captured; console
+errors0/pageerrors0/requestfailed0 continuously before initial app navigation
+through logout/networkidle/context close. Expected direct API HTTP negatives are
+separate recorded responses, never suppressed page errors or transport failures.
 
-All owned services stopped: backends1224980/1224985, nginx1207307/1207308 and
-PG1198914. Before PG stop, zero other client connections and zero sdk_test_* schemas
-were verified after removing three residual disposable schemas owned by sdk_m4.
-All five PIDs are absent; ports19474/19475/18474/18475/55474 have no listener;
-postmaster.pid absent. See infrastructure-shutdown.json. No unrelated service,
-production/demo data or prohibited port was touched. Fixture URLs/token files in
-browser-fixtures.json are historical, not live invitations to reuse sessions.
+See l4-browser.md for exact four proofs/definitions, screenshots/DOM/JSON/network
+logs, response-body scope, verified original artifact digest and reproducibility.
+Artifacts/run metadata/job logs: l4-ci-run/. Persistent original archive and all
+three runs: /workspace/knowledge-sdk-q2m4-artifacts/ci-45526947873* and
+ci-45525909492*/ci-45526254425*. Two earlier actual failures (CSP string-eval
+harness error; bounded page logout Response.json wait) are retained transparently
+in l4-ci-attempts/. Application CSP/security was not weakened. Older managed
+browser partial evidence is preserved as historical, not relabelled headless.
+
+Relevant strict-ResourceWarning enterprise regression CI:46/46 passed. No product
+source changes; prior full/dual100/legacy75 results remain measured prior evidence,
+not newly rerun claims. Generic existing tests.yml still has the unrelated
+Python3.9/ubuntu-latest26.04 setup failure; do not call all repository CI green.
+
+All owned box services remain stopped; none restarted. CI summary proves owned
+processes stopped, zero other application connections and zero test schemas;
+GitHub confirms service container/network removed. No browser automation ran on
+the box, no self-hosted/paid runner, new secrets, billing/permission changes, or
+unrelated production services/data were used.
 
 ## 5. Enterprise package and remaining gates
 
@@ -106,8 +124,8 @@ ENTERPRISE_READINESS_PACKAGE.md contains STRIDE mapping, ten tested security
 invariants, measured performance/concurrency, DR evidence and open limits.
 Integration/configuration/API caveats are in docs/enterprise-identity-connectors.md.
 
-**Q2 exit is NOT approved.** Required confirmed-headless and unmeasured browser evidence,
-independent M4 review and at least one real enterprise team's admission approval
+**Q2 exit is HOLD, NOT approved.** L4 hard requirements now pass; final
+independent M4/L5 review and at least one real enterprise team's admission approval
 are not replaced by this package or by the supplied M3 architect conclusion.
 No production IdP, external SCIM certification, production topology, real PDF/OCR
 or external Claude Desktop/Cursor ten-minute onboarding has been asserted.
@@ -124,8 +142,7 @@ legacy byte/hash preservation is rechecked before commit. Normal push of this
 feature branch is followed by exact remote SHA comparison. No main merge, PR,
 tag, release, deployment or force-push is permitted.
 
-Remaining: demonstrated headless runtime and exact unmeasured browser assertions
-listed in l4-browser.md, independent M4/L5 review and at least one actual enterprise
+Remaining: final independent M4/L5 review and at least one actual enterprise
 security/architecture production-admission approval. The owner-supplied M3
 conclusion and this readiness package do not satisfy those gates. Strategy v0.2
 remains missing. Q1 live external boundaries remain as listed above.

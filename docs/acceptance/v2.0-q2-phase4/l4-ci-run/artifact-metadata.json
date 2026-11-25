@@ -1,0 +1,25 @@
+{
+  "total_count": 1,
+  "artifacts": [
+    {
+      "id": 14983845263,
+      "node_id": "MDg6QXJ0aWZhY3QxNDk4Mzg0NTI2Mw==",
+      "name": "q2-m4-l4-1186b066e984c29fa347bdd946fdc63ecb50e950-1",
+      "size_in_bytes": 638122,
+      "url": "https://api.github.com/repos/flykingvip-cloud/knowledge-sdk/actions/artifacts/14983845263",
+      "archive_download_url": "https://api.github.com/repos/flykingvip-cloud/knowledge-sdk/actions/artifacts/14983845263/zip",
+      "expired": false,
+      "digest": "sha256:02ff6ab56ff999f1e0104fa0d1dd45f67e14adf84db70603b1426df3d0e51d32",
+      "created_at": "2026-11-25T01:37:52Z",
+      "updated_at": "2026-11-25T01:37:52Z",
+      "expires_at": "2026-12-02T01:37:50Z",
+      "workflow_run": {
+        "id": 45526947873,
+        "repository_id": 1468793327,
+        "head_repository_id": 1468793327,
+        "head_branch": "feat/q2-phase4-oidc-scim-connectors",
+        "head_sha": "1186b066e984c29fa347bdd946fdc63ecb50e950"
+      }
+    }
+  ]
+}

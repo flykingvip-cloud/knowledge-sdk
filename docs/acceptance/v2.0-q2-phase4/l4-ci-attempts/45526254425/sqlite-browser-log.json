@@ -1,0 +1,191 @@
+{
+  "engine": "sqlite",
+  "capture_started_before_navigation": "2026-11-25T09:32:01.340197+08:00",
+  "console": [],
+  "page_errors": [],
+  "requestfailed": [],
+  "responses": [],
+  "api_bodies": [
+    {
+      "source": "browser context.request",
+      "path": "/kb-prod/v1/search",
+      "query_kind": "published",
+      "json": {
+        "__type__": "SearchResponse",
+        "hits": [
+          {
+            "__type__": "SearchHit",
+            "doc_id": "doc-published",
+            "version": 1,
+            "chunk_id": "11f5d5287c40b8e7f9dcc71e43807e50",
+            "title": "document.txt",
+            "score": 0.01639344262295082,
+            "excerpt": "alpha APPROVED_PUBLIC_MARKER verified evidence",
+            "excerpt_hash": "ac202d573a3ce917f6c0eb7877cd209635ffac224901b16f390fe5aec60ed9d6",
+            "source_uri": "kb://org/m4-browser/doc/doc-published@1#chunk=11f5d5287c40b8e7f9dcc71e43807e50",
+            "truncated": false,
+            "remaining_chars": 0,
+            "partial_notice": "",
+            "masking_summary": "",
+            "highlights": [
+              [
+                0,
+                5
+              ]
+            ]
+          }
+        ],
+        "mode": "keyword",
+        "candidate_budget_exhausted": false
+      }
+    },
+    {
+      "source": "browser context.request",
+      "path": "/kb-prod/v1/search",
+      "query_kind": "denied fixture query",
+      "json": {
+        "__type__": "SearchResponse",
+        "hits": [
+          {
+            "__type__": "SearchHit",
+            "doc_id": "doc-published",
+            "version": 1,
+            "chunk_id": "11f5d5287c40b8e7f9dcc71e43807e50",
+            "title": "document.txt",
+            "score": 0.01639344262295082,
+            "excerpt": "alpha APPROVED_PUBLIC_MARKER verified evidence",
+            "excerpt_hash": "ac202d573a3ce917f6c0eb7877cd209635ffac224901b16f390fe5aec60ed9d6",
+            "source_uri": "kb://org/m4-browser/doc/doc-published@1#chunk=11f5d5287c40b8e7f9dcc71e43807e50",
+            "truncated": false,
+            "remaining_chars": 0,
+            "partial_notice": "",
+            "masking_summary": "",
+            "highlights": [
+              [
+                22,
+                28
+              ]
+            ]
+          }
+        ],
+        "mode": "keyword",
+        "candidate_budget_exhausted": false
+      }
+    },
+    {
+      "source": "browser context.request",
+      "path": "/kb-prod/v1/search",
+      "query_kind": "denied fixture query",
+      "json": {
+        "__type__": "SearchResponse",
+        "hits": [
+          {
+            "__type__": "SearchHit",
+            "doc_id": "doc-published",
+            "version": 1,
+            "chunk_id": "11f5d5287c40b8e7f9dcc71e43807e50",
+            "title": "document.txt",
+            "score": 0.01639344262295082,
+            "excerpt": "alpha APPROVED_PUBLIC_MARKER verified evidence",
+            "excerpt_hash": "ac202d573a3ce917f6c0eb7877cd209635ffac224901b16f390fe5aec60ed9d6",
+            "source_uri": "kb://org/m4-browser/doc/doc-published@1#chunk=11f5d5287c40b8e7f9dcc71e43807e50",
+            "truncated": false,
+            "remaining_chars": 0,
+            "partial_notice": "",
+            "masking_summary": "",
+            "highlights": [
+              [
+                22,
+                28
+              ]
+            ]
+          }
+        ],
+        "mode": "keyword",
+        "candidate_budget_exhausted": false
+      }
+    }
+  ],
+  "direct_browser_requests": [
+    {
+      "method": "GET",
+      "path": "/ui/demo/sign",
+      "status": 404,
+      "cache_control": "no-store",
+      "body": "{\"message\":\"Not found\"}",
+      "expected_http_negative": true
+    },
+    {
+      "method": "POST",
+      "path": "/ui/demo/sign",
+      "status": 404,
+      "cache_control": "no-store",
+      "body": "{\"message\":\"Not found\"}",
+      "expected_http_negative": true
+    },
+    {
+      "method": "GET",
+      "path": "/kb-prod/ui/demo/sign",
+      "status": 404,
+      "cache_control": "no-store",
+      "body": "{\"message\":\"Not found\"}",
+      "expected_http_negative": true
+    },
+    {
+      "method": "POST",
+      "path": "/kb-prod/ui/demo/sign",
+      "status": 404,
+      "cache_control": "no-store",
+      "body": "{\"message\":\"Not found\"}",
+      "expected_http_negative": true
+    }
+  ],
+  "assertions": [
+    {
+      "name": "production UI has no demo identity controls",
+      "passed": true,
+      "at": "2026-11-25T09:32:01.911947+08:00"
+    },
+    {
+      "name": "authenticated two authorized spaces and cleared auth inputs",
+      "passed": true,
+      "at": "2026-11-25T09:32:02.045241+08:00"
+    },
+    {
+      "name": "authorized published document semantics",
+      "passed": true,
+      "at": "2026-11-25T09:32:02.175452+08:00"
+    },
+    {
+      "name": "published search evidence",
+      "passed": true,
+      "at": "2026-11-25T09:32:02.323393+08:00"
+    },
+    {
+      "name": "citation verified valid and current",
+      "passed": true,
+      "at": "2026-11-25T09:32:02.474382+08:00"
+    },
+    {
+      "name": "sealed pack and SHA256 digest",
+      "passed": true,
+      "at": "2026-11-25T09:32:02.625155+08:00"
+    },
+    {
+      "name": "revocation impact alert identifiers",
+      "passed": true,
+      "at": "2026-11-25T09:32:02.739268+08:00"
+    },
+    {
+      "name": "both browser signer paths GET POST fail closed no-store",
+      "passed": true,
+      "at": "2026-11-25T09:32:02.938339+08:00"
+    },
+    {
+      "name": "independent browser JSON response body positive and denied-query isolation",
+      "passed": true,
+      "at": "2026-11-25T09:32:02.957783+08:00"
+    }
+  ],
+  "capture_finished_after_logout_and_context_close": "2026-11-25T09:34:59.357780+08:00"
+}

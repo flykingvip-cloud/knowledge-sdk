@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "source_sha": "1186b066e984c29fa347bdd946fdc63ecb50e950",
+  "started_at": "2026-11-25T09:37:43.100313+08:00",
+  "postgres": {
+    "application_role_superuser": false,
+    "application_role_bypassrls": false,
+    "pgvector_version": "0.8.7"
+  },
+  "run_url": "https://github.com/flykingvip-cloud/knowledge-sdk/actions/runs/45526947873",
+  "engines": [
+    {
+      "engine": "sqlite",
+      "passed": true,
+      "assertions": 12,
+      "console_errors": 0,
+      "page_errors": 0,
+      "requestfailed": 0,
+      "expected_direct_http_negatives": 5,
+      "capture_started": "2026-11-25T09:37:46.714931+08:00",
+      "capture_finished": "2026-11-25T09:37:48.433465+08:00"
+    },
+    {
+      "engine": "postgres",
+      "passed": true,
+      "assertions": 12,
+      "console_errors": 0,
+      "page_errors": 0,
+      "requestfailed": 0,
+      "expected_direct_http_negatives": 5,
+      "capture_started": "2026-11-25T09:37:48.434489+08:00",
+      "capture_finished": "2026-11-25T09:37:50.297533+08:00"
+    }
+  ],
+  "headless": true,
+  "independent_new_browser_contexts": true,
+  "all_four_hard_requirements": true,
+  "implicit_model_calls": 0,
+  "definition": "page console/error/requestfailed capture begins before initial application goto and remains attached through logout networkidle/context close; expected direct APIRequestContext403/404/401 are separately recorded HTTP responses, never excluded page events.",
+  "cleanup": {
+    "other_client_connections": 0,
+    "remaining_test_schemas": 0,
+    "removed_disposable_schemas": 1
+  },
+  "owned_processes_stopped": true,
+  "finished_at": "2026-11-25T09:37:50.716641+08:00"
+}

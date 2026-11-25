@@ -1,0 +1,21 @@
+{
+  "passed": false,
+  "source_sha": "fc221ec41a382035276554ea7cb39f7c4469ce80",
+  "started_at": "2026-11-25T09:28:56.882845+08:00",
+  "postgres": {
+    "application_role_superuser": false,
+    "application_role_bypassrls": false,
+    "pgvector_version": "0.8.7"
+  },
+  "failure": {
+    "type": "Error",
+    "message": "Page.wait_for_function: EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: \"script-src 'self'\".\n\n    at eval (<anonymous>)\n    at predicate (eval at evaluate (:290:30), <anonymous>:4:56)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)"
+  },
+  "cleanup": {
+    "other_client_connections": 0,
+    "remaining_test_schemas": 0,
+    "removed_disposable_schemas": 1
+  },
+  "owned_processes_stopped": true,
+  "finished_at": "2026-11-25T09:29:01.617625+08:00"
+}

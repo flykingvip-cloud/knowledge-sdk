@@ -1,0 +1,23 @@
+{
+  "engine": "sqlite",
+  "capture_started_before_navigation": "2026-11-25T09:29:00.581413+08:00",
+  "console": [],
+  "page_errors": [
+    {
+      "error": "Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: \"script-src 'self'\".\n",
+      "at": "2026-11-25T09:29:01.163983+08:00"
+    }
+  ],
+  "requestfailed": [],
+  "responses": [],
+  "api_bodies": [],
+  "direct_browser_requests": [],
+  "assertions": [
+    {
+      "name": "production UI has no demo identity controls",
+      "passed": true,
+      "at": "2026-11-25T09:29:01.141318+08:00"
+    }
+  ],
+  "capture_finished_after_logout_and_context_close": "2026-11-25T09:29:01.171874+08:00"
+}

@@ -2,9 +2,10 @@
 
 **Prepared for review, not enterprise approval.** Test keys only; no production
 IdP or enterprise security team has approved this branch. Q2 exit remains OPEN.
-Real sanctioned browser interaction is VERIFIED on both engines; full L4 is
-PARTIAL/OPEN: headless modality and specified browser-only assertions remain
-unmeasured. See l4-browser.md for exact scope and caveats. No merge/tag/release/deployment.
+L4 four hard requirements now PASS in an actual independent GitHub-hosted
+headless run on both engines, source1186b06, run45526947873. See l4-browser.md
+and l4-ci-run/ for runtime flags/context IDs/browser JSON and continuous logs.
+This closes the previously unmeasured L4 assertions, not external Q2 gates. No merge/tag/release/deployment.
 
 ## Scope and provenance
 
@@ -13,8 +14,9 @@ Its M3 architect conclusion (L1 523 pass/0 failure/0 ResourceWarning, full 721
 pass, dual 75/75, 19 dual-engine M3 safety contracts, signed HTTP/red-team
 acceptance and B05 closure) is **supplied**, not an independent architect audit
 performed by this executor. Current M4 tests are implementation self-verification;
-independent M4/L5 review and external enterprise production-admission approval
-are still required. `knowledgeos-strategy-architecture-v0.2.md` remains missing
+The parent now reports independent M4 core acceptance (supplied context, not
+a review performed by this executor). Final integrated M4/L5 signoff and external
+enterprise production-admission approval are still required. `knowledgeos-strategy-architecture-v0.2.md` remains missing
 from the supplied staged inputs/repository; no claim to have read it. The full
 M4 taskbook and Q2 core protocol v0.1 were read.
 
@@ -46,8 +48,9 @@ M4 taskbook and Q2 core protocol v0.1 were read.
 5. **No production identity downgrade or header elevation**: startup rejects
    dev_insecure/demo in oidc/dual; no client org/generation/actor override. Every
    route and error no-store. Demo signing 404 via real nginx HTTP preflight;
-   actual browser captured phases measured zero console/page/request errors and
-   specified DOM isolation; headless and browser signer/body checks remain OPEN.
+   actual independent headless browser run measured zero console/page/request
+   errors continuously before initial navigation through logout/context close;
+   both signer paths404 and independent content JSON isolation passed.
 6. **Authoritative immediate session revocation**: every actor-taking local
    operation, MCP entry, policy engine and HTTP reads current principal. Inactive
    or stale actor denied even with valid signed admin privileges. HMAC, JWT,
@@ -96,14 +99,20 @@ it; it is not the application RLS path or an arbitrary production backup service
 
 ## Open limits and external gates
 
-- L4 **BROWSER INTERACTION VERIFIED; PARTIAL/OPEN**. Parent sanctioned scripted
-  browser actions passed authentication, content/citation/pack/alerts and scoped
-  DOM checks on both engines; captured phases had zero console/page/request
-  errors. Headless runtime, fresh contexts and browser-only demo-status/API-body
-  inspection remain unverified/unmeasured; initial-navigation/signout capture
-  gaps are disclosed. HTTP-only evidence is not browser measurement. See
-  l4-browser.md and supplied sanitized artifacts. All owned test services stopped;
-  zero surviving connections/test schemas verified (infrastructure-shutdown.json).
+- L4 **PASS for four required isolated-fixture hard requirements**. GitHub-hosted
+  Ubuntu24.04, Chromium141.0.7390.37 runtime --headless proof; independent fresh
+  BrowserContexts; browser-owned GET/POST404 signer paths and eight independent
+  content JSON bodies per engine; zero console/page/requestfailed from before
+  initial navigation through logout/networkidle/context close. Run45526947873,
+  tested source1186b06. Expected direct HTTP404/401 are separately recorded, not
+  filtered page failures. Two failed prior CI harness runs are retained. This is
+  not enterprise production topology or external review. See l4-browser.md.
+- All owned box fixtures remain stopped. CI processes/connections/test schemas
+  cleaned, service container/network removed; passing job metadata/logs and
+  summary.json prove cleanup. No box browser was launched for this work.
+- Generic tests.yml has a pre-existing Python3.9/ubuntu-latest26.04 setup failure;
+  the independent L4 workflow uses ubuntu24.04/Python3.12 and passed46 enterprise
+  regression tests. It does not turn the separate legacy workflow green.
 - At least one real enterprise security/architecture team's production-admission
   review remains **PENDING_EXTERNAL**; this package is only an input to review.
 - Real enterprise IdP registration, live JWKS rotation/availability/SSO operational

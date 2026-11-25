@@ -1,0 +1,18 @@
+[
+  {
+    "run_id": 45525909492,
+    "source_sha": "fc221ec41a382035276554ea7cb39f7c4469ce80",
+    "conclusion": "failure",
+    "url": "https://github.com/flykingvip-cloud/knowledge-sdk/actions/runs/45525909492",
+    "reason": "Harness string-eval polling violated unchanged production CSP; actual pageerror retained. Fixed with locator assertions, no CSP bypass.",
+    "persistent_full_job_log": "/workspace/knowledge-sdk-q2m4-artifacts/ci-45525909492-job.log"
+  },
+  {
+    "run_id": 45526254425,
+    "source_sha": "e025ff559bc0aab59f500cb1863f84c711991bf8",
+    "conclusion": "failure",
+    "url": "https://github.com/flykingvip-cloud/knowledge-sdk/actions/runs/45526254425",
+    "reason": "180s bounded wait expired while reading page logout Response.json. Retained failure; changed to browser-context API JSON inspection for all content resources and genuine UI/cookie/authorization logout assertions.",
+    "persistent_full_job_log": "/workspace/knowledge-sdk-q2m4-artifacts/ci-45526254425-job.log"
+  }
+]
