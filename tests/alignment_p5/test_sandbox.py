@@ -79,6 +79,13 @@ class FixtureCases:
             secret=(self.root/'secrets/hmac').read_text().strip()
             with m.live(create_app(c,auth_secret=secret,enable_ui=False,enable_mcp=True)) as base:
                 result=probe(base,self.root/'secrets/hmac');self.assertGreaterEqual(result['assertion_groups'],15)
+            # Lifecycle-only unit: real signed wire checks above remain unmocked.
+            # Replay store has per-call connections and deliberately no close().
+            from unittest.mock import patch
+            serve=load('serve_sandbox')
+            with patch.object(serve,'connect',return_value=c),patch.object(c.store,'close',wraps=c.store.close) as close,patch('uvicorn.run'):
+                serve.main(self.data,self.root/'secrets/hmac',self.mode);close.assert_called_once_with()
+
         finally:c.store.close()
 class SQLiteSandbox(FixtureCases,unittest.TestCase):pass
 @unittest.skipUnless(os.environ.get('KNOWLEDGE_SDK_SANDBOX_TEST_DSN'),'Owned non-superuser fixture database not configured')
