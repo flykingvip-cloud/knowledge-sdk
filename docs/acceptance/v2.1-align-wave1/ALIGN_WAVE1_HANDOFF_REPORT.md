@@ -120,16 +120,23 @@ physical-readonly assertions were also separately rerun after the full suite.
 2. Local Docker CLI/daemon/build tools absent: local status BUILD_NOT_RUN.
    Actual isolated CI image build/run is separately evidenced; never relabel a
    static check as an actual local build. No existing containers/network altered.
-3. Three online-Qdrant tests intentionally skip; no live model/vector provider,
+3. Source run45555859161 cancelled during its remaining3.12 golden stage;
+   run45557895042 reached a real image build but failed on an uncaught transient
+   ConnectionResetError before readiness. The sibling3.9 job was cancelled by
+   matrix fail-fast. ci-container-startup-correction.json records the correction:
+   bounded retry, unchanged real readiness/wire assertions, and independent matrix
+   execution so a failed job cannot cancel remaining coverage. Neither run is
+   claimed four-job green. The final receipt must verify the corrected run.
+4. Three online-Qdrant tests intentionally skip; no live model/vector provider,
    paid calls or online quality/generalization claims. Optional pytest may report
    a FastAPI/Starlette deprecation warning; ResourceWarning gate remains strict.
-4. Q3-M2 independent review remains historically pending. Owner t54u accepted
+5. Q3-M2 independent review remains historically pending. Owner t54u accepted
    M1 assumptions, NOT an invented M2 or M1 cross-repository joint freeze.
-5. Package metadata1.2.0 vs annotated v2.0.0 tag is known historical DRIFT,
+6. Package metadata1.2.0 vs annotated v2.0.0 tag is known historical DRIFT,
    unchanged by order. Upper strategy/protocol environment copies remain absent;
    supplied alignment sources are complete and preserved, not replaced by claims
    about inaccessible Governance Workbench publications.
-6. No UI changes: L4 draft-asset/safety self-check only; NO_UI_CHANGES and
+7. No UI changes: L4 draft-asset/safety self-check only; NO_UI_CHANGES and
    NOT_RUN_NO_UI_CHANGES. No browser run performed; historical Q2 browser evidence
    is historical only. No v2 runtime/purge/schema6/physical jobs/Claim/graph/B09.
 

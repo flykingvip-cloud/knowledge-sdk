@@ -4,6 +4,18 @@ import argparse,json,subprocess,tempfile,secrets,shutil,uuid,time,threading
 from pathlib import Path
 from urllib.request import urlopen,Request
 from urllib.error import URLError,HTTPError
+from http.client import HTTPException
+
+
+def wait_ready(base_url,attempts=100,pause=.1):
+    """Docker may accept/reset TCP before uvicorn is listening; readiness is real."""
+    for _ in range(attempts):
+        try:
+            with urlopen(base_url+'/v1/ready',timeout=1) as response:
+                if response.status==200 and json.load(response)=={'status':'ready'}:return True
+        except (OSError,HTTPException,json.JSONDecodeError):pass
+        threading.Event().wait(pause)
+    return False
 
 
 def run(output,required=False):
@@ -29,14 +41,8 @@ def run(output,required=False):
             Path(directory).chmod(0o755)
             command(['run','--detach','--name',name,'--label','knowledge-sdk-owned-fixture='+identity,'--read-only','--cap-drop=ALL','--security-opt','no-new-privileges','--memory','512m','--cpus','2','--pids-limit','128','--tmpfs','/data:uid=65532,gid=65532,mode=0700','--tmpfs','/tmp:uid=65532,gid=65532,mode=0700','--mount','type=bind,src='+str(file)+',dst=/run/secrets/knowledge_auth_secret,readonly','--publish','127.0.0.1::8088',tag]);created=True
             port=int(command(['port',name,'8088/tcp']).stdout.strip().rsplit(':',1)[1]);assert port not in (3000,3001,8000,8002,8090,8091)
-            base_url='http://127.0.0.1:'+str(port);ready=False
-            for _ in range(100):
-                try:
-                    with urlopen(base_url+'/v1/ready',timeout=1) as response:ready=response.status==200 and json.load(response)=={'status':'ready'}
-                    if ready:break
-                except (URLError,HTTPError):pass
-                threading.Event().wait(.1)
-            assert ready
+            base_url='http://127.0.0.1:'+str(port)
+            assert wait_ready(base_url),'Container did not reach real schema-v5 readiness'
             from knowledge_sdk import Actor,HttpKnowledgeClient
             from knowledge_sdk.server.auth import signed_headers
             a=Actor('container-test','container-test',org_roles=('admin','metrics_admin'));h=HttpKnowledgeClient(base_url,secret)
@@ -51,9 +57,17 @@ def run(output,required=False):
         result={'status':'ACTUAL_ISOLATED_BUILD_RUN_PASSED','base_image_digest':base,'nonroot_uid_gid':'65532:65532','read_only_rootfs':True,'capabilities_dropped':True,'memory_limit_mb':512,'cpus':2,'pids_limit':128,'health_ready':True,'signed_v1_compat':True,'mcp_four_tools':True,'authenticated_metrics_no_store':True,'published':False,'production_deployment':False}
         (output/'docker-status.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result));return result
     finally:
-        if created:
-            command(['stop','--time','5',name]);command(['rm',name])
-        if built:command(['rmi',tag])
+        try:
+            if created:
+                try:
+                    # Diagnostic failure must never skip owned-resource cleanup.
+                    logs=command(['logs',name]);safe=(logs.stdout+logs.stderr).replace(secret,'[REDACTED_FIXTURE_SECRET]')
+                    (output/'docker-runtime.log').write_text(safe)
+                finally:
+                    try:command(['stop','--time','5',name])
+                    finally:command(['rm',name])
+        finally:
+            if built:command(['rmi',tag])
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--output',required=True);p.add_argument('--require',action='store_true');a=p.parse_args();run(a.output,a.require)

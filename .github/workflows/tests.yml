@@ -8,6 +8,7 @@ jobs:
   core:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - python: '3.9'
@@ -42,6 +43,7 @@ jobs:
       PYTHONPATH: src:.
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - python: '3.9'

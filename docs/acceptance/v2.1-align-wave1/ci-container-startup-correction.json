@@ -1,0 +1,12 @@
+{
+  "run": 45557895042,
+  "source_sha": "a1c3789cffee1870fb74ae57f8334f37c6dd9c8f",
+  "result": "FAILED_DOCKER_STARTUP_PROBE_NOT_ALL_GREEN",
+  "job": 139014291463,
+  "real_image_build_completed": true,
+  "runtime_readiness_not_verified": true,
+  "failure": "ConnectionResetError from first startup polling connection, not caught by old URLError-only readiness retry",
+  "correction": "Bounded startup retries cover transient socket/HTTP startup exceptions, still require actual status200 schema-v5 ready JSON and all subsequent signed v1/MCP/metrics assertions; persistent failures still fail",
+  "regression_proof": "docker-startup-readiness-regression.log",
+  "matrix_failfast": "Previously cancelled sibling3.9 after Dockerfailure. Disabled fail-fast scheduling only so all original tests continue; failure gates unchanged."
+}

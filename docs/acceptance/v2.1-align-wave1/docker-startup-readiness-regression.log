@@ -1,0 +1,1 @@
+{"transient_reset_retries_then_requires_actual_ready_payload": true, "permanent_reset_still_fails_bounded": true, "unittest_mock_only_not_a_Docker_pass_claim": true}
