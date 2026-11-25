@@ -91,7 +91,7 @@ jobs:
           python -m tests.benchmark.runner --engine postgres --legacy75 --json
           python -m tests.benchmark.runner --engine postgres --legacy100 --json
       - run: python docs/architecture/knowledge-sdk-alignment/contracts/validate_assets.py
-      - run: python docs/acceptance/v2.1-align-wave1/verify_package.py dist/*.whl
+      - run: python docs/acceptance/v2.1-align-wave1p5/verify_package.py dist/*.whl
       - run: python docs/architecture/knowledge-sdk-alignment/validate_m1_manifest.py
       - uses: actions/setup-node@v4
         with:
