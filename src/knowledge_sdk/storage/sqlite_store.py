@@ -18,7 +18,9 @@ def tokens(text):
             else: out.append(part)
     return list(dict.fromkeys(out))
 
-class SQLiteStore:
+from .runtime import RuntimeStoreMixin
+
+class SQLiteStore(RuntimeStoreMixin):
     """Single-connection, serialized transactions; SQLite remains authoritative."""
     def __init__(self,path=":memory:"):
         self.lock=threading.RLock()
@@ -26,7 +28,7 @@ class SQLiteStore:
         try:
             self.db.execute("PRAGMA foreign_keys=ON");self.db.execute("PRAGMA busy_timeout=5000")
             schema=self.db.execute("PRAGMA user_version").fetchone()[0]
-            if schema not in (0,1,2,3,4):raise ConflictError("Unsupported database schema version")
+            if schema not in (0,1,2,3,4,5):raise ConflictError("Unsupported database schema version")
             if schema<2:
                 with self.transaction():
                     for statement in self._BASE_SCHEMA.split(';'):
@@ -48,12 +50,19 @@ class SQLiteStore:
                     for statement in self._V4_SCHEMA.split(';'):
                         if statement.strip():self.db.execute(statement)
                     self.db.execute("PRAGMA user_version=4")
+            if schema<5:
+                with self.transaction():
+                    for statement in (self._V5_SCHEMA+"CREATE INDEX IF NOT EXISTS idx_task_ctx_org_agent_status ON task_contexts(org_id,agent_id,status);").split(';'):
+                        if statement.strip():self.db.execute(statement)
+                    self.db.execute("PRAGMA user_version=5")
             if self.db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='review_decisions'").fetchone():
                 self.db.execute("CREATE TRIGGER IF NOT EXISTS review_no_update BEFORE UPDATE ON review_decisions BEGIN SELECT RAISE(ABORT,'Append-only reviews'); END")
                 self.db.execute("CREATE TRIGGER IF NOT EXISTS review_no_delete BEFORE DELETE ON review_decisions BEGIN SELECT RAISE(ABORT,'Append-only reviews'); END")
             self.db.execute("PRAGMA journal_mode=WAL")
         except BaseException:
             self.db.close();raise
+
+    _V5_SCHEMA="CREATE TABLE IF NOT EXISTS agent_profiles (\norg_id TEXT NOT NULL,\nagent_id TEXT NOT NULL,\ndisplay_name TEXT NOT NULL DEFAULT '',\nallowed_purposes_json TEXT NOT NULL,\nallowed_kb_ids_json TEXT NOT NULL DEFAULT '[]',\nallowed_space_types_json TEXT NOT NULL DEFAULT '[]',\nmax_clearance_level TEXT NOT NULL DEFAULT 'internal',\ndefault_budget_json TEXT NOT NULL,\nactive INTEGER NOT NULL DEFAULT 1,\nprofile_generation INTEGER NOT NULL DEFAULT 1,\nupdated_at TEXT NOT NULL,\ndata TEXT NOT NULL,\nPRIMARY KEY(org_id, agent_id)\n);\n\nCREATE TABLE IF NOT EXISTS task_contexts (\ntask_id TEXT PRIMARY KEY,\norg_id TEXT NOT NULL,\nactor_id TEXT NOT NULL,\nagent_id TEXT NOT NULL,\npurpose TEXT NOT NULL,\npolicy_generation INTEGER NOT NULL,\nprofile_generation INTEGER NOT NULL DEFAULT 1,\nscope_json TEXT NOT NULL DEFAULT '{}',\nbudget_json TEXT NOT NULL,\nstatus TEXT NOT NULL DEFAULT 'active',\nrevoked_reason TEXT NOT NULL DEFAULT '',\nrevoked_at TEXT NOT NULL DEFAULT '',\nexpires_at TEXT NOT NULL,\ncreated_at TEXT NOT NULL,\nupdated_at TEXT NOT NULL,\ndata TEXT NOT NULL\n);\nCREATE INDEX IF NOT EXISTS idx_task_ctx_org_actor_status\nON task_contexts(org_id, actor_id, status, updated_at);\n\nCREATE TABLE IF NOT EXISTS context_snapshots (\nsnapshot_id TEXT PRIMARY KEY,\ntask_id TEXT NOT NULL,\norg_id TEXT NOT NULL,\nsnapshot_seq INTEGER NOT NULL,\nitem_count INTEGER NOT NULL DEFAULT 0,\ntotal_chars INTEGER NOT NULL DEFAULT 0,\nsnapshot_sha256 TEXT NOT NULL,\nstatus TEXT NOT NULL DEFAULT 'valid',\ncreated_at TEXT NOT NULL,\ndata TEXT NOT NULL,\nUNIQUE(org_id, task_id, snapshot_seq)\n);\nCREATE INDEX IF NOT EXISTS idx_ctx_snap_task\nON context_snapshots(org_id, task_id, status);\n\nCREATE TABLE IF NOT EXISTS task_revocations (\nrevocation_id TEXT PRIMARY KEY,\norg_id TEXT NOT NULL,\ntask_id TEXT NOT NULL,\nsnapshot_id TEXT NOT NULL DEFAULT '',\ntrigger_event_id TEXT NOT NULL DEFAULT '',\nreason_code TEXT NOT NULL,\naffected_doc_id TEXT NOT NULL DEFAULT '',\naffected_version INTEGER NOT NULL DEFAULT 0,\naffected_anchor_id TEXT NOT NULL DEFAULT '',\ncreated_at TEXT NOT NULL,\ndata TEXT NOT NULL\n);\nCREATE INDEX IF NOT EXISTS idx_task_rev_task\nON task_revocations(org_id, task_id, created_at);\n"
 
     _BASE_SCHEMA="""
         CREATE TABLE IF NOT EXISTS knowledge_bases(kb_id TEXT PRIMARY KEY,org_id TEXT NOT NULL,data TEXT NOT NULL);
@@ -544,9 +553,9 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
         if not isinstance(alert,ImpactAlert):raise ValidationError('Expected ImpactAlert')
         data=json.dumps({'alert':encode(alert),'actor_id':actor_id,'usage_id':usage_id},sort_keys=True)
         with self._write_scope():
-            if self.get_document(alert.doc_id).org_id!=alert.org_id:raise ConflictError('Impact tenant mismatch')
+            if alert.doc_id and self.get_document(alert.doc_id).org_id!=alert.org_id:raise ConflictError('Impact tenant mismatch')
             rows=self._execute('SELECT org_id,aggregate_id,payload_json FROM outbox_events WHERE event_id=?',(alert.source_event_id,))
-            if not rows or rows[0][0]!=alert.org_id or json.loads(rows[0][2]).get('doc_id')!=alert.doc_id:
+            if not rows or rows[0][0]!=alert.org_id or (alert.target_type!='task_context' and json.loads(rows[0][2]).get('doc_id')!=alert.doc_id):
                 raise ConflictError('Impact event mismatch')
             self._execute('INSERT INTO impact_alerts VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(org_id,source_event_id,target_type,target_id) DO NOTHING',
                 (alert.alert_id,alert.org_id,alert.source_event_id,alert.doc_id,alert.source_version,alert.target_type,alert.target_id,alert.impact_reason.value,alert.status,alert.created_at,data))

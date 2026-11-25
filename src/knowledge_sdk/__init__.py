@@ -39,3 +39,5 @@ from .contracts.packs import PackItem, EvidencePack, PackVerificationReport, Exp
 from .contracts.identity import IdentityPrincipal, ConnectorSyncState
 from .contracts.connectors import ConnectorDocument, ConnectorACLUpdate, TombstoneRecord, ConnectorSyncBatch, ConnectorSyncReport
 from .connectors import BaseConnector, ConnectorSyncRunner, ControlledFilesystemConnector, WebhookSyncConnector
+
+from .contracts.runtime import ContextBudget, AgentProfile, TaskContext, SnapshotItem, ContextSnapshot, MidTaskRevocation

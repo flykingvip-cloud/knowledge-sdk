@@ -58,7 +58,9 @@ def tenant_method(fn):
     return run
 
 
-class PostgresStore:
+from .runtime import RuntimeStoreMixin
+
+class PostgresStore(RuntimeStoreMixin):
     """Serialized connection per instance; independent instances run concurrently.
 
     Use transaction() for atomic multi-method writes; nested calls use savepoints.
@@ -79,7 +81,11 @@ class PostgresStore:
     def transaction(self):
         with self.lock:
             try:
-                with self.db.transaction():yield
+                with self.db.transaction():
+                    # Conservative cross-connection serializability for v5 runtime
+                    # and policy/resource mutations. Never acquire this after row locks.
+                    self.db.execute("SELECT pg_advisory_xact_lock(5855462191)")
+                    yield
             except self._pg.IntegrityError:
                 raise ConflictError('Storage constraint conflict') from None
             except self._pg.Error:
@@ -509,10 +515,10 @@ class PostgresStore:
             raise ValidationError('Expected ImpactAlert')
         data = json.dumps({'alert': encode(alert), 'actor_id': actor_id, 'usage_id': usage_id}, sort_keys=True)
         with self._write_scope():
-            if self.get_document(alert.doc_id).org_id != alert.org_id:
+            if alert.doc_id and self.get_document(alert.doc_id).org_id != alert.org_id:
                 raise ConflictError('Impact tenant mismatch')
             rows = self._execute('SELECT org_id,aggregate_id,payload_json FROM outbox_events WHERE event_id=%s AND org_id=%s', (alert.source_event_id,) + (self._tenant,))
-            if not rows or rows[0][0] != alert.org_id or json.loads(rows[0][2]).get('doc_id') != alert.doc_id:
+            if not rows or rows[0][0] != alert.org_id or (alert.target_type!='task_context' and json.loads(rows[0][2]).get('doc_id') != alert.doc_id):
                 raise ConflictError('Impact event mismatch')
             self._execute('INSERT INTO impact_alerts VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT(org_id,source_event_id,target_type,target_id) DO NOTHING', (alert.alert_id, alert.org_id, alert.source_event_id, alert.doc_id, alert.source_version, alert.target_type, alert.target_id, alert.impact_reason.value, alert.status, alert.created_at, data))
 
@@ -767,3 +773,7 @@ class PostgresStore:
     @tenant_method
     def count_outbox_events(self,org_id):
         return self._execute('SELECT COUNT(*) FROM outbox_events WHERE org_id=%s',(org_id,))[0][0]
+
+# Every v5 payload surface is tenant-scoped, including inherited methods.
+for _name in ('upsert_agent_profile', 'get_agent_profile', 'list_agent_profiles', 'put_task_context', 'get_task_context', 'list_task_contexts', 'update_task_context_status', 'put_context_snapshot', 'get_context_snapshot', 'list_context_snapshots', 'mark_context_snapshots_revoked', 'put_task_revocation', 'list_task_revocations', 'find_active_tasks_referencing'):
+    setattr(PostgresStore,_name,tenant_method(getattr(RuntimeStoreMixin,_name)))

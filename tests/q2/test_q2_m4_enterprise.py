@@ -214,7 +214,7 @@ class MigrationV4(unittest.TestCase):
                     db.execute('PRAGMA user_version='+str(version))
                 for _ in range(2):
                     s=SQLiteStore(path)
-                    try:self.assertEqual(s._execute('SELECT * FROM documents'),before);self.assertEqual(s._execute('PRAGMA user_version')[0][0],4)
+                    try:self.assertEqual(s._execute('SELECT * FROM documents'),before);self.assertEqual(s._execute('PRAGMA user_version')[0][0],5)
                     finally:s.close()
 
 class GatewayConfiguration(unittest.TestCase):
@@ -243,7 +243,7 @@ class SQLiteMigrationAtomicity(unittest.TestCase):
             with self.assertRaises(sqlite3.OperationalError):Broken(path)
             with closing(sqlite3.connect(path)) as db:
                 self.assertEqual(db.execute('PRAGMA user_version').fetchone()[0],3);self.assertIsNone(db.execute("SELECT 1 FROM sqlite_master WHERE name='identity_principals'").fetchone())
-            with closing(SQLiteStore(path)) as s:self.assertEqual(s._execute('PRAGMA user_version')[0][0],4)
+            with closing(SQLiteStore(path)) as s:self.assertEqual(s._execute('PRAGMA user_version')[0][0],5)
 
 @unittest.skipUnless(os.environ.get('KNOWLEDGE_SDK_TEST_PG_DSN'),'Requires explicit disposable PG')
 class PostgresM4Concurrency(unittest.TestCase):
@@ -265,6 +265,6 @@ class PostgresM4Concurrency(unittest.TestCase):
         with s.transaction():
             for table in ('identity_principals','scim_groups','scim_group_members'):s._execute('DROP TABLE '+table)
             s._execute('DELETE FROM schema_migrations WHERE version=4');s._execute("INSERT INTO schema_migrations VALUES(3,'schema-v3','supplied-baseline')")
-        apply(s.db);apply(s.db);self.assertEqual(status(s.db)['version'],4)
+        apply(s.db);apply(s.db);self.assertEqual(status(s.db)['version'],5)
         with s.tenant_scope('org'):
             for t,rows in before.items():self.assertEqual(s._execute('SELECT data FROM '+t),rows)

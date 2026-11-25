@@ -258,13 +258,14 @@ class KnowledgeScope(JsonContract):
     doc_ids: Tuple[str, ...] = ()
 
     def __post_init__(self):
-        if self.mode not in ("all_authorized", "spaces", "documents"):
+        if self.mode not in ("all_authorized", "spaces", "documents", "none"):
             raise ValidationError("Invalid scope mode")
         for key in ("kb_ids", "space_types", "doc_ids"):
             value = getattr(self, key)
             if not isinstance(value, (tuple, list)) or any(not isinstance(v, str) or not v for v in value):
                 raise ValidationError("Invalid scope selectors")
             object.__setattr__(self, key, tuple(value))
+        if self.mode == "none" and (self.kb_ids or self.space_types or self.doc_ids):raise ValidationError("Inconsistent none scope")
         if any(t not in tuple(s.value for s in SpaceType) for t in self.space_types):
             raise ValidationError("Invalid scope space type")
         if (self.mode == "all_authorized" and (self.kb_ids or self.space_types or self.doc_ids)
@@ -273,6 +274,7 @@ class KnowledgeScope(JsonContract):
             raise ValidationError("Inconsistent scope selectors")
 
     def contains(self, document: Document, kb: KnowledgeBase) -> bool:
+        if self.mode == "none": return False
         if self.mode == "all_authorized": return True
         if self.mode == "documents": return document.doc_id in self.doc_ids
         return (not self.kb_ids or kb.kb_id in self.kb_ids) and (not self.space_types or kb.space_type in self.space_types)
@@ -326,8 +328,10 @@ from .governance import ReviewDecision, ReleaseManifest, IssueResolution
 from .packs import PackItem, EvidencePack, PackVerificationReport, ExportResult
 
 # Tagged transport serialization avoids guessing model types or exposing pickle.
+from .runtime import ContextBudget, AgentProfile, TaskContext, SnapshotItem, ContextSnapshot, MidTaskRevocation
+
 _MODELS = {c.__name__: c for c in (Actor, KnowledgeBase, Document, DocumentVersion, Chunk,
-    DocumentACL, KnowledgeRef, MaterialReceipt, ExcerptPolicy, SearchHit, SearchResponse, RetrieveResponse, KnowledgeScope, ConsumerBinding, Attachment, GeneratedAnswer, KnowledgeAnswer, AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision, ParsedKBURI, TextQuoteSelector, PdfBBoxSelector, TableCellSelector, SectionQuoteSelector, EvidenceAnchor, ParsedSpan, LayoutParseResult, EvidenceIssue, AuditEvent, AuditChainReport, OutboxEvent, DispatchSummary, WebhookSubscription, WebhookDelivery, UsageEvent, ImpactAlert, ReviewDecision, ReleaseManifest, IssueResolution, PackItem, EvidencePack, PackVerificationReport, ExportResult)}
+    ContextBudget, AgentProfile, TaskContext, SnapshotItem, ContextSnapshot, MidTaskRevocation, DocumentACL, KnowledgeRef, MaterialReceipt, ExcerptPolicy, SearchHit, SearchResponse, RetrieveResponse, KnowledgeScope, ConsumerBinding, Attachment, GeneratedAnswer, KnowledgeAnswer, AgentIdentity, ResourceRights, PolicyRule, PolicyContext, PolicyDecision, ParsedKBURI, TextQuoteSelector, PdfBBoxSelector, TableCellSelector, SectionQuoteSelector, EvidenceAnchor, ParsedSpan, LayoutParseResult, EvidenceIssue, AuditEvent, AuditChainReport, OutboxEvent, DispatchSummary, WebhookSubscription, WebhookDelivery, UsageEvent, ImpactAlert, ReviewDecision, ReleaseManifest, IssueResolution, PackItem, EvidencePack, PackVerificationReport, ExportResult)}
 def encode(value):
     if isinstance(value, Enum): return value.value
     if type(value).__name__ in _MODELS:

@@ -149,3 +149,73 @@ CREATE TABLE IF NOT EXISTS identity_principals (
 CREATE INDEX IF NOT EXISTS idx_principals_org_ext ON identity_principals(org_id,external_id);
 CREATE TABLE IF NOT EXISTS scim_groups(org_id TEXT NOT NULL,group_id TEXT NOT NULL,data TEXT NOT NULL,PRIMARY KEY(org_id,group_id));
 CREATE TABLE IF NOT EXISTS scim_group_members(org_id TEXT NOT NULL,group_id TEXT NOT NULL,user_id TEXT NOT NULL,PRIMARY KEY(org_id,group_id,user_id));
+
+CREATE TABLE IF NOT EXISTS agent_profiles (
+org_id TEXT NOT NULL,
+agent_id TEXT NOT NULL,
+display_name TEXT NOT NULL DEFAULT '',
+allowed_purposes_json TEXT NOT NULL,
+allowed_kb_ids_json TEXT NOT NULL DEFAULT '[]',
+allowed_space_types_json TEXT NOT NULL DEFAULT '[]',
+max_clearance_level TEXT NOT NULL DEFAULT 'internal',
+default_budget_json TEXT NOT NULL,
+active INTEGER NOT NULL DEFAULT 1,
+profile_generation INTEGER NOT NULL DEFAULT 1,
+updated_at TEXT NOT NULL,
+data TEXT NOT NULL,
+PRIMARY KEY(org_id, agent_id)
+);
+
+CREATE TABLE IF NOT EXISTS task_contexts (
+task_id TEXT PRIMARY KEY,
+org_id TEXT NOT NULL,
+actor_id TEXT NOT NULL,
+agent_id TEXT NOT NULL,
+purpose TEXT NOT NULL,
+policy_generation INTEGER NOT NULL,
+profile_generation INTEGER NOT NULL DEFAULT 1,
+scope_json TEXT NOT NULL DEFAULT '{}',
+budget_json TEXT NOT NULL,
+status TEXT NOT NULL DEFAULT 'active',
+revoked_reason TEXT NOT NULL DEFAULT '',
+revoked_at TEXT NOT NULL DEFAULT '',
+expires_at TEXT NOT NULL,
+created_at TEXT NOT NULL,
+updated_at TEXT NOT NULL,
+data TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_task_ctx_org_actor_status
+ON task_contexts(org_id, actor_id, status, updated_at);
+
+CREATE TABLE IF NOT EXISTS context_snapshots (
+snapshot_id TEXT PRIMARY KEY,
+task_id TEXT NOT NULL,
+org_id TEXT NOT NULL,
+snapshot_seq INTEGER NOT NULL,
+item_count INTEGER NOT NULL DEFAULT 0,
+total_chars INTEGER NOT NULL DEFAULT 0,
+snapshot_sha256 TEXT NOT NULL,
+status TEXT NOT NULL DEFAULT 'valid',
+created_at TEXT NOT NULL,
+data TEXT NOT NULL,
+UNIQUE(org_id, task_id, snapshot_seq)
+);
+CREATE INDEX IF NOT EXISTS idx_ctx_snap_task
+ON context_snapshots(org_id, task_id, status);
+
+CREATE TABLE IF NOT EXISTS task_revocations (
+revocation_id TEXT PRIMARY KEY,
+org_id TEXT NOT NULL,
+task_id TEXT NOT NULL,
+snapshot_id TEXT NOT NULL DEFAULT '',
+trigger_event_id TEXT NOT NULL DEFAULT '',
+reason_code TEXT NOT NULL,
+affected_doc_id TEXT NOT NULL DEFAULT '',
+affected_version INTEGER NOT NULL DEFAULT 0,
+affected_anchor_id TEXT NOT NULL DEFAULT '',
+created_at TEXT NOT NULL,
+data TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_task_rev_task
+ON task_revocations(org_id, task_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_task_ctx_org_agent_status ON task_contexts(org_id,agent_id,status);

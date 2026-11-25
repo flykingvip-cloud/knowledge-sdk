@@ -53,7 +53,7 @@ class OfflinePostgresGuards(unittest.TestCase):
         class Recorder(PostgresStore):
             def __init__(self):
                 self.lock=threading.RLock();self._tenant=None;self.org_id=None
-                self.db=SimpleNamespace(transaction=nullcontext,info=SimpleNamespace(transaction_status=0))
+                self.db=SimpleNamespace(execute=lambda *a:None,transaction=nullcontext,info=SimpleNamespace(transaction_status=0))
                 self._pg=SimpleNamespace(pq=SimpleNamespace(TransactionStatus=SimpleNamespace(INERROR=3)),IntegrityError=type('IntegrityError',(Exception,),{}),Error=type('PGError',(Exception,),{}))
             def _execute(self,sql,args=()):
                 if sql.count('%s')!=len(args):raise AssertionError('placeholder mismatch')
@@ -112,7 +112,7 @@ class LivePostgres(unittest.TestCase):
             self.assertEqual(self.s.get_kb('kb').name,'outer')
         before=encode(self.s.get_kb('kb'))
         apply(self.s.db);apply(self.s.db)
-        self.assertEqual(encode(self.s.get_kb('kb')),before);self.assertEqual(status(self.s.db)['version'],4)
+        self.assertEqual(encode(self.s.get_kb('kb')),before);self.assertEqual(status(self.s.db)['version'],5)
         with self.assertRaises(RuntimeError):
             with self.s.transaction():
                 self.c.ingest(self.a,'kb','phantom',doc_id='ghost');raise RuntimeError('rollback outer')
