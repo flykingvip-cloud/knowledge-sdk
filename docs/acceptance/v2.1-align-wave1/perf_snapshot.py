@@ -49,7 +49,7 @@ from unittest.mock import patch
 from knowledge_sdk.retrieval.rerank import DeterministicLexicalReranker
 original_score=DeterministicLexicalReranker.score
 def observe(self,query,candidates):
- pools.append({'query_sha256':digest(query),'candidates':[{'identity':[x.doc_id,x.version,x.chunk_id],'rank':x.rank,'raw_score':x.raw_score,'title_sha256':digest(x.title),'excerpt_sha256':digest(x.excerpt)} for x in candidates]})
+ pools.append({'query_sha256':digest(query),'candidates':[{'identity':[x.doc_id,x.version,x.chunk_id],'rank':x.rank,'base_score':x.base_score,'title_sha256':digest(x.title),'excerpt_sha256':digest(x.excerpt)} for x in candidates]})
  return original_score(self,query,candidates)
 class RollbackMeasurement(Exception):pass
 def run():
