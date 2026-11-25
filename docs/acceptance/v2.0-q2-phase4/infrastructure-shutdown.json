@@ -1,0 +1,41 @@
+{
+  "timezone": "Asia/Shanghai",
+  "started_at": "2026-11-25T08:58:48.418619+08:00",
+  "before_backend_stop": {
+    "other_client_connections": 2,
+    "test_schemas": 3
+  },
+  "owned_backend_pids": [
+    1224980,
+    1224985
+  ],
+  "remaining_disposable_schemas_removed": [
+    "sdk_test_10ea90bfbfce4c428181e6e286899874",
+    "sdk_test_4e42aa14b3004686bbc086d1194aa192",
+    "sdk_test_25cec72f61f44bf3a3c369f23edad4a1"
+  ],
+  "after_backend_stop": {
+    "other_client_connections": 0,
+    "test_schemas": 0
+  },
+  "schema_cleanup_scope": "Only sdk_m4-owned UUID sdk_test_* schemas in this task disposable cluster/database; no unrelated schema/data touched.",
+  "initial_optional_dependency_check": "System python lacked psycopg; no actions occurred; reran with configured optional-dependency venv.",
+  "finished_at": "2026-11-25T08:59:22.133669+08:00",
+  "process_states": {
+    "1224980": "absent",
+    "1224985": "absent",
+    "1207307": "absent",
+    "1207308": "absent",
+    "1198914": "absent"
+  },
+  "verified_no_listeners_on_ports": [
+    19474,
+    19475,
+    18474,
+    18475,
+    55474
+  ],
+  "postgres_postmaster_pid_file_absent": true,
+  "status": "STOPPED_NO_TEST_CONNECTIONS_OR_SCHEMAS",
+  "note": "Z means terminated zombie awaiting host reaping, not a running service."
+}

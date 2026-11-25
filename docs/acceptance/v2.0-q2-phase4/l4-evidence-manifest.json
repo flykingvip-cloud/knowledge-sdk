@@ -1,0 +1,22 @@
+{
+  "l4-browser-observations.md": {
+    "bytes": 6624,
+    "sha256": "829ddd3b2422785dad807c0b066a91b7f2d52008698247f091c130816473462a",
+    "source": "Parent sanctioned browser evidence; copied without changing content"
+  },
+  "l4-browser-dom-log.md": {
+    "bytes": 6624,
+    "sha256": "829ddd3b2422785dad807c0b066a91b7f2d52008698247f091c130816473462a",
+    "source": "Parent sanctioned browser evidence; copied without changing content"
+  },
+  "l4-sqlite-browser.png": {
+    "bytes": 109928,
+    "sha256": "9c49717b07aa3e250b7a4b6eba05be534ba3a374e24ce6680e8d323f4eb68f92",
+    "source": "Parent sanctioned browser evidence; copied without changing content"
+  },
+  "l4-postgres-browser.png": {
+    "bytes": 109975,
+    "sha256": "7be849b839bc19546cd7f712ce13434b80f2e0bc630f50cd6998231cdb9fc99b",
+    "source": "Parent sanctioned browser evidence; copied without changing content"
+  }
+}

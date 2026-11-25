@@ -1,6 +1,6 @@
 {
   "source_commit": "3f3674fb2e56fe165cc870ab2df9ff0d3299a678",
-  "recorded_at": "2026-11-25T08:53:21.364032+08:00",
+  "recorded_at": "2026-11-25T09:00:22.690825+08:00",
   "timezone": "Asia/Shanghai",
   "l1": {
     "passed": 548,
@@ -41,8 +41,18 @@
     "acl_violations": 0,
     "implicit_model_calls": 0
   },
-  "l4": "PENDING",
+  "l4": "BROWSER_INTERACTION_VERIFIED_FULL_L4_PARTIAL_OPEN",
   "l5_m4": "PENDING_INDEPENDENT",
   "enterprise_approval": "PENDING_EXTERNAL",
-  "tests_commit": "3ffcb419683af282e44c03ca1554250a9884d790"
+  "tests_commit": "3ffcb419683af282e44c03ca1554250a9884d790",
+  "l4_detail": {
+    "modality": "Sanctioned browser_run_code + browser_take_screenshot; headless unverified",
+    "both_engines_scoped_interaction_verified": true,
+    "captured_phases_console_page_failed_request_errors": 0,
+    "browser_demo_status": "UNMEASURED",
+    "browser_api_body_inspection": "UNMEASURED",
+    "fresh_contexts": false,
+    "initial_navigation_and_signout_event_capture": "PARTIAL_GAPS_DISCLOSED"
+  },
+  "infrastructure": "STOPPED_NO_TEST_CONNECTIONS_OR_SCHEMAS"
 }

@@ -45,4 +45,7 @@ Real pg_dump/pg_restore and v4 migration interruption/reapply fingerprints match
 **Boundary:** these are local test keys and databases. No real enterprise IdP,
 production proxy/login mapping, external SCIM certification or enterprise
 admission approval is implied. Nginx prefix HTTP preflight is separately recorded
-in proxy-http-preflight.json; actual browser L4 remains PENDING.
+in proxy-http-preflight.json; actual browser interaction is now verified, with full L4 headless and specified
+browser-only assertions still OPEN (l4-browser.md). HTTP-only signer GET/POST
+through both nginx prefixes was additionally 404/no-store after the browser run
+(l3-browser-boundary-supplement.json).

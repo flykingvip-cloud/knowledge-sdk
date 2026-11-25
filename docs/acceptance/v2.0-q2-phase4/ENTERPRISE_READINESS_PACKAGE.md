@@ -2,8 +2,9 @@
 
 **Prepared for review, not enterprise approval.** Test keys only; no production
 IdP or enterprise security team has approved this branch. Q2 exit remains OPEN.
-L4 browser evidence is PENDING parent-dispatched sanctioned browser testing;
-headless modality remains separately unproven. No merge/tag/release/deployment.
+Real sanctioned browser interaction is VERIFIED on both engines; full L4 is
+PARTIAL/OPEN: headless modality and specified browser-only assertions remain
+unmeasured. See l4-browser.md for exact scope and caveats. No merge/tag/release/deployment.
 
 ## Scope and provenance
 
@@ -24,7 +25,7 @@ M4 taskbook and Q2 core protocol v0.1 were read.
 | Spoofing | JWT algorithm/key separation, signature, issuer/audience/time/identity claims; one-use jti; no header override; production rejects demo | OIDCSecurity, GatewayConfiguration; l3-enterprise-http.log |
 | Tampering | Pack SQL/payload/digest parity; immutable contracts; source SHA; signed webhook timestamp/event/body; transactional audit chain | G7-15, connector unit contracts, l3 HTTP, legacy audit adversarial suite |
 | Repudiation | Append-only tenant audit chain; successful SCIM mutation and authority/outbox same transaction; DENY audited | enterprise rollback/generation tests; legacy G6 tamper/gap cases |
-| Information disclosure | Per-operation principal generation, policy/rights/redaction; tenant RLS; no-store; no draft/cross-tenant leakage | both golden engines; directory RLS tests; l3 HTTP; L4 pending |
+| Information disclosure | Per-operation principal generation, policy/rights/redaction; tenant RLS; no-store; no draft/cross-tenant leakage | both golden engines; directory RLS tests; l3 HTTP; scoped L4 DOM evidence |
 | Denial of service | JWT/JWKS/body bounds; TTL/cooldown; bounded dedupe stream; controlled file size; no implicit cloud/model calls | JWKS cooldown tests, bounded parser and capacity behavior; 100-case model spies |
 | Elevation of privilege | Owner/admin do not bypass inactive/stale principal; SCIM/connector admin + tenant/KB checks; author/reviewer/publisher separation | G7/G8 and 46 focused tests; real high-privilege stale HMAC/JWT/cookie rejection |
 
@@ -45,7 +46,8 @@ M4 taskbook and Q2 core protocol v0.1 were read.
 5. **No production identity downgrade or header elevation**: startup rejects
    dev_insecure/demo in oidc/dual; no client org/generation/actor override. Every
    route and error no-store. Demo signing 404 via real nginx HTTP preflight;
-   actual browser console/DOM validation remains PENDING.
+   actual browser captured phases measured zero console/page/request errors and
+   specified DOM isolation; headless and browser signer/body checks remain OPEN.
 6. **Authoritative immediate session revocation**: every actor-taking local
    operation, MCP entry, policy engine and HTTP reads current principal. Inactive
    or stale actor denied even with valid signed admin privileges. HMAC, JWT,
@@ -94,8 +96,14 @@ it; it is not the application RLS path or an arbitrary production backup service
 
 ## Open limits and external gates
 
-- L4 **PENDING** actual parent computerUse/browser run. No console/page-error zero
-  is claimed yet. Visible/manual browser evidence cannot be relabelled headless.
+- L4 **BROWSER INTERACTION VERIFIED; PARTIAL/OPEN**. Parent sanctioned scripted
+  browser actions passed authentication, content/citation/pack/alerts and scoped
+  DOM checks on both engines; captured phases had zero console/page/request
+  errors. Headless runtime, fresh contexts and browser-only demo-status/API-body
+  inspection remain unverified/unmeasured; initial-navigation/signout capture
+  gaps are disclosed. HTTP-only evidence is not browser measurement. See
+  l4-browser.md and supplied sanitized artifacts. All owned test services stopped;
+  zero surviving connections/test schemas verified (infrastructure-shutdown.json).
 - At least one real enterprise security/architecture team's production-admission
   review remains **PENDING_EXTERNAL**; this package is only an input to review.
 - Real enterprise IdP registration, live JWKS rotation/availability/SSO operational

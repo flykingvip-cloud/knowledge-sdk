@@ -1,5 +1,5 @@
 {
-  "status": "L4_PENDING",
+  "status": "STOPPED_AFTER_VERIFIED_BROWSER_INTERACTION",
   "timezone": "Asia/Shanghai",
   "source_commit": "3f3674fb2e56fe165cc870ab2df9ff0d3299a678",
   "credentials": "No credentials or JWTs in this inventory. Use private local token files, never URLs/screenshots/logs.",
@@ -40,7 +40,8 @@
     "nginx",
     "postgres"
   ],
-  "token_expiry": "approximately 2026-11-25 14:49 Asia/Shanghai, one-use jti; executor has not consumed browser tokens",
-  "browser_interaction": "NONE performed by executor; parent computerUse required",
-  "last_http_only_health_check": "2026-11-25T08:53:41.782104+08:00"
+  "token_expiry": "Historical one-use synthetic tokens consumed by parent; fixture stopped and sessions invalidated; do not reuse.",
+  "browser_interaction": "Parent sanctioned browser_run_code + browser_take_screenshot verified interaction; headless and specified unmeasured assertions OPEN",
+  "last_http_only_health_check": "2026-11-25T08:53:41.782104+08:00",
+  "shutdown_evidence": "infrastructure-shutdown.json"
 }

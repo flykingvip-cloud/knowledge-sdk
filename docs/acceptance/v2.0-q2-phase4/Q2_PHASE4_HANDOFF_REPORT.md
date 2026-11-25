@@ -1,4 +1,4 @@
-# Q2-M4 handoff — implementation ready; L4 / independent / external gates OPEN
+# Q2-M4 handoff — implementation delivered; browser verified, full L4 / external gates OPEN
 
 2026-11-25, Asia/Shanghai (UTC+8).
 
@@ -16,10 +16,12 @@
   independent architect audit performed by this executor. Its supplied B05
   closure is recorded in ENTERPRISE_READINESS_PACKAGE.md. Current M4 L5 and
   enterprise production-admission review remain pending.
-- Runtime implementation commit: `3f3674f` (test/evidence commits follow; no
-  runtime source changes after this commit). Feature publication is deliberately
-  deferred to the parent after actual browser evidence is integrated. **No M4
-  push or remote SHA verification has yet been performed.**
+- Runtime implementation commit: `3f3674f`; tests `3ffcb41`; initial evidence
+  `c259561`. No runtime source changed during final browser integration. Normal
+  publication of the feature branch is authorized; exact post-commit local and
+  remote SHA verification is recorded in the executor final response and
+  `/workspace/knowledge-sdk-q2m4-artifacts/publication-receipt.json`, avoiding a
+  self-referential commit hash in this report.
 
 ## 2. Implementation
 
@@ -63,7 +65,7 @@
 | Adversarial contracts | **46 focused tests**, including real dual-engine coverage, actual RSA/ECDSA, independent PG connections, migration rollback, RLS, atomic connector/SCIM failure | security-adversarial.log |
 | Concurrency / performance | 4 independent connections, 40 distinct generation increments; 4 workers, 80 outbox events, **0 duplicate claims**, no deadlock. Small local keyword microbenchmark only | performance.json |
 | DR v4 | Real pg_dump/pg_restore, all-table row/hash fingerprints equal; directory/group/cursor restored; interrupted migration rollback + repeat apply pass | dr-v4.json |
-| L4 | **PENDING parent-dispatched actual browser**. Real nginx prefix HTTP preflight passes; no browser/headless/console-zero claim | l4-browser.md, proxy-http-preflight.json |
+| L4 | **BROWSER INTERACTION VERIFIED; full L4 PARTIAL/OPEN**. Both engines passed scoped auth/content/citation/pack/alerts/DOM assertions; captured phases 0 console/page/request errors. Headless and browser signer/body assertions unmeasured | l4-browser.md, supplied observations/screenshots |
 | L5 / enterprise | **PENDING_INDEPENDENT / PENDING_EXTERNAL** | ENTERPRISE_READINESS_PACKAGE.md |
 
 The three full-dependency skips are explicitly live Qdrant/real embedding tests;
@@ -73,32 +75,30 @@ Python 3.9 validation is AST compatibility, not an actual Python 3.9 runtime run
 Wheel verification is RECORD/content hashing and smoke testing, not external
 artifact-signing/provenance certification.
 
-## 4. Actual browser handoff — ready now
+## 4. Actual browser integration and infrastructure shutdown
 
-- SQLite: http://127.0.0.1:18474/kb-prod/ui
-- PG+pgvector: http://127.0.0.1:18475/kb-prod/ui
-- Full steps: **l4-browser.md**; reproducible script: l4_playwright_recipe.py
-  (**not executed by executor**). Parent must dispatch computerUse for every
-  actual browser interaction. Do not run browser scripts via Shell/CDP/Puppeteer.
-- Use the matching private local `.jwt` file via the page's file-import control,
-  not a URL or demo identity. Tokens are single-use, test-key signed, expire
-  approximately **14:49 Asia/Shanghai** on 2026-11-25. No executor HTTP/browser
-  preflight consumed those tokens. Do not print them or capture them in logs or
-  screenshots. Legitimate `/v1/auth/session` validates signature and directory,
-  then issues an opaque HttpOnly cookie; both input fields are cleared.
-- Verify no switcher/demo route, authorized spaces/search/published source,
-  successful citation (`structuredContent.valid=true`), sealed browser-pack,
-  impact alerts and absence of draft/foreign marker text; actually capture
-  console/page errors before asserting zero. Use separate contexts per engine.
-- Visible/manual browser activity is real browser evidence but **not headless
-  evidence**. Keep the requested headless-modality criterion open if unsupported.
+Parent sanctioned computerUse ran browser_run_code + browser_take_screenshot on
+both nginx-backed engines, 2026-11-25 beginning08:54:37, PG authentication
+08:55:58 and subsequent captures, Asia/Shanghai.
+Full measured results/caveats and screenshot hashes: l4-browser.md and
+l4-evidence-manifest.json. Authentication used the legitimate app session boundary,
+not demo bypass. Sanitized images and supplied observation summaries are committed.
 
-Only owned, isolated browser-required services remain: SQLite backend PID
-**1224980** (19474), PG backend **1224985** (19475), nginx master **1207307** /
-worker 1207308 (18474/18475), disposable PG master **1198914** (55474). Exact
-commands and stop order are in browser-fixtures.json. Stop backend PIDs with
-TERM first, nginx with QUIT, then pg_ctl the owned cluster. Do not stop any
-unrelated process/service. Earlier test servers/threads/schemas were cleaned up.
+Headless runtime is UNVERIFIED; fresh contexts unavailable (SQLite signed out
+before PG). Browser direct signer status and independent API response-body leakage
+remain UNMEASURED. The first SQLite navigation/signout wrapper had capture gaps;
+signout wrapper waited for wrong text although UI showed Signed out. Zero error
+counts apply only to captured phases. No full L4 pass is claimed. The reproducible
+headless recipe remains NONEXECUTED by this executor. Separate HTTP-only signer
+GET/POST404/no-store and prior authenticated JSON leakage assertions are L3 only.
+
+All owned services stopped: backends1224980/1224985, nginx1207307/1207308 and
+PG1198914. Before PG stop, zero other client connections and zero sdk_test_* schemas
+were verified after removing three residual disposable schemas owned by sdk_m4.
+All five PIDs are absent; ports19474/19475/18474/18475/55474 have no listener;
+postmaster.pid absent. See infrastructure-shutdown.json. No unrelated service,
+production/demo data or prohibited port was touched. Fixture URLs/token files in
+browser-fixtures.json are historical, not live invitations to reuse sessions.
 
 ## 5. Enterprise package and remaining gates
 
@@ -106,7 +106,7 @@ ENTERPRISE_READINESS_PACKAGE.md contains STRIDE mapping, ten tested security
 invariants, measured performance/concurrency, DR evidence and open limits.
 Integration/configuration/API caveats are in docs/enterprise-identity-connectors.md.
 
-**Q2 exit is NOT approved.** Required actual browser/headless evidence,
+**Q2 exit is NOT approved.** Required confirmed-headless and unmeasured browser evidence,
 independent M4 review and at least one real enterprise team's admission approval
 are not replaced by this package or by the supplied M3 architect conclusion.
 No production IdP, external SCIM certification, production topology, real PDF/OCR
@@ -116,9 +116,16 @@ PDF/OCR and external-partner boundaries remain open. No Q3 features or third
 reference connector were implemented. Core version metadata remains 1.2.0;
 no v2.0.0 tag or release exists from this work.
 
-## 6. Parent continuation
+## 6. Final publication / remaining acceptance
 
-Dispatch the browser agent, return actual evidence/modality and artifact paths,
-then resume this executor to integrate L4, update honest gate status, commit and
-normally push this feature branch if appropriate; verify remote SHA then. Do not
-mark Q2/external enterprise acceptance passed without external evidence.
+This evidence-only closeout does not change core implementation or old golden
+files/assertions. Previously passing full regression results remain applicable;
+legacy byte/hash preservation is rechecked before commit. Normal push of this
+feature branch is followed by exact remote SHA comparison. No main merge, PR,
+tag, release, deployment or force-push is permitted.
+
+Remaining: demonstrated headless runtime and exact unmeasured browser assertions
+listed in l4-browser.md, independent M4/L5 review and at least one actual enterprise
+security/architecture production-admission approval. The owner-supplied M3
+conclusion and this readiness package do not satisfy those gates. Strategy v0.2
+remains missing. Q1 live external boundaries remain as listed above.
