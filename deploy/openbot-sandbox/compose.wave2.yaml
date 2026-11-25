@@ -1,0 +1,9 @@
+{
+  "services": {
+    "seed": {
+      "environment": {"SANDBOX_ENABLE_V2": "1"},
+      "entrypoint": ["python", "/opt/sandbox/upgrade_wave2.py", "--state-dir", "/data"]
+    },
+    "sandbox": {"environment": {"SANDBOX_ENABLE_V2": "1"}}
+  }
+}

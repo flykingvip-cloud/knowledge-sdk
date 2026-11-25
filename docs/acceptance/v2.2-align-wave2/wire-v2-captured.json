@@ -1,0 +1,1824 @@
+{
+  "runtime_captured": true,
+  "nonproduction_only": true,
+  "source_base_sha": "5a139e574ef68bcc045b70af32aee67f92c172b3",
+  "capture_method": "Actual signed loopback HTTP requests, parsed actual response bytes; test-only pseudosecret and synthetic fixture identities/content. No production captures.",
+  "engines": [
+    {
+      "engine": "sqlite",
+      "runtime_captured": true,
+      "test_only_pseudo_secret": "WAVE2-TEST-ONLY-PSEUDO-SECRET-DO-NOT-USE-REAL",
+      "assertions": [
+        "A01",
+        "A02",
+        "A03",
+        "A04",
+        "A05",
+        "A06",
+        "A07",
+        "A08",
+        "A09",
+        "A10"
+      ],
+      "events": [
+        {
+          "method": "POST",
+          "target": "/v2/assets",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "0435cc9f692465d40a4519d812f8ec4f",
+            "X-KB-Signature": "72b31797dab4c90601d207ee19c524913c7debd7ee2ab1f12d732c6cb8099613",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json",
+            "Idempotency-Key": "ingest"
+          },
+          "request_body": {
+            "kb_id": "primary",
+            "content": "alpha evidence",
+            "filename": "fixture.txt",
+            "asset_type": "document",
+            "idempotency_key": "ingest"
+          },
+          "response_status": 200,
+          "response_body": {
+            "activated": true,
+            "author_id": "owner",
+            "created_at": "2026-11-25T12:44:32.085476+00:00",
+            "created_version": 1,
+            "current_version": 1,
+            "doc_id": "9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+            "filename": "fixture.txt",
+            "hash_algorithm": "sha256",
+            "lifecycle_state": "published",
+            "published_at": "",
+            "publisher_id": "",
+            "raw_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "reviewer_id": "",
+            "rollback_from_version": null,
+            "rollback_scope": "content_and_filename_only",
+            "semantic_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "source_issue_id": "",
+            "version": 1,
+            "version_id": "025fff2ae76a471aaea7b430deccb0dd",
+            "version_label": "1"
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOltdLCJwb2xpY3lfZ2VuZXJhdGlvbiI6MSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6InJlYWRlciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "8034714b16405e29cf7cd89686556ab8",
+            "X-KB-Signature": "68a8824232d92ea4aa5f5c71936a5630c81135911c34bc288721a60dcf631531",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 200,
+          "response_body": {
+            "doc_id": "9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "owner_id": "owner",
+            "title": "fixture.txt",
+            "asset_type": "document",
+            "source_kind": "upload",
+            "source_ref": "",
+            "visibility": "private",
+            "current_version": 1,
+            "current_version_id": "025fff2ae76a471aaea7b430deccb0dd",
+            "lifecycle_state": "published",
+            "archived": false,
+            "archived_at": null,
+            "tags": [],
+            "metadata": {
+              "asset_type": "document"
+            },
+            "domain_metadata": {
+              "schema_ref": null,
+              "payload": {}
+            },
+            "valid_from": null,
+            "valid_to": null
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOltdLCJwb2xpY3lfZ2VuZXJhdGlvbiI6MSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6Im91dHNpZGVyIn0sImFnZW50Ijp7ImFnZW50X2lkIjoiYm91bmQtYWdlbnQiLCJwcm9maWxlX2dlbmVyYXRpb24iOjEsInRhc2tfaWQiOiIifSwicHVycG9zZSI6InJlYWQiLCJyZXF1ZXN0X2lkIjoid2F2ZTItdGVzdCIsInRlbmFudF9pZCI6ImVudGVycHJpc2UtYSJ9",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "ee2a8f8fd7d0a2cf8c959fbc9227dc4c",
+            "X-KB-Signature": "b2c0ac69fbff728bcfc39176b5ab3ac0f47c23abb161f3570e4523af2e525710",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "PERMISSION_DENIED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOltdLCJwb2xpY3lfZ2VuZXJhdGlvbiI6MSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6InJlYWRlciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6InVuYm91bmQtYWdlbnQiLCJwcm9maWxlX2dlbmVyYXRpb24iOjEsInRhc2tfaWQiOiIifSwicHVycG9zZSI6InJlYWQiLCJyZXF1ZXN0X2lkIjoid2F2ZTItdGVzdCIsInRlbmFudF9pZCI6ImVudGVycHJpc2UtYSJ9",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "97daec966ebf3d521fad2bffff1d8bcf",
+            "X-KB-Signature": "e2a7ead998f93bc4fc2dede052d96a5d7e45104de80f1393303bf9270fcf55cd",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "PERMISSION_DENIED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6Im93bmVyIn0sImFnZW50Ijp7ImFnZW50X2lkIjoiYm91bmQtYWdlbnQiLCJwcm9maWxlX2dlbmVyYXRpb24iOjEsInRhc2tfaWQiOiIifSwicHVycG9zZSI6InJlYWQiLCJyZXF1ZXN0X2lkIjoid2F2ZTItdGVzdCIsInRlbmFudF9pZCI6ImVudGVycHJpc2UtYSJ9",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "8b8f184347f40aa7b5a78b8c80e95392",
+            "X-KB-Signature": "a929a28c3771b4013d0901dc6542715c10ac903bd9dd4f3f7a795bfa49a59ea3",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 400,
+          "response_body": {
+            "error": {
+              "code": "VALIDATION_ERROR",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "0fff1904febf755e49467150f468c6e0",
+            "X-KB-Signature": "e143f175f422a80a9f6ff87acc763dc65351835cd0a5013cea449d4afff76756",
+            "X-Tenant-Id": "",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "PERMISSION_DENIED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWIifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "660e37fb74afdeb625c82f1fbac0f3ce",
+            "X-KB-Signature": "2affa9cc4481193092ed08aca04f48e9efd609d319a423ea080d0b71e5a96e03",
+            "X-Tenant-Id": "enterprise-b",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "PERMISSION_DENIED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOltdLCJwb2xpY3lfZ2VuZXJhdGlvbiI6MSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6InJlYWRlciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "f4aab45d0e92259d2f46161e7cb16031",
+            "X-KB-Signature": "ad2d3da12aff9c5d420812bfe50aa3cf26f35b42868b5600ef2fe40d2eab489d",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "PERMISSION_DENIED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOltdLCJwb2xpY3lfZ2VuZXJhdGlvbiI6MSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6InJlYWRlciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "9b48eaec96074b55538d7630525008c2",
+            "X-KB-Signature": "1db327b0624f06d183278e0591d3dde557fe5a818eb1cff5f7341d9a2ffe8874",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "IDENTITY_REVOKED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOltdLCJwb2xpY3lfZ2VuZXJhdGlvbiI6MSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6InJlYWRlciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "c29a069d8862f278ccdd08bd665931a1",
+            "X-KB-Signature": "8575dc201c733a155467e094353dd0efefed35014ad35aced47eaaf87637df35",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "PERMISSION_DENIED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "608bea7bb191a21fa1c601efbe762b98",
+            "X-KB-Signature": "d3bdf012235205d5f121cf81cdd4c4843ede80790b48bf1e1cb6711dbffd9835",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 503,
+          "response_body": {
+            "error": {
+              "code": "BACKEND_UNAVAILABLE",
+              "message": "Request unavailable",
+              "retryable": true,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/retrieval:search",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "499bf33bfd86e7efd539be2ad5a4e403",
+            "X-KB-Signature": "302412e268acfde51445fb17aa8affe0915ea59b7ca154e0f92168195c411a44",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "query": "alpha",
+            "mode": "keyword",
+            "limit": 10,
+            "scope": {
+              "mode": "all"
+            },
+            "filters": {
+              "asset_types": [],
+              "tags": [],
+              "lifecycle_states": []
+            },
+            "rerank": {
+              "enabled": false,
+              "reranker_id": "",
+              "top_k": 40
+            },
+            "calibration": {
+              "enabled": false,
+              "min_calibrated_score": 0
+            }
+          },
+          "response_status": 200,
+          "response_body": {
+            "mode": "keyword",
+            "reranker_id": "",
+            "calibrator_id": "",
+            "calibration_applied": false,
+            "candidate_budget_exhausted": false,
+            "filtered_below_threshold": 0,
+            "hits": [
+              {
+                "doc_id": "9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+                "kb_id": "primary",
+                "version": 1,
+                "version_id": "025fff2ae76a471aaea7b430deccb0dd",
+                "chunk_id": "9db4822bef2da3a73b68d377e838a496",
+                "title": "fixture.txt",
+                "score": 0.01639344262295082,
+                "raw_score": 0.01639344262295082,
+                "rerank_score": 0.0,
+                "calibrated_score": 0.0,
+                "excerpt": "alpha evidence",
+                "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+                "source_uri": "kb://org/enterprise-a/doc/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc@1#chunk=9db4822bef2da3a73b68d377e838a496",
+                "truncated": false,
+                "masking_summary": "",
+                "score_breakdown": {
+                  "keyword_rank": 1,
+                  "vector_rank": 0,
+                  "fusion_method": "rrf"
+                },
+                "hash_algorithm": "sha256"
+              }
+            ]
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/citations:verify",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "02a47596351b82761de59d8ea781df2a",
+            "X-KB-Signature": "042e7fba2cd60b1a233e6504c76db1b92cccdcdcf8bfa85de2c88f7baa5dcbe5",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+            "version": 1,
+            "version_id": "025fff2ae76a471aaea7b430deccb0dd",
+            "chunk_id": "9db4822bef2da3a73b68d377e838a496",
+            "anchor_id": "",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc@1#chunk=9db4822bef2da3a73b68d377e838a496",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "unverified",
+            "hash_algorithm": "sha256"
+          },
+          "response_status": 200,
+          "response_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+            "version": 1,
+            "version_id": "025fff2ae76a471aaea7b430deccb0dd",
+            "chunk_id": "9db4822bef2da3a73b68d377e838a496",
+            "anchor_id": "",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc@1#chunk=9db4822bef2da3a73b68d377e838a496",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "verified",
+            "hash_algorithm": "sha256"
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/citations:verify",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "1bc10fdd4460d90972c3da7a3c4128f3",
+            "X-KB-Signature": "8ed44e37b58ff89b675c8c342906e87d4c865755248474fd47d7041a21669774",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+            "version": 1,
+            "version_id": "025fff2ae76a471aaea7b430deccb0dd",
+            "chunk_id": "9db4822bef2da3a73b68d377e838a496",
+            "anchor_id": "",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "tampered",
+            "excerpt_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+            "canonical_uri": "kb://org/enterprise-a/doc/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc@1#chunk=9db4822bef2da3a73b68d377e838a496",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "unverified",
+            "hash_algorithm": "sha256"
+          },
+          "response_status": 400,
+          "response_body": {
+            "error": {
+              "code": "TAMPERED_EXCERPT",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/citations:verify",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "05e8d90fd2a71ebc26ed7040d09c6df1",
+            "X-KB-Signature": "dabf6677d15011fdc862c35ec647d9b94689f342da14d593319ef6a097e0fd13",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+            "version": 1,
+            "version_id": "025fff2ae76a471aaea7b430deccb0dd",
+            "chunk_id": "9db4822bef2da3a73b68d377e838a496",
+            "anchor_id": "19f557ac9126dd6a4ecacef8cb37ac3c",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc@1#anchor=19f557ac9126dd6a4ecacef8cb37ac3c",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "unverified",
+            "hash_algorithm": "sha256"
+          },
+          "response_status": 200,
+          "response_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+            "version": 1,
+            "version_id": "025fff2ae76a471aaea7b430deccb0dd",
+            "chunk_id": "9db4822bef2da3a73b68d377e838a496",
+            "anchor_id": "19f557ac9126dd6a4ecacef8cb37ac3c",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc@1#anchor=19f557ac9126dd6a4ecacef8cb37ac3c",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "verified",
+            "hash_algorithm": "sha256"
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/citations:verify",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "4c8adc527320bdccde9f8fff0ab21227",
+            "X-KB-Signature": "e1ee43b8678f9a6ecd0a7078747dc0f65981b7c8236c990afbb96ab7987c342d",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+            "version": 1,
+            "version_id": "025fff2ae76a471aaea7b430deccb0dd",
+            "chunk_id": "9db4822bef2da3a73b68d377e838a496",
+            "anchor_id": "",
+            "title": "forged-title",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc@1#chunk=9db4822bef2da3a73b68d377e838a496",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "unverified",
+            "hash_algorithm": "sha256"
+          },
+          "response_status": 400,
+          "response_body": {
+            "error": {
+              "code": "VALIDATION_ERROR",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/citations:verify",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "73e1ab7f256f8973313de32eb24ff934",
+            "X-KB-Signature": "f35b1dc775e7a81f0b668043b7fac781054a691d6bc6e3a66d1f0fdee5045016",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+            "version": 1,
+            "version_id": "025fff2ae76a471aaea7b430deccb0dd",
+            "chunk_id": "9db4822bef2da3a73b68d377e838a496",
+            "anchor_id": "",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc@1#chunk=9db4822bef2da3a73b68d377e838a496",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 999999,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "unverified",
+            "hash_algorithm": "sha256"
+          },
+          "response_status": 400,
+          "response_body": {
+            "error": {
+              "code": "VALIDATION_ERROR",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/citations:verify",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "9996ec91b8718722f01be5b7846acff3",
+            "X-KB-Signature": "2b4a51b20fee71d047c039e1f82b85a487c187c400dfc4d236bd9e5af5f4cf04",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+            "version": 1,
+            "version_id": "unknown-history",
+            "chunk_id": "9db4822bef2da3a73b68d377e838a496",
+            "anchor_id": "",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc@1#chunk=9db4822bef2da3a73b68d377e838a496",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "unverified",
+            "hash_algorithm": "sha256"
+          },
+          "response_status": 404,
+          "response_body": {
+            "error": {
+              "code": "ANCHOR_UNRESOLVABLE",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/assets",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "5f61ca4eac13e38b511d516627b0b06f",
+            "X-KB-Signature": "ab7ca5e7bac43b4b2520b3982798ef960a997b9b4a3fa348fd33ffffead77527",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json",
+            "Idempotency-Key": "draft"
+          },
+          "request_body": {
+            "kb_id": "controlled",
+            "content": "alpha evidence",
+            "filename": "fixture.txt",
+            "asset_type": "document",
+            "idempotency_key": "draft"
+          },
+          "response_status": 200,
+          "response_body": {
+            "activated": false,
+            "author_id": "owner",
+            "created_at": "2026-11-25T12:44:32.159447+00:00",
+            "created_version": 1,
+            "current_version": 1,
+            "doc_id": "004c3822-a911-484a-912c-de61935b26af",
+            "filename": "fixture.txt",
+            "hash_algorithm": "sha256",
+            "lifecycle_state": "draft",
+            "published_at": "",
+            "publisher_id": "",
+            "raw_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "reviewer_id": "",
+            "rollback_from_version": null,
+            "rollback_scope": "content_and_filename_only",
+            "semantic_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "source_issue_id": "",
+            "version": 1,
+            "version_id": "85f78b382ebc491b93697c4a23503892",
+            "version_label": "1"
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/assets",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "b389e95b620bb894a17a094aba6276b4",
+            "X-KB-Signature": "b8f1138c8291b18386215a5e6a3074de6e9e6a3efb34cf6eb51bfa9b55ff9614",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json",
+            "Idempotency-Key": "ingest"
+          },
+          "request_body": {
+            "kb_id": "primary",
+            "content": "alpha evidence",
+            "filename": "fixture.txt",
+            "asset_type": "document",
+            "idempotency_key": "ingest"
+          },
+          "response_status": 200,
+          "response_body": {
+            "activated": true,
+            "author_id": "owner",
+            "created_at": "2026-11-25T12:44:32.085476+00:00",
+            "created_version": 1,
+            "current_version": 1,
+            "doc_id": "9db84d03-b8c1-4a3d-96b3-6ac50ebe31dc",
+            "filename": "fixture.txt",
+            "hash_algorithm": "sha256",
+            "lifecycle_state": "published",
+            "published_at": "",
+            "publisher_id": "",
+            "raw_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "reviewer_id": "",
+            "rollback_from_version": null,
+            "rollback_scope": "content_and_filename_only",
+            "semantic_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "source_issue_id": "",
+            "version": 1,
+            "version_id": "025fff2ae76a471aaea7b430deccb0dd",
+            "version_label": "1"
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/assets",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "b48de062c1dcf07871e378e5e28f910b",
+            "X-KB-Signature": "79b6e779faa69103b464393fac457da168988a48c28e711dd6fbe5528d4b5b1b",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json",
+            "Idempotency-Key": "retry"
+          },
+          "request_body": {
+            "kb_id": "primary",
+            "content": "alpha evidence",
+            "filename": "fixture.txt",
+            "asset_type": "document",
+            "idempotency_key": "retry"
+          },
+          "response_status": 200,
+          "response_body": {
+            "activated": true,
+            "author_id": "owner",
+            "created_at": "2026-11-25T12:44:32.169515+00:00",
+            "created_version": 1,
+            "current_version": 1,
+            "doc_id": "d1769ac2-f4b1-481a-961a-ec8e373e0906",
+            "filename": "fixture.txt",
+            "hash_algorithm": "sha256",
+            "lifecycle_state": "published",
+            "published_at": "",
+            "publisher_id": "",
+            "raw_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "reviewer_id": "",
+            "rollback_from_version": null,
+            "rollback_scope": "content_and_filename_only",
+            "semantic_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "source_issue_id": "",
+            "version": 1,
+            "version_id": "ec329c2c7940479ca64c759efe0dcb5a",
+            "version_label": "1"
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/assets",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "2c7fed33a138c45799fccb71ed8fd6ee",
+            "X-KB-Signature": "334f75582bdc69cf394428757012ba581ef279fc7c25ff36f082459bfafb79cd",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json",
+            "Idempotency-Key": "retry"
+          },
+          "request_body": {
+            "kb_id": "primary",
+            "content": "alpha evidence",
+            "filename": "fixture.txt",
+            "asset_type": "document",
+            "idempotency_key": "retry"
+          },
+          "response_status": 200,
+          "response_body": {
+            "activated": true,
+            "author_id": "owner",
+            "created_at": "2026-11-25T12:44:32.169515+00:00",
+            "created_version": 1,
+            "current_version": 1,
+            "doc_id": "d1769ac2-f4b1-481a-961a-ec8e373e0906",
+            "filename": "fixture.txt",
+            "hash_algorithm": "sha256",
+            "lifecycle_state": "published",
+            "published_at": "",
+            "publisher_id": "",
+            "raw_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "reviewer_id": "",
+            "rollback_from_version": null,
+            "rollback_scope": "content_and_filename_only",
+            "semantic_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "source_issue_id": "",
+            "version": 1,
+            "version_id": "ec329c2c7940479ca64c759efe0dcb5a",
+            "version_label": "1"
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/assets",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610672",
+            "X-KB-Nonce": "774d419a60bb47cb4b25f8b097167ae5",
+            "X-KB-Signature": "eb8660ade03c19caee66cd47af28a3ff3eee78f113836fae86a9963420a8b6c0",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json",
+            "Idempotency-Key": "retry"
+          },
+          "request_body": {
+            "kb_id": "primary",
+            "content": "different",
+            "filename": "fixture.txt",
+            "asset_type": "document",
+            "idempotency_key": "retry"
+          },
+          "response_status": 409,
+          "response_body": {
+            "error": {
+              "code": "IDEMPOTENCY_CONFLICT",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        }
+      ]
+    },
+    {
+      "engine": "postgres",
+      "runtime_captured": true,
+      "test_only_pseudo_secret": "WAVE2-TEST-ONLY-PSEUDO-SECRET-DO-NOT-USE-REAL",
+      "assertions": [
+        "A01",
+        "A02",
+        "A03",
+        "A04",
+        "A05",
+        "A06",
+        "A07",
+        "A08",
+        "A09",
+        "A10"
+      ],
+      "events": [
+        {
+          "method": "POST",
+          "target": "/v2/assets",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610669",
+            "X-KB-Nonce": "5a46949e99cdb4c0625a2717d76b0d51",
+            "X-KB-Signature": "703cb2a976bcc5fed81200325b42b4ab27e906c97d5a4c1ede2787f22904437a",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json",
+            "Idempotency-Key": "ingest"
+          },
+          "request_body": {
+            "kb_id": "primary",
+            "content": "alpha evidence",
+            "filename": "fixture.txt",
+            "asset_type": "document",
+            "idempotency_key": "ingest"
+          },
+          "response_status": 200,
+          "response_body": {
+            "activated": true,
+            "author_id": "owner",
+            "created_at": "2026-11-25T12:44:29.918127+00:00",
+            "created_version": 1,
+            "current_version": 1,
+            "doc_id": "ae301c6f-97da-4c37-aea9-25531f1c721d",
+            "filename": "fixture.txt",
+            "hash_algorithm": "sha256",
+            "lifecycle_state": "published",
+            "published_at": "",
+            "publisher_id": "",
+            "raw_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "reviewer_id": "",
+            "rollback_from_version": null,
+            "rollback_scope": "content_and_filename_only",
+            "semantic_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "source_issue_id": "",
+            "version": 1,
+            "version_id": "f43b92a7b52845aebb39d7d56dd44f14",
+            "version_label": "1"
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/ae301c6f-97da-4c37-aea9-25531f1c721d",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOltdLCJwb2xpY3lfZ2VuZXJhdGlvbiI6MSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6InJlYWRlciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610669",
+            "X-KB-Nonce": "63654bdcde83c2be0994d2d8dcc561bb",
+            "X-KB-Signature": "5b314905f74ce3131a8959416279267f9df28a8e1bd1c3ff4adb215d8354f587",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 200,
+          "response_body": {
+            "doc_id": "ae301c6f-97da-4c37-aea9-25531f1c721d",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "owner_id": "owner",
+            "title": "fixture.txt",
+            "asset_type": "document",
+            "source_kind": "upload",
+            "source_ref": "",
+            "visibility": "private",
+            "current_version": 1,
+            "current_version_id": "f43b92a7b52845aebb39d7d56dd44f14",
+            "lifecycle_state": "published",
+            "archived": false,
+            "archived_at": null,
+            "tags": [],
+            "metadata": {
+              "asset_type": "document"
+            },
+            "domain_metadata": {
+              "schema_ref": null,
+              "payload": {}
+            },
+            "valid_from": null,
+            "valid_to": null
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/ae301c6f-97da-4c37-aea9-25531f1c721d",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOltdLCJwb2xpY3lfZ2VuZXJhdGlvbiI6MSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6Im91dHNpZGVyIn0sImFnZW50Ijp7ImFnZW50X2lkIjoiYm91bmQtYWdlbnQiLCJwcm9maWxlX2dlbmVyYXRpb24iOjEsInRhc2tfaWQiOiIifSwicHVycG9zZSI6InJlYWQiLCJyZXF1ZXN0X2lkIjoid2F2ZTItdGVzdCIsInRlbmFudF9pZCI6ImVudGVycHJpc2UtYSJ9",
+            "X-KB-Timestamp": "1795610669",
+            "X-KB-Nonce": "51fa892c00442ffd9bac8f5f4d70f591",
+            "X-KB-Signature": "6ad24dde3a4117f64fbc6a002260c585094751a6832eda76e6b7c3cd9c2f6113",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "PERMISSION_DENIED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/ae301c6f-97da-4c37-aea9-25531f1c721d",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOltdLCJwb2xpY3lfZ2VuZXJhdGlvbiI6MSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6InJlYWRlciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6InVuYm91bmQtYWdlbnQiLCJwcm9maWxlX2dlbmVyYXRpb24iOjEsInRhc2tfaWQiOiIifSwicHVycG9zZSI6InJlYWQiLCJyZXF1ZXN0X2lkIjoid2F2ZTItdGVzdCIsInRlbmFudF9pZCI6ImVudGVycHJpc2UtYSJ9",
+            "X-KB-Timestamp": "1795610669",
+            "X-KB-Nonce": "b6db6d7dca1e680e6b093f80aab5db2f",
+            "X-KB-Signature": "177001bd3d08575bfd0e069018cf63a7ca5134dedb02dd4cbe07c544a15bd430",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "PERMISSION_DENIED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/ae301c6f-97da-4c37-aea9-25531f1c721d",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6Im93bmVyIn0sImFnZW50Ijp7ImFnZW50X2lkIjoiYm91bmQtYWdlbnQiLCJwcm9maWxlX2dlbmVyYXRpb24iOjEsInRhc2tfaWQiOiIifSwicHVycG9zZSI6InJlYWQiLCJyZXF1ZXN0X2lkIjoid2F2ZTItdGVzdCIsInRlbmFudF9pZCI6ImVudGVycHJpc2UtYSJ9",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "d7e48053d0fcb1cc632f3c0824a17f71",
+            "X-KB-Signature": "0ced66caf56bbe86689f8e24ed976e40d021f686d407c8e2de0e20a08ebfed0e",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 400,
+          "response_body": {
+            "error": {
+              "code": "VALIDATION_ERROR",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/ae301c6f-97da-4c37-aea9-25531f1c721d",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "57905976f5decd39f6150331265fa6f2",
+            "X-KB-Signature": "2e90cfbadf9b1eb8abe8e2f8f39a7471b6e449448fbdb8ef2b150afeb86cab17",
+            "X-Tenant-Id": "",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "PERMISSION_DENIED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/ae301c6f-97da-4c37-aea9-25531f1c721d",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWIifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "92bf5dd02c226c9c254128443fac16e8",
+            "X-KB-Signature": "4683f260a5007ac920f282d78f7ff04e6764a99b1822bb065f2336fe610542e4",
+            "X-Tenant-Id": "enterprise-b",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "PERMISSION_DENIED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/ae301c6f-97da-4c37-aea9-25531f1c721d",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOltdLCJwb2xpY3lfZ2VuZXJhdGlvbiI6MSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6InJlYWRlciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "29855e06d65407bce3cbb972c2333c05",
+            "X-KB-Signature": "d635818bfc28e9e60fda09f7b6b2ebfb1228a2511fa58f1fcbff312e61062e82",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "PERMISSION_DENIED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/ae301c6f-97da-4c37-aea9-25531f1c721d",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOltdLCJwb2xpY3lfZ2VuZXJhdGlvbiI6MSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6InJlYWRlciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "16d5e0a7b5956e043e60e6965d6b9289",
+            "X-KB-Signature": "32b042263061208bd0ece8a4d1dfc899df3a136095bbc9def27fa405d3e00ef3",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "IDENTITY_REVOKED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/ae301c6f-97da-4c37-aea9-25531f1c721d",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOltdLCJwb2xpY3lfZ2VuZXJhdGlvbiI6MSwicm9sZXMiOltdLCJzZXNzaW9uX2lkIjoidGVzdC1zZXNzaW9uIiwic3ViamVjdF9pZCI6InJlYWRlciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjoxLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "1a48d03d2222aedfc59eb307d67859b4",
+            "X-KB-Signature": "cd97bb66f0e5480c02f035a0a8e061b00d3b86657173efd701cb202ec67c157f",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 403,
+          "response_body": {
+            "error": {
+              "code": "PERMISSION_DENIED",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "target": "/v2/assets/ae301c6f-97da-4c37-aea9-25531f1c721d",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "e8985a21283ec0f4931f6abbc14778d3",
+            "X-KB-Signature": "0bc53ea5ba6d7366a936c1f06768f836477a3c1151da788f7c8255179b392f00",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": null,
+          "response_status": 503,
+          "response_body": {
+            "error": {
+              "code": "BACKEND_UNAVAILABLE",
+              "message": "Request unavailable",
+              "retryable": true,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/retrieval:search",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "443c1a1dde377ffa4f59f9061e1b943d",
+            "X-KB-Signature": "6c3ff72da966d414894ef8d4681a13a5dfbc93da7f006a85dc9d438be52347d5",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "query": "alpha",
+            "mode": "keyword",
+            "limit": 10,
+            "scope": {
+              "mode": "all"
+            },
+            "filters": {
+              "asset_types": [],
+              "tags": [],
+              "lifecycle_states": []
+            },
+            "rerank": {
+              "enabled": false,
+              "reranker_id": "",
+              "top_k": 40
+            },
+            "calibration": {
+              "enabled": false,
+              "min_calibrated_score": 0
+            }
+          },
+          "response_status": 200,
+          "response_body": {
+            "mode": "keyword",
+            "reranker_id": "",
+            "calibrator_id": "",
+            "calibration_applied": false,
+            "candidate_budget_exhausted": false,
+            "filtered_below_threshold": 0,
+            "hits": [
+              {
+                "doc_id": "ae301c6f-97da-4c37-aea9-25531f1c721d",
+                "kb_id": "primary",
+                "version": 1,
+                "version_id": "f43b92a7b52845aebb39d7d56dd44f14",
+                "chunk_id": "e3020e554f961ba360e086960043787e",
+                "title": "fixture.txt",
+                "score": 0.01639344262295082,
+                "raw_score": 0.01639344262295082,
+                "rerank_score": 0.0,
+                "calibrated_score": 0.0,
+                "excerpt": "alpha evidence",
+                "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+                "source_uri": "kb://org/enterprise-a/doc/ae301c6f-97da-4c37-aea9-25531f1c721d@1#chunk=e3020e554f961ba360e086960043787e",
+                "truncated": false,
+                "masking_summary": "",
+                "score_breakdown": {
+                  "keyword_rank": 1,
+                  "vector_rank": 0,
+                  "fusion_method": "rrf"
+                },
+                "hash_algorithm": "sha256"
+              }
+            ]
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/citations:verify",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "3b5f365ed7c1e94866bdb26c74ef0cbc",
+            "X-KB-Signature": "6c9425d366feefb51b8642ae711cc5029983b7022d448772369418a548d996d3",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "ae301c6f-97da-4c37-aea9-25531f1c721d",
+            "version": 1,
+            "version_id": "f43b92a7b52845aebb39d7d56dd44f14",
+            "chunk_id": "e3020e554f961ba360e086960043787e",
+            "anchor_id": "",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/ae301c6f-97da-4c37-aea9-25531f1c721d@1#chunk=e3020e554f961ba360e086960043787e",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "unverified",
+            "hash_algorithm": "sha256"
+          },
+          "response_status": 200,
+          "response_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "ae301c6f-97da-4c37-aea9-25531f1c721d",
+            "version": 1,
+            "version_id": "f43b92a7b52845aebb39d7d56dd44f14",
+            "chunk_id": "e3020e554f961ba360e086960043787e",
+            "anchor_id": "",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/ae301c6f-97da-4c37-aea9-25531f1c721d@1#chunk=e3020e554f961ba360e086960043787e",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "verified",
+            "hash_algorithm": "sha256"
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/citations:verify",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "9c7382b7f5da084b2f5312c0411fc7e0",
+            "X-KB-Signature": "ec95ce0f049acf6d5d4fc392a73b9bb23627daab3512e04f374b2beb3b8b2b29",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "ae301c6f-97da-4c37-aea9-25531f1c721d",
+            "version": 1,
+            "version_id": "f43b92a7b52845aebb39d7d56dd44f14",
+            "chunk_id": "e3020e554f961ba360e086960043787e",
+            "anchor_id": "",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "tampered",
+            "excerpt_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+            "canonical_uri": "kb://org/enterprise-a/doc/ae301c6f-97da-4c37-aea9-25531f1c721d@1#chunk=e3020e554f961ba360e086960043787e",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "unverified",
+            "hash_algorithm": "sha256"
+          },
+          "response_status": 400,
+          "response_body": {
+            "error": {
+              "code": "TAMPERED_EXCERPT",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/citations:verify",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "56c797eeeef66a2be0ad7520d6520a71",
+            "X-KB-Signature": "f49d67ce6bedf6f761a16560b6b9409ea2f18d8266397e63f306d7a9696d40a4",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "ae301c6f-97da-4c37-aea9-25531f1c721d",
+            "version": 1,
+            "version_id": "f43b92a7b52845aebb39d7d56dd44f14",
+            "chunk_id": "e3020e554f961ba360e086960043787e",
+            "anchor_id": "3b713803d015597ff065e884a369eac5",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/ae301c6f-97da-4c37-aea9-25531f1c721d@1#anchor=3b713803d015597ff065e884a369eac5",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "unverified",
+            "hash_algorithm": "sha256"
+          },
+          "response_status": 200,
+          "response_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "ae301c6f-97da-4c37-aea9-25531f1c721d",
+            "version": 1,
+            "version_id": "f43b92a7b52845aebb39d7d56dd44f14",
+            "chunk_id": "e3020e554f961ba360e086960043787e",
+            "anchor_id": "3b713803d015597ff065e884a369eac5",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/ae301c6f-97da-4c37-aea9-25531f1c721d@1#anchor=3b713803d015597ff065e884a369eac5",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "verified",
+            "hash_algorithm": "sha256"
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/citations:verify",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "d830ab5ec575c4571f38efce21ff468c",
+            "X-KB-Signature": "210a753fa343beaaa2639107be605ebbcfe1e0d956cc970416ddbdf0aa0bfacf",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "ae301c6f-97da-4c37-aea9-25531f1c721d",
+            "version": 1,
+            "version_id": "f43b92a7b52845aebb39d7d56dd44f14",
+            "chunk_id": "e3020e554f961ba360e086960043787e",
+            "anchor_id": "",
+            "title": "forged-title",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/ae301c6f-97da-4c37-aea9-25531f1c721d@1#chunk=e3020e554f961ba360e086960043787e",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "unverified",
+            "hash_algorithm": "sha256"
+          },
+          "response_status": 400,
+          "response_body": {
+            "error": {
+              "code": "VALIDATION_ERROR",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/citations:verify",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "e076b7e011148713f47e5e71dbf15a57",
+            "X-KB-Signature": "d8dd3b034f1bf0e1c3aa0ddda14457381c12f53374949f1d2b6e42690a4221b4",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "ae301c6f-97da-4c37-aea9-25531f1c721d",
+            "version": 1,
+            "version_id": "f43b92a7b52845aebb39d7d56dd44f14",
+            "chunk_id": "e3020e554f961ba360e086960043787e",
+            "anchor_id": "",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/ae301c6f-97da-4c37-aea9-25531f1c721d@1#chunk=e3020e554f961ba360e086960043787e",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 999999,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "unverified",
+            "hash_algorithm": "sha256"
+          },
+          "response_status": 400,
+          "response_body": {
+            "error": {
+              "code": "VALIDATION_ERROR",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/citations:verify",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "cae4691161c52ff7dd0d8fff4e56d99f",
+            "X-KB-Signature": "5e5278a65958f900fb019b193234aefd9dba264ea5c4f22361b2b2eb9295e5ae",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "evidence_id": "test-evidence",
+            "tenant_id": "enterprise-a",
+            "kb_id": "primary",
+            "doc_id": "ae301c6f-97da-4c37-aea9-25531f1c721d",
+            "version": 1,
+            "version_id": "unknown-history",
+            "chunk_id": "e3020e554f961ba360e086960043787e",
+            "anchor_id": "",
+            "title": "fixture.txt",
+            "section_path": [],
+            "excerpt": "alpha evidence",
+            "excerpt_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "canonical_uri": "kb://org/enterprise-a/doc/ae301c6f-97da-4c37-aea9-25531f1c721d@1#chunk=e3020e554f961ba360e086960043787e",
+            "locator": {
+              "page": 0,
+              "char_start": 0,
+              "char_end": 14,
+              "table_cell": null
+            },
+            "masking_summary": "",
+            "verification_status": "unverified",
+            "hash_algorithm": "sha256"
+          },
+          "response_status": 404,
+          "response_body": {
+            "error": {
+              "code": "ANCHOR_UNRESOLVABLE",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/assets",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "c03397dc53e52cf0b944649d8746edb9",
+            "X-KB-Signature": "3508d6ccbb08f646ad27276dbe5d67c6285abff9223bf83ae6f18d5acaf12242",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json",
+            "Idempotency-Key": "draft"
+          },
+          "request_body": {
+            "kb_id": "controlled",
+            "content": "alpha evidence",
+            "filename": "fixture.txt",
+            "asset_type": "document",
+            "idempotency_key": "draft"
+          },
+          "response_status": 200,
+          "response_body": {
+            "activated": false,
+            "author_id": "owner",
+            "created_at": "2026-11-25T12:44:30.350142+00:00",
+            "created_version": 1,
+            "current_version": 1,
+            "doc_id": "6a118a6d-e0d1-4869-b95b-87c77f053787",
+            "filename": "fixture.txt",
+            "hash_algorithm": "sha256",
+            "lifecycle_state": "draft",
+            "published_at": "",
+            "publisher_id": "",
+            "raw_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "reviewer_id": "",
+            "rollback_from_version": null,
+            "rollback_scope": "content_and_filename_only",
+            "semantic_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "source_issue_id": "",
+            "version": 1,
+            "version_id": "cc7964bc47174e88934765b810285938",
+            "version_label": "1"
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/assets",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "3df074a4fb5bd319baa80f5007f09e30",
+            "X-KB-Signature": "4c3d1dbff530d9a21afb90e5aea1aa5e5750583dc8a2875bc348f0c67b579283",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json",
+            "Idempotency-Key": "ingest"
+          },
+          "request_body": {
+            "kb_id": "primary",
+            "content": "alpha evidence",
+            "filename": "fixture.txt",
+            "asset_type": "document",
+            "idempotency_key": "ingest"
+          },
+          "response_status": 200,
+          "response_body": {
+            "activated": true,
+            "author_id": "owner",
+            "created_at": "2026-11-25T12:44:29.918127+00:00",
+            "created_version": 1,
+            "current_version": 1,
+            "doc_id": "ae301c6f-97da-4c37-aea9-25531f1c721d",
+            "filename": "fixture.txt",
+            "hash_algorithm": "sha256",
+            "lifecycle_state": "published",
+            "published_at": "",
+            "publisher_id": "",
+            "raw_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "reviewer_id": "",
+            "rollback_from_version": null,
+            "rollback_scope": "content_and_filename_only",
+            "semantic_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "source_issue_id": "",
+            "version": 1,
+            "version_id": "f43b92a7b52845aebb39d7d56dd44f14",
+            "version_label": "1"
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/assets",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "a1f612650f878c21947c8780d2652e15",
+            "X-KB-Signature": "ad409aad00fc7d318ba948fa83102f30579364afd3649e0e7b724b1f70d06e0d",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json",
+            "Idempotency-Key": "retry"
+          },
+          "request_body": {
+            "kb_id": "primary",
+            "content": "alpha evidence",
+            "filename": "fixture.txt",
+            "asset_type": "document",
+            "idempotency_key": "retry"
+          },
+          "response_status": 200,
+          "response_body": {
+            "activated": true,
+            "author_id": "owner",
+            "created_at": "2026-11-25T12:44:30.425054+00:00",
+            "created_version": 1,
+            "current_version": 1,
+            "doc_id": "62985095-3631-4e49-bd34-bcca0f44db41",
+            "filename": "fixture.txt",
+            "hash_algorithm": "sha256",
+            "lifecycle_state": "published",
+            "published_at": "",
+            "publisher_id": "",
+            "raw_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "reviewer_id": "",
+            "rollback_from_version": null,
+            "rollback_scope": "content_and_filename_only",
+            "semantic_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "source_issue_id": "",
+            "version": 1,
+            "version_id": "6c3d3bf81bb24c40a87378bf87af11c9",
+            "version_label": "1"
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/assets",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "c553a62e0f05384ccb40994e86abce88",
+            "X-KB-Signature": "f116406186a6486b0457c485f214a21d0d8d6159ceb7e11761de31dcfd449053",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json",
+            "Idempotency-Key": "retry"
+          },
+          "request_body": {
+            "kb_id": "primary",
+            "content": "alpha evidence",
+            "filename": "fixture.txt",
+            "asset_type": "document",
+            "idempotency_key": "retry"
+          },
+          "response_status": 200,
+          "response_body": {
+            "activated": true,
+            "author_id": "owner",
+            "created_at": "2026-11-25T12:44:30.425054+00:00",
+            "created_version": 1,
+            "current_version": 1,
+            "doc_id": "62985095-3631-4e49-bd34-bcca0f44db41",
+            "filename": "fixture.txt",
+            "hash_algorithm": "sha256",
+            "lifecycle_state": "published",
+            "published_at": "",
+            "publisher_id": "",
+            "raw_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "reviewer_id": "",
+            "rollback_from_version": null,
+            "rollback_scope": "content_and_filename_only",
+            "semantic_hash": "6d821f2a541fe912714c3285118da83656218f4b12421ed3db79385da8d51696",
+            "source_issue_id": "",
+            "version": 1,
+            "version_id": "6c3d3bf81bb24c40a87378bf87af11c9",
+            "version_label": "1"
+          }
+        },
+        {
+          "method": "POST",
+          "target": "/v2/assets",
+          "request_headers": {
+            "X-KB-Actor": "eyJhY3RvciI6eyJhY3Rvcl90eXBlIjoiaHVtYW4iLCJhbmNlc3Rvcl9kZXBhcnRtZW50X2lkcyI6W10sImNsZWFyYW5jZV9sZXZlbCI6ImludGVybmFsIiwiY2xlYXJhbmNlX3RhZ3MiOltdLCJkZXBhcnRtZW50X2lkcyI6W10sImlzc3VlciI6Imh0dHBzOi8vZ2F0ZXdheS5leGFtcGxlLmludmFsaWQiLCJvcmdfcm9sZXMiOlsiYWRtaW4iXSwicG9saWN5X2dlbmVyYXRpb24iOjEsInJvbGVzIjpbXSwic2Vzc2lvbl9pZCI6InRlc3Qtc2Vzc2lvbiIsInN1YmplY3RfaWQiOiJvd25lciJ9LCJhZ2VudCI6eyJhZ2VudF9pZCI6ImJvdW5kLWFnZW50IiwicHJvZmlsZV9nZW5lcmF0aW9uIjozLCJ0YXNrX2lkIjoiIn0sInB1cnBvc2UiOiJyZWFkIiwicmVxdWVzdF9pZCI6IndhdmUyLXRlc3QiLCJ0ZW5hbnRfaWQiOiJlbnRlcnByaXNlLWEifQ==",
+            "X-KB-Timestamp": "1795610670",
+            "X-KB-Nonce": "3da0a4600bae32641ae282d28f8245d7",
+            "X-KB-Signature": "716dc96e35d5c8bc6ac339bedb00ac54c3733e46db90651ca0bdd6ce16ef9dd3",
+            "X-Tenant-Id": "enterprise-a",
+            "X-Request-Id": "wave2-test",
+            "Content-Type": "application/json",
+            "Idempotency-Key": "retry"
+          },
+          "request_body": {
+            "kb_id": "primary",
+            "content": "different",
+            "filename": "fixture.txt",
+            "asset_type": "document",
+            "idempotency_key": "retry"
+          },
+          "response_status": 409,
+          "response_body": {
+            "error": {
+              "code": "IDEMPOTENCY_CONFLICT",
+              "message": "Request unavailable",
+              "retryable": false,
+              "request_id": "wave2-test",
+              "details": {}
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1183 @@
+{
+  "base_sha": "5a139e574ef68bcc045b70af32aee67f92c172b3",
+  "old_expanded_jobs": 22,
+  "new_expanded_jobs": 36,
+  "all_old_jobs_preserved": true,
+  "mapping": [
+    {
+      "old_job": "core",
+      "new_job": "core",
+      "old_step_count": 4,
+      "preserved_commands": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "PYTHONPATH=src python -S -W error::ResourceWarning -m unittest discover -s tests -t . -v"
+        },
+        {
+          "run": "PYTHONPATH=src python -S -W error::ResourceWarning -m tests.benchmark.runner --json"
+        }
+      ],
+      "runs_on": "${{ matrix.os }}",
+      "matrix": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "env": null,
+      "services": null,
+      "all_original_steps_unchanged": true
+    },
+    {
+      "old_job": "unit-suite",
+      "new_job": "unit-suite",
+      "old_step_count": 5,
+      "preserved_commands": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "run": "python -W error::ResourceWarning -m unittest discover -s tests -t . -v"
+        }
+      ],
+      "runs_on": "${{ matrix.os }}",
+      "matrix": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "all_original_steps_unchanged": true
+    },
+    {
+      "old_job": "pytest-suite",
+      "new_job": "pytest-suite",
+      "old_step_count": 5,
+      "preserved_commands": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "run": "python -W error::ResourceWarning -m pytest -q"
+        }
+      ],
+      "runs_on": "${{ matrix.os }}",
+      "matrix": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "all_original_steps_unchanged": true
+    },
+    {
+      "old_job": "package-suite",
+      "new_job": "package-suite",
+      "old_step_count": 5,
+      "preserved_commands": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "run": "python -m build"
+        },
+        {
+          "run": "python docs/acceptance/v2.1-align-wave1p5/verify_package.py dist/*.whl"
+        }
+      ],
+      "runs_on": "${{ matrix.os }}",
+      "matrix": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "services": null,
+      "all_original_steps_unchanged": true
+    },
+    {
+      "old_job": "golden-1",
+      "new_job": "golden-1",
+      "old_step_count": 5,
+      "preserved_commands": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "name": "Unmodified golden command 1",
+          "run": "python -m tests.benchmark.runner --json"
+        }
+      ],
+      "runs_on": "${{ matrix.os }}",
+      "matrix": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "all_original_steps_unchanged": true
+    },
+    {
+      "old_job": "golden-2",
+      "new_job": "golden-2",
+      "old_step_count": 5,
+      "preserved_commands": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "name": "Unmodified golden command 2",
+          "run": "python -m tests.benchmark.runner --legacy75 --json"
+        }
+      ],
+      "runs_on": "${{ matrix.os }}",
+      "matrix": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "all_original_steps_unchanged": true
+    },
+    {
+      "old_job": "golden-3",
+      "new_job": "golden-3",
+      "old_step_count": 5,
+      "preserved_commands": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "name": "Unmodified golden command 3",
+          "run": "python -m tests.benchmark.runner --legacy100 --json"
+        }
+      ],
+      "runs_on": "${{ matrix.os }}",
+      "matrix": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "all_original_steps_unchanged": true
+    },
+    {
+      "old_job": "golden-4",
+      "new_job": "golden-4",
+      "old_step_count": 5,
+      "preserved_commands": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "name": "Unmodified golden command 4",
+          "run": "python -m tests.benchmark.runner --engine postgres --json"
+        }
+      ],
+      "runs_on": "${{ matrix.os }}",
+      "matrix": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "all_original_steps_unchanged": true
+    },
+    {
+      "old_job": "golden-5",
+      "new_job": "golden-5",
+      "old_step_count": 5,
+      "preserved_commands": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "name": "Unmodified golden command 5",
+          "run": "python -m tests.benchmark.runner --engine postgres --legacy75 --json"
+        }
+      ],
+      "runs_on": "${{ matrix.os }}",
+      "matrix": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "all_original_steps_unchanged": true
+    },
+    {
+      "old_job": "golden-6",
+      "new_job": "golden-6",
+      "old_step_count": 5,
+      "preserved_commands": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "name": "Unmodified golden command 6",
+          "run": "python -m tests.benchmark.runner --engine postgres --legacy100 --json"
+        }
+      ],
+      "runs_on": "${{ matrix.os }}",
+      "matrix": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "all_original_steps_unchanged": true
+    },
+    {
+      "old_job": "contracts-ts-and-docker-sandbox",
+      "new_job": "contracts-ts-and-docker-sandbox",
+      "old_step_count": 12,
+      "preserved_commands": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "run": "python docs/architecture/knowledge-sdk-alignment/contracts/validate_assets.py"
+        },
+        {
+          "run": "python docs/architecture/knowledge-sdk-alignment/validate_m1_manifest.py"
+        },
+        {
+          "uses": "actions/setup-node@v4",
+          "with": {
+            "node-version": "22"
+          }
+        },
+        {
+          "name": "Locked dev-only TypeScript DTO mapping compile and execute",
+          "working-directory": "docs/architecture/knowledge-sdk-alignment/contracts",
+          "run": "npm ci --ignore-scripts --no-audit --no-fund\nnpx --no-install tsc --strict --noEmit --target ES2020 --module commonjs openbot-adapter-dto.d.ts uri-mapping.ts uri-mapping.test.ts\nnpx --no-install tsc --strict --target ES2020 --module commonjs --outDir /tmp/sdk22-ts-executed openbot-adapter-dto.d.ts uri-mapping.ts uri-mapping.test.ts\nnode /tmp/sdk22-ts-executed/uri-mapping.test.js\n"
+        },
+        {
+          "name": "Actual isolated SQLite and PostgreSQL adapter sandbox image runs",
+          "if": "matrix.python == '3.12'",
+          "run": "python docs/acceptance/v2.1-align-wave1p5/docker_sandbox_probe.py --require --output align-wave1p5-ci-evidence"
+        },
+        {
+          "uses": "actions/upload-artifact@v4",
+          "if": "always() && matrix.python == '3.12'",
+          "with": {
+            "name": "align-wave1p5-sandbox-test",
+            "path": "align-wave1p5-ci-evidence/"
+          }
+        },
+        {
+          "name": "Isolated non-publishing Docker build and live runtime probe",
+          "if": "matrix.python == '3.12'",
+          "run": "python docs/acceptance/v2.1-align-wave1/docker_probe.py --require --output align-wave1-ci-evidence"
+        },
+        {
+          "uses": "actions/upload-artifact@v4",
+          "if": "always() && matrix.python == '3.12'",
+          "with": {
+            "name": "align-wave1-image-test",
+            "path": "align-wave1-ci-evidence/"
+          }
+        }
+      ],
+      "runs_on": "${{ matrix.os }}",
+      "matrix": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "all_original_steps_unchanged": true
+    }
+  ],
+  "new_jobs": {
+    "wave2-v6-golden-1": {
+      "timeout-minutes": 30,
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "runs-on": "${{ matrix.os }}",
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "name": "Schema6 unchanged golden command 1",
+          "run": "python -W error::ResourceWarning -m tests.wave2.run_golden_v6 --json"
+        }
+      ]
+    },
+    "wave2-v6-golden-2": {
+      "timeout-minutes": 30,
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "runs-on": "${{ matrix.os }}",
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "name": "Schema6 unchanged golden command 2",
+          "run": "python -W error::ResourceWarning -m tests.wave2.run_golden_v6 --legacy75 --json"
+        }
+      ]
+    },
+    "wave2-v6-golden-3": {
+      "timeout-minutes": 30,
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "runs-on": "${{ matrix.os }}",
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "name": "Schema6 unchanged golden command 3",
+          "run": "python -W error::ResourceWarning -m tests.wave2.run_golden_v6 --legacy100 --json"
+        }
+      ]
+    },
+    "wave2-v6-golden-4": {
+      "timeout-minutes": 30,
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "runs-on": "${{ matrix.os }}",
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "name": "Schema6 unchanged golden command 4",
+          "run": "python -W error::ResourceWarning -m tests.wave2.run_golden_v6 --engine postgres --json"
+        }
+      ]
+    },
+    "wave2-v6-golden-5": {
+      "timeout-minutes": 30,
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "runs-on": "${{ matrix.os }}",
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "name": "Schema6 unchanged golden command 5",
+          "run": "python -W error::ResourceWarning -m tests.wave2.run_golden_v6 --engine postgres --legacy75 --json"
+        }
+      ]
+    },
+    "wave2-v6-golden-6": {
+      "timeout-minutes": 30,
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "runs-on": "${{ matrix.os }}",
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "name": "Schema6 unchanged golden command 6",
+          "run": "python -W error::ResourceWarning -m tests.wave2.run_golden_v6 --engine postgres --legacy100 --json"
+        }
+      ]
+    },
+    "wave2-runtime": {
+      "timeout-minutes": 30,
+      "services": {
+        "postgres": {
+          "image": "pgvector/pgvector:pg17",
+          "env": {
+            "POSTGRES_HOST_AUTH_METHOD": "trust",
+            "POSTGRES_DB": "sdk_align"
+          },
+          "ports": [
+            "127.0.0.1::5432"
+          ],
+          "options": "--health-cmd \"pg_isready -U postgres -d sdk_align\" --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "env": {
+        "PYTHONPATH": "src:."
+      },
+      "runs-on": "${{ matrix.os }}",
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "include": [
+            {
+              "python": "3.9",
+              "os": "ubuntu-22.04"
+            },
+            {
+              "python": "3.12",
+              "os": "ubuntu-24.04"
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@v4",
+          "with": {
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@v5",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "run": "python -m pip install -e '.[http,dev,mcp,postgres,oidc,parsers]' pytest"
+        },
+        {
+          "name": "Provision isolated non-superuser pgvector test role",
+          "env": {
+            "TEST_PG_PORT": "${{ job.services.postgres.ports[5432] }}"
+          },
+          "run": "python - <<'PYCODE'\nimport os, psycopg\nfrom pathlib import Path\ndsn='host=127.0.0.1 port='+os.environ['TEST_PG_PORT']+' dbname=sdk_align user=postgres'\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_TEST_PG_DSN='+dsn.replace('user=postgres','user=sdk_align')+'\\n')\nwith psycopg.connect(dsn,autocommit=True) as c:\n    c.execute('CREATE EXTENSION IF NOT EXISTS vector')\n    c.execute('CREATE ROLE sdk_align LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE')\n    c.execute('GRANT CREATE ON DATABASE sdk_align TO sdk_align')\n    c.execute('CREATE DATABASE openbot_fixture')\nfixture_dsn=dsn.replace('dbname=sdk_align','dbname=openbot_fixture')\nwith psycopg.connect(fixture_dsn,autocommit=True) as c:\n    c.execute(Path('deploy/openbot-sandbox/init-fixture-postgres.sql').read_text())\nwith open(os.environ['GITHUB_ENV'],'a') as file:\n    file.write('KNOWLEDGE_SDK_SANDBOX_TEST_DSN='+fixture_dsn.replace('user=postgres','user=fixture_runtime')+' options=-csearch_path=fixture_sdk,public\\n')\nPYCODE\n"
+        },
+        {
+          "name": "Real dual-engine Wave2 migration, runtime and sandbox with sanitized captures",
+          "run": "WAVE2_CAPTURE_OUTPUT=wave2-ci-captures python -W error::ResourceWarning -m unittest discover -s tests/wave2 -t . -v"
+        },
+        {
+          "uses": "actions/upload-artifact@v4",
+          "if": "always()",
+          "with": {
+            "name": "wave2-captures-${{ matrix.python }}",
+            "path": "wave2-ci-captures/"
+          }
+        }
+      ]
+    }
+  }
+}

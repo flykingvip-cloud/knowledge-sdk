@@ -1,0 +1,157 @@
+{
+  "passed": true,
+  "migration_interruption_rollback": true,
+  "idempotent_reapply": true,
+  "all_table_fingerprints_equal": true,
+  "fingerprints": {
+    "agent_profiles": {
+      "rows": 2,
+      "sha256": "2f159817031fab1ed4b873344f0bfcbbdd22803d19a730da5681c74910008f5c"
+    },
+    "audit_events": {
+      "rows": 56,
+      "sha256": "2938bb0c898cf717f8ab32836f1610c2d0261c50c1c0beaa37fcf367e5e069c9"
+    },
+    "chunk_embeddings": {
+      "rows": 2,
+      "sha256": "c6bc851bc8ba4fdd1cafbd864456e8e432203ec7d8dbd73e26ab2c9fdfde442b"
+    },
+    "chunks": {
+      "rows": 4,
+      "sha256": "2197d6321afe3c07e243d1de6913cbd15c45cdf2a2efc6f65f1a89b22fa8a08b"
+    },
+    "connector_sync_state": {
+      "rows": 2,
+      "sha256": "19bd728d2a923fbee686f11777d94504616b4a02b71ae8de8fab37e30ea33433"
+    },
+    "consumer_bindings": {
+      "rows": 2,
+      "sha256": "71db364c93a293321b037d98f0245c1912ad36cbe7a3c23b7839dbb3d4265ef5"
+    },
+    "context_snapshots": {
+      "rows": 2,
+      "sha256": "fc82d149d095e81edfd106f3ed9042d7c57a9b151b2cfa5f567b1b5cef1aeb2b"
+    },
+    "document_acls": {
+      "rows": 2,
+      "sha256": "46f468c290050e9593037f03251edc5df15508419917c28ed2ebb5fec72c05b0"
+    },
+    "document_versions": {
+      "rows": 4,
+      "sha256": "bc486413e971958d3018a812e712986e9754801070dae7b11fa63cd28a40896a"
+    },
+    "documents": {
+      "rows": 2,
+      "sha256": "7341de22ccb222e9f3fef31dc67b95008949010503e88129266a161c03dca06f"
+    },
+    "evidence_anchors": {
+      "rows": 6,
+      "sha256": "a6dd4e6d899d1921af6103ed834ae20139360ec2fb409babbb152ebd30ebbb4c"
+    },
+    "evidence_issues": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "evidence_packs": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "idempotency_records": {
+      "rows": 2,
+      "sha256": "d934f3546a7d647874254dba83bc43885e5dabb5919b6eda2cba0d885185565b"
+    },
+    "identity_principals": {
+      "rows": 2,
+      "sha256": "598c5d74e7c37a40e9e109d5c1faee5cd00d65089566e605713cb4f184b5268e"
+    },
+    "impact_alerts": {
+      "rows": 12,
+      "sha256": "d03149378e85e5dd46cd4ca13a98172389bc130d36a055ba918378b5c5b68edb"
+    },
+    "ingestion_jobs": {
+      "rows": 2,
+      "sha256": "a271a8f6ecb769578cb9a8df4bb9de3df132342ec1fb5ad810c2d6a06fc7154c"
+    },
+    "kb_members": {
+      "rows": 2,
+      "sha256": "b6f7df1e3dbe7e29438534c81713eecd95dfd2b4be5f49c8848742e3ead1f95f"
+    },
+    "knowledge_bases": {
+      "rows": 2,
+      "sha256": "f7ca5fccffae762b0ddfb8d500f22c4c413d7f2b9ff476a48e9e7fb33dc7c7cc"
+    },
+    "outbox_events": {
+      "rows": 10,
+      "sha256": "f45094c56f0a30e694163aae0728b5ae95c93555f52ef4cefb48b9993165280a"
+    },
+    "pending_indexes": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "policy_rules": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "replay_nonces": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "resource_directory": {
+      "rows": 30,
+      "sha256": "f1f43205cffc5f5018d70d7abd7536e82c2b7afb7ffe371890714371ad0f0277"
+    },
+    "review_decisions": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "schema_migrations": {
+      "rows": 2,
+      "sha256": "e5282335078b58c9db3d1585a336672265a080424b1274c5ba4ed04ec268cf4e"
+    },
+    "scim_group_members": {
+      "rows": 2,
+      "sha256": "4bf60db3784c66ba9af1824e379a66f9029a2d01926dcb30ed6faab63243e07c"
+    },
+    "scim_groups": {
+      "rows": 2,
+      "sha256": "c40e6f65ffc45bccc3e81322a86560e5d3c08bc64a2a7a969c998bd073254444"
+    },
+    "task_contexts": {
+      "rows": 2,
+      "sha256": "2e84f3f3bde80ab07e38ffb0523300a2e2f5e804322766b9a313d66cf40e27cb"
+    },
+    "task_revocations": {
+      "rows": 2,
+      "sha256": "1c1e268e68c69eb724335ba5644bdef7c6bf9e52160351e94bf629a42b1aec52"
+    },
+    "usage_events": {
+      "rows": 4,
+      "sha256": "ab20c1852a34bd3d1c19527b83ce72298dee2ac9903f53ad92b3938ba5bf026a"
+    },
+    "webhook_deliveries": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "webhook_subscriptions": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "restored_contracts": {
+    "alpha": {
+      "audit_valid": true,
+      "audit_checked": 28,
+      "acl_denied": true,
+      "alerts": 6,
+      "pinned_version": 1
+    },
+    "beta": {
+      "audit_valid": true,
+      "audit_checked": 28,
+      "acl_denied": true,
+      "alerts": 6,
+      "pinned_version": 1
+    }
+  },
+  "boundary": "Disposable databases only; table-owner backup operation, no production topology/failover claim"
+}

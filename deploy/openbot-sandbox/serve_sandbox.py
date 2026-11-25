@@ -9,11 +9,15 @@ def main(state_dir="/data",secret_file="/run/secrets/knowledge_auth_secret",mode
     import uvicorn
     root=Path(state_dir);mode=mode or os.environ.get('SANDBOX_MODE','sqlite');secret=Path(secret_file).read_text().strip()
     if len(secret)<32 or os.getuid()==0 or not (root/'seed-receipt.json').is_file():raise SystemExit('Prepared nonroot fixture with mounted key required')
-    c=connect(root,mode,os.environ.get('KNOWLEDGE_SDK_DSN'))
+    enable_v2=os.environ.get('SANDBOX_ENABLE_V2','0')=='1'
+    if enable_v2:
+        from upgrade_wave2 import connect_wave2
+        c=connect_wave2(root,mode,os.environ.get('KNOWLEDGE_SDK_DSN'))
+    else:c=connect(root,mode,os.environ.get('KNOWLEDGE_SDK_DSN'))
     from knowledge_sdk.server.auth import SQLiteReplayStore
     try:
         replay=SQLiteReplayStore(str(root/'http-replay.sqlite'))
-        uvicorn.run(create_app(c,auth_secret=secret,replay_store=replay,enable_ui=False,enable_mcp=True),host='0.0.0.0',port=8088,proxy_headers=False,access_log=False)
+        uvicorn.run(create_app(c,auth_secret=secret,replay_store=replay,enable_ui=False,enable_mcp=True,enable_v2=enable_v2,v2_issuer="https://sandbox.example.invalid" if enable_v2 else None),host='0.0.0.0',port=8088,proxy_headers=False,access_log=False)
     # Replay store owns no persistent connection (per-call closing); no close API.
     finally:c.store.close()
 if __name__=='__main__':
