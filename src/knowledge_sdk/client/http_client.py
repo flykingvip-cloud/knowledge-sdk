@@ -13,6 +13,16 @@ from .local import LocalKnowledgeClient
 
 # Operation table is shared with the server so transport contracts cannot silently diverge.
 OPERATIONS={
+    'register_agent_profile':("POST",'/v1/runtime/profiles'),
+    'update_agent_profile':("POST",'/v1/runtime/profiles/update'),
+    'get_agent_profile':("POST",'/v1/runtime/profiles/get'),
+    'list_agent_profiles':("POST",'/v1/runtime/profiles/list'),
+    'create_task_context':("POST",'/v1/runtime/tasks'),
+    'complete_task_context':("POST",'/v1/runtime/tasks/complete'),
+    'create_context_snapshot':("POST",'/v1/runtime/snapshots'),
+    'read_task_snapshot':("POST",'/v1/runtime/snapshots/read'),
+    'list_task_revocations':("POST",'/v1/runtime/revocations'),
+
     "submit_for_review":("POST","/v1/governance/submit"),
     "approve_release":("POST","/v1/governance/approve"),
     "reject_release":("POST","/v1/governance/reject"),

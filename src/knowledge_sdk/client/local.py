@@ -20,6 +20,7 @@ from ..contracts.models import (KnowledgeBase, Document, DocumentVersion, Docume
 from ..contracts.uri import build_uri, parse_uri_v2
 from ..contracts.anchors import ReanchorStatus, integer, identifier
 from ..contracts.reanchor import merge_anchors_for_version
+from ..runtime.service import RuntimeMixin
 from ..governance.workflow import GovernanceMixin
 from ..governance.issues import IssueMixin
 from ..packs.service import PackMixin
@@ -82,7 +83,7 @@ class _AuditedEngine:
         return decision
 
 
-class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
+class LocalKnowledgeClient(RuntimeMixin, GovernanceMixin, IssueMixin, PackMixin):
     """Trusted in-process API. Caller supplies an authenticated Actor, not user input."""
     def __init__(self,store=None,blob_store=None,parsers=None,chunker=None,vector_index=None,embedder=None,excerpt_policy=None,*,policy_engine:Optional[KnowledgePolicyEngine]=None,redaction_registry:Optional[RedactionRegistry]=None,policy_rules:Sequence[PolicyRule]=(),identity_resolver=None,allow_insecure_local_webhook=False,require_principal=False):
         self.policy_engine = policy_engine if policy_engine is not None else DefaultPolicyEngine(policy_rules)
@@ -124,7 +125,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
                purpose=audit_purpose,doc_id=doc_id,
                effect=effect,reason=reason,redaction_profile=profile,
                request_id=context.request_id if context else '',task_id=context.task_id if context else '',
-               policy_generation=getattr(result,"policy_generation",(context.policy_generation if context and context.policy_generation else actor.policy_generation)))
+               policy_generation=str(getattr(result,"policy_generation",(context.policy_generation if context and context.policy_generation else actor.policy_generation))))
 
     @staticmethod
     def _audit_admin(actor):
@@ -167,6 +168,9 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
 
     def _visible_impact(self,actor,alert,*,agent=None,purpose=Purpose.READ,policy_context=None):
         if alert.org_id!=actor.org_id:return False
+        if alert.target_type=='task_context':
+            try:return self._runtime_owned(actor,alert.target_id).org_id==actor.org_id
+            except PermissionDeniedError:return False
         document=self.store.get_document(alert.doc_id)
         if document.org_id!=actor.org_id:return False
         owner=self.store.impact_owner(actor.org_id,alert.alert_id)==actor.user_id
@@ -254,6 +258,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
                           anchor_id or doc_id,event_type,payload=payload,
                           available_at=stamp,created_at=stamp)
         self.store.enqueue_outbox(event)
+        self._runtime_event(event)
         self._audit_current_write(actor,doc_id)
 
     @serialized
@@ -337,7 +342,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
         self._kb(actor,d.kb_id,admin=True,agent=agent,purpose=purpose,policy_context=policy_context)
         if not isinstance(rights,ResourceRights): raise ValidationError("Expected ResourceRights")
         d=replace(d,rights=rights)
-        with self.store.transaction():
+        with self.store.runtime_transaction():
             self.store.put_document(d)
             self._emit_event(actor,'doc.revoked' if rights.revoked else 'rights.updated',doc_id,d.current_version)
         # A management operation is not a grant to read a personal/denied body
@@ -363,7 +368,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
             if not can_manage_kb(actor,kb): raise PermissionDeniedError("Space creation denied")
         decision=self.policy_engine.evaluate(actor,agent,kb,action=PolicyAction.MANAGE_SPACE,purpose=purpose,context=policy_context)
         if not decision.allowed: raise PermissionDeniedError(decision.reason_code)
-        with self.store.transaction():
+        with self.store.runtime_transaction():
             try:self.store.get_kb(kb_id)
             except NotFoundError:pass
             else:raise ConflictError("KB identity already exists")
@@ -421,7 +426,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
             if controlled:return self._ingested_response(actor,previous,**ctx)
             updated=replace(d,**changes)
             # Dataclass validation precedes updates; return is separately read-gated.
-            with self.store.transaction():
+            with self.store.runtime_transaction():
                 if changes:
                     self.store.put_document(updated)
                     self._emit_event(actor,'doc.revoked' if updated.rights and updated.rights.revoked else 'rights.updated',doc_id,previous.version)
@@ -455,7 +460,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
         v=DocumentVersion(doc_id,version,text,raw_hash,semantic_hash,datetime.now(timezone.utc).isoformat(),filename,blob_key,lifecycle_state="draft" if controlled else d.lifecycle_state,author_id=actor.user_id)
         anchors=merge_anchors_for_version(actor.org_id,doc_id,version,layout,
                     self.store.get_anchors(actor.org_id,doc_id,previous.version) if previous else ())
-        with self.store.transaction():
+        with self.store.runtime_transaction():
             # Separate processes can race; the unique version key prevents lost history.
             if previous:
                 self.store.lock_document(doc_id)
@@ -527,7 +532,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
     def archive(self,actor,doc_id,*,agent=None,purpose=Purpose.READ,policy_context=None):
         ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context)
         d=self._read(actor,doc_id,True,**ctx); self._kb(actor,d.kb_id,write=True,**ctx)
-        with self.store.transaction():
+        with self.store.runtime_transaction():
             d.archived=True; self.store.put_document(d); self.store.refresh_fts(doc_id)
             self._emit_event(actor,'doc.archived',doc_id,d.current_version)
             if self.vector_index is not None: self.store.mark_pending(doc_id)
@@ -536,7 +541,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
     def restore(self,actor,doc_id,*,agent=None,purpose=Purpose.READ,policy_context=None):
         ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context)
         d=self._read(actor,doc_id,True,**ctx); self._kb(actor,d.kb_id,write=True,**ctx)
-        with self.store.transaction():
+        with self.store.runtime_transaction():
             d.archived=False; self.store.put_document(d); self.store.refresh_fts(doc_id)
             self._emit_event(actor,'doc.restored',doc_id,d.current_version)
             if self.vector_index is not None: self.store.mark_pending(doc_id)
@@ -545,7 +550,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
     def set_document_acl(self,actor,doc_id,acl,*,agent=None,purpose=Purpose.READ,policy_context=None):
         d=self.store.get_document(doc_id); self._kb(actor,d.kb_id,admin=True,agent=agent,purpose=purpose,policy_context=policy_context)
         if not isinstance(acl,DocumentACL): raise ValidationError("Expected DocumentACL")
-        with self.store.transaction():
+        with self.store.runtime_transaction():
             self.store.set_acl(doc_id,acl)
             self._emit_event(actor,'acl.updated',doc_id,d.current_version)
     @serialized
@@ -602,7 +607,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
                 self.redaction_registry.apply('',obligations.redaction_profile,purpose)
             snapshots.append((parsed.doc_id,obligations))
             return parsed
-        with self.store.transaction():
+        with self.store.runtime_transaction():
             try:
                 parsed=authorize(source_uri)
                 if conflicting_uri:authorize(conflicting_uri)
@@ -670,7 +675,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
         ctx=dict(agent=agent,purpose=purpose,policy_context=policy_context)
         # Source check, permissions and state update share the same SQLite writer
         # lock across workers. Read authority is independent of write authority.
-        with self.store.transaction():
+        with self.store.runtime_transaction():
             d,v,decision=self._anchor_authority(actor,doc_id,version,**ctx)
             write=self.evaluate_policy(actor,doc_id,action=PolicyAction.WRITE_DOCUMENT,**ctx)
             if not write.allowed:raise PermissionDeniedError(write.reason_code)
@@ -724,7 +729,7 @@ class LocalKnowledgeClient(GovernanceMixin, IssueMixin, PackMixin):
         self._kb(actor,kb_id,admin=True,agent=agent,purpose=purpose,policy_context=policy_context)
         for d in self.store.list_documents(actor.org_id):
             if d.kb_id==kb_id:
-                with self.store.transaction(): self.store.refresh_fts(d.doc_id)
+                with self.store.runtime_transaction(): self.store.refresh_fts(d.doc_id)
                 self._sync_vector(d.doc_id)
     @serialized
     def health(self):

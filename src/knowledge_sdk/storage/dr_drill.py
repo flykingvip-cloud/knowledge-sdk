@@ -76,6 +76,9 @@ def seed(store):
         a=Actor('owner',org,org_roles=('admin',));u=Actor('reader',org)
         c.create_kb(a,'dr-fixture',visibility='enterprise',kb_id=org+'-kb')
         doc=org+'-doc';c.ingest(a,org+'-kb','# H\n\nalpha evidence',filename='fixture.md',doc_id=doc)
+        c.register_agent_profile(a,'dr-agent')
+        task=c.create_task_context(u,'dr-agent')
+        c.create_context_snapshot(u,task.task_id,[{'doc_id':doc,'version':1}])
         ref=c.reference(u,doc,excerpt='alpha')
         binding=ConsumerBinding('task',org+'-task',KnowledgeScope('documents',doc_ids=(doc,)))
         c.bind_consumer(u,binding);c.attach(u,ref,binding)
@@ -94,6 +97,11 @@ def check_restored(store):
         assert not store.get_principal(org,'directory-user').active
         assert store.get_connector_sync_state(org,'dr-connector').cursor=='cursor-v4'
         assert store.get_scim_group(org,'dr-group')['members']==['directory-user']
+        assert store.get_agent_profile(org,'dr-agent').profile_generation==1
+        tasks=store.list_task_contexts(org)
+        assert len(tasks)==1 and tasks[0].status=='revoked'
+        assert store.list_context_snapshots(org,tasks[0].task_id)[0].status=='revoked'
+        assert store.list_task_revocations(org,tasks[0].task_id)
         report=verify_audit_chain(store,org)
         if not report.valid:raise ValidationError('Restored audit chain failed')
         doc=org+'-doc';u=Actor('reader',org);a=Actor('owner',org,org_roles=('admin',))
@@ -123,15 +131,19 @@ def run(source_dsn,restore_dsn,*,dump_tool='pg_dump',restore_tool='pg_restore'):
     try:
         seed(s)
         before=fingerprint(s.db)
-        # Transactional migration-interruption rollback, not a destructive
-        # schema downgrade: committed v4 business history must never be dropped.
+        # Reconstruct the v4->v5 DDL path inside a transaction, inject a
+        # migration failure, and verify rollback restores every v5 business row.
+        from unittest.mock import patch
+        from . import migrations
         try:
             with s.transaction():
-                s._execute('CREATE TABLE migration_rollback_probe(id INTEGER)')
-                s._execute("DELETE FROM schema_migrations WHERE version=4")
-                raise RuntimeError('simulated migration interruption')
-        except RuntimeError:pass
-        assert s._execute("SELECT to_regclass('migration_rollback_probe')")[0][0] is None
+                for table in ('agent_profiles','task_contexts','context_snapshots','task_revocations'):
+                    s._execute('DROP TABLE '+table)
+                s._execute('DELETE FROM schema_migrations WHERE version=5')
+                with patch.object(migrations,'DDL',migrations.DDL+';SELECT 1/0;'):
+                    migrations.apply(s.db)
+        except ValidationError:pass
+        else:raise ValidationError('Interrupted migration did not fail')
         apply(s.db);apply(s.db)
         if fingerprint(s.db)!=before:raise ValidationError('Migration rollback fingerprint differs')
         # A consistent dump needs table-owner RLS bypass, not application access.

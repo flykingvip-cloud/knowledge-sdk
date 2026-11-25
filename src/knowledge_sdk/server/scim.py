@@ -30,7 +30,8 @@ class SCIMService:
     def _event(self,actor,p,created=False):
         append(self.store,actor,'scim.principal_updated',reason='principal_created' if created else 'principal.policy_bumped')
         t=now()
-        self.store.enqueue_outbox(OutboxEvent(str(uuid.uuid4()),actor.org_id,'principal',p.user_id,'principal.policy_bumped',{'user_id':p.user_id,'policy_generation':p.policy_generation},available_at=t,created_at=t))
+        event=OutboxEvent(str(uuid.uuid4()),actor.org_id,'principal',p.user_id,'principal.policy_bumped',{'user_id':p.user_id,'policy_generation':p.policy_generation},available_at=t,created_at=t)
+        self.store.enqueue_outbox(event);self.client._runtime_event(event)
     def users(self,actor):
         self._admin(actor);return [user_resource(p) for p in self.store.list_principals(actor.org_id)]
     def get(self,actor,user_id):
@@ -44,7 +45,8 @@ class SCIMService:
         if 'policy_generation' in data:raise ValidationError('Generation is server controlled')
         user_id=user_id or data.get('id') or str(uuid.uuid4())
         if not isinstance(user_id,str) or not user_id:raise ValidationError('Invalid user id')
-        with self.client._lock,self.store.transaction():
+        with self.client._lock,self.store.runtime_transaction():
+            self._admin(actor)
             self.store.lock_identity(actor.org_id,user_id)
             old=self.store.get_principal(actor.org_id,user_id)
             if old is None and (delete or replace_all):raise NotFoundError('Principal not found')
@@ -90,7 +92,8 @@ class SCIMService:
         self._admin(actor)
         if not isinstance(data,dict):raise ValidationError('Invalid group')
         if 'org_id' in data and data['org_id']!=actor.org_id:raise PermissionDeniedError('tenant_mismatch')
-        with self.client._lock,self.store.transaction():
+        with self.client._lock,self.store.runtime_transaction():
+            self._admin(actor)
             # Tenant-wide group lock prevents concurrent membership lost updates.
             self.store.lock_identity(actor.org_id,'__scim_groups__')
             if group_id is None:

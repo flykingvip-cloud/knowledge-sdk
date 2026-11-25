@@ -6,6 +6,7 @@ Snapshot payloads are insert-only; only their external revocation status changes
 from __future__ import annotations
 import json
 from dataclasses import replace
+from contextlib import contextmanager
 from ..contracts.models import encode, decode
 from ..contracts.runtime import ContextSnapshot
 from ..exceptions import ConflictError, NotFoundError, ValidationError
@@ -30,6 +31,14 @@ def values(table,obj):
 
 
 class RuntimeStoreMixin:
+    @contextmanager
+    def runtime_transaction(self):
+        # Serialize policy/resource decisions and their writes across PG clients,
+        # not outbox claims: SKIP LOCKED must remain independently concurrent.
+        with self.transaction():
+            if hasattr(self,'_pg'):self._execute('SELECT pg_advisory_xact_lock(5855462191)')
+            yield
+
     def _rt_execute(self,sql,args=()):
         return self._execute(sql.replace('?', '%s') if hasattr(self,'_pg') else sql,args)
 
@@ -53,7 +62,7 @@ class RuntimeStoreMixin:
                 index=columns.index('status')
                 if actual[index] not in ('valid','revoked'):raise ConflictError('Invalid snapshot status')
                 expected=expected[:index]+(actual[index],)+expected[index+1:]
-                if not isinstance(obj,ContextSnapshot) or not obj.snapshot_sha256 or obj.digest()!=obj.snapshot_sha256:raise ConflictError('Snapshot seal mismatch')
+                if not isinstance(obj,ContextSnapshot) or obj.status!='valid' or not obj.snapshot_sha256 or obj.digest()!=obj.snapshot_sha256:raise ConflictError('Snapshot seal mismatch')
                 obj=replace(obj,status=actual[index])
             # JSON semantic comparison (not whitespace) for cross-driver stability.
             for col,a,b in zip(columns,actual,expected):
@@ -62,7 +71,7 @@ class RuntimeStoreMixin:
         return result
 
     def upsert_agent_profile(self,profile):
-        with self.transaction():self._rt_write('agent_profiles',profile,('org_id','agent_id'),True)
+        with self.runtime_transaction():self._rt_write('agent_profiles',profile,('org_id','agent_id'),True)
 
     def get_agent_profile(self,org_id,agent_id):
         rows=self._rt_read('agent_profiles',org_id,' AND agent_id=?',(agent_id,))
@@ -88,6 +97,8 @@ class RuntimeStoreMixin:
 
     def update_task_context_status(self,org_id,task_id,status,*,reason='',stamp=''):
         old=self.get_task_context(org_id,task_id)
+        if old.status!='active' and status!=old.status:raise ConflictError('Terminal task cannot be revived')
+        if status=='active':raise ConflictError('Task transition must be terminal')
         obj=replace(old,status=status,revoked_reason=reason,revoked_at=stamp if status=='revoked' else old.revoked_at,updated_at=stamp or old.updated_at)
         columns=_COLUMNS['task_contexts']
         self._rt_execute('UPDATE task_contexts SET '+','.join(c+'=?' for c in columns)+',data=? WHERE org_id=? AND task_id=?',values('task_contexts',obj)+(self._dump(obj),org_id,task_id))

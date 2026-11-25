@@ -81,11 +81,7 @@ class PostgresStore(RuntimeStoreMixin):
     def transaction(self):
         with self.lock:
             try:
-                with self.db.transaction():
-                    # Conservative cross-connection serializability for v5 runtime
-                    # and policy/resource mutations. Never acquire this after row locks.
-                    self.db.execute("SELECT pg_advisory_xact_lock(5855462191)")
-                    yield
+                with self.db.transaction():yield
             except self._pg.IntegrityError:
                 raise ConflictError('Storage constraint conflict') from None
             except self._pg.Error:
@@ -93,7 +89,7 @@ class PostgresStore(RuntimeStoreMixin):
 
     @contextmanager
     def _write_scope(self):
-        with self.transaction():yield
+        with self.runtime_transaction():yield
 
     @contextmanager
     def tenant_scope(self,org_id):
@@ -705,10 +701,11 @@ class PostgresStore(RuntimeStoreMixin):
         from dataclasses import asdict
         from ..contracts.identity import IdentityPrincipal
         if not isinstance(principal,IdentityPrincipal):raise ValidationError('Invalid principal')
-        p=principal
-        values=(p.org_id,p.user_id,p.external_id,p.username,int(p.active),p.policy_generation,json.dumps(p.roles),json.dumps(p.department_ids),json.dumps(p.org_roles),p.clearance_level,json.dumps(p.clearance_tags),p.updated_at,json.dumps(asdict(p)))
-        self._execute("INSERT INTO identity_principals VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT(org_id,user_id) DO UPDATE SET external_id=excluded.external_id,username=excluded.username,active=excluded.active,policy_generation=excluded.policy_generation,roles_json=excluded.roles_json,department_ids_json=excluded.department_ids_json,org_roles_json=excluded.org_roles_json,clearance_level=excluded.clearance_level,clearance_tags_json=excluded.clearance_tags_json,updated_at=excluded.updated_at,data=excluded.data",values)
-        return p
+        with self.runtime_transaction():
+            p=principal
+            values=(p.org_id,p.user_id,p.external_id,p.username,int(p.active),p.policy_generation,json.dumps(p.roles),json.dumps(p.department_ids),json.dumps(p.org_roles),p.clearance_level,json.dumps(p.clearance_tags),p.updated_at,json.dumps(asdict(p)))
+            self._execute("INSERT INTO identity_principals VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT(org_id,user_id) DO UPDATE SET external_id=excluded.external_id,username=excluded.username,active=excluded.active,policy_generation=excluded.policy_generation,roles_json=excluded.roles_json,department_ids_json=excluded.department_ids_json,org_roles_json=excluded.org_roles_json,clearance_level=excluded.clearance_level,clearance_tags_json=excluded.clearance_tags_json,updated_at=excluded.updated_at,data=excluded.data",values)
+            return p
 
     @tenant_method
     def get_principal(self,org_id,user_id):
@@ -724,7 +721,7 @@ class PostgresStore(RuntimeStoreMixin):
     @tenant_method
     def bump_policy_generation(self,org_id,user_id,*,active=None):
         from dataclasses import replace
-        with self.transaction():
+        with self.runtime_transaction():
             self.lock_identity(org_id,user_id)
             p=self.get_principal(org_id,user_id)
             if p is None:raise NotFoundError('Principal not found')

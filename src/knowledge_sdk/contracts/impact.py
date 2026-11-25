@@ -56,9 +56,10 @@ class ImpactAlert(PolicyContract):
     summary: str = ''
 
     def __post_init__(self):
-        for name in ('alert_id','org_id','source_event_id','doc_id','target_id'):text(getattr(self,name),name,True)
-        if type(self.source_version) is not int or self.source_version<1:raise ValidationError('Invalid source_version')
-        if self.target_type not in ('consumer_binding','usage_event','evidence_pack'):raise ValidationError('Invalid target_type')
+        for name in ('alert_id','org_id','source_event_id','target_id'):text(getattr(self,name),name,True)
+        text(self.doc_id,'doc_id',self.target_type!='task_context')
+        if type(self.source_version) is not int or self.source_version<(0 if self.target_type=='task_context' else 1):raise ValidationError('Invalid source_version')
+        if self.target_type not in ('consumer_binding','usage_event','evidence_pack','task_context'):raise ValidationError('Invalid target_type')
         if self.status not in ('open','acknowledged','resolved'):raise ValidationError('Invalid impact status')
         object.__setattr__(self,'impact_reason',enum_value(ImpactReason,self.impact_reason))
         parse_time(self.created_at)

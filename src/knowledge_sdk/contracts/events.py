@@ -5,7 +5,7 @@ from typing import Any, Dict, Tuple, Optional
 from .policy import PolicyContract, text, freeze_json, parse_time
 from ..exceptions import ValidationError
 
-EVENT_TYPES = frozenset(('principal.policy_bumped','doc.ingested','doc.draft_created','issue.resolved','doc.published','doc.revised','doc.archived','doc.restored',
+EVENT_TYPES = frozenset(('agent.profile_registered','agent.profile_updated','task.revoked','principal.policy_bumped','doc.ingested','doc.draft_created','issue.resolved','doc.published','doc.revised','doc.archived','doc.restored',
                         'doc.revoked','acl.updated','rights.updated','anchor.drifted',
                         'anchor.orphaned','anchor.reanchored'))
 
@@ -26,7 +26,7 @@ class OutboxEvent(PolicyContract):
 
     def __post_init__(self):
         for name in ('event_id','org_id','aggregate_id'): text(getattr(self,name),name,True)
-        if self.aggregate_type not in ('document','anchor','issue','pack','acl','principal'):
+        if self.aggregate_type not in ('document','anchor','issue','pack','acl','principal','agent_profile','task_context'):
             raise ValidationError('Invalid aggregate_type')
         if self.event_type not in EVENT_TYPES: raise ValidationError('Invalid event_type')
         if self.status not in ('pending','failed','processing','dispatched','dead_letter'):
@@ -37,9 +37,9 @@ class OutboxEvent(PolicyContract):
         if not isinstance(self.payload,dict): raise ValidationError('Invalid payload')
         # Broadcast identifiers only: never user text, titles, secrets or excerpts.
         for key,value in self.payload.items():
-            if key in ('doc_id','anchor_id','user_id'):
+            if key in ('doc_id','anchor_id','user_id','agent_id','task_id','reason_code'):
                 text(value,key,True)
-            elif key in ('version','previous_version','policy_generation'):
+            elif key in ('version','previous_version','policy_generation','profile_generation'):
                 if type(value) is not int or value<0:raise ValidationError('Invalid payload version')
             else:raise ValidationError('Outbox payload may contain only identifiers and versions')
         object.__setattr__(self,'payload',freeze_json(self.payload))

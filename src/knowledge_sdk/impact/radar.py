@@ -52,6 +52,7 @@ class ImpactRadar:
         self.store.put_impact_alert(alert,actor_id=actor_id,usage_id=usage_id)
 
     def process(self,event):
+        with self.client._lock, self.store.runtime_transaction():self.client._runtime_event(event)
         if event.event_type not in ('doc.revised','doc.published','doc.archived','doc.revoked','acl.updated','rights.updated','anchor.drifted','anchor.orphaned'):return
         doc_id=event.payload['doc_id']
         with self.client._lock, self.store._write_scope():
