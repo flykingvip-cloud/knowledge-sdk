@@ -37,12 +37,12 @@ class QdrantTests(unittest.TestCase):
     def test_legacy_fallback_only_missing_endpoint(self):
         from urllib.error import HTTPError
         q=QdrantIndex("http://example.test","c")
-        with patch.object(q,"_request",side_effect=[HTTPError("",404,"",{},None),{"result":[]}]) as call:
+        with patch.object(q,"_request",side_effect=[HTTPError("",404,"",{},__import__("io").BytesIO()),{"result":[]}]) as call:
             self.assertEqual(q.search([1.]),[])
             self.assertEqual(call.call_args_list[0][0][1],"/points/query")
             self.assertEqual(call.call_args_list[1][0][1],"/points/search")
         for code in (401,403,400,500):
-            error=HTTPError("",code,"",{},None)
+            error=HTTPError("",code,"",{},__import__("io").BytesIO())
             try:
                 with patch.object(q,"_request",side_effect=error) as call:
                     with self.assertRaises(HTTPError): q.search([1.])
