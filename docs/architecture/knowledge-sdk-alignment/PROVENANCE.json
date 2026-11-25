@@ -1,0 +1,19 @@
+{
+  "baseline": "d1532951b08c8ef950dc604aa3427ceb9eab5d75",
+  "archive_zip_sha256": "04f303b1b110ff50c4d1e346b65132788009ab0b0785982be0a5c8e2c16054da",
+  "archive_originals_sha256": {
+    "00_CURRENT_STATE_AUDIT.md": "1e81d14f58047a9c4fb26fbd3e92b01f0636142cb21221d1ec10f9a60908944c",
+    "01_OPENBOT_REQUIREMENTS_MAPPING.md": "f49981aba20434398abda986be87dd9c8f8d840c6c43828f55b638051d2dbfd7",
+    "02_DOMAIN_MODEL_ALIGNMENT.md": "ffe3c7a530f979f7ad93721116179bb1ce346ecbe6d3576cf6251e5d56c1968e",
+    "03_DOMAIN_CONTRACTS.md": "f91e79e9b5cfe8bd7b9fedc5e420fc85961e5079bc3b217e3ba686ee8519a825",
+    "04_TEAM_A_NEXT_STAGE_EXECUTION_PLAN.md": "05bc5296482b7c7218c7a4ecec6e93b7f7bb1c87fc61fe2cc34632ce692c4450",
+    "05_TEAM_A_EXECUTION_DIRECTIVE_WAVE1.md": "c8120808051d58f229e2e4d0138b5b7d3709ad874c99665663d01ef3609fd715"
+  },
+  "owner_supplement_sha256": "99c39654d59d000db2a1ec842b06b6bd1174714ab68b8011d01b941937c46c2b",
+  "owner_original_line_count": 132,
+  "zip_05_line_count": 131,
+  "byte_equal": false,
+  "normalized_line_number_prefix_only_equal": true,
+  "operational_authority": "Current owner pt56u and independent wave1-owner-directive.md; archived six originals preserved without replacement",
+  "governance_status": "M1 joint freeze NOT SIGNED; Q3-M2 independent review remains pending; enterprise/StratAI production integration PAUSED"
+}
