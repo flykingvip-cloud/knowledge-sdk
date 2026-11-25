@@ -39,6 +39,8 @@ class ToolTests(unittest.TestCase):
         with self.assertRaises(ValidationError):self.call('get_evidence_pack',source_uris=[self.uri],max_chars=32001)
         with self.assertRaises(ValidationError):self.call('verify_citation',source_uri=self.uri,check_latest_version=1)
     def test_search_positive_real_attached_receipt_canonical_hash_and_no_implicit_vector(self):
+        from tests.runtime_helpers import provision_task
+        provision_task(self.c,self.admin,self.user,self.agent.agent_id,'not-an-actor',self.ctx.purpose)
         out=self.call('search_evidence',query='alpha',task_id='not-an-actor');self.assertEqual(out['mode_applied'],'keyword')
         hit=out['hits'][0];self.assertEqual(hit['receipt']['consumer_type'],'mcp_agent');self.assertEqual(hit['receipt']['consumer_id'],'trusted-agent')
         self.assertIn(hit['receipt']['status'],('partial','consumed'));self.assertEqual(hit['excerpt_hash'],hashlib.sha256(hit['excerpt'].encode()).hexdigest())

@@ -64,7 +64,11 @@ class Fixture:
         if acl is not None:self.c.set_document_acl(self.a,id,acl)
         return value
     def uri(self,id='doc',version=1,anchor=None):return build_uri('org',id,version,anchor_id=anchor)
-    def call(self,name,**kwargs):return self.tools.call(name,kwargs,self.ctx)
+    def call(self,name,**kwargs):
+        if 'task_id' in kwargs:
+            from tests.runtime_helpers import provision_task
+            provision_task(self.c,self.a,self.u,self.agent.agent_id,kwargs['task_id'],self.ctx.purpose)
+        return self.tools.call(name,kwargs,self.ctx)
     def replay_store(self,path):
         if self.engine=='sqlite':return SQLiteReplayStore(path)
         from knowledge_sdk.server.replay_pg import PostgresReplayStore
@@ -503,9 +507,32 @@ def run_suite(path=None,verbose=False,engine='sqlite'):
     return result
 
 
+run_legacy100_suite=run_suite
+
+def run_suite(path=None,verbose=False,engine='sqlite',legacy100=False):
+    result=run_legacy100_suite(path,verbose,engine)
+    if path is not None or legacy100:return result
+    from .g9 import SCENARIOS as runtime
+    cases=[json.loads(line) for line in Path(__file__).with_name('golden_cases_v4_runtime.jsonl').read_text().splitlines() if line.strip()]
+    if len(cases)!=15 or {c['case_id'] for c in cases}!={'G9-'+str(i).zfill(2) for i in range(1,16)} or {c['scenario'] for c in cases}!=set(runtime):raise ValueError('Runtime cardinality gate failed')
+    for case in cases:
+        observation=Observation(case['expected']);fixture=Fixture(case,engine);error=None
+        try:runtime[case['scenario']](fixture,observation)
+        except Exception as exc:error=type(exc).__name__+': '+str(exc)
+        finally:fixture.close()
+        row={'case_id':case['case_id'],'group':'G9','scenario':case['scenario'],'status':'passed' if error is None else 'failed','error':error,**{k:v for k,v in observation.__dict__.items() if not k.startswith('_')}}
+        result['results'].append(row)
+        if verbose:print(case['case_id'],row['status'],row['scenario'],error or '',flush=True)
+    extra=result['results'][100:];count=sum(r['status']=='passed' for r in extra)
+    result['groups']['G9']={'total':15,'passed':count};result['case_count']=115;result['passed']+=count;result['failed']=115-result['passed']
+    for field,key in (('security_assertion_failures','safety_failures'),('positive_control_failures','positive_failures'),('implicit_model_calls','model_calls')):result[field]+=sum(r[key] for r in extra)
+    result['gate_passed']=result['gate_passed'] and result['passed']==115 and result['security_assertion_failures']==0 and result['implicit_model_calls']==0
+    return result
+
+
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--json',action='store_true');parser.add_argument('--cases');parser.add_argument('--legacy75',action='store_true');parser.add_argument('--json-output');parser.add_argument('--report');parser.add_argument('--engine',choices=('sqlite','postgres'),default='sqlite');args=parser.parse_args()
-    result=run_suite(str(Path(__file__).with_name('golden_cases_v2.jsonl')) if args.legacy75 else args.cases,not args.json,args.engine);result['engine']=args.engine
+    parser=argparse.ArgumentParser();parser.add_argument('--json',action='store_true');parser.add_argument('--cases');parser.add_argument('--legacy75',action='store_true');parser.add_argument('--legacy100',action='store_true');parser.add_argument('--json-output');parser.add_argument('--report');parser.add_argument('--engine',choices=('sqlite','postgres'),default='sqlite');args=parser.parse_args()
+    result=run_suite(str(Path(__file__).with_name('golden_cases_v2.jsonl')) if args.legacy75 else args.cases,not args.json,args.engine,legacy100=args.legacy100);result['engine']=args.engine
     result['executed_at']=datetime.now(timezone(timedelta(hours=8))).isoformat();result['timezone']='Asia/Shanghai'
     if args.json_output:Path(args.json_output).write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
     if args.report:

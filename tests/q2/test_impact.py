@@ -147,6 +147,8 @@ class ImpactTests(unittest.TestCase):
 
     def test_mcp_final_search_and_pack_have_real_agent_task_lineage(self):
         tools=EvidenceTools(self.c);agent=AgentIdentity('mcp-agent','org');context=GatewayContext(self.u,agent,Purpose.GROUND_INTERNAL_LLM)
+        from tests.runtime_helpers import provision_task
+        provision_task(self.c,self.a,self.u,'mcp-agent','actual-task',context.purpose)
         result=tools.call('search_evidence',{'query':'Original','task_id':'actual-task'},context)
         usages=self.c.store.list_usage_events_for_doc('org','doc')
         self.assertEqual(len(usages),len(result['hits']));self.assertTrue(usages)

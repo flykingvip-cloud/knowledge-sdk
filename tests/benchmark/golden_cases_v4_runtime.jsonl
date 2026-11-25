@@ -1,0 +1,15 @@
+{"case_id": "G9-01", "expected": {}, "group": "G9", "scenario": "runtime_01", "title": "Profile purpose and KB intersection"}
+{"case_id": "G9-02", "expected": {}, "group": "G9", "scenario": "runtime_02", "title": "Deterministic budget clamp"}
+{"case_id": "G9-03", "expected": {}, "group": "G9", "scenario": "runtime_03", "title": "Actor profile clearance intersection"}
+{"case_id": "G9-04", "expected": {}, "group": "G9", "scenario": "runtime_04", "title": "Immutable old version and superseded"}
+{"case_id": "G9-05", "expected": {}, "group": "G9", "scenario": "runtime_05", "title": "Document revoke"}
+{"case_id": "G9-06", "expected": {}, "group": "G9", "scenario": "runtime_06", "title": "Document archive"}
+{"case_id": "G9-07", "expected": {}, "group": "G9", "scenario": "runtime_07", "title": "ACL tightened"}
+{"case_id": "G9-08", "expected": {}, "group": "G9", "scenario": "runtime_08", "title": "Anchor drift and orphan"}
+{"case_id": "G9-09", "expected": {}, "group": "G9", "scenario": "runtime_09", "title": "SCIM generation"}
+{"case_id": "G9-10", "expected": {}, "group": "G9", "scenario": "runtime_10", "title": "Profile disabled"}
+{"case_id": "G9-11", "expected": {}, "group": "G9", "scenario": "runtime_11", "title": "Proactive impact and event lineage"}
+{"case_id": "G9-12", "expected": {}, "group": "G9", "scenario": "runtime_12", "title": "MCP bound runtime denies"}
+{"case_id": "G9-13", "expected": {}, "group": "G9", "scenario": "runtime_13", "title": "Ownership no existence oracle"}
+{"case_id": "G9-14", "expected": {}, "group": "G9", "scenario": "runtime_14", "title": "Redundant SQL seal tampering"}
+{"case_id": "G9-15", "expected": {}, "group": "G9", "scenario": "runtime_15", "title": "Expired and completed forbid additions"}
