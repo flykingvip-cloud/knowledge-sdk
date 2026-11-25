@@ -105,13 +105,21 @@ class HttpKnowledgeClient:
         try:
             with urlopen(req,timeout=self.timeout) as response: return decode(json.load(response))
         except HTTPError as exc:
-            try: error=json.load(exc)
-            except (ValueError,UnicodeDecodeError): error={}
+            try:
+                try: error=json.load(exc)
+                except (ValueError,UnicodeDecodeError): error={}
+            finally:
+                exc.close()
+            if not isinstance(error,dict): error={}
             cls=getattr(exceptions,error.get("error",""),exceptions.KnowledgeSDKError)
             if not isinstance(cls,type) or not issubclass(cls,exceptions.KnowledgeSDKError): cls=exceptions.KnowledgeSDKError
             raise cls(error.get("message","HTTP request failed: "+str(exc.code))) from None
     def health(self):
-        with urlopen(self.base_url+"/v1/health",timeout=self.timeout) as response: return json.load(response)
+        try:
+            with urlopen(self.base_url+"/v1/health",timeout=self.timeout) as response: return json.load(response)
+        except HTTPError as exc:
+            exc.close()
+            raise
 
 def _method(name):
     signature=inspect.signature(getattr(LocalKnowledgeClient,name))
