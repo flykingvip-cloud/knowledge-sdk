@@ -1,0 +1,45 @@
+{
+  "implementation_sha": "a57a4b9adda74f3ef6e102e7179b80dd56280021",
+  "generated_date_shanghai": "2026-11-25",
+  "stdlib": {
+    "run": 894,
+    "passed": 617,
+    "skipped": 277,
+    "warnings": 0
+  },
+  "unittest": {
+    "run": 894,
+    "passed": 891,
+    "skipped": 3
+  },
+  "pytest": {
+    "passed": 891,
+    "skipped": 3,
+    "subtests": 252,
+    "third_party_deprecation_warnings": 1
+  },
+  "files": {
+    "verify_package.py": "cd5907a4c4850c5db213fd27c621aaefcf5ebe50f39d33079583f45095e388cf",
+    "unchanged-goldens-schema-dependencies.json": "26e767d9b8fbe0a108abbd17541a54870bf47773cbcbc2b71b1dbd26650c885a",
+    "l3-rerank-postgres-http.md": "94871da609dd41b61aa316f9cf27ab7edf4357e37fe1e7b90582f394aff55c04",
+    "l1-stdlib-only.log": "86f75d83f619a0dc386339016085ee7e3a42db1c9ae685d41e2f95389ddd3bdc",
+    "ci-four-job-matrix.json": "f065d8296f8633ecf04a5bcca27035ff391657548a9fd5d90fdb38aedd15b758",
+    "http-postgres.json": "30bb37ebcca40948e49a33e5cd932f95e2e884574f59adc538134bf9be4f7c4b",
+    "benchmark-115-postgres.json": "0a82f06b4f6b8eb88a100fb7bf8aa66836af12a7955f304001c00868a7f5b1aa",
+    "dataset-freeze.json": "3d3775af42e9ee08e56afcb6d62c4348fb757de6d2be6107d691088b4f78356b",
+    "l4-browser.md": "09fcf88b728365615bbdfefc524c9d2bb169e3fdda656f9d08d56a3765334003",
+    "pairwise-eval-postgres.json": "a7d61c96676e1f3294b0a374f27c1e2e937bcf3831a78e40f2bf9418f2bda8f1",
+    "legacy100-postgres.json": "6f544763406493e83757d220492e4cc942d54eb73211ef96e18e8a1c95322cc6",
+    "l2-full-and-build.log": "dd6f00734abf67b3c424b073554b4570016a5afc513b2260e20ddb88d4611ccc",
+    "cleanup.json": "3f40da49527753486919af7dc8cb6e35bc23c912a33bdf321821b2c6895e6fa8",
+    "http-sqlite.json": "b149f18d44fdaa113edd8662a509f7d54cf1f3bdc26781a81475e7096ad319fc",
+    "legacy75-sqlite.json": "fe48df81547a90e885b6ae77aec4f22ffd516372fd70f15641889513e035ca83",
+    "Q3_PHASE2_HANDOFF_REPORT.md": "91d76ee07a503369397bcfd6ab33189e3b36ef0e4029a471064654fe4aebc59f",
+    "package-sha256.json": "174f47329a291d387bf976e2e9f8108519ddb46c9d4493f7316ee3c09801c808",
+    "run_evidence.py": "40fc2f21a859443f22df0b6aaf0afcdccf3610da736e07824a4b6546828d593e",
+    "legacy75-postgres.json": "035336692ce086921ba5ad1e528b6faec13a8978d2eab7ac16696eebe700b3ad",
+    "benchmark-115-sqlite.json": "c4b1cb76908608166c7ca147239dc89caee4578ff96b12fe222bff442f9d08c1",
+    "pairwise-eval-sqlite.json": "0123146080eb90a8833ab5caad45a7d69fa460bc3c0cb12a1382dafc5607b67e",
+    "legacy100-sqlite.json": "aa280d23db8439eb95ac59445a9605c2d865049f7667d4c27b8edbce7fd9bb8f"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "engine": "postgres",
+  "passed": true,
+  "assertion_groups": 80,
+  "revocation_variants": [
+    "doc_revoked",
+    "archive",
+    "acl",
+    "anchor_drift",
+    "anchor_orphan",
+    "profile_generation",
+    "profile_disabled",
+    "principal_generation",
+    "principal_disabled"
+  ],
+  "ranker_calls_measured": 21,
+  "before_dispatch_flush": true,
+  "rls": {
+    "agent_profiles": {
+      "foreign_rows": 0,
+      "enable_force_rls": true
+    },
+    "task_contexts": {
+      "foreign_rows": 0,
+      "enable_force_rls": true
+    },
+    "context_snapshots": {
+      "foreign_rows": 0,
+      "enable_force_rls": true
+    },
+    "task_revocations": {
+      "foreign_rows": 0,
+      "enable_force_rls": true
+    }
+  },
+  "transport": "real loopback signed HTTP, real MCP + task snapshot, no ASGI-only stub",
+  "vector": "pgvector"
+}

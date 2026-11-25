@@ -1,0 +1,9 @@
+{
+  "owned_cluster": "/workspace/knowledge-sdk-q3m2-pg",
+  "stopped": true,
+  "owned_data_removed": true,
+  "existing_services_changed": false,
+  "historical_generated_logs_restored": true,
+  "reports_untouched": true,
+  "timestamp_shanghai": "2026-11-25T11:46:09.498088+08:00"
+}
