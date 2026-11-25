@@ -90,7 +90,7 @@ class PackMixin:
             if isinstance(v,dict):return {mask(k):mask(x) for k,x in v.items()}
             if isinstance(v,(list,tuple)):return [mask(x) for x in v]
             return v
-        pack=EvidencePack(pack_id or str(uuid.uuid4()),actor.org_id,mask(title),mask(topic),actor.user_id,'sealed' if seal else 'draft',purpose,mask(effective_decision or {}),tuple(items),tuple(mask(notes)),created_at=now())
+        pack=EvidencePack(pack_id or str(uuid.uuid4()),actor.org_id,mask(title),mask(topic),actor.user_id,'sealed' if seal else 'draft',purpose,mask(effective_decision or {}),tuple(items),tuple(dict.fromkeys(mask(notes))),created_at=now())
         pack=replace(pack,pack_sha256=digest(pack))
         self._pack_check(actor,pack,purpose,agent=agent,policy_context=policy_context)
         self.store.put_evidence_pack(pack)

@@ -624,7 +624,8 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
     def get_evidence_pack(self,org_id,pack_id):
         from dataclasses import replace
         pack=self._get('SELECT data FROM evidence_packs WHERE org_id=? AND pack_id=?',(org_id,pack_id))
-        status=self._execute('SELECT status FROM evidence_packs WHERE org_id=? AND pack_id=?',(org_id,pack_id))[0][0]
+        status,row_sha256=self._execute('SELECT status,pack_sha256 FROM evidence_packs WHERE org_id=? AND pack_id=?',(org_id,pack_id))[0]
+        if row_sha256 != pack.pack_sha256:raise ConflictError('Pack digest mismatch')
         return replace(pack,status=status)
 
     def list_evidence_packs(self,org_id):
