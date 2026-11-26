@@ -797,3 +797,45 @@ jobs:
       with:
         name: wave2-captures-${{ matrix.python }}
         path: wave2-ci-captures/
+  v21-wave0-boundaries:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    - name: Development-only contract validators
+      run: python -m pip install 'openapi-spec-validator==0.9.0' pytest
+    - name: Architecture boundary and frozen M1/Schema v6 gate
+      run: |
+        set -euo pipefail
+        mkdir -p v21-ci-evidence
+        python scripts/verify_v21_boundaries.py | tee v21-ci-evidence/verify_v21_boundaries.json
+        python docs/acceptance/v2.2-align-wave2/verify_frozen.py | tee v21-ci-evidence/verify_frozen.json
+    - name: Isolated v21 sandbox cases under unittest and pytest
+      run: |
+        set -euo pipefail
+        PYTHONPATH=src:. python -W error::ResourceWarning -m unittest discover -s sandbox/v21_reuse_v1 -p 'sandbox_cases.py' -v 2>&1 | tee v21-ci-evidence/sandbox-unittest.log
+        PYTHONPATH=src:. python -W error::ResourceWarning -m pytest sandbox/v21_reuse_v1/sandbox_cases.py -q 2>&1 | tee v21-ci-evidence/sandbox-pytest.log
+    - name: Contract vectors, OpenAPI 3.1 structure, and strict TypeScript
+      run: |
+        set -euo pipefail
+        python -W error::ResourceWarning contracts/v21-reuse-v1/validate.py | tee v21-ci-evidence/python-vectors.json
+        python -W error::ResourceWarning -m openapi_spec_validator --schema 3.1 contracts/v21-reuse-v1/openapi-v3-draft.yaml | tee v21-ci-evidence/openapi-validation.log
+        npm ci --ignore-scripts --no-audit --no-fund --prefix contracts/v21-reuse-v1
+        contracts/v21-reuse-v1/node_modules/.bin/tsc -p contracts/v21-reuse-v1/tsconfig.json
+        node contracts/v21-reuse-v1/ts-generated/check.js | tee v21-ci-evidence/ts-vectors.json
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: v21-wave0-team-a-evidence
+        path: v21-ci-evidence/
