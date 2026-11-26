@@ -50,6 +50,19 @@ PROHIBITED_TYPES = (
 PROHIBITED_DEFS = re.compile(r'^\s*(class|def)\s+(' + '|'.join(PROHIBITED_TYPES) + r')\b', re.M)
 
 
+EPHEMERAL_PARTS = frozenset({
+    'v21-ci-evidence', '__pycache__', 'node_modules', 'ts-generated',
+    '.pytest_cache', '.venv', 'htmlcov', '.mypy_cache',
+})
+
+
+def ephemeral_path(path):
+    parts = Path(path).parts
+    if any(part in EPHEMERAL_PARTS or part.startswith('.') for part in parts):
+        return True
+    return Path(path).suffix in {'.pyc', '.pyo'}
+
+
 def git(*args):
     return subprocess.check_output(['git'] + list(args), cwd=ROOT)
 
@@ -83,7 +96,7 @@ def baseline_bytes():
     if changed:
         raise SystemExit('baseline drift: ' + ','.join(changed))
     committed = [p for p in git('diff', '--name-only', '--diff-filter=A', BASE).decode().splitlines() if p]
-    untracked = [p for p in git('ls-files', '--others', '--exclude-standard').decode().splitlines() if p]
+    untracked = [p for p in git('ls-files', '--others', '--exclude-standard').decode().splitlines() if p and not ephemeral_path(p)]
     additions = sorted(set(committed + untracked))
     for path in additions:
         if path == '.github/workflows/tests.yml':
