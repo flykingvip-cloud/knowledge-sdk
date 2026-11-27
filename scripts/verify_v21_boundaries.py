@@ -1,11 +1,24 @@
 #!/usr/bin/env python3
-"""Wave-V21-0 architecture boundary gate. Not an approval or formal acceptance."""
+"""Wave-V21 architecture boundary gate. Locks FROZEN_V21_REUSE_V1 manifest SHA-256 and M1 /v2/spaces zero-drift. Not formal T-01–T-27 acceptance."""
 from __future__ import annotations
 import ast, hashlib, importlib.util, json, re, subprocess, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = '9940818b962ccb186c0dfb0158de6bd9bd49057b'
+FROZEN_V21_REUSE_V1_MANIFEST_SHA256 = '212537fd41bd4cc4d9d7343cacafaea225ee98b6586df716bf036a397cb2a382'
+FROZEN_V21_REUSE_V1_STATUS = 'FROZEN_V21_REUSE_V1'
+REQUIRED_STATUS_FLAGS = {
+    'status': FROZEN_V21_REUSE_V1_STATUS,
+    'schema_v7_ddl_authorized': False,
+    'schema_v8_v9_ddl_authorized': False,
+    'final_alignment_frozen': False,
+    'prod_shadow_migration_cutover_authorized': False,
+    'semantic_object_dual_write_prohibited': True,
+    'duplicate_runtime_or_connector_build_prohibited': True,
+    'mounted_v3_runtime': False,
+    'formal_t01_t27': 'NOT_RUN_NOT_ACCEPTED',
+}
 ALLOWED_NEW_PREFIXES = (
     'contracts/v21-reuse-v1/',
     'sandbox/v21_reuse_v1/',
@@ -151,6 +164,14 @@ def frozen():
     return module.verify()
 
 
+def frozen_contract_status():
+    status = json.loads((ROOT / 'contracts/v21-reuse-v1/status.json').read_text())
+    for key, expected in REQUIRED_STATUS_FLAGS.items():
+        if status.get(key) != expected:
+            raise SystemExit('status.json ' + key + ' must be ' + repr(expected))
+    return status['status']
+
+
 def manifest():
     sys.path.insert(0, str(ROOT / 'contracts' / 'v21-reuse-v1'))
     import validate
@@ -158,6 +179,10 @@ def manifest():
     committed = json.loads((ROOT / 'contracts/v21-reuse-v1/v21-contract-manifest.json').read_text())
     if computed != committed:
         raise SystemExit('v21-contract-manifest.json is not deterministic/current')
+    if computed.get('status') != FROZEN_V21_REUSE_V1_STATUS:
+        raise SystemExit('v21-contract-manifest.json status is not FROZEN_V21_REUSE_V1')
+    if digest != FROZEN_V21_REUSE_V1_MANIFEST_SHA256:
+        raise SystemExit('frozen v21-reuse-v1 manifest SHA-256 mismatch: ' + digest)
     return digest, computed['file_count']
 
 
@@ -175,6 +200,7 @@ def verify():
     scan_new_files(additions)
     frozen_result = frozen()
     version = schema_v6_frozen()
+    contract_status = frozen_contract_status()
     manifest_sha, files = manifest()
     ast_count = python39_ast()
     return dict(
@@ -186,6 +212,7 @@ def verify():
         additions=sorted(additions),
         preexisting_allowlist=list(PREEXISTING_ALLOWLIST),
         historical_frozen=frozen_result,
+        v21_contract_status=contract_status,
         v21_manifest_sha256=manifest_sha,
         v21_manifest_file_count=files,
         python39_ast_files=ast_count,
