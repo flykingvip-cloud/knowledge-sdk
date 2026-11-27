@@ -1,1 +1,1 @@
-"""Isolated Wave-V21-0 zero-DDL sandbox prototypes. Not production-mounted."""
+"""Isolated Wave-V21 zero-DDL sandbox, protocol adapters, and loopback service. Not production-mounted."""

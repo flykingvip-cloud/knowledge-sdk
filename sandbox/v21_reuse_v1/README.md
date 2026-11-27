@@ -1,7 +1,12 @@
-# sandbox/v21_reuse_v1 — zero-DDL Wave-V21-0 prototypes
+# sandbox/v21_reuse_v1 — zero-DDL Wave-V21 sandbox and loopback service
 
-DRAFT only. These modules are not mounted in the production HTTP app, do not add Schema v6/v7 tables, and do not claim T-01..T-27.
+These modules are not mounted in the production HTTP app, do not add Schema v6/v7 tables, and do not claim T-01..T-27. `EXPERIMENTAL_V3_ENABLED` defaults to false; even when set true, `V21LoopbackService.mount_production_http()` stays forbidden.
 
+Wave-V21-1 additions:
+- `adapters.py`: injectable stdlib clients — `ModelAdapterClient`, `EmbeddingRerankAdapterClient`, `ControlledDataBridgeClient` (Mode A/B/C fail-closed, no Text-to-SQL), `CogniWeaveMemoryBridgeClient` (RevocationPurgeReceipt required), and `AIExecutionTraceContext` (seven-key propagation). Default transports are in-process loopbacks with no implicit network calls and no hardcoded credentials.
+- `loopback_service.py`: in-process assembly of Resource != Capability, IKC blue/green publication, KSG-Lite Phase 0 hooks, four-channel revocation, and `KnowledgeRetrievalPlan` dual-view redaction.
+
+Wave-V21-0 prototypes reused by the loopback service:
 - `resources.py`: KnowledgeResource, DataCapabilityRef, ResourceCapabilityBinding must stay distinct.
 - `ikc.py`: IntakeJob, KnowledgeProductionJob, PipelineVersion, and `active_published_production_id` blue-green switch. Reuses 9940818b idempotency/ingestion semantics in memory. High-risk/strong-compliance documents force `whole_document_atomic_publication=true` and forbid `partial_available`.
 - `ksg_lite.py`: Phase 0 validation plugin mounted on existing `governance/workflow.py` and `governance/issues.py` operation names. No production table changes.
