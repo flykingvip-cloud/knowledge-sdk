@@ -6,9 +6,29 @@ from typing import Dict
 CHANNELS = ('primary_storage_acl', 'vector_fts_index', 'cache_materialized_snapshot', 'agent_history_cogniweave')
 
 
+def canonical_json_bytes(payload):
+    """Return the exact UTF-8 bytes hashed for receipt_hash (Sync-W2-1 / W2-Gate-1).
+
+    This is the single existing Python canonicalization used by FourChannelRevocation.
+    TypeScript must emit identical bytes: recursively sort every object's keys
+    (json.dumps sort_keys=True), use compact separators (',' and ':') with no
+    spaces, set ensure_ascii=False so non-ASCII is raw UTF-8 rather than \\u
+    escapes, keep array order, encode booleans/null as lowercase true/false/null,
+    write integers as unquoted decimal JSON numbers, apply standard JSON escaping
+    only to quotes, backslashes, and control characters, and add no leading,
+    trailing, or interior decorative whitespace and no trailing newline. SHA-256
+    is taken over those UTF-8 bytes with no BOM.
+    """
+    return json.dumps(payload, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode('utf-8')
+
+
+def canonical_sha256_hex(payload):
+    """64 lowercase hex characters of SHA-256(canonical_json_bytes(payload))."""
+    return hashlib.sha256(canonical_json_bytes(payload)).hexdigest()
+
+
 def _hash(payload):
-    raw = json.dumps(payload, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode('utf-8')
-    return hashlib.sha256(raw).hexdigest()
+    return canonical_sha256_hex(payload)
 
 
 class ChannelStore(object):
