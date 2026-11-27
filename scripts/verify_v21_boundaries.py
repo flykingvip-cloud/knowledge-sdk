@@ -25,6 +25,7 @@ ALLOWED_NEW_PREFIXES = (
     'scripts/verify_v21_boundaries.py',
     'docs/acceptance/v21-wave0/',
     'docs/acceptance/v21-wave1/',
+    'docs/acceptance/v21-wave2/',
 )
 # Pre-existing 9940818b knowledge-domain modules the scanner ignores.
 # These are authorized knowledge engines/tools on the Wave2 baseline, not new

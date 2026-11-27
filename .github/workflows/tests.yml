@@ -824,8 +824,8 @@ jobs:
     - name: Isolated v21 sandbox cases under unittest and pytest
       run: |
         set -euo pipefail
-        PYTHONPATH=src:. python -W error::ResourceWarning -m unittest discover -s sandbox/v21_reuse_v1 -p 'sandbox_cases.py' -v 2>&1 | tee ${{ runner.temp }}/v21-ci-evidence/sandbox-unittest.log
-        PYTHONPATH=src:. python -W error::ResourceWarning -m pytest sandbox/v21_reuse_v1/sandbox_cases.py -q 2>&1 | tee ${{ runner.temp }}/v21-ci-evidence/sandbox-pytest.log
+        PYTHONPATH=src:. python -W error::ResourceWarning -m unittest discover -s sandbox/v21_reuse_v1 -p '*cases.py' -v 2>&1 | tee ${{ runner.temp }}/v21-ci-evidence/sandbox-unittest.log
+        PYTHONPATH=src:. python -W error::ResourceWarning -m pytest sandbox/v21_reuse_v1/sandbox_cases.py sandbox/v21_reuse_v1/interop_cases.py sandbox/v21_reuse_v1/dry_run_cases.py -q 2>&1 | tee ${{ runner.temp }}/v21-ci-evidence/sandbox-pytest.log
     - name: Contract vectors, OpenAPI 3.1 structure, and strict TypeScript
       run: |
         set -euo pipefail

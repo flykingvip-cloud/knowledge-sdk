@@ -15,6 +15,7 @@ Wave-V21-0 prototypes reused by the loopback service:
 
 Wave-V21-2 additions (W2A-1; not formal T-01..T-27):
 - `interop_harness.py`: offline stdlib harness for the five official interop groups (`models.embed`, `AIExecutionTrace` seven-key hops, `SemanticObjectCatalogReadAdapter`, CogniWeave `RevocationPurgeReceipt`, `ControlledDataBridge` Mode A/B/C fail-closed). No implicit network and no production HTTP mount.
+- `dry_run_cases.py`: W2A-2 T-01..T-27 sandbox dry-run loopback tests, explicitly labeled `DRY_RUN_SANDBOX_NOT_FORMAL_ACCEPTANCE`. They do not flip `formal_t01_t27`.
 - `fixtures/w2_interop_golden.json`: frozen inputs/outputs plus the canonical hash rule. `receipt_hash` reuses `revocation.canonical_json_bytes` (Python `json.dumps(..., sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode('utf-8')`, then SHA-256 as 64 lowercase hex). TypeScript must hash those exact UTF-8 bytes. Verify with `PYTHONPATH=src:. python -m sandbox.v21_reuse_v1.interop_harness`.
 
 Run (must use repo root on PYTHONPATH):

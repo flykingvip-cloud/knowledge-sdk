@@ -179,6 +179,13 @@ class IKCSandbox:
             self.outbox.append(('production', job.job_id, status))
             return job
 
+    def get_production(self, tenant_id, job_id):
+        with self._lock:
+            job = self._prod.get(job_id)
+            if job is None or job.tenant_id != tenant_id:
+                raise NotFoundError('JOB_NOT_FOUND')
+            return job
+
     def publish_blue_green(self, tenant_id, job_id, *, expected_revision):
         job = self.transition_production(tenant_id, job_id, 'published', expected_revision=expected_revision)
         with self._lock:
@@ -188,3 +195,40 @@ class IKCSandbox:
             self.active_published_production_id = job.job_id
             self.outbox.append(('blue_green', previous, job.job_id))
             return job
+
+    def rollback_blue_green(self, tenant_id, *, to_production_id=None, expected_current=None):
+        """Move the live blue/green pointer back to a previously published job.
+
+        History is not rewritten: both the outgoing and restored jobs stay
+        ``published``. ``partial_available`` is never used. Fails closed when
+        there is no prior published target, the pointer is stale, or the
+        target is not a fully published job of the same tenant.
+        """
+        with self._lock:
+            current = self.active_published_production_id
+            if current is None:
+                raise ConflictError('NO_ACTIVE_PUBLICATION')
+            if expected_current is not None and expected_current != current:
+                raise ConflictError('STALE_BLUE_GREEN_POINTER')
+            current_job = self._prod.get(current)
+            if current_job is None or current_job.tenant_id != tenant_id:
+                raise NotFoundError('JOB_NOT_FOUND')
+            target_id = to_production_id
+            if target_id is None:
+                previous = None
+                for item in self.outbox:
+                    if item[0] == 'blue_green' and item[2] == current:
+                        previous = item[1]
+                target_id = previous
+            if not target_id:
+                raise ConflictError('NO_ROLLBACK_TARGET')
+            if target_id == current:
+                raise ConflictError('ROLLBACK_NOOP')
+            target = self._prod.get(target_id)
+            if target is None or target.tenant_id != tenant_id:
+                raise NotFoundError('JOB_NOT_FOUND')
+            if target.status != 'published' or target.visibility != Visibility.PUBLISHED.value:
+                raise ValidationError('PARTIAL_PUBLICATION_FORBIDDEN')
+            self.active_published_production_id = target.job_id
+            self.outbox.append(('blue_green_rollback', current, target.job_id))
+            return target

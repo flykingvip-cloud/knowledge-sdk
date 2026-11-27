@@ -11,6 +11,7 @@ from sandbox.v21_reuse_v1.adapters import (
     ControlledDataBridgeClient, CogniWeaveMemoryBridgeClient, AIExecutionTraceContext,
 )
 from sandbox.v21_reuse_v1.ikc import IKCSandbox, HIGH_RISK
+from knowledge_sdk.exceptions import ConflictError, NotFoundError, ValidationError
 from sandbox.v21_reuse_v1.ksg_lite import KSGLitePlugin
 from sandbox.v21_reuse_v1.resources import (
     KnowledgeResource, DataCapabilityRef, ResourceCapabilityBinding,
@@ -141,6 +142,31 @@ class V21LoopbackService(object):
         if not decision.allowed:
             raise AdapterError(decision.reason_code)
         return self.ikc.publish_blue_green(tenant_id, job.job_id, expected_revision=job.revision)
+
+    def rollback_blue_green(self, tenant_id, *, policy_generation, to_production_id=None, approved=False):
+        current_id = self.ikc.active_published_production_id
+        if current_id is None:
+            raise AdapterError('NO_ACTIVE_PUBLICATION')
+        current = self.ikc.get_production(tenant_id, current_id)
+        targets = [current]
+        if to_production_id:
+            targets.append(self.ikc.get_production(tenant_id, to_production_id))
+        for job in targets:
+            if job.compliance_class in HIGH_RISK:
+                decision = self.ksg.validate('publish_release', dict(
+                    policy_generation=policy_generation,
+                    compliance_class=job.compliance_class,
+                    whole_document_atomic_publication=job.whole_document_atomic_publication,
+                    approved=approved,
+                ))
+                if not decision.allowed:
+                    raise AdapterError(decision.reason_code)
+        try:
+            return self.ikc.rollback_blue_green(
+                tenant_id, to_production_id=to_production_id, expected_current=current_id,
+            )
+        except (ConflictError, NotFoundError, ValidationError) as exc:
+            raise AdapterError(exc.args[0] if exc.args else 'ROLLBACK_REJECTED') from exc
 
     def revoke(self, tenant_id, subject_id, policy_generation, task_id, *, failures=None):
         receipt = self.revocation.run(tenant_id, subject_id, policy_generation, task_id, failures=failures)
