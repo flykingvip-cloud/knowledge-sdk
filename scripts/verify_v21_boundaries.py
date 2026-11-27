@@ -7,6 +7,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BASE = '9940818b962ccb186c0dfb0158de6bd9bd49057b'
 FROZEN_V21_REUSE_V1_MANIFEST_SHA256 = '212537fd41bd4cc4d9d7343cacafaea225ee98b6586df716bf036a397cb2a382'
+W2_INTEROP_GOLDEN_PATH = 'sandbox/v21_reuse_v1/fixtures/w2_interop_golden.json'
+W2_INTEROP_GOLDEN_SHA256 = 'f8033a902af06b005fa591ab872a74f9569a3783fd3e7cef90c6dc94cf9d0fef'
+W2_INTEROP_GOLDEN_BYTE_LENGTH = 33863
 FROZEN_V21_REUSE_V1_STATUS = 'FROZEN_V21_REUSE_V1'
 REQUIRED_STATUS_FLAGS = {
     'status': FROZEN_V21_REUSE_V1_STATUS,
@@ -26,6 +29,7 @@ ALLOWED_NEW_PREFIXES = (
     'docs/acceptance/v21-wave0/',
     'docs/acceptance/v21-wave1/',
     'docs/acceptance/v21-wave2/',
+    'docs/acceptance/v21-wave3/',
 )
 # Pre-existing 9940818b knowledge-domain modules the scanner ignores.
 # These are authorized knowledge engines/tools on the Wave2 baseline, not new
@@ -196,6 +200,29 @@ def python39_ast():
     return count
 
 
+
+def w2_interop_golden_locked():
+    """Hard-lock the official Sync-W2-1 golden fixture bytes. Any change fails the gate."""
+    path = ROOT / W2_INTEROP_GOLDEN_PATH
+    raw = path.read_bytes()
+    digest = hashlib.sha256(raw).hexdigest()
+    if len(raw) != W2_INTEROP_GOLDEN_BYTE_LENGTH:
+        raise SystemExit('w2_interop_golden.json byte length mismatch: ' + str(len(raw)))
+    if digest != W2_INTEROP_GOLDEN_SHA256:
+        raise SystemExit('w2_interop_golden.json SHA-256 mismatch: ' + digest)
+    worktree_blob = hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest()
+    line = git('ls-tree', 'HEAD', '--', W2_INTEROP_GOLDEN_PATH).decode().strip()
+    if not line:
+        raise SystemExit('w2_interop_golden.json is not committed at HEAD')
+    header, committed_path = line.split('\t', 1)
+    _mode, kind, committed_blob = header.split()
+    if kind != 'blob' or committed_path != W2_INTEROP_GOLDEN_PATH:
+        raise SystemExit('w2_interop_golden.json ls-tree parse failed')
+    if worktree_blob != committed_blob:
+        raise SystemExit('w2_interop_golden.json worktree blob differs from git blob: ' + worktree_blob + ' != ' + committed_blob)
+    return digest, len(raw), worktree_blob
+
+
 def verify():
     pyproject_deps_empty()
     checked, additions = baseline_bytes()
@@ -204,6 +231,7 @@ def verify():
     version = schema_v6_frozen()
     contract_status = frozen_contract_status()
     manifest_sha, files = manifest()
+    golden_sha, golden_bytes, golden_blob = w2_interop_golden_locked()
     ast_count = python39_ast()
     return dict(
         passed=True,
@@ -217,6 +245,9 @@ def verify():
         v21_contract_status=contract_status,
         v21_manifest_sha256=manifest_sha,
         v21_manifest_file_count=files,
+        w2_interop_golden_sha256=golden_sha,
+        w2_interop_golden_bytes=golden_bytes,
+        w2_interop_golden_git_blob=golden_blob,
         python39_ast_files=ast_count,
         formal_acceptance=False,
     )
