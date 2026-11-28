@@ -72,6 +72,11 @@ ALLOWED_ROUTES = {
     ('POST', '/sandbox/v21/data-bridge'): 'data_bridge',
 }
 
+# Cap unread POST drains on early 403/404 so a forged Content-Length cannot
+# force an unbounded read. Official golden bodies and probe payloads are far
+# smaller than this cap (DEFECT-W3A-01 / RFC 1122 section 4.2.2.13).
+MAX_REQUEST_BODY_DRAIN_BYTES = 1024 * 1024
+
 
 def _json_equal(actual, expected):
     return json.dumps(actual, sort_keys=True, separators=(',', ':'), ensure_ascii=False) == json.dumps(expected, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
@@ -139,8 +144,35 @@ class _SandboxV21Handler(http.server.BaseHTTPRequestHandler):
     def do_DELETE(self):
         self._dispatch()
 
+    def _declared_content_length(self):
+        raw = self.headers.get('Content-Length') or '0'
+        try:
+            length = int(raw)
+        except (TypeError, ValueError):
+            return 0
+        if length < 0:
+            return 0
+        return length
+
+    def _drain_request_body(self):
+        """Discard declared body bytes before an early 403/404 close.
+
+        If the handler writes a response and closes while unread POST bytes
+        remain, Linux may send TCP RST (RFC 1122 section 4.2.2.13). That is
+        DEFECT-W3A-01. The read is capped at MAX_REQUEST_BODY_DRAIN_BYTES.
+        """
+        length = self._declared_content_length()
+        if length == 0:
+            return
+        remaining = length if length <= MAX_REQUEST_BODY_DRAIN_BYTES else MAX_REQUEST_BODY_DRAIN_BYTES
+        while remaining > 0:
+            chunk = self.rfile.read(remaining)
+            if not chunk:
+                return
+            remaining -= len(chunk)
+
     def _read_json(self):
-        length = int(self.headers.get('Content-Length') or '0')
+        length = self._declared_content_length()
         raw = self.rfile.read(length) if length else b''
         if not raw:
             return {}
@@ -168,13 +200,16 @@ class _SandboxV21Handler(http.server.BaseHTTPRequestHandler):
         path, had_parent = _normalized_path(self.path)
         raw_path = urlparse(self.path).path or '/'
         if had_parent or raw_path.startswith('/v3') or path == '/v3' or path.startswith('/v3/'):
+            self._drain_request_body()
             self._write_json(403, dict(ok=False, error='V3_PRODUCTION_MOUNT_FORBIDDEN'))
             return
         if path != '/sandbox/v21' and not path.startswith(SANDBOX_V21_PREFIX):
+            self._drain_request_body()
             self._write_json(404, dict(ok=False, error='PATH_FORBIDDEN'))
             return
         route = ALLOWED_ROUTES.get((self.command, path))
         if route is None:
+            self._drain_request_body()
             self._write_json(404, dict(ok=False, error='PATH_FORBIDDEN'))
             return
         try:
@@ -347,9 +382,30 @@ class HttpLoopbackCases(unittest.TestCase):
 
     def test_paths_outside_sandbox_v21_are_forbidden(self):
         for path in ('/', '/sandbox', '/sandbox/v21', '/sandbox/v21/unknown', '/health', '/v2/spaces'):
-            status, _headers, payload = self._request('POST', path, dict(probe=True))
+            try:
+                status, _headers, payload = self._request('POST', path, dict(probe=True))
+            except ConnectionResetError as exc:
+                self.fail('ConnectionResetError on %s: %s' % (path, exc))
             self.assertEqual(status, 404, path)
             self.assertEqual(payload, dict(ok=False, error='PATH_FORBIDDEN'))
+
+    def test_forbidden_post_bodies_are_drained_without_connection_reset(self):
+        """DEFECT-W3A-01: early 403/404 must drain Content-Length before close."""
+        body = dict(probe=True, pad='x' * 2048)
+        cases = (
+            ('/v3/embed', 403, 'V3_PRODUCTION_MOUNT_FORBIDDEN'),
+            ('/health', 404, 'PATH_FORBIDDEN'),
+            ('/sandbox/v21/unknown', 404, 'PATH_FORBIDDEN'),
+            ('/sandbox/v21', 404, 'PATH_FORBIDDEN'),
+        )
+        for _repeat in range(8):
+            for path, expected_status, error in cases:
+                try:
+                    status, _headers, payload = self._request('POST', path, body)
+                except ConnectionResetError as exc:
+                    self.fail('ConnectionResetError on %s: %s' % (path, exc))
+                self.assertEqual(status, expected_status, path)
+                self.assertEqual(payload['error'], error)
 
     def test_golden_fixture_bytes_remain_locked(self):
         import hashlib
