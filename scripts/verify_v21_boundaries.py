@@ -30,6 +30,7 @@ ALLOWED_NEW_PREFIXES = (
     'docs/acceptance/v21-wave1/',
     'docs/acceptance/v21-wave2/',
     'docs/acceptance/v21-wave3/',
+    'docs/acceptance/v21-wave4/',
 )
 # Pre-existing 9940818b knowledge-domain modules the scanner ignores.
 # These are authorized knowledge engines/tools on the Wave2 baseline, not new
