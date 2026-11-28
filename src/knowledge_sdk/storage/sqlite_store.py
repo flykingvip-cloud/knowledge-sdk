@@ -28,7 +28,7 @@ class SQLiteStore(RuntimeStoreMixin):
         try:
             self.db.execute("PRAGMA foreign_keys=ON");self.db.execute("PRAGMA busy_timeout=5000")
             schema=self.db.execute("PRAGMA user_version").fetchone()[0]
-            if schema not in (0,1,2,3,4,5,6):raise ConflictError("Unsupported database schema version")
+            if schema not in (0,1,2,3,4,5,6,7):raise ConflictError("Unsupported database schema version")
             if schema<2:
                 with self.transaction():
                     for statement in self._BASE_SCHEMA.split(';'):
@@ -61,6 +61,12 @@ class SQLiteStore(RuntimeStoreMixin):
             if schema==6:
                 from .migration_v6 import validate_v6
                 try:validate_v6(self)
+                except ConflictError:raise ConflictError("Unsupported database schema version") from None
+            if schema==7:
+                from .migration_v6 import validate_v6
+                from .migration_v7 import validate_v7
+                try:
+                    validate_v6(self);validate_v7(self)
                 except ConflictError:raise ConflictError("Unsupported database schema version") from None
             self.db.execute("PRAGMA journal_mode=WAL")
         except BaseException:
@@ -291,7 +297,7 @@ CREATE TABLE IF NOT EXISTS connector_sync_state (
         return v
     def put_version(self,v,chunks):
         from .migration_v6 import schema_version
-        if schema_version(self)==6:
+        if schema_version(self) in (6,7):
             import uuid
             self._execute("INSERT INTO document_versions(doc_id,version,data,version_id) VALUES(?,?,?,?)",(v.doc_id,v.version,self._dump(v),uuid.uuid4().hex))
         else:

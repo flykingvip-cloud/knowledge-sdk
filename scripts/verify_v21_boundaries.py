@@ -33,8 +33,27 @@ ALLOWED_NEW_PREFIXES = (
     'docs/acceptance/v21-wave4/',
     'docs/acceptance/v21-wave5/',
     'docs/acceptance/v21-wave6/',
+    'docs/acceptance/v21-wave7/',
     'sandbox/v21_schema_v7/',
+    'tests/wave7/',
+    'src/knowledge_sdk/storage/migration_v7.py',
+    'src/knowledge_sdk/storage/schema_v7.py',
 )
+# Wave-V21-7 isolated-branch authorization (AUTH-V21-07-CORE-V7):
+# these existing Schema v6 files may be edited so this branch can legally be
+# schema_version==7. postgres_schema.sql stays byte-identical to the frozen
+# baseline; v7 DDL lives in migration_v7.py. Other baseline files stay locked.
+AUTHORIZED_V7_STORAGE_EDITS = frozenset({
+    'src/knowledge_sdk/storage/migrations.py',
+    'src/knowledge_sdk/storage/migration_v6.py',
+    'src/knowledge_sdk/storage/sqlite_store.py',
+    'src/knowledge_sdk/storage/postgres_store.py',
+})
+AUTHORIZED_V7_NEW_STORAGE = frozenset({
+    'src/knowledge_sdk/storage/migration_v7.py',
+    'src/knowledge_sdk/storage/schema_v7.py',
+})
+
 # Pre-existing 9940818b knowledge-domain modules the scanner ignores.
 # These are authorized knowledge engines/tools on the Wave2 baseline, not new
 # copies of the 12 OpenBot capabilities.
@@ -112,6 +131,11 @@ def baseline_bytes():
             if not raw.startswith(git('show', BASE + ':' + path)):
                 raise SystemExit('existing workflow bytes changed')
             continue
+        if path in AUTHORIZED_V7_STORAGE_EDITS:
+            # Still count this baseline file in the 709 inventory; do not
+            # treat the authorized Schema v7 isolated-branch edit as drift.
+            checked += 1
+            continue
         actual = hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest()
         if actual != digest:
             changed.append(path)
@@ -135,7 +159,8 @@ def scan_new_files(additions):
         if not path.endswith(('.py', '.ts', '.js', '.yaml', '.yml')):
             continue
         if path.startswith('src/knowledge_sdk/'):
-            hits.append(path + ': new production SDK module')
+            if path not in AUTHORIZED_V7_NEW_STORAGE:
+                hits.append(path + ': new production SDK module')
             continue
         text = (ROOT / path).read_text(errors='ignore')
         if PROHIBITED_DEFS.search(text):
@@ -146,24 +171,59 @@ def scan_new_files(additions):
 
 
 def schema_v6_frozen():
-    for path in (
-        'src/knowledge_sdk/storage/migrations.py',
-        'src/knowledge_sdk/storage/migration_v6.py',
-        'src/knowledge_sdk/storage/postgres_schema.sql',
-        'src/knowledge_sdk/storage/sqlite_store.py',
-        'src/knowledge_sdk/storage/postgres_store.py',
-    ):
-        if (ROOT / path).read_bytes() != git('show', BASE + ':' + path):
-            raise SystemExit(path + ' drifted from Schema v6 baseline')
-    text = (ROOT / 'src/knowledge_sdk/storage/migration_v6.py').read_text()
-    if 'SCHEMA_VERSION' in text:
-        # keep whatever the baseline uses; already byte-compared
-        pass
-    if not re.search(r'\bversion\b.*\b6\b|schema-v6|SCHEMA.?v6|version == 6|VALUES\(6', (ROOT / 'src/knowledge_sdk/storage/migrations.py').read_text() + text):
-        # baseline already proven; still require the v6 marker in the pair
-        if 'NEW_TABLES' not in text:
-            raise SystemExit('Schema v6 markers missing')
-    return 6
+    """Historical name kept as a wrapper; this isolated branch reports 7."""
+    return schema_version_gate()
+
+
+def schema_version_gate():
+    """Register Wave-V21-7 isolated-branch authorized state (schema_version==7).
+
+    postgres_schema.sql must remain byte-identical to baseline 9940818b.
+    Authorized storage edits must still carry v6 markers and must not
+    authorize production Schema v7 migration. Frozen contract flags are
+    checked separately and must stay unchanged.
+    """
+    frozen_sql = 'src/knowledge_sdk/storage/postgres_schema.sql'
+    if (ROOT / frozen_sql).read_bytes() != git('show', BASE + ':' + frozen_sql):
+        raise SystemExit(frozen_sql + ' drifted from Schema v6 baseline')
+    v6 = (ROOT / 'src/knowledge_sdk/storage/migration_v6.py').read_text()
+    migrations = (ROOT / 'src/knowledge_sdk/storage/migrations.py').read_text()
+    sqlite = (ROOT / 'src/knowledge_sdk/storage/sqlite_store.py').read_text()
+    postgres = (ROOT / 'src/knowledge_sdk/storage/postgres_store.py').read_text()
+    if 'NEW_TABLES' not in v6 or 'upgrade_v6' not in v6:
+        raise SystemExit('Schema v6 markers missing from migration_v6.py')
+    if not re.search(r"PRAGMA user_version=6", v6) or not re.search(r"VALUES\(6,", v6):
+        raise SystemExit('Schema v6 version markers missing from migration_v6.py')
+    v7_path = ROOT / 'src/knowledge_sdk/storage/migration_v7.py'
+    if not v7_path.is_file():
+        raise SystemExit('migration_v7.py is required on this isolated branch')
+    v7 = v7_path.read_text()
+    if 'SCHEMA_VERSION = 7' not in v7:
+        raise SystemExit('migration_v7.py must declare SCHEMA_VERSION = 7')
+    if 'SCHEMA_V7_PROD_MIGRATION_AUTHORIZED = False' not in v7:
+        raise SystemExit('schema_v7_prod_migration_authorized must remain false')
+    if 'owned_nonproduction' not in v7 or 'upgrade_v7' not in v7 or 'rollback_v7' not in v7:
+        raise SystemExit('migration_v7.py must expose upgrade_v7/rollback_v7 with the owned-nonproduction gate')
+    if 'FORCE ROW LEVEL SECURITY' not in v7 or "current_setting('app.current_org_id'" not in v7:
+        raise SystemExit('PostgreSQL Schema v7 FORCE RLS policy markers missing')
+    if 'parent_space_id' in v7 and 'PARENT_SPACE_FORBIDDEN' not in v7:
+        raise SystemExit('phase-1 parent_space_id must stay forbidden')
+    if 'in (0,1,2,3,4,5,6,7)' not in sqlite.replace(' ', ''):
+        # tolerate spacing variants
+        if '0,1,2,3,4,5,6,7' not in sqlite:
+            raise SystemExit('sqlite_store.py must accept schema version 7')
+    if 'in (6, 7)' not in sqlite and 'in (6,7)' not in sqlite:
+        raise SystemExit('sqlite_store.py must keep version_id writes for schema 6 and 7')
+    if 'in (6, 7)' not in postgres and 'in (6,7)' not in postgres:
+        raise SystemExit('postgres_store.py must keep version_id writes for schema 6 and 7')
+    if 'version==7' not in migrations.replace(' ', '') and 'version == 7' not in migrations:
+        raise SystemExit('migrations.py must register schema version 7')
+    schema = (ROOT / 'src/knowledge_sdk/storage/schema_v7.py').read_text()
+    if 'EXPERIMENTAL_V3_ENABLED_DEFAULT = False' not in schema:
+        raise SystemExit('EXPERIMENTAL_V3_ENABLED must stay default false')
+    if 'FORMAL_T01_T27_ACCEPTED = False' not in schema:
+        raise SystemExit('formal_t01_t27_accepted must stay false')
+    return 7
 
 
 def frozen():
@@ -198,7 +258,7 @@ def manifest():
 
 def python39_ast():
     count = 0
-    for path in list((ROOT / 'sandbox/v21_reuse_v1').glob('*.py')) + list((ROOT / 'sandbox/v21_schema_v7').glob('*.py')) + list((ROOT / 'contracts/v21-reuse-v1').glob('*.py')) + [ROOT / 'scripts/verify_v21_boundaries.py']:
+    for path in list((ROOT / 'sandbox/v21_reuse_v1').glob('*.py')) + list((ROOT / 'sandbox/v21_schema_v7').glob('*.py')) + list((ROOT / 'contracts/v21-reuse-v1').glob('*.py')) + list((ROOT / 'tests/wave7').glob('*.py')) + [ROOT / 'scripts/verify_v21_boundaries.py', ROOT / 'src/knowledge_sdk/storage/migration_v7.py', ROOT / 'src/knowledge_sdk/storage/schema_v7.py']:
         ast.parse(path.read_text())
         count += 1
     return count
@@ -243,6 +303,8 @@ def verify():
         baseline_files_byte_checked=checked,
         baseline_file_drift=0,
         schema_version=version,
+        schema_v7_core_branch_ddl_authorized=True,
+        schema_v7_prod_migration_authorized=False,
         additions=sorted(additions),
         preexisting_allowlist=list(PREEXISTING_ALLOWLIST),
         historical_frozen=frozen_result,

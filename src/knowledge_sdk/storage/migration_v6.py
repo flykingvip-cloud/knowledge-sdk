@@ -19,9 +19,13 @@ def schema_version(store):
 
 
 def require_v6(store):
-    if schema_version(store) != 6:
+    version = schema_version(store)
+    if version not in (6, 7):
         raise ConflictError('SCHEMA_V6_REQUIRED')
     validate_v6(store)
+    if version == 7:
+        from .migration_v7 import validate_v7
+        validate_v7(store)
 
 
 def upgrade_v6(store, *, owned_nonproduction=False):
@@ -41,8 +45,11 @@ def upgrade_v6(store, *, owned_nonproduction=False):
             store._execute("SELECT set_config('lock_timeout','5s',true)")
             store._execute("SELECT pg_advisory_xact_lock(hashtext('knowledge-sdk:migrations'))")
         version = schema_version(store)
-        if version == 6:
+        if version in (6, 7):
             validate_v6(store)
+            if version == 7:
+                from .migration_v7 import validate_v7
+                validate_v7(store)
             if pg:store._execute("SELECT set_config('lock_timeout',%s,true)",(previous_timeout,))
             return
         if version != 5:

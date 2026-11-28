@@ -1,0 +1,214 @@
+{
+  "scope": "CORE_STORAGE_V7_ISOLATION_BRANCH",
+  "formal_t01_t27_accepted": false,
+  "formal_t01_t27": "NOT_RUN_NOT_ACCEPTED",
+  "wave": "Wave-V21-7",
+  "authorization": "AUTH-V21-07-CORE-V7",
+  "branch": "feat/v21-wave7-core-schema-v7-and-formal-t01-t27",
+  "package": "src/knowledge_sdk/storage",
+  "schema_version": 7,
+  "schema_v7_core_branch_ddl_authorized": true,
+  "schema_v7_prod_migration_authorized": false,
+  "schema_v8_v9_ddl_authorized": false,
+  "EXPERIMENTAL_V3_ENABLED_default": false,
+  "engines": {
+    "sqlite_actual": true,
+    "postgres_ddl_force_rls_semantic_validation": true,
+    "postgres_live_expected_in_ci": true,
+    "postgres_live_local_at_report_generation": false,
+    "http_v2_surface": true,
+    "mcp_surface": true
+  },
+  "case_count": 27,
+  "cases": [
+    {
+      "id": "T-01",
+      "title": "Explicit enterprise tenant and tenant boundary",
+      "result": "PASS",
+      "summary": "Real Schema v7 SQLite storage rejected cross-tenant Space/KB visibility and inserts; official PostgreSQL Schema v7 DDL ENABLE/FORCE RLS binds tenant_id to app.current_org_id on every ks_v7_* table. Live PostgreSQL is executed in CI unit-suite/pytest-suite against a disposable non-superuser schema when KNOWLEDGE_SDK_TEST_PG_DSN is set. Not official final acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-02",
+      "title": "Flat Tenant-Space-KB, no parent",
+      "result": "PASS",
+      "summary": "Phase-1 model is flat Tenant -> Space -> KnowledgeBase on the real storage stack: no parent_space_id column, parent inserts are refused, and the PG DDL semantic checker rejects parent_space_id. Not formal tree-closure review.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-03",
+      "title": "Same-org composite KB binding",
+      "result": "PASS",
+      "summary": "One Space holds many KnowledgeBases; Space and KB share tenant_id; a cross-tenant or cross-space home rebind is refused on the real Schema v7 tables. Isolation-branch only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-04",
+      "title": "Detach not archive and same-home reattach",
+      "result": "PASS",
+      "summary": "detach clears the mount and leaves archived=0; same-home reattach succeeds; attach to a different home fails; no implicit archive. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-05",
+      "title": "Employee personal owner boundary",
+      "result": "PASS",
+      "summary": "Employee personal space is readable only by the owner; another same-tenant user is denied at the Space Gate (layer_2). Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-06",
+      "title": "Enterprise admin no private-content shortcut",
+      "result": "PASS",
+      "summary": "Enterprise admin cannot read employee personal body/content even when an extra grant row is planted; personal-private invariant holds. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-07",
+      "title": "Two same-tenant collaboration groups isolation",
+      "result": "PASS",
+      "summary": "Two same-tenant team Spaces (collaboration groups) stay isolated: each owner can read only their own team KB. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-08",
+      "title": "Eight independent action grants",
+      "result": "PASS",
+      "summary": "All eight official SPACE-C05 actions are granted and evaluated independently; revoking one action does not grant an unknown admin action. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-09",
+      "title": "Explicit Deny precedence",
+      "result": "PASS",
+      "summary": "Explicit Deny on a KB or asset wins over owner, member, and agent profile; hydration of a denied target returns only an unavailable placeholder. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-10",
+      "title": "Agent Space ceiling",
+      "result": "PASS",
+      "summary": "Agent allowed_space_ids is a hard ceiling: a user who can read another Space still cannot reach it through an agent that omits that Space. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-11",
+      "title": "KB fine-grained consumption scope",
+      "result": "PASS",
+      "summary": "Agent fine-grained allowed_kb_ids tightens consumption: a KB outside the profile is denied even when the Space ceiling would allow it. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-12",
+      "title": "Knowledge-file scope",
+      "result": "PASS",
+      "summary": "Knowledge-file scope is enforced via allowed_knowledge_file_ids; a file outside the list is denied. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-13",
+      "title": "Deliverable scope",
+      "result": "PASS",
+      "summary": "Deliverable scope is enforced via allowed_deliverable_ids together with a current-user grant; a user without the underlying read cannot ride the agent. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-14",
+      "title": "Folder scope",
+      "result": "PASS",
+      "summary": "Folder scope is enforced via allowed_folder_ids; a folder miss is denied. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-15",
+      "title": "Current User intersection and current profile",
+      "result": "PASS",
+      "summary": "Effective authorization is User \u2229 Agent \u2229 current profile generation; a stale profile generation or an unauthorized user fails closed. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-16",
+      "title": "Transactional revocation/outbox rollback",
+      "result": "PASS",
+      "summary": "Revoke + policy_generation bump + outbox insert commit atomically through the real store transaction; an injected failure rolls back grants, generation, and outbox together. Live PostgreSQL repeats this in CI. Not official final acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-17",
+      "title": "Current policy generation strictness/staleness",
+      "result": "PASS",
+      "summary": "Stale, non-integer, or out-of-range policy_generation values fail closed on the real Schema v7 engine. Not official final acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-18",
+      "title": "Future HTTP independent-version compatibility",
+      "result": "PASS",
+      "summary": "In-process HTTP surface keeps /v2/spaces frozen at 9940818b, serves a distinct /v7-core/spaces path, refuses silent v2 semantic changes, and refuses production /v3 mounts while EXPERIMENTAL_V3_ENABLED stays default false. Live signed /v2/spaces against a Schema v7 SQLite store runs when fastapi/uvicorn are available (CI unit-suite/pytest-suite). Not a formal HTTP compatibility gate.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-19",
+      "title": "Future Python candidate protocol compatibility",
+      "result": "PASS",
+      "summary": "Candidate Python protocol validators accept well-formed Space/KB/Favorite pointer payloads, reject parent_space_id and body-bearing favorites, and confirm frozen v21-reuse-v1 contract flags are unchanged. Not a formal independent Python client-compat gate.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-20",
+      "title": "Future MCP candidate policy compatibility",
+      "result": "PASS",
+      "summary": "Candidate MCP policy denies text-to-SQL / credential tools and any tool outside User \u2229 Agent. Official MCP tool_definitions expose only the four evidence tools. Not formal MCP acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-21",
+      "title": "External source missing assertion",
+      "result": "PASS",
+      "summary": "A materialized external asset with no provider assertion, or a missing assertion record, is denied on the real storage engine. Isolation-branch only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-22",
+      "title": "External expired assertion",
+      "result": "PASS",
+      "summary": "An expired external assertion (valid_until in the past) is denied even if a provider function returns a stale token. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-23",
+      "title": "External provider outage",
+      "result": "PASS",
+      "summary": "A provider function that raises is treated as an outage and denied; no stale-allow fallback. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-24",
+      "title": "External revocation/tombstone/cursor",
+      "result": "PASS",
+      "summary": "Revoked or tombstoned external refs are denied; a cursor mismatch fails closed; free text-to-SQL remains forbidden at the MCP policy layer. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-25",
+      "title": "Polymorphic favorite current-ACL hydration",
+      "result": "PASS",
+      "summary": "Polymorphic favorite hydration stores only user_id+target pointers, never body/chunk/embedding/evidence, and hides denied metadata behind unavailable. Real storage, not formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-26",
+      "title": "Future reviewed migration/rollback drill and security monotonicity",
+      "result": "PASS",
+      "summary": "Owned-nonproduction v6->v7 upgrade is idempotent; rollback is idempotent, returns schema_version 6, and does not restore grants; restore of principal, grants, policy_generation, or shares is refused (monotonic). Production migration remains unauthorized. PG candidate DDL FORCE RLS semantics validate; CI runs the live PostgreSQL path on a disposable schema. Not a reviewed production migration drill.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-27",
+      "title": "Personal-sharing/offboarding approval gating and full reviewed acceptance",
+      "result": "PASS",
+      "summary": "Resign freezes within 0s (SLA 60s), starts 90-day read-only isolation retention, invalidates controlled shares immediately, forbids private-body auto-inherit, and requires two independent approvers for work-product handover. Real storage state machine only; not full reviewed formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    }
+  ]
+}

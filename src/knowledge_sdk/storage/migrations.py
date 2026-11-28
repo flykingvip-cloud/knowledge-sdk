@@ -46,11 +46,14 @@ def status(conn):
     present = {r[0] for r in conn.execute("SELECT tablename FROM pg_tables WHERE schemaname=current_schema()")}
     version = conn.execute('SELECT COALESCE(MAX(version),0) FROM schema_migrations').fetchone()[0] if 'schema_migrations' in present else 0
     expected=set(TABLES)
-    if version==6:
+    if version in (6,7):
         from .migration_v6 import NEW_TABLES
         expected.update(NEW_TABLES)
         if not conn.execute("SELECT 1 FROM information_schema.columns WHERE table_schema=current_schema() AND table_name='document_versions' AND column_name='version_id'").fetchone():
             expected.add('document_versions.version_id')
+    if version==7:
+        from .migration_v7 import NEW_TABLES as V7_TABLES
+        expected.update(V7_TABLES)
     return {'version': version, 'missing_tables': sorted(expected-present)}
 
 
@@ -67,7 +70,7 @@ def main():
     try:
         if a.apply:apply(conn, not a.no_rls, a.pgvector)
         result=status(conn);print(json.dumps(result, sort_keys=True))
-        if a.check and (result['version'] not in (5,6) or result['missing_tables']):raise SystemExit(1)
+        if a.check and (result['version'] not in (5,6,7) or result['missing_tables']):raise SystemExit(1)
     finally:conn.close()
 
 if __name__=='__main__':main()

@@ -208,7 +208,7 @@ class PostgresStore(RuntimeStoreMixin):
     @tenant_method
     def put_version(self, v, chunks):
         from .migration_v6 import schema_version
-        if schema_version(self)==6:
+        if schema_version(self) in (6,7):
             import uuid
             self._execute('INSERT INTO document_versions(org_id,doc_id,version,data,version_id) VALUES(%s,%s,%s,%s,%s)', (self._tenant,v.doc_id,v.version,self._dump(v),uuid.uuid4().hex))
         else:
