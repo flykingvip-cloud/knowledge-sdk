@@ -366,9 +366,30 @@ class SchemaV7(object):
     def _tenant_from_args(self, query, args):
         if not args:
             return None
-        first = args[0]
-        if isinstance(first, str) and first:
-            return first
+        # Bind the value for a tenant_id placeholder. Never assume args[0]
+        # (UPDATE ... SET space_id=? WHERE tenant_id=? would otherwise
+        # FORCE-RLS-scope to the space id).
+        compact = ' '.join(query.split())
+        arg_i = 0
+        i = 0
+        while True:
+            j = compact.find('?', i)
+            if j < 0:
+                break
+            before = compact[:j].rstrip()
+            if before.endswith('tenant_id=') or before.endswith('tenant_id ='):
+                return args[arg_i]
+            i = j + 1
+            arg_i += 1
+        match = re.search(
+            r'INSERT(?:\s+OR\s+REPLACE)?\s+INTO\s+\w+\s*\(([^)]+)\)',
+            query,
+            re.I,
+        )
+        if match:
+            cols = [item.strip() for item in match.group(1).split(',')]
+            if 'tenant_id' in cols and cols.index('tenant_id') < len(args):
+                return args[cols.index('tenant_id')]
         return None
 
     @contextmanager
@@ -950,16 +971,15 @@ class SchemaV7(object):
     def resign(self, tenant_id, user_id):
         """Apply the official five PRE-04 rules in one fail-closed transaction."""
         self._require_syn(tenant_id, user_id)
-        try:
-            self.sql('BEGIN IMMEDIATE')
-            now = self._now
+        now = self._now
+        elapsed = 0
+        with self._tx_scope(tenant_id):
             self._set_principal_status(
                 tenant_id, user_id, 'frozen',
                 resigned_at=now,
                 frozen_at=now,
                 isolation_until=now + ISOLATION_RETENTION_SECONDS,
             )
-            elapsed = 0
             if elapsed > RESIGN_FREEZE_SLA_SECONDS:
                 raise SchemaV7Error('RESIGN_FREEZE_SLA_BREACH')
             # Controlled shares invalidated immediately.
@@ -987,10 +1007,6 @@ class SchemaV7(object):
                 'isolation_until': now + ISOLATION_RETENTION_SECONDS,
                 'shares_invalidated': True,
             })
-            self.sql('COMMIT')
-        except Exception:
-            self.sql('ROLLBACK')
-            raise
         return {
             'status': 'isolation_retention',
             'frozen_within_seconds': 0,
