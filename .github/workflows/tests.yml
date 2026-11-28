@@ -826,6 +826,8 @@ jobs:
         set -euo pipefail
         PYTHONPATH=src:. python -W error::ResourceWarning -m unittest discover -s sandbox/v21_reuse_v1 -p '*cases.py' -v 2>&1 | tee ${{ runner.temp }}/v21-ci-evidence/sandbox-unittest.log
         PYTHONPATH=src:. python -W error::ResourceWarning -m pytest sandbox/v21_reuse_v1/sandbox_cases.py sandbox/v21_reuse_v1/interop_cases.py sandbox/v21_reuse_v1/dry_run_cases.py -q 2>&1 | tee ${{ runner.temp }}/v21-ci-evidence/sandbox-pytest.log
+        PYTHONPATH=src:. python -W error::ResourceWarning -m unittest discover -s sandbox/v21_schema_v7 -p '*cases.py' -v 2>&1 | tee ${{ runner.temp }}/v21-ci-evidence/schema-v7-sandbox-unittest.log
+        PYTHONPATH=src:. python -W error::ResourceWarning -m pytest sandbox/v21_schema_v7/t01_t27_cases.py sandbox/v21_schema_v7/schema_v7_sandbox_cases.py -q 2>&1 | tee ${{ runner.temp }}/v21-ci-evidence/schema-v7-sandbox-pytest.log
     - name: Contract vectors, OpenAPI 3.1 structure, and strict TypeScript
       run: |
         set -euo pipefail

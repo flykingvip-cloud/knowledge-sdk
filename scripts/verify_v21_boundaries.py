@@ -32,6 +32,8 @@ ALLOWED_NEW_PREFIXES = (
     'docs/acceptance/v21-wave3/',
     'docs/acceptance/v21-wave4/',
     'docs/acceptance/v21-wave5/',
+    'docs/acceptance/v21-wave6/',
+    'sandbox/v21_schema_v7/',
 )
 # Pre-existing 9940818b knowledge-domain modules the scanner ignores.
 # These are authorized knowledge engines/tools on the Wave2 baseline, not new
@@ -196,7 +198,7 @@ def manifest():
 
 def python39_ast():
     count = 0
-    for path in list((ROOT / 'sandbox/v21_reuse_v1').glob('*.py')) + list((ROOT / 'contracts/v21-reuse-v1').glob('*.py')) + [ROOT / 'scripts/verify_v21_boundaries.py']:
+    for path in list((ROOT / 'sandbox/v21_reuse_v1').glob('*.py')) + list((ROOT / 'sandbox/v21_schema_v7').glob('*.py')) + list((ROOT / 'contracts/v21-reuse-v1').glob('*.py')) + [ROOT / 'scripts/verify_v21_boundaries.py']:
         ast.parse(path.read_text())
         count += 1
     return count

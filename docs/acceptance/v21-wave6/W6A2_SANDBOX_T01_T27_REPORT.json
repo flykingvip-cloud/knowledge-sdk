@@ -1,0 +1,206 @@
+{
+  "scope": "SANDBOX_DUAL_ENGINE_CANDIDATE",
+  "formal_t01_t27_accepted": false,
+  "formal_t01_t27": "NOT_RUN_NOT_ACCEPTED",
+  "wave": "Wave-V21-6",
+  "package": "sandbox/v21_schema_v7",
+  "schema_v7_prod_migration_authorized": false,
+  "schema_v7_ddl_authorized": false,
+  "engines": {
+    "sqlite_executable": true,
+    "postgres_live_connection": false,
+    "postgres_ddl_force_rls_semantic_validation": true
+  },
+  "case_count": 27,
+  "cases": [
+    {
+      "id": "T-01",
+      "title": "Explicit enterprise tenant and tenant boundary",
+      "result": "PASS",
+      "summary": "SQLite sandbox rejected cross-tenant Space/KB visibility and inserts; candidate PostgreSQL FORCE RLS DDL binds tenant_id to app.current_org_id on every sv7_* table. Not a live non-superuser PostgreSQL formal run.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-02",
+      "title": "Flat Tenant-Space-KB, no parent",
+      "result": "PASS",
+      "summary": "Phase-1 model is flat Tenant -> Space -> KnowledgeBase: no parent_space_id column, parent inserts are refused, and the PG DDL semantic checker rejects parent_space_id. Not formal tree-closure review.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-03",
+      "title": "Same-org composite KB binding",
+      "result": "PASS",
+      "summary": "One Space holds many KnowledgeBases; Space and KB share tenant_id; a cross-tenant or cross-space home rebind is refused. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-04",
+      "title": "Detach not archive and same-home reattach",
+      "result": "PASS",
+      "summary": "detach clears the mount and leaves archived=0; same-home reattach succeeds; attach to a different home fails; no implicit archive. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-05",
+      "title": "Employee personal owner boundary",
+      "result": "PASS",
+      "summary": "Employee personal space is readable only by the owner; another same-tenant user is denied at the Space Gate. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-06",
+      "title": "Enterprise admin no private-content shortcut",
+      "result": "PASS",
+      "summary": "Enterprise admin cannot read employee personal body/content even when an extra grant row is planted; personal-private invariant holds. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-07",
+      "title": "Two same-tenant collaboration groups isolation",
+      "result": "PASS",
+      "summary": "Two same-tenant team Spaces (collaboration groups) stay isolated: each owner can read only their own team KB. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-08",
+      "title": "Eight independent action grants",
+      "result": "PASS",
+      "summary": "All eight official SPACE-C05 actions are granted and evaluated independently; revoking one action does not grant an unknown admin action. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-09",
+      "title": "Explicit Deny precedence",
+      "result": "PASS",
+      "summary": "Explicit Deny on a KB or asset wins over owner, member, and agent profile; hydration of a denied target returns only an unavailable placeholder. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-10",
+      "title": "Agent Space ceiling",
+      "result": "PASS",
+      "summary": "Agent allowed_space_ids is a hard ceiling: a user who can read another Space still cannot reach it through an agent that omits that Space. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-11",
+      "title": "KB fine-grained consumption scope",
+      "result": "PASS",
+      "summary": "Agent fine-grained allowed_kb_ids tightens consumption: a KB outside the profile is denied even when the Space ceiling would allow it. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-12",
+      "title": "Knowledge-file scope",
+      "result": "PASS",
+      "summary": "Knowledge-file scope is enforced via allowed_knowledge_file_ids; a file outside the list is denied. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-13",
+      "title": "Deliverable scope",
+      "result": "PASS",
+      "summary": "Deliverable scope is enforced via allowed_deliverable_ids together with a current-user grant; a user without the underlying read cannot ride the agent. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-14",
+      "title": "Folder scope",
+      "result": "PASS",
+      "summary": "Folder scope is enforced via allowed_folder_ids; a folder miss is denied. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-15",
+      "title": "Current User intersection and current profile",
+      "result": "PASS",
+      "summary": "Effective authorization is User \u2229 Agent \u2229 current profile generation; a stale profile generation or an unauthorized user fails closed. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-16",
+      "title": "Transactional revocation/outbox rollback",
+      "result": "PASS",
+      "summary": "Revoke + policy_generation bump + outbox insert commit atomically; an injected failure rolls back grants, generation, and outbox together. Sandbox SQLite transaction only, not a formal PG outbox drill.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-17",
+      "title": "Current policy generation strictness/staleness",
+      "result": "PASS",
+      "summary": "Stale, non-integer, or out-of-range policy_generation values fail closed. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-18",
+      "title": "Future HTTP independent-version compatibility",
+      "result": "PASS",
+      "summary": "In-process HTTP surface keeps /v2/spaces frozen at 9940818b, serves a distinct /v7-sandbox/spaces path, refuses silent v2 semantic changes, and refuses production /v3 mounts while EXPERIMENTAL_V3_ENABLED stays default false. Not a formal HTTP compatibility suite.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-19",
+      "title": "Future Python candidate protocol compatibility",
+      "result": "PASS",
+      "summary": "Candidate Python protocol validators accept well-formed Space/KB/Favorite pointer payloads, reject parent_space_id and body-bearing favorites, and confirm frozen v21-reuse-v1 contract flags are unchanged. Not a formal independent Python client-compat gate.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-20",
+      "title": "Future MCP candidate policy compatibility",
+      "result": "PASS",
+      "summary": "Candidate MCP policy denies text-to-SQL / credential tools and any tool outside User \u2229 Agent, and publishes a fail-closed policy document. No live MCP server. Not formal MCP acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-21",
+      "title": "External source missing assertion",
+      "result": "PASS",
+      "summary": "A materialized external asset with no provider assertion, or a missing assertion record, is denied. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-22",
+      "title": "External expired assertion",
+      "result": "PASS",
+      "summary": "An expired external assertion (valid_until in the past) is denied even if a provider function returns a stale token. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-23",
+      "title": "External provider outage",
+      "result": "PASS",
+      "summary": "A provider function that raises is treated as an outage and denied; no stale-allow fallback. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-24",
+      "title": "External revocation/tombstone/cursor",
+      "result": "PASS",
+      "summary": "Revoked or tombstoned external refs are denied; a cursor mismatch fails closed; free text-to-SQL remains forbidden at the MCP policy layer. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-25",
+      "title": "Polymorphic favorite current-ACL hydration",
+      "result": "PASS",
+      "summary": "Polymorphic favorite hydration stores only user_id+target pointers, never body/chunk/embedding/evidence, and hides denied metadata behind unavailable. Sandbox only.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-26",
+      "title": "Future reviewed migration/rollback drill and security monotonicity",
+      "result": "PASS",
+      "summary": "Disposable SQLite migrate is idempotent; rollback is idempotent and drops grants; pointing migrate at a Schema v6 marker store is refused; restore of principal, grants, policy_generation, or shares is refused (monotonic). PG candidate DDL FORCE RLS semantics validate without a live connection. Not a reviewed production migration drill.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    },
+    {
+      "id": "T-27",
+      "title": "Personal-sharing/offboarding approval gating and full reviewed acceptance",
+      "result": "PASS",
+      "summary": "Resign freezes within 0s (SLA 60s), starts 90-day read-only isolation retention, invalidates controlled shares immediately, forbids private-body auto-inherit, and requires two independent approvers for work-product handover. Sandbox state machine only; not full reviewed formal acceptance.",
+      "formal_status": "NOT_RUN_NOT_ACCEPTED"
+    }
+  ]
+}
