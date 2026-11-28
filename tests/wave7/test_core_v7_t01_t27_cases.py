@@ -69,12 +69,19 @@ def _make_postgres_v7():
     from tests.pg_helpers import PgSandbox
     from knowledge_sdk.storage.postgres_store import PostgresStore
     sandbox = PgSandbox()
-    store = PostgresStore(sandbox.dsn, enable_rls=True)
-    upgrade_v6(store, owned_nonproduction=True)
-    upgrade_v7(store, owned_nonproduction=True)
-    engine = SchemaV7(store)
-    engine.seed_standard()
-    return sandbox, store, engine
+    store = None
+    try:
+        store = PostgresStore(sandbox.dsn, enable_rls=True)
+        upgrade_v6(store, owned_nonproduction=True)
+        upgrade_v7(store, owned_nonproduction=True)
+        engine = SchemaV7(store)
+        engine.seed_standard()
+        return sandbox, store, engine
+    except Exception:
+        if store is not None:
+            store.close()
+        sandbox.close()
+        raise
 
 
 class CoreV7SqliteT01T27Cases(unittest.TestCase):
@@ -686,6 +693,7 @@ class CoreV7LiveHttpV2AndMcpCases(unittest.TestCase):
         for user in ('owner', 'reader'):
             self.store.upsert_principal(IdentityPrincipal('enterprise-a', user, org_roles=('admin',) if user == 'owner' else (), clearance_level='internal'))
         self.owner = Actor('owner', 'enterprise-a', org_roles=('admin',), clearance_level='internal', policy_generation='1')
+        self.client.register_agent_profile(self.owner, 'bound-agent', allowed_kb_ids=('primary',), max_clearance_level='internal')
         self.client.create_kb(self.owner, 'primary', 'private', kb_id='primary', space_type='personal', owner_user_id='owner')
         upgrade_v6(self.store, owned_nonproduction=True)
         upgrade_v7(self.store, owned_nonproduction=True)

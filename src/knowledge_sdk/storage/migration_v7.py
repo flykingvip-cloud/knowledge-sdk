@@ -590,7 +590,9 @@ def _sqlite(store):
 
 def _postgres(store):
     for statement in _split_sql(postgres_v7_ddl(include_semantic_role=False)):
-        store._execute(statement)
+        # psycopg treats % as a placeholder. CHECK (col NOT LIKE '%@%') and
+        # similar LIKE patterns must be escaped when executed with no args.
+        store._execute(statement.replace('%', '%%'))
     previous = store._execute("SELECT current_setting('app.current_org_id',true)")[0][0] or ''
     store._execute("SELECT set_config('app.current_org_id',%s,true)", ('schema',))
     store._execute(
