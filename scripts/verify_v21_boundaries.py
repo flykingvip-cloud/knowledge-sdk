@@ -34,6 +34,7 @@ ALLOWED_NEW_PREFIXES = (
     'docs/acceptance/v21-wave5/',
     'docs/acceptance/v21-wave6/',
     'docs/acceptance/v21-wave7/',
+    'docs/acceptance/v21-wave8/',
     'sandbox/v21_schema_v7/',
     'tests/wave7/',
     'src/knowledge_sdk/storage/migration_v7.py',
