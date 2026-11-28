@@ -350,10 +350,17 @@ class SchemaV7(object):
             assignments = ','.join(
                 item + '=EXCLUDED.' + item for item in colnames if item not in conflict
             )
-            query = (
-                'INSERT INTO %s(%s) VALUES(%s) ON CONFLICT(%s) DO UPDATE SET %s'
-                % (table, cols, vals, ','.join(conflict), assignments)
-            )
+            conflict_sql = ','.join(conflict)
+            if assignments:
+                query = (
+                    'INSERT INTO %s(%s) VALUES(%s) ON CONFLICT(%s) DO UPDATE SET %s'
+                    % (table, cols, vals, conflict_sql, assignments)
+                )
+            else:
+                query = (
+                    'INSERT INTO %s(%s) VALUES(%s) ON CONFLICT(%s) DO NOTHING'
+                    % (table, cols, vals, conflict_sql)
+                )
         return query.replace('?', '%s')
 
     def _tenant_from_args(self, query, args):
